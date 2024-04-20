@@ -359,10 +359,11 @@ GameEvent.functions[GameEvent.CardEffect] = function(self)
         end
         logic:breakEvent()
       end
-    elseif cardEffectEvent.to and logic:trigger(event, room:getPlayerById(cardEffectEvent.to), cardEffectEvent) then
-      cardEffectEvent.nullifiedTargets = cardEffectEvent.nullifiedTargets or {}
-      table.insert(cardEffectEvent.nullifiedTargets, cardEffectEvent.to)
-
+    elseif logic:trigger(event, room:getPlayerById(cardEffectEvent.to), cardEffectEvent) then
+      if cardEffectEvent.to then
+        cardEffectEvent.nullifiedTargets = cardEffectEvent.nullifiedTargets or {}
+        table.insert(cardEffectEvent.nullifiedTargets, cardEffectEvent.to)
+      end
       logic:breakEvent()
     end
 
