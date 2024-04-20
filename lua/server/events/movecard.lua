@@ -183,8 +183,13 @@ GameEvent.functions[GameEvent.MoveCards] = function(self)
           end
         end
         if data.moveMark then
-          local mark = table.clone(data.moveMark) or {"", 0}
-          room:setCardMark(currentCard, mark[1], mark[2])
+          local mark = data.moveMark
+          if type(mark) == "string" then
+            room:setCardMark(currentCard, mark, 1)
+          elseif type(mark) == "table" then
+            mark = table.clone(data.moveMark) or {"", 0}
+            room:setCardMark(currentCard, mark[1], mark[2])
+          end
         end
         if
           data.toArea == Player.Equip and

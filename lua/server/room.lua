@@ -3151,7 +3151,7 @@ function Room:drawCards(player, num, skillName, fromPlace, moveMark)
     moveReason = fk.ReasonDraw,
     proposer = player.id,
     skillName = skillName,
-    moveMark = type(moveMark) == "string" and {moveMark, 1} or moveMark,
+    moveMark = moveMark,
   })
 
   return { table.unpack(topCards) }
@@ -3199,7 +3199,7 @@ function Room:moveCardTo(card, to_place, target, reason, skill_name, special_nam
         specialName = special_name,
         moveVisible = visible,
         proposer = proposer,
-        moveMark = type(moveMark) == "string" and {moveMark, 1} or moveMark,
+        moveMark = moveMark,
       })
     end
   end
