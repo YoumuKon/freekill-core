@@ -3126,8 +3126,9 @@ end
 ---@param num integer @ 摸牌数
 ---@param skillName? string @ 技能名
 ---@param fromPlace? string @ 摸牌的位置，"top" 或者 "bottom"
+---@param moveMark? table @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
-function Room:drawCards(player, num, skillName, fromPlace)
+function Room:drawCards(player, num, skillName, fromPlace, moveMark)
   local drawData = {
     who = player,
     num = num,
@@ -3150,6 +3151,7 @@ function Room:drawCards(player, num, skillName, fromPlace)
     moveReason = fk.ReasonDraw,
     proposer = player.id,
     skillName = skillName,
+    moveMark = moveMark,
   })
 
   return { table.unpack(topCards) }
@@ -3164,7 +3166,8 @@ end
 ---@param special_name? string @ 私人牌堆名
 ---@param visible? boolean @ 是否明置
 ---@param proposer? integer @ 移动操作者的id
-function Room:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer)
+---@param moveMark? table @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
+function Room:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer, moveMark)
   reason = reason or fk.ReasonJustMove
   skill_name = skill_name or ""
   special_name = special_name or ""
@@ -3196,6 +3199,7 @@ function Room:moveCardTo(card, to_place, target, reason, skill_name, special_nam
         specialName = special_name,
         moveVisible = visible,
         proposer = proposer,
+        moveMark = moveMark,
       })
     end
   end

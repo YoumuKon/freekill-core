@@ -581,9 +581,10 @@ end
 ---@param num integer @ 摸牌数
 ---@param skillName? string @ 技能名
 ---@param fromPlace? string @ 摸牌的位置，"top" 或者 "bottom"
+---@param moveMark? table @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
-function ServerPlayer:drawCards(num, skillName, fromPlace)
-  return self.room:drawCards(self, num, skillName, fromPlace)
+function ServerPlayer:drawCards(num, skillName, fromPlace, moveMark)
+  return self.room:drawCards(self, num, skillName, fromPlace, moveMark)
 end
 
 ---@param pile_name string
