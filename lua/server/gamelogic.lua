@@ -113,17 +113,13 @@ function GameLogic:chooseGenerals()
     generals = table.filter(generals, function(g) return not table.contains(lord_generals, g) end)
     room:returnToGeneralPile(generals)
 
-    room:setPlayerGeneral(lord, lord_general, true)
+    room:prepareGeneral(lord, lord_general, deputy, true)
+
     room:askForChooseKingdom({lord})
-    room:broadcastProperty(lord, "general")
-    room:broadcastProperty(lord, "kingdom")
-    room:setDeputyGeneral(lord, deputy)
-    room:broadcastProperty(lord, "deputyGeneral")
   end
 
   local nonlord = room:getOtherPlayers(lord, true)
-  local generals = room:getNGenerals(#nonlord * generalNum)
-  table.shuffle(generals)
+  local generals = table.random(room.general_pile, #nonlord * generalNum)
   for i, p in ipairs(nonlord) do
     local arg = table.slice(generals, (i - 1) * generalNum + 1, i * generalNum + 1)
     p.request_data = json.encode{ arg, n }
@@ -133,24 +129,21 @@ function GameLogic:chooseGenerals()
   room:notifyMoveFocus(nonlord, "AskForGeneral")
   room:doBroadcastRequest("AskForGeneral", nonlord)
 
-  local selected = {}
   for _, p in ipairs(nonlord) do
+    local general, deputy
     if p.general == "" and p.reply_ready then
       local general_ret = json.decode(p.client_reply)
-      local general = general_ret[1]
-      local deputy = general_ret[2]
-      table.insertTableIfNeed(selected, general_ret)
-      room:setPlayerGeneral(p, general, true, true)
-      room:setDeputyGeneral(p, deputy)
+      general = general_ret[1]
+      deputy = general_ret[2]
     else
-      room:setPlayerGeneral(p, p.default_reply[1], true, true)
-      room:setDeputyGeneral(p, p.default_reply[2])
+      general = p.default_reply[1]
+      deputy = p.default_reply[2]
     end
+    room:findGeneral(general)
+    room:findGeneral(deputy)
+    room:prepareGeneral(p, general, deputy)
     p.default_reply = ""
   end
-
-  generals = table.filter(generals, function(g) return not table.contains(selected, g) end)
-  room:returnToGeneralPile(generals)
 
   room:askForChooseKingdom(nonlord)
 end
@@ -178,14 +171,25 @@ function GameLogic:broadcastGeneral()
     p.shield = math.min(general.shield + (deputy and deputy.shield or 0), 5)
     -- TODO: setup AI here
 
-    if p.role ~= "lord" then
-      room:broadcastProperty(p, "general")
-      room:broadcastProperty(p, "kingdom")
-      room:broadcastProperty(p, "deputyGeneral")
-    elseif #players >= 5 then
-      p.maxHp = p.maxHp + 1
-      p.hp = p.hp + 1
+    local changer = Fk.game_modes[room.settings.gameMode]:getAdjustedProperty(p)
+    if changer then
+      for key, value in pairs(changer) do
+        p[key] = value
+      end
     end
+    local fixMaxHp = Fk.generals[p.general].fixMaxHp
+    local deputyFix = Fk.generals[p.deputyGeneral] and Fk.generals[p.deputyGeneral].fixMaxHp
+    if deputyFix then
+      fixMaxHp = fixMaxHp and math.min(fixMaxHp, deputyFix) or deputyFix
+    end
+    if fixMaxHp then
+      p.maxHp = fixMaxHp
+    end
+    p.hp = math.min(p.maxHp, p.hp)
+
+    room:broadcastProperty(p, "general")
+    room:broadcastProperty(p, "deputyGeneral")
+    room:broadcastProperty(p, "kingdom")
     room:broadcastProperty(p, "maxHp")
     room:broadcastProperty(p, "hp")
     room:broadcastProperty(p, "shield")

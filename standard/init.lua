@@ -1151,12 +1151,9 @@ local role_getlogic = function()
       end)
       room:returnToGeneralPile(generals)
 
-      room:setPlayerGeneral(lord, lord_general, true)
+      room:prepareGeneral(lord, lord_general, deputy, true)
+
       room:askForChooseKingdom({lord})
-      room:broadcastProperty(lord, "general")
-      room:broadcastProperty(lord, "kingdom")
-      room:setDeputyGeneral(lord, deputy)
-      room:broadcastProperty(lord, "deputyGeneral")
 
       -- 显示技能
       local canAttachSkill = function(player, skillName)
@@ -1210,8 +1207,7 @@ local role_getlogic = function()
     end
 
     local nonlord = room:getOtherPlayers(lord, true)
-    local generals = room:getNGenerals(#nonlord * generalNum)
-    table.shuffle(generals)
+    local generals = table.random(room.general_pile, #nonlord * generalNum)
     for i, p in ipairs(nonlord) do
       local arg = table.slice(generals, (i - 1) * generalNum + 1, i * generalNum + 1)
       p.request_data = json.encode{ arg, n }
@@ -1221,29 +1217,21 @@ local role_getlogic = function()
     room:notifyMoveFocus(nonlord, "AskForGeneral")
     room:doBroadcastRequest("AskForGeneral", nonlord)
 
-    local selected = {}
     for _, p in ipairs(nonlord) do
+      local general, deputy
       if p.general == "" and p.reply_ready then
         local general_ret = json.decode(p.client_reply)
-        local general = general_ret[1]
-        local deputy = general_ret[2]
-        table.insertTableIfNeed(selected, general_ret)
-        room:setPlayerGeneral(p, general, true, true)
-        room:setDeputyGeneral(p, deputy)
+        general = general_ret[1]
+        deputy = general_ret[2]
       else
-        table.insertTableIfNeed(selected, p.default_reply)
-        room:setPlayerGeneral(p, p.default_reply[1], true, true)
-        room:setDeputyGeneral(p, p.default_reply[2])
+        general = p.default_reply[1]
+        deputy = p.default_reply[2]
       end
+      room:findGeneral(general)
+      room:findGeneral(deputy)
+      room:prepareGeneral(p, general, deputy)
       p.default_reply = ""
     end
-
-    generals = table.filter(generals, function(g)
-      return not table.find(selected, function(lg)
-        return Fk.generals[lg].trueName == Fk.generals[g].trueName
-      end)
-    end)
-    room:returnToGeneralPile(generals)
 
     room:askForChooseKingdom(nonlord)
   end

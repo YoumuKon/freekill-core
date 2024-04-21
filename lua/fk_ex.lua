@@ -610,6 +610,10 @@ function fk.CreateGameMode(spec)
     assert(type(spec.is_counted) == "function")
     ret.countInFunc = spec.is_counted
   end
+  if spec.get_adjusted then
+    assert(type(spec.get_adjusted) == "function")
+    ret.getAdjustedProperty = spec.get_adjusted
+  end
   return ret
 end
 

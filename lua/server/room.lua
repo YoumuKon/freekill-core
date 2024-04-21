@@ -600,6 +600,41 @@ function Room:setDeputyGeneral(player, general)
   self:notifyProperty(player, player, "deputyGeneral")
 end
 
+---@param player ServerPlayer
+---@param general string
+---@param deputy string
+---@param broadcast boolean|nil
+function Room:prepareGeneral(player, general, deputy, broadcast)
+  self:findGeneral(general)
+  self:findGeneral(deputy)
+  local skills = Fk.generals[general]:getSkillNameList()
+  if Fk.generals[deputy] then
+    table.insertTable(skills, Fk.generals[deputy]:getSkillNameList())
+  end
+  if table.find(skills, function (s) return Fk.skills[s].isHiddenSkill end) then
+    self:setPlayerMark(player, "__hidden_general", general)
+    if Fk.generals[deputy] then
+      self:setPlayerMark(player, "__hidden_deputy", deputy)
+      deputy = ""
+    end
+    general = "hiddenone"
+  end
+  player.general = general
+  player.gender = Fk.generals[general].gender
+  self:broadcastProperty(player, "gender")
+  if Fk.generals[deputy] then
+    player.deputyGeneral = deputy
+  end
+  player.kingdom = Fk.generals[general].kingdom
+  for _, property in ipairs({"general","deputyGeneral","kingdom"}) do
+    if broadcast then
+      self:broadcastProperty(player, property)
+    else
+      self:notifyProperty(player, player, property)
+    end
+  end
+end
+
 ---@param player ServerPlayer @ 要换将的玩家
 ---@param new_general string @ 要变更的武将，若不存在则变身为孙策，孙策不存在变身为士兵
 ---@param full? boolean @ 是否血量满状态变身
