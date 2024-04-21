@@ -609,7 +609,8 @@ end
 --- 获取下家。
 ---@param ignoreRemoved? boolean @ 忽略被移除
 ---@param num? integer @ 第几个，默认1
----@return ServerPlayer
+---@param ignoreRest? boolean @ 是否忽略休整
+---@return Player
 function Player:getNextAlive(ignoreRemoved, num, ignoreRest)
   if #Fk:currentRoom().alive_players == 0 then
     return self.rest > 0 and self.next.rest > 0 and self.next or self
@@ -631,9 +632,9 @@ function Player:getNextAlive(ignoreRemoved, num, ignoreRest)
 end
 
 --- 获取上家。
----@param ignoreRemoved boolean @ 忽略被移除
+---@param ignoreRemoved? boolean @ 忽略被移除
 ---@param num? integer @ 第几个，默认1
----@return ServerPlayer
+---@return Player
 function Player:getLastAlive(ignoreRemoved, num)
   num = num or 1
   local index = (ignoreRemoved and #Fk:currentRoom().alive_players or #table.filter(Fk:currentRoom().alive_players, function(p) return not p:isRemoved() end)) - num
@@ -1019,9 +1020,11 @@ function Player:prohibitReveal(isDeputy)
   return false
 end
 
----@param to Player
----@param ignoreFromKong? boolean
----@param ignoreToKong? boolean
+--- 判断能否拼点
+---@param to Player @ 拼点对象
+---@param ignoreFromKong? boolean @ 忽略发起者没有手牌
+---@param ignoreToKong? boolean @ 忽略对象没有手牌
+---@return boolean
 function Player:canPindian(to, ignoreFromKong, ignoreToKong)
   if self == to then return false end
 
@@ -1073,6 +1076,10 @@ function Player:getSwitchSkillState(skillName, afterUse, inWord)
   end
 end
 
+--- 是否能移动特定牌至特定角色
+---@param to Player @ 移动至的角色
+---@param id integer @ 移动的牌
+---@return boolean
 function Player:canMoveCardInBoardTo(to, id)
   if self == to then
     return false
@@ -1094,6 +1101,11 @@ function Player:canMoveCardInBoardTo(to, id)
   end
 end
 
+--- 是否能移动特定牌至特定角色
+--- @param to Player @ 移动至的角色
+--- @param flag? string @ 移动的区域，`e`为装备区，`j`为判定区，`nil`为装备区和判定区
+--- @param excludeIds? integer[] @ 排除的牌
+---@return boolean
 function Player:canMoveCardsInBoardTo(to, flag, excludeIds)
   if self == to then
     return false
@@ -1120,6 +1132,9 @@ function Player:canMoveCardsInBoardTo(to, flag, excludeIds)
   return false
 end
 
+--- 获取使命技状态
+---@param skillName string
+---@return string? @ 存在返回`failed` or `succeed`，不存在返回`nil`
 function Player:getQuestSkillState(skillName)
   local questSkillState = self:getMark(MarkEnum.QuestSkillPreName .. skillName)
   return type(questSkillState) == "string" and questSkillState or nil

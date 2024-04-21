@@ -2434,6 +2434,7 @@ function Room:askForCustomDialog(player, focustxt, qmlPath, extra_data)
   })
 end
 
+--- 询问移动场上的一张牌
 ---@param player ServerPlayer @ 移动的操作
 ---@param targetOne ServerPlayer @ 移动的目标1玩家
 ---@param targetTwo ServerPlayer @ 移动的目标2玩家
