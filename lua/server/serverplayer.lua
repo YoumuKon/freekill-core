@@ -593,7 +593,7 @@ end
 ---@param skillName? string
 function ServerPlayer:addToPile(pile_name, card, visible, skillName)
   local room = self.room
-  room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible)
+  room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible, self.id)
 end
 
 function ServerPlayer:bury()
@@ -638,6 +638,7 @@ function ServerPlayer:clearPiles()
 end
 
 function ServerPlayer:addVirtualEquip(card)
+  self:removeVirtualEquip(card:getEffectiveId())
   Player.addVirtualEquip(self, card)
   self.room:doBroadcastNotify("AddVirtualEquip", json.encode{
     player = self.id,
@@ -648,10 +649,12 @@ end
 
 function ServerPlayer:removeVirtualEquip(cid)
   local ret = Player.removeVirtualEquip(self, cid)
-  self.room:doBroadcastNotify("RemoveVirtualEquip", json.encode{
-    player = self.id,
-    id = cid,
-  })
+  if ret then
+    self.room:doBroadcastNotify("RemoveVirtualEquip", json.encode{
+      player = self.id,
+      id = cid,
+    })
+  end
   return ret
 end
 

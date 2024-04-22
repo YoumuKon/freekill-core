@@ -948,20 +948,33 @@ function Room:notifyMoveCards(players, card_moves, forceVisible)
         end
       end
 
-      local function containArea(area, relevant) --处理区的处理？
+      local function containArea(area, relevant, defaultVisible) --处理区的处理？
         local areas = relevant
-          and {Card.PlayerEquip, Card.PlayerJudge, Card.DiscardPile, Card.Processing, Card.PlayerHand, Card.PlayerSpecial}
-          or {Card.PlayerEquip, Card.PlayerJudge, Card.DiscardPile, Card.Processing}
-        return table.contains(areas, area)
+          and {Card.PlayerEquip, Card.PlayerJudge, Card.PlayerHand, Card.PlayerSpecial}
+          or {Card.PlayerEquip, Card.PlayerJudge}
+        return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
       end
 
       -- forceVisible make the move visible
       -- if move is relevant to player's hands or equips, it should be open
         -- cards move from/to equip/judge/discard/processing should be open
 
-      if not (move.moveVisible or forceVisible or containArea(move.toArea, move.to and p.isBuddy and p:isBuddy(move.to))) then
+      local singleVisible = move.moveVisible or forceVisible
+      if move.visiblePlayers and not singleVisible then
+        local visiblePlayers = move.visiblePlayers
+        if type(visiblePlayers) == "number" then
+          if p:isBuddy(visiblePlayers) then
+            singleVisible = true
+          end
+        elseif type(visiblePlayers) == "table" then
+          if table.find(visiblePlayers, function(pid) return p:isBuddy(pid) end) then
+            singleVisible = true
+          end
+        end
+      end
+      if not (singleVisible or containArea(move.toArea, move.to and p:isBuddy(move.to), move.moveVisible == nil)) then
         for _, info in ipairs(move.moveInfo) do
-          if not containArea(info.fromArea, move.from and p.isBuddy and p:isBuddy(move.from)) then
+          if not containArea(info.fromArea, move.from and p:isBuddy(move.from), move.moveVisible == nil) then
             info.cardId = -1
           end
         end
@@ -2819,6 +2832,13 @@ function Room:doCardUseEffect(cardUseEvent)
       if not findSameCard then
         if cardUseEvent.card:isVirtual() then
           self:getPlayerById(target):addVirtualEquip(cardUseEvent.card)
+        elseif cardUseEvent.card.name ~= Fk:getCardById(cardUseEvent.card.id, true).name then
+          local card = Fk:cloneCard(cardUseEvent.card.name)
+          card.skillNames = cardUseEvent.card.skillNames
+          card:addSubcard(cardUseEvent.card.id)
+          self:getPlayerById(target):addVirtualEquip(card)
+        else
+          self:getPlayerById(target):removeVirtualEquip(cardUseEvent.card.id)
         end
 
         self:moveCards({
@@ -3203,7 +3223,8 @@ end
 ---@param visible? boolean @ 是否明置
 ---@param proposer? integer @ 移动操作者的id
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
-function Room:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer, moveMark)
+---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+function Room:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer, moveMark, visiblePlayers)
   reason = reason or fk.ReasonJustMove
   skill_name = skill_name or ""
   special_name = special_name or ""
@@ -3236,6 +3257,7 @@ function Room:moveCardTo(card, to_place, target, reason, skill_name, special_nam
         moveVisible = visible,
         proposer = proposer,
         moveMark = moveMark,
+        visiblePlayers = visiblePlayers,
       })
     end
   end

@@ -273,7 +273,8 @@ local yiji = fk.CreateTriggerSkill{
         for _, id in ipairs(ret.cards) do
           table.removeOne(ids, id)
         end
-        room:moveCardTo(ret.cards, Card.PlayerHand, room:getPlayerById(ret.targets[1]), fk.ReasonGive, self.name, nil, false, player.id)
+        room:moveCardTo(ret.cards, Card.PlayerHand, room:getPlayerById(ret.targets[1]), fk.ReasonGive,
+        self.name, nil, false, player.id, nil, player.id)
         if #ids == 0 then break end
         if player.dead then
           room:moveCards({

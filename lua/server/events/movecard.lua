@@ -57,6 +57,7 @@ GameEvent.functions[GameEvent.MoveCards] = function(self)
           specialVisible = cardsMoveInfo.specialVisible,
           drawPilePosition = cardsMoveInfo.drawPilePosition,
           moveMark = cardsMoveInfo.moveMark,
+          visiblePlayers = cardsMoveInfo.visiblePlayers,
         }
 
         table.insert(cardsMoveStructs, cardsMoveStruct)
@@ -69,10 +70,11 @@ GameEvent.functions[GameEvent.MoveCards] = function(self)
           from = cardsMoveInfo.from,
           toArea = Card.DiscardPile,
           moveReason = fk.ReasonPutIntoDiscardPile,
-          specialName = cardsMoveInfo.specialName,
-          specialVisible = cardsMoveInfo.specialVisible,
-          drawPilePosition = cardsMoveInfo.drawPilePosition,
-          moveMark = cardsMoveInfo.moveMark,
+          moveVisible = true,
+          --specialName = cardsMoveInfo.specialName,
+          --specialVisible = cardsMoveInfo.specialVisible,
+          --drawPilePosition = cardsMoveInfo.drawPilePosition,
+          --moveMark = cardsMoveInfo.moveMark,
         }
 
         table.insert(cardsMoveStructs, cardsMoveStruct)
