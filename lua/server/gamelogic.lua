@@ -431,22 +431,17 @@ function GameLogic:start()
   local co = coroutine.create(root_event.main_func)
   root_event._co = co
 
-  local jump_to -- shutdown函数用
-
   while true do
     -- 对于cleaner和正常事件，处理更后面来的
     local ne = self:getCurrentEvent()
     local ce = self:getCurrentCleaner()
     local e = ce and (ce.id >= ne.id and ce or ne) or ne
 
-    -- 如果正在jump的话，判断是否需要继续clean，否则正常继续
-    if e == ne and jump_to ~= nil then
+    if e == ne and e.killed then
       e.interrupted = true
-      e.killed = e ~= jump_to
       self:clearEvent(e)
       coroutine.close(e._co)
       e.status = "dead"
-      if e == jump_to then jump_to = nil end -- shutdown结束了
       e = self:getCurrentCleaner()
     end
 
@@ -471,11 +466,12 @@ function GameLogic:start()
       coroutine.close(e._co)
       e.status = "dead"
     elseif ret == true then
-      -- 跳到越早发生的事件越好
-      if not jump_to then
-        jump_to = evt
-      else
-        jump_to = jump_to.id < evt.id and jump_to or evt
+      -- 遍历栈，将shutdown图中的事件全标记上killed
+      -- 被标记killed的事件之后会自动结束并清理
+      for i = self.game_event_stack.p, 1, -1 do
+        local event = self.game_event_stack.t[i]
+        event.killed = true
+        if event == evt then break end
       end
     end
   end
