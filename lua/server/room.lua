@@ -3742,6 +3742,7 @@ function Room:gameOver(winner)
     self:broadcastProperty(p, "role")
   end
   self:doBroadcastNotify("GameOver", winner)
+  fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
 
   if shouldUpdateWinRate(self) then
     for _, p in ipairs(self.players) do

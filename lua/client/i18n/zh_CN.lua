@@ -322,6 +322,9 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["Back To Lobby"] = "返回大厅",
   ["Save Replay"] = "保存录像",
 
+  ["$AddObserver"] = '玩家 <b>%s</b> 开始旁观',
+  ["$RemoveObserver"] = '旁观者 <b>%s</b> 离开了房间',
+
   ["Speed Resume"] = "匀速",
   ["Speed Up"] = "加速",
   ["Speed Down"] = "减速",

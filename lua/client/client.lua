@@ -342,6 +342,7 @@ fk.client_callback["AddObserver"] = function(data)
   }
   local p = ClientPlayer:new(player)
   table.insert(ClientInstance.observers, p)
+  -- ClientInstance:notifyUI("ServerMessage", string.format(Fk:translate("$AddObserver"), name))
 end
 
 fk.client_callback["RemoveObserver"] = function(data)
@@ -349,6 +350,7 @@ fk.client_callback["RemoveObserver"] = function(data)
   for _, p in ipairs(ClientInstance.observers) do
     if p.player:getId() == id then
       table.removeOne(ClientInstance.observers, p)
+      -- ClientInstance:notifyUI("ServerMessage", string.format(Fk:translate("$RemoveObserver"), p.player:getScreenName()))
       break
     end
   end

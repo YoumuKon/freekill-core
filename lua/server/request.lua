@@ -2,8 +2,12 @@
 
 local function tellRoomToObserver(self, player)
   local observee = self.players[1]
+  local start_time = os.getms()
   local summary = self:getSummary(observee, true)
   player:doNotify("Observe", json.encode(summary))
+
+  fk.qInfo(string.format("[Observe] %d, %s, in %.3fms",
+    self.id, player:getScreenName(), (os.getms() - start_time) / 1000))
 
   table.insert(self.observers, {observee.id, player, player:getId()})
 end
@@ -12,12 +16,12 @@ local function addObserver(self, id)
   local all_observers = self.room:getObservers()
   for _, p in fk.qlist(all_observers) do
     if p:getId() == id then
-      tellRoomToObserver(self, p)
       self:doBroadcastNotify("AddObserver", json.encode{
         p:getId(),
         p:getScreenName(),
         p:getAvatar()
       })
+      tellRoomToObserver(self, p)
       break
     end
   end

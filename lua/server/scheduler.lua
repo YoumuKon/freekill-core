@@ -1,6 +1,7 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
 local Room = require "server.room"
+local Request = require "server.request"
 
 --[[
 local verbose = function(...)
@@ -17,7 +18,7 @@ local runningRooms = {}
 local readyRooms = {}
 
 local requestCo = coroutine.create(function(room)
-  require "server.request"(room)
+  Request(room)
 end)
 
 -- 仿照Room接口编写的request协程处理器
