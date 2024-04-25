@@ -155,6 +155,16 @@ local function _waitForReply(player, timeout)
   end
 end
 
+--- 发送一句聊天
+---@param msg string
+function ServerPlayer:chat(msg)
+  self.room:doBroadcastNotify("Chat", json.encode {
+    type = 2,
+    sender = self.id,
+    msg = msg,
+  })
+end
+
 --- Wait for at most *timeout* seconds for reply from client.
 ---
 --- If *timeout* is negative or **nil**, the function will wait forever until get reply.
