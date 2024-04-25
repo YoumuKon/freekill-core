@@ -137,9 +137,11 @@ function Client:moveCards(moves)
         pcardMax = self:getPlayerById(move.to):getMaxCards(),
         id = move.to,
       })
-      if (not Self:isBuddy(self:getPlayerById(move.to)) and move.toArea == Card.PlayerHand) or table.contains(ids, -1) then
-        ids = table.map(ids, function() return -1 end)
+      if (move.toArea == Card.PlayerHand and not Self:isBuddy(self:getPlayerById(move.to))) or
+      (move.toArea == Card.PlayerSpecial and not move.moveVisible) then
+        ids = {-1}
       end
+
       self:getPlayerById(move.to):addCards(move.toArea, ids, move.specialName)
     elseif move.toArea == Card.DiscardPile then
       table.insert(self.discard_pile, move.ids[1])
@@ -474,7 +476,32 @@ end
 ---@param moves CardsMoveStruct[]
 local function separateMoves(moves)
   local ret = {}  ---@type CardsMoveInfo[]
+
+  local function containArea(area, relevant, defaultVisible) --处理区的处理？
+    local areas = relevant
+      and {Card.PlayerEquip, Card.PlayerJudge, Card.PlayerHand}
+      or {Card.PlayerEquip, Card.PlayerJudge}
+    return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
+  end
+
   for _, move in ipairs(moves) do
+    local singleVisible = move.moveVisible
+    if move.visiblePlayers and not singleVisible then
+      local visiblePlayers = move.visiblePlayers
+      if type(visiblePlayers) == "number" then
+        if Self:isBuddy(visiblePlayers) then
+          singleVisible = true
+        end
+      elseif type(visiblePlayers) == "table" then
+        if table.find(visiblePlayers, function(pid) return Self:isBuddy(pid) end) then
+          singleVisible = true
+        end
+      end
+    end
+    if not singleVisible then
+      singleVisible = containArea(move.toArea, move.to and Self:isBuddy(move.to), move.moveVisible == nil)
+    end
+
     for _, info in ipairs(move.moveInfo) do
       table.insert(ret, {
         ids = {info.cardId},
@@ -486,6 +513,7 @@ local function separateMoves(moves)
         specialName = move.specialName,
         fromSpecialName = info.fromSpecialName,
         proposer = move.proposer,
+        moveVisible = singleVisible or containArea(info.fromArea, move.from and Self:isBuddy(move.from), move.moveVisible == nil)
       })
     end
   end
@@ -513,7 +541,7 @@ local function mergeMoves(moves)
         proposer = move.proposer,
       }
     end
-    table.insert(temp[info].ids, move.ids[1])
+    table.insert(temp[info].ids, move.moveVisible and move.ids[1] or -1)
   end
   for _, v in pairs(temp) do
     table.insert(ret, v)

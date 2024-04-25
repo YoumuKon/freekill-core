@@ -260,13 +260,7 @@ function Player:removeCards(playerArea, cardIds, specialName)
       if #fromAreaIds == 0 then
         break
       end
-
-      if table.contains(fromAreaIds, id) then
-        table.removeOne(fromAreaIds, id)
-      -- FIXME: 为客户端移动id为-1的牌考虑，但总感觉有地方需要商讨啊！
-      elseif table.every(fromAreaIds, function(e) return e == -1 end) then
-        table.remove(fromAreaIds, 1)
-      elseif id == -1 then
+      if not table.removeOne(fromAreaIds, id) and not table.removeOne(fromAreaIds, -1) then
         table.remove(fromAreaIds, 1)
       end
     end

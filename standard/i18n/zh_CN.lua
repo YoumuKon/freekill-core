@@ -246,7 +246,7 @@ Fk:loadTranslationTable{
   ["$lianying1"] = "牌不是万能的，但是没牌是万万不能的。",
   ["$lianying2"] = "旧的不去，新的不来。",
   ["lianying"] = "连营",
-  [":lianying"] = "当你失去最后的手牌后，你可以摸一张牌。",
+  [":lianying"] = "当你失去手牌后，若你没有手牌，你可以摸一张牌。",
 
   ["sunshangxiang"] = "孙尚香",
   ["#sunshangxiang"] = "弓腰姬",

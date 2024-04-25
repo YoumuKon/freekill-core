@@ -948,37 +948,6 @@ function Room:notifyMoveCards(players, card_moves, forceVisible)
         end
       end
 
-      local function containArea(area, relevant, defaultVisible) --处理区的处理？
-        local areas = relevant
-          and {Card.PlayerEquip, Card.PlayerJudge, Card.PlayerHand, Card.PlayerSpecial}
-          or {Card.PlayerEquip, Card.PlayerJudge}
-        return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
-      end
-
-      -- forceVisible make the move visible
-      -- if move is relevant to player's hands or equips, it should be open
-        -- cards move from/to equip/judge/discard/processing should be open
-
-      local singleVisible = move.moveVisible or forceVisible
-      if move.visiblePlayers and not singleVisible then
-        local visiblePlayers = move.visiblePlayers
-        if type(visiblePlayers) == "number" then
-          if p:isBuddy(visiblePlayers) then
-            singleVisible = true
-          end
-        elseif type(visiblePlayers) == "table" then
-          if table.find(visiblePlayers, function(pid) return p:isBuddy(pid) end) then
-            singleVisible = true
-          end
-        end
-      end
-      if not (singleVisible or containArea(move.toArea, move.to and p:isBuddy(move.to), move.moveVisible == nil)) then
-        for _, info in ipairs(move.moveInfo) do
-          if not containArea(info.fromArea, move.from and p:isBuddy(move.from), move.moveVisible == nil) then
-            info.cardId = -1
-          end
-        end
-      end
     end
     p:doNotify("MoveCards", json.encode(arg))
   end
@@ -3147,34 +3116,18 @@ end
 
 --- 让一名玩家获得一张牌
 ---@param player integer|ServerPlayer @ 要拿牌的玩家
----@param cid integer|Card|integer[] @ 要拿到的卡牌
+---@param card integer|integer[]|Card|Card[] @ 要拿到的卡牌
 ---@param unhide? boolean @ 是否明着拿
 ---@param reason? CardMoveReason @ 卡牌移动的原因
 ---@param proposer? integer @ 移动操作者的id
-function Room:obtainCard(player, cid, unhide, reason, proposer)
-  if type(cid) ~= "number" then
-    assert(cid and type(cid) == "table")
-    if cid[1] == nil then
-      cid = cid:isVirtual() and cid.subcards or {cid.id}
-    end
-  else
-    cid = {cid}
+---@param skill_name? string @ 技能名
+---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
+---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+function Room:obtainCard(player, card, unhide, reason, proposer, skill_name, moveMark, visiblePlayers)
+  if type(player) == "number" then
+    player = self:getPlayerById(player)
   end
-  if #cid == 0 then return end
-
-  if type(player) == "table" then
-    player = player.id
-  end
-
-  self:moveCards({
-    ids = cid,
-    from = self.owner_map[cid[1]],
-    to = player,
-    toArea = Card.PlayerHand,
-    moveReason = reason or fk.ReasonJustMove,
-    proposer = proposer or player,
-    moveVisible = unhide or false,
-  })
+  self:moveCardTo(card, Card.PlayerHand, player, reason, skill_name, nil, unhide, proposer or player.id, moveMark, visiblePlayers)
 end
 
 --- 让玩家摸牌

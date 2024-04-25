@@ -588,12 +588,14 @@ function ServerPlayer:drawCards(num, skillName, fromPlace, moveMark)
 end
 
 ---@param pile_name string
----@param card integer|Card
+---@param card integer | integer[] | Card | Card[]
 ---@param visible? boolean
 ---@param skillName? string
-function ServerPlayer:addToPile(pile_name, card, visible, skillName)
-  local room = self.room
-  room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible, self.id)
+---@param proposer? integer
+---@param visiblePlayers? integer | integer[]
+function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, visiblePlayers)
+  self.room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible,
+  proposer or self.id, nil, visiblePlayers or self.id)
 end
 
 function ServerPlayer:bury()
