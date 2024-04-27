@@ -1155,7 +1155,7 @@ local function loadPlayerSummary(pdata)
       to = id,
       toArea = Card.PlayerSpecial,
       specialName = k,
-      specialVisible = Self.id == id,
+      moveVisible = true,
     }
     table.insert(card_moves, move)
   end

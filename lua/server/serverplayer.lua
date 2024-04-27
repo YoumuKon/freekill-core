@@ -604,8 +604,13 @@ end
 ---@param proposer? integer
 ---@param visiblePlayers? integer | integer[]
 function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, visiblePlayers)
+  if type(visiblePlayers) == "table" and #visiblePlayers == 0 then
+    visiblePlayers = nil
+  elseif visiblePlayers == nil then
+    visiblePlayers = self.id
+  end
   self.room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible,
-  proposer or self.id, nil, visiblePlayers or self.id)
+  proposer or self.id, nil, visiblePlayers)
 end
 
 function ServerPlayer:bury()
