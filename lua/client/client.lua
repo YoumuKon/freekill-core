@@ -9,6 +9,7 @@
 ---@field public discard_pile integer[] @ 弃牌堆
 ---@field public observing boolean
 ---@field public record any
+---@field public last_update_ui integer @ 上次刷新状态技UI的时间，os.time
 Client = AbstractRoom:subclass('Client')
 
 -- load client classes
@@ -39,6 +40,21 @@ function Client:initialize()
   self.client.callback = function(_self, command, jsonData, isRequest)
     if self.recording then
       table.insert(self.record, {math.floor(os.getms() / 1000), isRequest, command, jsonData})
+      if os.time() > self.last_update_ui then
+        self.last_update_ui = os.time()
+        -- TODO: create a function
+        -- 刷所有人手牌上限
+        for _, p in ipairs(self.alive_players) do
+          self:notifyUI("MaxCard", {
+            pcardMax = p:getMaxCards(),
+            id = p.id,
+          })
+        end
+        -- 刷自己的手牌
+        for _, cid in ipairs(Self:getCardIds("h")) do
+          self:notifyUI("UpdateCard", cid)
+        end
+      end
     end
 
     local cb = fk.client_callback[command]
@@ -72,6 +88,7 @@ function Client:initialize()
 
   self.disabled_packs = {}
   self.disabled_generals = {}
+  self.last_update_ui = os.time()
 
   self.recording = false
 end
@@ -114,10 +131,6 @@ function Client:moveCards(moves)
   for _, move in ipairs(moves) do
     if move.from and move.fromArea then
       local from = self:getPlayerById(move.from)
-      self:notifyUI("MaxCard", {
-        pcardMax = from:getMaxCards(),
-        id = move.from,
-      })
       if move.fromArea == Card.PlayerHand and not Self:isBuddy(self:getPlayerById(move.from)) then
         for _ = 1, #move.ids do
           table.remove(from.player_cards[Player.Hand])
@@ -133,10 +146,6 @@ function Client:moveCards(moves)
 
     if move.to and move.toArea then
       local ids = move.ids
-      self:notifyUI("MaxCard", {
-        pcardMax = self:getPlayerById(move.to):getMaxCards(),
-        id = move.to,
-      })
       if (move.toArea == Card.PlayerHand and not Self:isBuddy(self:getPlayerById(move.to))) or
       (move.toArea == Card.PlayerSpecial and not move.moveVisible) then
         ids = {-1}
@@ -391,10 +400,6 @@ fk.client_callback["PropertyUpdate"] = function(data)
   end
 
   ClientInstance:notifyUI("PropertyUpdate", data)
-  ClientInstance:notifyUI("MaxCard", {
-    pcardMax = ClientInstance:getPlayerById(id):getMaxCards(),
-    id = id,
-  })
 end
 
 fk.client_callback["AskForCardChosen"] = function(data)
