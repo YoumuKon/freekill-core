@@ -9,7 +9,7 @@
 ---@field public discard_pile integer[] @ 弃牌堆
 ---@field public observing boolean
 ---@field public record any
----@field public last_update_ui integer @ 上次刷新状态技UI的时间，os.time
+---@field public last_update_ui integer @ 上次刷新状态技UI的时间
 Client = AbstractRoom:subclass('Client')
 
 -- load client classes
@@ -40,21 +40,6 @@ function Client:initialize()
   self.client.callback = function(_self, command, jsonData, isRequest)
     if self.recording then
       table.insert(self.record, {math.floor(os.getms() / 1000), isRequest, command, jsonData})
-      if os.time() > self.last_update_ui then
-        self.last_update_ui = os.time()
-        -- TODO: create a function
-        -- 刷所有人手牌上限
-        for _, p in ipairs(self.alive_players) do
-          self:notifyUI("MaxCard", {
-            pcardMax = p:getMaxCards(),
-            id = p.id,
-          })
-        end
-        -- 刷自己的手牌
-        for _, cid in ipairs(Self:getCardIds("h")) do
-          self:notifyUI("UpdateCard", cid)
-        end
-      end
     end
 
     local cb = fk.client_callback[command]
@@ -81,6 +66,23 @@ function Client:initialize()
     else
       self:notifyUI(command, data)
     end
+
+    if self.recording and command == "GameLog" then
+      --and os.getms() - self.last_update_ui > 60000 then
+      -- self.last_update_ui = os.getms()
+      -- TODO: create a function
+      -- 刷所有人手牌上限
+      for _, p in ipairs(self.alive_players) do
+        self:notifyUI("MaxCard", {
+          pcardMax = p:getMaxCards(),
+          id = p.id,
+        })
+      end
+      -- 刷自己的手牌
+      for _, cid in ipairs(Self:getCardIds("h")) do
+        self:notifyUI("UpdateCard", cid)
+      end
+    end
   end
 
   self.discard_pile = {}
@@ -88,7 +90,7 @@ function Client:initialize()
 
   self.disabled_packs = {}
   self.disabled_generals = {}
-  self.last_update_ui = os.time()
+  -- self.last_update_ui = os.getms()
 
   self.recording = false
 end
@@ -1064,7 +1066,7 @@ end
 
 fk.client_callback["EnterLobby"] = function(jsonData)
   local c = ClientInstance
-  --[[
+  ---[[
   if c.recording and not c.observing then
     c.recording = false
     c.record[2] = table.concat({
