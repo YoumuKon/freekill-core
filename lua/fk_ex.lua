@@ -335,12 +335,14 @@ end
 ---@field public correct_func? fun(self: AttackRangeSkill, from: Player, to: Player): number?
 ---@field public fixed_func? fun(self: AttackRangeSkill, player: Player): number?
 ---@field public within_func? fun(self: AttackRangeSkill, from: Player, to: Player): boolean?
+---@field public without_func? fun(self: AttackRangeSkill, from: Player, to: Player): boolean?
 
 ---@param spec AttackRangeSpec
 ---@return AttackRangeSkill
 function fk.CreateAttackRangeSkill(spec)
   assert(type(spec.name) == "string")
-  assert(type(spec.correct_func) == "function" or type(spec.fixed_func) == "function" or type(spec.within_func) == "function")
+  assert(type(spec.correct_func) == "function" or type(spec.fixed_func) == "function" or
+    type(spec.within_func) == "function" or type(spec.without_func) == "function")
 
   local skill = AttackRangeSkill:new(spec.name)
   readStatusSpecToSkill(skill, spec)
@@ -352,6 +354,9 @@ function fk.CreateAttackRangeSkill(spec)
   end
   if spec.within_func then
     skill.withinAttackRange = spec.within_func
+  end
+  if spec.without_func then
+    skill.withoutAttackRange = spec.without_func
   end
 
   return skill

@@ -435,6 +435,8 @@ Fk:loadTranslationTable{
   ["$DiscardCards"] = "%from 弃置了 %arg 张牌 %card",
   ["$DiscardOther"] = "%to 弃置了 %from 的 %arg 张牌 %card",
   ["$PutToDiscard"] = "%arg 张牌 %card 被置入弃牌堆",
+  ["$ViewCardFromDrawPile"] = "%from 观看了 %arg 张牌",
+  ["$TurnOverCardFromDrawPile"] = "%from 亮出了 %arg 张牌 %card",
 
   ["#AbortArea"] = "%from 的 %arg 被废除",
   ["#ResumeArea"] = "%from 的 %arg 被恢复",
@@ -510,6 +512,7 @@ Fk:loadTranslationTable{
 Fk:loadTranslationTable{
   ["$$DiscardCards"] = "%from弃置",
   ["$$PutCard"] = "%from置于",
+  ["$$TurnOverCard"] = "%from亮出",
 
   ["##UseCard"] = "%from使用",
   ["##UseCardTo"] = "%from对%to",

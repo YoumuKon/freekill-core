@@ -495,14 +495,20 @@ local function separateMoves(moves)
 
   for _, move in ipairs(moves) do
     local singleVisible = move.moveVisible
-    if move.visiblePlayers and not singleVisible then
-      local visiblePlayers = move.visiblePlayers
-      if type(visiblePlayers) == "number" then
-        if Self:isBuddy(visiblePlayers) then
-          singleVisible = true
+    if not singleVisible then
+      if move.visiblePlayers then
+        local visiblePlayers = move.visiblePlayers
+        if type(visiblePlayers) == "number" then
+          if Self:isBuddy(visiblePlayers) then
+            singleVisible = true
+          end
+        elseif type(visiblePlayers) == "table" then
+          if table.find(visiblePlayers, function(pid) return Self:isBuddy(pid) end) then
+            singleVisible = true
+          end
         end
-      elseif type(visiblePlayers) == "table" then
-        if table.find(visiblePlayers, function(pid) return Self:isBuddy(pid) end) then
+      else
+        if move.to and move.toArea == Card.PlayerSpecial and Self:isBuddy(move.to) then
           singleVisible = true
         end
       end
@@ -646,8 +652,27 @@ local function sendMoveCardLog(move)
       from = move.from,
       card = move.ids,
     }
-  -- elseif move.toArea == Card.Processing then
-    -- nop
+  elseif move.toArea == Card.Processing then
+    if move.fromArea == Card.DrawPile and (move.moveReason == fk.ReasonPut or move.moveReason == fk.ReasonJustMove) then
+      if hidden then
+        client:appendLog{
+          type = "$ViewCardFromDrawPile",
+          from = move.proposer,
+          arg = #move.ids,
+        }
+      else
+        client:appendLog{
+          type = "$TurnOverCardFromDrawPile",
+          from = move.proposer,
+          card = move.ids,
+          arg = #move.ids,
+        }
+        client:setCardNote(move.ids, {
+          type = "$$TurnOverCard",
+          from = move.proposer,
+        })
+      end
+    end
   elseif move.from and move.toArea == Card.DrawPile then
     msgtype = hidden and "$PutCard" or "$PutKnownCard"
     client:appendLog{

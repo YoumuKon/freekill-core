@@ -622,6 +622,7 @@ local amazingGraceSkill = fk.CreateActiveSkill{
         ids = toDisplay,
         toArea = Card.Processing,
         moveReason = fk.ReasonPut,
+        proposer = use.from,
       })
 
       table.forEach(room.players, function(p)
@@ -816,10 +817,16 @@ local crossbowAudio = fk.CreateTriggerSkill{
 local crossbowSkill = fk.CreateTargetModSkill{
   name = "#crossbow_skill",
   attached_equip = "crossbow",
-  bypass_times = function(self, player, skill, scope)
-    if player:hasSkill(self) and skill.trueName == "slash_skill"
-      and scope == Player.HistoryPhase then
-      return true
+  bypass_times = function(self, player, skill, scope, card)
+    if player:hasSkill(self) and skill.trueName == "slash_skill" and scope == Player.HistoryPhase then
+      --FIXME: 无法检测到非转化的cost选牌的情况，如活墨等
+      local cardIds = Card:getIdList(card)
+      local crossbows = table.filter(player:getEquipments(Card.SubtypeWeapon), function(id)
+        return Fk:getCardById(id).equip_skill == self
+      end)
+      return #crossbows == 0 or not table.every(crossbows, function(id)
+        return table.contains(cardIds, id)
+      end)
     end
   end,
 }

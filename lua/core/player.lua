@@ -591,6 +591,11 @@ function Player:inMyAttackRange(other, fixLimit)
 
   local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable
   for _, skill in ipairs(status_skills) do
+    if skill:withoutAttackRange(self, other) then
+      return false
+    end
+  end
+  for _, skill in ipairs(status_skills) do
     if skill:withinAttackRange(self, other) then
       return true
     end

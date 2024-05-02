@@ -13,11 +13,7 @@ local jianxiong = fk.CreateTriggerSkill{
   anim_type = "masochism",
   events = {fk.Damaged},
   can_trigger = function(self, event, target, player, data)
-    if target == player and player:hasSkill(self) and data.card then
-      local room = player.room
-      local subcards = data.card:isVirtual() and data.card.subcards or {data.card.id}
-      return #subcards>0 and table.every(subcards, function(id) return room:getCardArea(id) == Card.Processing end)
-    end
+    return target == player and player:hasSkill(self) and data.card and player.room:getCardArea(data.card) == Card.Processing
   end,
   on_use = function(self, event, target, player, data)
     player.room:obtainCard(player.id, data.card, true, fk.ReasonJustMove)
@@ -157,11 +153,11 @@ local tuxi = fk.CreateTriggerSkill{
   events = {fk.EventPhaseStart},
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(self) and player.phase == Player.Draw and
-      table.find(player.room:getOtherPlayers(player), function(p) return not p:isKongcheng() end)
+      table.find(player.room:getOtherPlayers(player, false), function(p) return not p:isKongcheng() end)
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local targets = table.map(table.filter(room:getOtherPlayers(player), function(p)
+    local targets = table.map(table.filter(room:getOtherPlayers(player, false), function(p)
       return not p:isKongcheng() end), Util.IdMapper)
 
     local result = room:askForChoosePlayers(player, targets, 1, 2, "#tuxi-ask", self.name)
@@ -994,8 +990,8 @@ local qingnang = fk.CreateActiveSkill{
   card_num = 1,
   on_use = function(self, room, effect)
     local from = room:getPlayerById(effect.from)
-    room:throwCard(effect.cards, self.name, from, from)
     local to = room:getPlayerById(effect.tos[1])
+    room:throwCard(effect.cards, self.name, from, from)
     if to:isAlive() and to:isWounded() then
       room:recover({
         who = to,
@@ -1073,7 +1069,9 @@ local lijian = fk.CreateActiveSkill{
   end,
   target_filter = function(self, to_select, selected)
     if #selected < 2 and to_select ~= Self.id then
-      return Fk:currentRoom():getPlayerById(to_select):isMale()
+      local target = Fk:currentRoom():getPlayerById(to_select)
+      return target:isMale() and (#selected == 0 or
+      target:canUseTo(Fk:cloneCard("duel"), Fk:currentRoom():getPlayerById(selected[1])))
     end
   end,
   target_num = 2,

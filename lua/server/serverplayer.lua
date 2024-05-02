@@ -602,13 +602,8 @@ end
 ---@param visible? boolean
 ---@param skillName? string
 ---@param proposer? integer
----@param visiblePlayers? integer | integer[]
+---@param visiblePlayers? integer | integer[] @ 为nil时默认对自己可见
 function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, visiblePlayers)
-  if type(visiblePlayers) == "table" and #visiblePlayers == 0 then
-    visiblePlayers = nil
-  elseif visiblePlayers == nil then
-    visiblePlayers = self.id
-  end
   self.room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible,
   proposer or self.id, nil, visiblePlayers)
 end
