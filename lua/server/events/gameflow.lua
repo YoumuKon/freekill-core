@@ -136,10 +136,21 @@ end
 
 ---@class GameEvent.Round : GameEvent
 local Round = GameEvent:subclass("GameEvent.Round")
+
+function Round:action()
+  local room = self.room
+  local p
+  repeat
+    p = room.current
+    GameEvent.Turn:create(p):exec()
+    if room.game_finished then break end
+    room.current = room.current:getNextAlive(true, nil, true)
+  until p.seat >= p:getNextAlive(true, nil, true).seat
+end
+
 function Round:main()
   local room = self.room
   local logic = room.logic
-  local p
 
   local isFirstRound = room:getTag("FirstRound")
   if isFirstRound then
@@ -164,14 +175,7 @@ function Round:main()
   end
 
   logic:trigger(fk.RoundStart, room.current)
-
-  repeat
-    p = room.current
-    GameEvent.Turn:create(p):exec()
-    if room.game_finished then break end
-    room.current = room.current:getNextAlive(true, nil, true)
-  until p.seat >= p:getNextAlive(true, nil, true).seat
-
+  self:action()
   logic:trigger(fk.RoundEnd, p)
 end
 

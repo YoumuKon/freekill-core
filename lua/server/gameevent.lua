@@ -49,8 +49,18 @@ end
 ---@param self T
 ---@return T
 function GameEvent.create(self, ...)
-  -- 子类不能继承static，这种写法反而可行
+  if self.class then error('cannot use "create()" by event instances') end
   return self:new(self, ...)
+end
+
+-- 获取最接近GameEvent的基类
+---@return GameEvent
+function GameEvent.getBaseClass(self, ...)
+  if self.class then error('cannot use "getBaseClass()" by event instances') end
+  if self.super == GameEvent or self == GameEvent then
+    return self
+  end
+  return self.super:getBaseClass()
 end
 
 function GameEvent.static:subclassed(subclass)

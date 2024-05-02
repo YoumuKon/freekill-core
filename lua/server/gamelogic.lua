@@ -10,7 +10,7 @@
 ---@field public cleaner_stack Stack
 ---@field public role_table string[][]
 ---@field public all_game_events GameEvent[]
----@field public event_recorder table<integer, GameEvent>
+---@field public event_recorder table<GameEvent, GameEvent>
 ---@field public current_event_id integer
 local GameLogic = class("GameLogic")
 
@@ -23,7 +23,21 @@ function GameLogic:initialize(room)
   self.game_event_stack = Stack:new()
   self.cleaner_stack = Stack:new()
   self.all_game_events = {}
-  self.event_recorder = {}
+  self.event_recorder = setmetatable({}, {
+    -- 对派生事件而言 共用一个键 键取决于最接近GameEvent类的基类
+    __newindex = function(t, k, v)
+      if type(k) == "table" and k:isSubclassOf(GameEvent) then
+        k = k:getBaseClass()
+      end
+      rawset(t, k, v)
+    end,
+    __index = function(t, k)
+      if type(k) == "table" and k:isSubclassOf(GameEvent) then
+        k = k:getBaseClass()
+      end
+      return rawget(t, k)
+    end,
+  })
   self.current_event_id = 0
   self.specific_events_id = {
     [GameEvent.Damage] = 1,
