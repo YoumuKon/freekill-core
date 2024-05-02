@@ -1,6 +1,8 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
-GameEvent.functions[GameEvent.MoveCards] = function(self)
+---@class GameEvent.MoveCards : GameEvent
+local MoveCards = GameEvent:subclass("GameEvent.MoveCards")
+function MoveCards:main()
   local args = self.data
   local room = self.room
   ---@type CardsMoveStruct[]
@@ -209,3 +211,5 @@ GameEvent.functions[GameEvent.MoveCards] = function(self)
   room.logic:trigger(fk.AfterCardsMove, nil, cardsMoveStructs)
   return true
 end
+
+return MoveCards

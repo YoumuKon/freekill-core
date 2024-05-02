@@ -47,7 +47,9 @@ local function discardInit(room, player)
   end
 end
 
-GameEvent.functions[GameEvent.DrawInitial] = function(self)
+---@class GameEvent.DrawInitial : GameEvent
+local DrawInitial = GameEvent:subclass("GameEvent.DrawInitial")
+function DrawInitial:main()
   local room = self.room
 
   local luck_data = {
@@ -132,7 +134,9 @@ GameEvent.functions[GameEvent.DrawInitial] = function(self)
   room:removeTag("LuckCardData")
 end
 
-GameEvent.functions[GameEvent.Round] = function(self)
+---@class GameEvent.Round : GameEvent
+local Round = GameEvent:subclass("GameEvent.Round")
+function Round:main()
   local room = self.room
   local logic = room.logic
   local p
@@ -163,7 +167,7 @@ GameEvent.functions[GameEvent.Round] = function(self)
 
   repeat
     p = room.current
-    GameEvent(GameEvent.Turn, p):exec()
+    GameEvent.Turn:create(p):exec()
     if room.game_finished then break end
     room.current = room.current:getNextAlive(true, nil, true)
   until p.seat >= p:getNextAlive(true, nil, true).seat
@@ -171,7 +175,7 @@ GameEvent.functions[GameEvent.Round] = function(self)
   logic:trigger(fk.RoundEnd, p)
 end
 
-GameEvent.cleaners[GameEvent.Round] = function(self)
+function Round:clear()
   local room = self.room
 
   for _, p in ipairs(room.players) do
@@ -198,7 +202,9 @@ GameEvent.cleaners[GameEvent.Round] = function(self)
   end
 end
 
-GameEvent.prepare_funcs[GameEvent.Turn] = function(self)
+---@class GameEvent.Turn : GameEvent
+local Turn = GameEvent:subclass("GameEvent.Turn")
+function Turn:prepare()
   local room = self.room
   local logic = room.logic
   local player = room.current
@@ -224,7 +230,7 @@ GameEvent.prepare_funcs[GameEvent.Turn] = function(self)
   return logic:trigger(fk.BeforeTurnStart, player)
 end
 
-GameEvent.functions[GameEvent.Turn] = function(self)
+function Turn:main()
   local room = self.room
   room.current.phase = Player.PhaseNone
   room.logic:trigger(fk.TurnStart, room.current)
@@ -232,7 +238,7 @@ GameEvent.functions[GameEvent.Turn] = function(self)
   room.current:play()
 end
 
-GameEvent.cleaners[GameEvent.Turn] = function(self)
+function Turn:clear()
   local room = self.room
 
   local current = room.current
@@ -280,7 +286,9 @@ GameEvent.cleaners[GameEvent.Turn] = function(self)
   end
 end
 
-GameEvent.functions[GameEvent.Phase] = function(self)
+---@class GameEvent.Phase : GameEvent
+local Phase = GameEvent:subclass("GameEvent.Phase")
+function Phase:main()
   local room = self.room
   local logic = room.logic
 
@@ -373,7 +381,7 @@ GameEvent.functions[GameEvent.Phase] = function(self)
   end
 end
 
-GameEvent.cleaners[GameEvent.Phase] = function(self)
+function Phase:clear()
   local room = self.room
   local player = self.data[1]
   local logic = room.logic
@@ -408,3 +416,5 @@ GameEvent.cleaners[GameEvent.Phase] = function(self)
     room:broadcastProperty(p, "MaxCards")
   end
 end
+
+return { DrawInitial, Round, Turn, Phase }

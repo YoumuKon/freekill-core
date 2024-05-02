@@ -162,7 +162,9 @@ local sendCardEmotionAndLog = function(room, cardUseEvent)
   return _card
 end
 
-GameEvent.functions[GameEvent.UseCard] = function(self)
+---@class GameEvent.UseCard : GameEvent
+local UseCard = GameEvent:subclass("GameEvent.UseCard")
+function UseCard:main()
   local cardUseEvent = table.unpack(self.data)
   local room = self.room
   local logic = room.logic
@@ -238,7 +240,7 @@ GameEvent.functions[GameEvent.UseCard] = function(self)
   end
 end
 
-GameEvent.cleaners[GameEvent.UseCard] = function(self)
+function UseCard:clear()
   local cardUseEvent = table.unpack(self.data)
   local room = self.room
 
@@ -254,7 +256,9 @@ GameEvent.cleaners[GameEvent.UseCard] = function(self)
   end
 end
 
-GameEvent.functions[GameEvent.RespondCard] = function(self)
+---@class GameEvent.RespondCard : GameEvent
+local RespondCard = GameEvent:subclass("GameEvent.RespondCard")
+function RespondCard:main()
   local cardResponseEvent = table.unpack(self.data)
   local room = self.room
   local logic = room.logic
@@ -306,7 +310,7 @@ GameEvent.functions[GameEvent.RespondCard] = function(self)
   logic:trigger(fk.CardResponding, room:getPlayerById(cardResponseEvent.from), cardResponseEvent)
 end
 
-GameEvent.cleaners[GameEvent.RespondCard] = function(self)
+function RespondCard:clear()
   local cardResponseEvent = table.unpack(self.data)
   local room = self.room
 
@@ -322,7 +326,9 @@ GameEvent.cleaners[GameEvent.RespondCard] = function(self)
   end
 end
 
-GameEvent.functions[GameEvent.CardEffect] = function(self)
+---@class GameEvent.CardEffect : GameEvent
+local CardEffect = GameEvent:subclass("GameEvent.CardEffect")
+function CardEffect:main()
   local cardEffectEvent = table.unpack(self.data)
   local room = self.room
   local logic = room.logic
@@ -370,3 +376,5 @@ GameEvent.functions[GameEvent.CardEffect] = function(self)
     room:handleCardEffect(event, cardEffectEvent)
   end
 end
+
+return { UseCard, RespondCard, CardEffect }

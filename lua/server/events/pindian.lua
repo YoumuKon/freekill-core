@@ -1,6 +1,8 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
-GameEvent.functions[GameEvent.Pindian] = function(self)
+---@class GameEvent.Pindian : GameEvent
+local Pindian = GameEvent:subclass("GameEvent.Pindian")
+function Pindian:main()
   local pindianData = table.unpack(self.data)
   local room = self.room
   local logic = room.logic
@@ -142,7 +144,7 @@ GameEvent.functions[GameEvent.Pindian] = function(self)
   end
 end
 
-GameEvent.cleaners[GameEvent.Pindian] = function(self)
+function Pindian:clear()
   local pindianData = table.unpack(self.data)
   local room = self.room
 

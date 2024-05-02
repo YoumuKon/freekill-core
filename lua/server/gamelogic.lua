@@ -65,12 +65,12 @@ function GameLogic:run()
   self:action()
 end
 
-local function execGameEvent(type, ...)
-  local event = GameEvent:new(type, ...)
+---@return boolean
+local function execGameEvent(tp, ...)
+  local event = tp:create(...)
   local _, ret = event:exec()
   return ret
 end
-
 
 function GameLogic:assignRoles()
   local room = self.room
@@ -420,7 +420,7 @@ end
 
 -- 此为启动事件管理器并启动第一个事件的初始函数
 function GameLogic:start()
-  local root_event = GameEvent:new(GameEvent.Game)
+  local root_event = GameEvent.Game:create()
 
   self:pushEvent(root_event)
 
@@ -428,7 +428,7 @@ function GameLogic:start()
   -- 事件管理器协程，同时也是Game事件
   -- 当新事件想要exec时，就切回此处，由这里负责调度协程
   -- 一个事件结束后也切回此处，然后resume
-  local co = coroutine.create(root_event.main_func)
+  local co = coroutine.create(function() return root_event:main() end)
   root_event._co = co
 
   while true do
@@ -551,9 +551,9 @@ function GameLogic:clearEvent(event)
   if event.event == GameEvent.ClearEvent then return end
   if event.status == "exiting" then return end
   event.status = "exiting"
-  local ce = GameEvent(GameEvent.ClearEvent, event)
+  local ce = GameEvent.ClearEvent:create(event)
   ce.id = self.current_event_id
-  local co = coroutine.create(ce.main_func)
+  local co = coroutine.create(function() return ce:main() end)
   ce._co = co
   self.cleaner_stack:push(ce)
 end
@@ -563,7 +563,7 @@ function GameLogic:getCurrentEvent()
   return self.game_event_stack.t[self.game_event_stack.p]
 end
 
----@param eventType integer
+---@param eventType GameEvent
 function GameLogic:getMostRecentEvent(eventType)
   return self:getCurrentEvent():findParent(eventType, true)
 end

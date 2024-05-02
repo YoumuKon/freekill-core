@@ -244,7 +244,6 @@ function Room:run()
   local logic = (mode.logic and mode.logic() or GameLogic):new(self)
   self.logic = logic
   if mode.rule then logic:addTriggerSkill(mode.rule) end
-  -- GameEvent(GameEvent.Game):exec()
   logic:start()
 end
 
@@ -565,8 +564,8 @@ function Room:setBanner(name, value)
 end
 
 ---@return boolean
-local function execGameEvent(type, ...)
-  local event = GameEvent:new(type, ...)
+local function execGameEvent(tp, ...)
+  local event = tp:create(...)
   local _, ret = event:exec()
   return ret
 end
