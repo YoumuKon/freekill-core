@@ -170,3 +170,5 @@ function Pindian:clear()
   end
   if not self.interrupted then return end
 end
+
+return Pindian
