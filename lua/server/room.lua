@@ -3573,6 +3573,10 @@ function Room:recastCard(card_ids, who, skillName)
     moveReason = fk.ReasonRecast,
     proposer = who.id
   })
+  self:sendFootnote(card_ids, {
+    type = "##RecastCard",
+    from = who.id,
+  })
   self:broadcastPlaySound("./audio/system/recast")
   self:sendLog{
     type = skillName == "recast" and "#Recast" or "#RecastBySkill",

@@ -492,7 +492,7 @@ Fk:loadTranslationTable{
   ["#HealMaxHP"] = "%from 加了 %arg 点体力上限",
 
   -- dying and death
-  ["#EnterDying"] = "%from 进入了濒死阶段",
+  ["#EnterDying"] = "%from 进入了濒死状态",
   ["#KillPlayer"] = "%from [%arg] 阵亡，凶手是 %to",
   ["#KillPlayerWithNoKiller"] = "%from [%arg] 阵亡，无伤害来源",
   ["#Revive"] = "%from 竟然复活了",
@@ -519,4 +519,6 @@ Fk:loadTranslationTable{
   ["##ResponsePlayCard"] = "%from打出",
   ["##ShowCard"] = "%from展示",
   ["##JudgeCard"] = "%arg判定",
+  ["##PindianCard"] = "%from拼点",
+  ["##RecastCard"] = "%from重铸",
 }

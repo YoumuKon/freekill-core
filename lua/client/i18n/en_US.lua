@@ -443,4 +443,6 @@ Fk:loadTranslationTable({
   ["##ResponsePlayCard"] = "%from plays",
   ["##ShowCard"] = "%from shows",
   ["##JudgeCard"] = "%arg judge",
+  ["##PindianCard"] = "%from point fights",
+  ["##RecastCard"] = "%from recasts",
 }, "en_US")

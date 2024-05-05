@@ -37,6 +37,7 @@ function Pindian:main()
     pindianCard:addSubcard(_pindianCard.id)
 
     pindianData.fromCard = pindianCard
+    pindianData._fromCard = _pindianCard
 
     table.insert(moveInfos, {
       ids = { _pindianCard.id },
@@ -55,6 +56,7 @@ function Pindian:main()
       pindianCard:addSubcard(_pindianCard.id)
 
       pindianData.results[to.id].toCard = pindianCard
+      pindianData.results[to.id]._toCard = _pindianCard
 
       table.insert(moveInfos, {
         ids = { _pindianCard.id },
@@ -88,9 +90,11 @@ function Pindian:main()
 
     if p == pindianData.from then
       pindianData.fromCard = pindianCard
+      pindianData._fromCard = _pindianCard
     else
       pindianData.results[p.id] = pindianData.results[p.id] or {}
       pindianData.results[p.id].toCard = pindianCard
+      pindianData.results[p.id]._toCard = _pindianCard
     end
 
     table.insert(moveInfos, {
@@ -110,6 +114,17 @@ function Pindian:main()
   end
 
   room:moveCards(table.unpack(moveInfos))
+
+  room:sendFootnote({ pindianData._fromCard.id }, {
+    type = "##PindianCard",
+    from = pindianData.from.id,
+  })
+  for _, to in ipairs(pindianData.tos) do
+    room:sendFootnote({ pindianData.results[to.id]._toCard.id }, {
+      type = "##PindianCard",
+      from = to.id,
+    })
+  end
 
   logic:trigger(fk.PindianCardsDisplayed, nil, pindianData)
 
@@ -136,6 +151,10 @@ function Pindian:main()
       to = { to.id },
       arg = result.winner == pindianData.from and "pindianwin" or "pindiannotwin"
     }
+
+    -- room:setCardEmotion(pindianData._fromCard.id, result.winner == pindianData.from and "pindianwin" or "pindiannotwin")
+    -- room:setCardEmotion(pindianData.results[to.id]._toCard.id, result.winner == to and "pindianwin" or "pindiannotwin")
+
     logic:trigger(fk.PindianResultConfirmed, nil, singlePindianData)
   end
 

@@ -1163,9 +1163,13 @@ local eightDiagramSkill = fk.CreateTriggerSkill{
   attached_equip = "eight_diagram",
   events = {fk.AskForCardUse, fk.AskForCardResponse},
   can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and
-      (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
-      (event == fk.AskForCardUse and not player:prohibitUse(Fk:cloneCard("jink")) or not player:prohibitResponse(Fk:cloneCard("jink")))
+    if not (target == player and player:hasSkill(self) and
+      (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none")))) then return end
+    if event == fk.AskForCardUse then
+      return not player:prohibitUse(Fk:cloneCard("jink"))
+    else
+      return not player:prohibitResponse(Fk:cloneCard("jink"))
+    end
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
