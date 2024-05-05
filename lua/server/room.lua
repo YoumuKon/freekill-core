@@ -2748,14 +2748,8 @@ function Room:doCardUseEffect(cardUseEvent)
       return
     end
 
-    if self:getPlayerById(TargetGroup:getRealTargets(cardUseEvent.tos)[1]).dead then
-      self:moveCards({
-        ids = realCardIds,
-        toArea = Card.DiscardPile,
-        moveReason = fk.ReasonPutIntoDiscardPile,
-      })
-    else
-      local target = TargetGroup:getRealTargets(cardUseEvent.tos)[1]
+    local target = TargetGroup:getRealTargets(cardUseEvent.tos)[1]
+    if not (self:getPlayerById(target).dead or table.contains((cardUseEvent.nullifiedTargets or Util.DummyTable), target)) then
       local existingEquipId = self:getPlayerById(target):getEquipment(cardUseEvent.card.sub_type)
       if existingEquipId then
         self:moveCards(
@@ -2789,7 +2783,7 @@ function Room:doCardUseEffect(cardUseEvent)
     end
 
     local target = TargetGroup:getRealTargets(cardUseEvent.tos)[1]
-    if not self:getPlayerById(target).dead then
+    if not (self:getPlayerById(target).dead or table.contains((cardUseEvent.nullifiedTargets or Util.DummyTable), target)) then
       local findSameCard = false
       for _, cardId in ipairs(self:getPlayerById(target):getCardIds(Player.Judge)) do
         if Fk:getCardById(cardId).trueName == cardUseEvent.card.trueName then
@@ -2819,12 +2813,6 @@ function Room:doCardUseEffect(cardUseEvent)
         return
       end
     end
-
-    self:moveCards({
-      ids = realCardIds,
-      toArea = Card.DiscardPile,
-      moveReason = fk.ReasonPutIntoDiscardPile,
-    })
 
     return
   end
@@ -3123,10 +3111,8 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
 function Room:obtainCard(player, card, unhide, reason, proposer, skill_name, moveMark, visiblePlayers)
-  if type(player) == "number" then
-    player = self:getPlayerById(player)
-  end
-  self:moveCardTo(card, Card.PlayerHand, player, reason, skill_name, nil, unhide, proposer or player.id, moveMark, visiblePlayers)
+  local pid = type(player) == "number" and player or player.id
+  self:moveCardTo(card, Card.PlayerHand, player, reason, skill_name, nil, unhide, proposer or pid, moveMark, visiblePlayers)
 end
 
 --- 让玩家摸牌
@@ -3168,7 +3154,7 @@ end
 --- 将一张或多张牌移动到某处
 ---@param card integer | integer[] | Card | Card[] @ 要移动的牌
 ---@param to_place integer @ 移动的目标位置
----@param target? ServerPlayer @ 移动的目标角色
+---@param target? ServerPlayer|integer @ 移动的目标角色
 ---@param reason? integer @ 移动时使用的移牌原因
 ---@param skill_name? string @ 技能名
 ---@param special_name? string @ 私人牌堆名
@@ -3186,7 +3172,12 @@ function Room:moveCardTo(card, to_place, target, reason, skill_name, special_nam
   if table.contains(
     {Card.PlayerEquip, Card.PlayerHand,
       Card.PlayerJudge, Card.PlayerSpecial}, to_place) then
-    to = target.id
+    assert(target)
+    if type(target) == "number" then
+      to = target
+    else
+      to = target.id
+    end
   end
 
   local movesSplitedByOwner = {}
