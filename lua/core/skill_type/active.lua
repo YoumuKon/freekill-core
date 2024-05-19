@@ -204,11 +204,11 @@ end
 ------- }
 
 ---@param room Room
----@param cardUseEvent CardUseStruct
+---@param cardUseEvent CardUseStruct | SkillEffectEvent
 function ActiveSkill:onUse(room, cardUseEvent) end
 
 ---@param room Room
----@param cardUseEvent CardUseStruct
+---@param cardUseEvent CardUseStruct | SkillEffectEvent
 ---@param finished? bool
 function ActiveSkill:onAction(room, cardUseEvent, finished) end
 

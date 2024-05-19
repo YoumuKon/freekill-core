@@ -1153,6 +1153,7 @@ local role_getlogic = function()
       room:prepareGeneral(lord, lord_general, deputy, true)
 
       room:askForChooseKingdom({lord})
+      room:broadcastProperty(lord, "kingdom")
 
       -- 显示技能
       local canAttachSkill = function(player, skillName)

@@ -347,7 +347,7 @@ Fk:loadTranslationTable({
 
   -- get/lose skill
   ["#AcquireSkill"] = '%from acquired the skill "%arg"',
-	["#LoseSkill"] = '%from lost the skill "%arg"',
+  ["#LoseSkill"] = '%from lost the skill "%arg"',
 
   -- moveCards (they are sent by notifyMoveCards)
   ["$PutCard"] = "%arg card(s) of %from were put into draw pile",
@@ -405,8 +405,8 @@ Fk:loadTranslationTable({
 
   -- turnOver
   ["#TurnOver"] = "%from turned over character card, now his status is %arg",
-	["face_up"] = "face up",
-	["face_down"] = "face down",
+  ["face_up"] = "face up",
+  ["face_down"] = "face down",
 
   -- damage, heal and lose HP
   ["#Damage"] = "%to dealt %arg %arg2 DMG to %from",

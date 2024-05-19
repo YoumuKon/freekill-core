@@ -222,7 +222,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
 
   ["#PlayCard"] = "出牌阶段，请使用一张牌",
   ["#AskForGeneral"] = "请选择 1 名武将",
-  ["#AskForSkillInvoke"] = "你想发动技能“%1”吗？",
+  ["#AskForSkillInvoke"] = "你想发动〖%1〗吗？",
   ["#AskForLuckCard"] = "你想使用手气卡吗？还可以使用 %1 次，剩余手气卡∞张",
   ["AskForLuckCard"] = "手气卡",
   ["#AskForChoice"] = "%1：请选择",
@@ -254,13 +254,13 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["$Equip"] = "装备区",
   ["$Judge"] = "判定区",
   ['$Selected'] = "已选择",
-  ["#AskForUseActiveSkill"] = "请使用技能 %1",
-  ["#AskForUseCard"] = "请使用卡牌 %1",
-  ["#AskForResponseCard"] = "请打出卡牌 %1",
-  ["#AskForNullification"] = "是否为目标为 %dest 的 %arg 使用无懈可击？",
-  ["#AskForNullificationWithoutTo"] = "是否对 %src 使用的 %arg 使用无懈可击？",
-  ["#AskForPeaches"] = "%src 生命危急，需要 %arg 个桃",
-  ["#AskForPeachesSelf"] = "你生命危急，需要 %arg 个桃或酒",
+  ["#AskForUseActiveSkill"] = "请发动〖%1〗",
+  ["#AskForUseCard"] = "请使用【%1】",
+  ["#AskForResponseCard"] = "请打出【%1】",
+  ["#AskForNullification"] = "是否为目标为 %dest 的【%arg】使用【无懈可击】？",
+  ["#AskForNullificationWithoutTo"] = "是否对 %src 使用的【%arg】使用【无懈可击】？",
+  ["#AskForPeaches"] = "%src 生命危急，需要 %arg 个【桃】",
+  ["#AskForPeachesSelf"] = "你生命危急，需要 %arg 个【桃】或【酒】",
 
   ["#AskForDiscard"] = "请弃置 %arg 张牌，最少 %arg2 张",
   ["#AskForCard"] = "请选择 %arg 张牌，最少 %arg2 张",
@@ -411,8 +411,8 @@ Fk:loadTranslationTable{
   ["$GameEnd"] = "== 游戏结束 ==",
 
   -- get/lose skill
-  ["#AcquireSkill"] = "%from 获得了技能 “%arg”",
-	["#LoseSkill"] = "%from 失去了技能 “%arg”",
+  ["#AcquireSkill"] = "%from 获得了〖%arg〗",
+  ["#LoseSkill"] = "%from 失去了〖%arg〗",
 
   -- moveCards (they are sent by notifyMoveCards)
   ["$GetCardsFromPile"] = "%from 从 %arg 中获得了 %arg2 张牌 %card",
@@ -469,25 +469,25 @@ Fk:loadTranslationTable{
   ["#FilterCard"] = "由于 %arg 的效果，与 %from 相关的 %arg2 被视为了 %arg3",
 
   -- skill
-  ["#InvokeSkill"] = "%from 发动了 “%arg”",
+  ["#InvokeSkill"] = "%from 发动了〖%arg〗",
 
   -- judge
   ["#StartJudgeReason"] = "%from 开始了 %arg 的判定",
   ["#InitialJudge"] = "%from 的判定牌为 %arg",
-  ["#ChangedJudge"] = "%from 发动“%arg”把 %to 的判定牌改为 %arg2",
+  ["#ChangedJudge"] = "%from 发动了〖%arg〗把 %to 的判定牌改为 %arg2",
   ["#JudgeResult"] = "%from 的判定结果为 %arg",
 
   -- turnOver
   ["#TurnOver"] = "%from 将武将牌翻面，现在是 %arg",
-	["face_up"] = "正面朝上",
-	["face_down"] = "背面朝上",
+  ["face_up"] = "正面朝上",
+  ["face_down"] = "背面朝上",
 
   -- damage, heal and lose HP
   ["#Damage"] = "%to 对 %from 造成了 %arg 点 %arg2 伤害",
   ["#DamageWithNoFrom"] = "%from 受到了 %arg 点 %arg2 伤害",
   ["#LoseHP"] = "%from 失去了 %arg 点体力",
   ["#HealHP"] = "%from 回复了 %arg 点体力",
-  ["#ShowHPAndMaxHP"] = "%from 现在的体力值为 %arg，体力上限为 %arg2",
+  ["#ShowHPAndMaxHP"] = "%from 的体力值为 %arg，体力上限为 %arg2",
   ["#LoseMaxHP"] = "%from 减了 %arg 点体力上限",
   ["#HealMaxHP"] = "%from 加了 %arg 点体力上限",
 
@@ -504,7 +504,7 @@ Fk:loadTranslationTable{
   ["#GuanxingResult"] = "%from 的观星结果为 %arg 上 %arg2 下",
   ["#ChainStateChange"] = "%from %arg 了武将牌",
   ["#ChainDamage"] = "%from 处于连环状态，将受到传导的伤害",
-  ["#ChangeKingdom"] = "%from 的国籍从 %arg 变成了 %arg2",
+  ["#ChangeKingdom"] = "%from 的势力从 %arg 变成了 %arg2",
   ["#RoomOutdated"] = "服务器更新完毕！该房间已过期，将无法再次游玩",
 }
 

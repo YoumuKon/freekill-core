@@ -336,7 +336,7 @@ end
 --- 获得当前房间中的所有玩家。
 ---
 --- 返回的数组的第一个元素是当前回合玩家，并且按行动顺序进行排序。
----@param sortBySeat? boolean @ 是否无视按座位排序直接返回
+---@param sortBySeat? boolean @ 是否按座位排序，默认是
 ---@return ServerPlayer[] @ 房间中玩家的数组
 function Room:getAllPlayers(sortBySeat)
   if not self.game_started then
@@ -358,7 +358,7 @@ function Room:getAllPlayers(sortBySeat)
 end
 
 --- 获得所有存活玩家，参看getAllPlayers
----@param sortBySeat? boolean
+---@param sortBySeat? boolean @ 是否按座位排序，默认是
 ---@return ServerPlayer[]
 function Room:getAlivePlayers(sortBySeat)
   if sortBySeat == nil or sortBySeat then
@@ -369,7 +369,7 @@ function Room:getAlivePlayers(sortBySeat)
     if temp == nil then
       return { table.unpack(self.players) }
     end
-    local ret = {current}
+    local ret = current.dead and {} or {current}
     while temp ~= current do
       if not temp.dead then
         table.insert(ret, temp)
@@ -385,7 +385,7 @@ end
 
 --- 获得除一名玩家外的其他玩家。
 ---@param player ServerPlayer @ 要排除的玩家
----@param sortBySeat? boolean @ 是否要按座位排序？
+---@param sortBySeat? boolean @ 是否按座位排序，默认是
 ---@param include_dead? boolean @ 是否要把死人也算进去？
 ---@return ServerPlayer[] @ 其他玩家列表
 function Room:getOtherPlayers(player, sortBySeat, include_dead)
