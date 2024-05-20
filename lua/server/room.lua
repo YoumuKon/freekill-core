@@ -1858,7 +1858,13 @@ function Room:askForChoice(player, choices, skill_name, prompt, detailed, all_ch
   local result = self:doRequest(player, command, json.encode{
     choices, all_choices, skill_name, prompt, detailed
   })
-  if result == "" then result = choices[1] end
+  if result == "" then
+    if table.contains(choices, "Cancel") then
+      result = "Cancel"
+    else
+      result = choices[1]
+    end
+  end
   return result
 end
 
@@ -2050,7 +2056,7 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
     for i = #top, 1, -1 do
       table.insert(self.draw_pile, 1, top[i])
     end
-    for i = 1, #bottom, -1 do
+    for i = 1, #bottom, 1 do
       table.insert(self.draw_pile, bottom[i])
     end
 

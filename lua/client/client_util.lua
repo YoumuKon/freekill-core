@@ -621,6 +621,7 @@ end
 function GetInteractionOfSkill(skill_name)
   local skill = Fk.skills[skill_name]
   if skill and skill.interaction then
+    skill.interaction.data = nil
     return skill:interaction()
   end
   return nil
