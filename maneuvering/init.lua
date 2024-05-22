@@ -549,6 +549,6 @@ Fk:loadTranslationTable{
   [":hualiu"] = "装备牌·坐骑<br /><b>坐骑技能</b>：其他角色与你的距离+1。",
 }
 
-Fk:loadTranslationTable(require 'packages/maneuvering/i18n/en_US', 'en_US')
+Fk:loadTranslationTable(require 'packages/freekill-core/maneuvering/i18n/en_US', 'en_US')
 
 return extension

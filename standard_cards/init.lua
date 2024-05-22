@@ -1316,6 +1316,6 @@ extension:addCards({
   ziXing,
 })
 
-dofile "packages/standard_cards/i18n/init.lua"
+dofile "packages/freekill-core/standard_cards/i18n/init.lua"
 
 return extension
