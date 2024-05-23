@@ -2756,7 +2756,14 @@ function Room:doCardUseEffect(cardUseEvent)
 
     local target = TargetGroup:getRealTargets(cardUseEvent.tos)[1]
     if not (self:getPlayerById(target).dead or table.contains((cardUseEvent.nullifiedTargets or Util.DummyTable), target)) then
-      local existingEquipId = self:getPlayerById(target):getEquipment(cardUseEvent.card.sub_type)
+      local existingEquipId
+      if cardUseEvent.toPutSlot and cardUseEvent.toPutSlot:startsWith("#EquipmentChoice") then
+        local index = cardUseEvent.toPutSlot:split(":")[2]
+        existingEquipId = self:getPlayerById(target):getEquipments(cardUseEvent.card.sub_type)[tonumber(index)]
+      elseif not self:getPlayerById(target):hasEmptyEquipSlot(cardUseEvent.card.sub_type) then
+        existingEquipId = self:getPlayerById(target):getEquipment(cardUseEvent.card.sub_type)
+      end
+
       if existingEquipId then
         self:moveCards(
           {
@@ -4004,6 +4011,52 @@ function Room:resumePlayerArea(player, playerSlots)
     end
     self.logic:trigger(fk.AreaResumed, player, { slots = slotsToResume })
   end
+end
+
+---@param player ServerPlayer
+---@param playerSlots string | string[]
+function Room:addPlayerEquipSlots(player, playerSlots)
+  assert(type(playerSlots) == "string" or type(playerSlots) == "table")
+
+  if type(playerSlots) == "string" then
+    playerSlots = { playerSlots }
+  end
+
+  for _, slot in ipairs(playerSlots) do
+    local slotIndex = table.indexOf(player.equipSlots, slot)
+    if slotIndex > -1 then
+      table.insert(player.equipSlots, slotIndex, slot)
+    else
+      table.insert(player.equipSlots, slot)
+    end
+  end
+
+  self:broadcastProperty(player, "equipSlots")
+end
+
+---@param player ServerPlayer
+---@param playerSlots string | string[]
+function Room:removePlayerEquipSlots(player, playerSlots)
+  assert(type(playerSlots) == "string" or type(playerSlots) == "table")
+
+  if type(playerSlots) == "string" then
+    playerSlots = { playerSlots }
+  end
+
+  for _, slot in ipairs(playerSlots) do
+    table.removeOne(player.equipSlots, slot)
+  end
+
+  self:broadcastProperty(player, "equipSlots")
+end
+
+---@param player ServerPlayer
+---@param playerSlots string[]
+function Room:setPlayerEquipSlots(player, playerSlots)
+  assert(type(playerSlots) == "table")
+  player.equipSlots = playerSlots
+
+  self:broadcastProperty(player, "equipSlots")
 end
 
 --- 设置休整

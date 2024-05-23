@@ -536,4 +536,7 @@ Fk:loadTranslationTable{
   ["revealDeputy"] = "明置副将 %arg",
 
   ["game_rule"] = "弃牌阶段",
+  ["replace_equip"] = "替换装备",
+  ["#EquipmentChoice"] = "%arg",
+  ["#GameRuleReplaceEquipment"] = "请选择要置入的区域",
 }

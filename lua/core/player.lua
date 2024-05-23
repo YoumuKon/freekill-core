@@ -449,7 +449,7 @@ function Player:getAttackRange()
     baseValue = 0
     for _, id in ipairs(weapons) do
       local weapon = Fk:getCardById(id)
-      baseValue = math.max(baseValue, weapon.attack_range or 1)
+      baseValue = math.max(baseValue, weapon:getAttackRange(self) or 1)
     end
   end
 

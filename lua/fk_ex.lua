@@ -422,6 +422,7 @@ end
 ---@class FilterSpec: StatusSkillSpec
 ---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): boolean?
 ---@field public view_as? fun(self: FilterSkill, card: Card, player: Player): Card?
+---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
 
 ---@param spec FilterSpec
 ---@return FilterSkill
@@ -432,6 +433,7 @@ function fk.CreateFilterSkill(spec)
   readStatusSpecToSkill(skill, spec)
   skill.cardFilter = spec.card_filter
   skill.viewAs = spec.view_as
+  skill.equipSkillFilter = spec.equip_skill_filter
 
   return skill
 end
@@ -531,7 +533,20 @@ function fk.CreateDelayedTrickCard(spec)
 end
 
 local function readCardSpecToEquip(card, spec)
-  card.equip_skill = spec.equip_skill
+  if spec.equip_skill then
+    if spec.equip_skill.class and spec.equip_skill:isInstanceOf(Skill) then
+      card.equip_skill = spec.equip_skill
+      card.equip_skills = { spec.equip_skill }
+    else
+      card.equip_skill = spec.equip_skill[1]
+      card.equip_skills = spec.equip_skill
+    end
+  end
+
+  if spec.dynamic_equip_skills then
+    assert(type(spec.dynamic_equip_skills) == "function")
+    card.dynamicEquipSkills = spec.dynamic_equip_skills
+  end
 
   if spec.on_install then card.onInstall = spec.on_install end
   if spec.on_uninstall then card.onUninstall = spec.on_uninstall end
@@ -548,6 +563,11 @@ function fk.CreateWeapon(spec)
   local card = Weapon:new(spec.name, spec.suit, spec.number, spec.attack_range)
   readCardSpecToCard(card, spec)
   readCardSpecToEquip(card, spec)
+  if spec.dynamic_attack_range then
+    assert(type(spec.dynamic_attack_range) == "function")
+    card.dynamicAttackRange = spec.dynamic_attack_range
+  end
+
   return card
 end
 

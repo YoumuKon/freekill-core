@@ -163,7 +163,7 @@ function MoveCards:main()
           realFromArea == Player.Equip and
           beforeCard.type == Card.TypeEquip and
           data.from ~= nil and
-          beforeCard.equip_skill
+          #beforeCard:getEquipSkills(room:getPlayerById(data.from)) > 0
         then
           beforeCard:onUninstall(room, room:getPlayerById(data.from))
         end
@@ -200,7 +200,7 @@ function MoveCards:main()
           currentCard.type == Card.TypeEquip and
           data.to ~= nil and
           room:getPlayerById(data.to):isAlive() and
-          currentCard.equip_skill
+          #currentCard:getEquipSkills(room:getPlayerById(data.to)) > 0
         then
           currentCard:onInstall(room, room:getPlayerById(data.to))
         end

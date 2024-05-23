@@ -187,6 +187,27 @@ function UseCard:main()
     cardUseEvent.card.skill:onUse(room, cardUseEvent)
   end
 
+  if cardUseEvent.card.type == Card.TypeEquip then
+    local targets = TargetGroup:getRealTargets(cardUseEvent.tos)
+    if #targets == 1 then
+      local target = room:getPlayerById(targets[1])
+      local subType = cardUseEvent.card.sub_type
+      local equipsExist = target:getEquipments(subType)
+
+      if #equipsExist > 0 and not target:hasEmptyEquipSlot(subType) then
+        local choices = table.map(
+          equipsExist,
+          function(id, index)
+            return "#EquipmentChoice:" .. index .. "::" .. Fk:translate(Fk:getCardById(id).name) end
+        )
+        if target:hasEmptyEquipSlot(subType) then
+          table.insert(choices, target:getAvailableEquipSlots(subType)[1])
+        end
+        cardUseEvent.toPutSlot = room:askForChoice(target, choices, "replace_equip", "#GameRuleReplaceEquipment")
+      end
+    end
+  end
+
   if logic:trigger(fk.PreCardUse, room:getPlayerById(cardUseEvent.from), cardUseEvent) then
     logic:breakEvent()
   end
