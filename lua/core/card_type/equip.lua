@@ -19,8 +19,17 @@ end
 function EquipCard:onInstall(room, player)
   local equipSkills = self:getEquipSkills(player)
   if #equipSkills > 0 then
-    equipSkills = table.map(equipSkills, function(skill) return skill.name end)
-    room:handleAddLoseSkills(player, table.concat(equipSkills, "|"), nil, false, true)
+    local noTrigger = table.filter(equipSkills, function(skill) return skill.attached_equip end)
+    if #noTrigger > 0 then
+      noTrigger = table.map(noTrigger, function(skill) return skill.name end)
+      room:handleAddLoseSkills(player, table.concat(noTrigger, "|"), nil, false, true)
+    end
+
+    local toTrigger = table.filter(equipSkills, function(skill) return not skill.attached_equip end)
+    if #toTrigger > 0 then
+      toTrigger = table.map(toTrigger, function(skill) return skill.name end)
+      room:handleAddLoseSkills(player, table.concat(toTrigger, "|"), nil, false)
+    end
   end
 end
 
@@ -29,8 +38,17 @@ end
 function EquipCard:onUninstall(room, player)
   local equipSkills = self:getEquipSkills(player)
   if #equipSkills > 0 then
-    equipSkills = table.map(equipSkills, function(skill) return "-" .. skill.name end)
-    room:handleAddLoseSkills(player, table.concat(equipSkills, "|"), nil, false, true)
+    local noTrigger = table.filter(equipSkills, function(skill) return skill.attached_equip end)
+    if #noTrigger > 0 then
+      noTrigger = table.map(noTrigger, function(skill) return '-' .. skill.name end)
+      room:handleAddLoseSkills(player, table.concat(noTrigger, "|"), nil, false, true)
+    end
+
+    local toTrigger = table.filter(equipSkills, function(skill) return not skill.attached_equip end)
+    if #toTrigger > 0 then
+      toTrigger = table.map(toTrigger, function(skill) return '-' .. skill.name end)
+      room:handleAddLoseSkills(player, table.concat(toTrigger, "|"), nil, false)
+    end
   end
 end
 
