@@ -136,7 +136,7 @@ local analepticSkill = fk.CreateActiveSkill{
         card = effect.card,
       })
     else
-      to.drank = to.drank + 1
+      to.drank = to.drank + 1 + ((effect.extra_data or {}).additionalDrank or 0)
       room:broadcastProperty(to, "drank")
     end
   end
