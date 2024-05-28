@@ -68,7 +68,8 @@ function ServerPlayer:doNotify(command, jsonData)
     end
   end
 
-  if room.notify_count >= room.notify_max and not room.game_finished then
+  if room.notify_count >= room.notify_max and
+    coroutine.status(room.main_co) == "normal" then
     room:delay(100)
   end
 end
