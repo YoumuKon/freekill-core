@@ -53,16 +53,23 @@ end
 ---@param command string
 ---@param jsonData string
 function ServerPlayer:doNotify(command, jsonData)
+  local room = self.room
   for _, p in ipairs(self._observers) do
+    if p:getState() ~= fk.Player_Robot then
+      room.notify_count = room.notify_count + 1
+    end
     p:doNotify(command, jsonData)
   end
 
-  local room = self.room
   for _, t in ipairs(room.observers) do
     local id, p = table.unpack(t)
     if id == self.id and room.room:hasObserver(p) then
       p:doNotify(command, jsonData)
     end
+  end
+
+  if room.notify_count >= room.notify_max and not room.game_finished then
+    room:delay(100)
   end
 end
 

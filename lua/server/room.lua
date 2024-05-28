@@ -84,6 +84,11 @@ function Room:initialize(_room)
   self.request_queue = {}
   self.request_self = {}
 
+  -- doNotify过载保护，每次获得控制权时置为0
+  -- 若在yield之前执行了max次doNotify则强制让出
+  self.notify_count = 0
+  self.notify_max = 500
+
   self.settings = json.decode(self.room:settings())
   self.disabled_packs = self.settings.disabledPack
   if not Fk.game_modes[self.settings.gameMode] then
@@ -112,6 +117,7 @@ function Room:resume()
   end
 
   if not self.game_finished then
+    self.notify_count = 0
     ret, err_msg, rest_time = coroutine.resume(main_co, err_msg)
 
     -- handle error
