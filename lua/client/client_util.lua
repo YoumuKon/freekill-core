@@ -739,10 +739,9 @@ function GetCardProhibitReason(cid, method, pattern)
   local skillName = s.name
   local ret = Fk:translate(skillName)
   if ret ~= skillName then
-    -- TODO: translate
-    return ret .. "禁" .. (method == "use" and "使用" or "打出")
+    return ret .. Fk:translate("prohibit") .. Fk:translate(method == "use" and "method_use" or "method_response_play")
   elseif skillName:endsWith("_prohibit") and skillName:startsWith("#") then
-    return Fk:translate(skillName:sub(2, -10)) .. "禁" .. (method == "use" and "使用" or "打出")
+    return Fk:translate(skillName:sub(2, -10)) .. Fk:translate("prohibit") .. Fk:translate(method == "use" and "method_use" or "method_response_play")
   else
     return ret
   end
