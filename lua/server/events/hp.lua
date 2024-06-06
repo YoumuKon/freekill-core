@@ -121,12 +121,14 @@ function Damage:main()
   local room = self.room
   local logic = room.logic
 
-  if not damageStruct.chain and logic:damageByCardEffect(not not damageStruct.from) then
+  if not damageStruct.chain and logic:damageByCardEffect(false) then
     local cardEffectData = logic:getCurrentEvent():findParent(GameEvent.CardEffect)
     if cardEffectData then
       local cardEffectEvent = cardEffectData.data[1]
       damageStruct.damage = damageStruct.damage + (cardEffectEvent.additionalDamage or 0)
-      damageStruct.by_user = true
+      if damageStruct.from and cardEffectData.from == damageStruct.from.id then
+        damageStruct.by_user = true
+      end
     end
   end
 
