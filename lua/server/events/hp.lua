@@ -126,7 +126,7 @@ function Damage:main()
     if cardEffectData then
       local cardEffectEvent = cardEffectData.data[1]
       damageStruct.damage = damageStruct.damage + (cardEffectEvent.additionalDamage or 0)
-      if damageStruct.from and cardEffectData.from == damageStruct.from.id then
+      if damageStruct.from and cardEffectEvent.from == damageStruct.from.id then
         damageStruct.by_user = true
       end
     end
@@ -143,12 +143,14 @@ function Damage:main()
 
   assert(damageStruct.to:isInstanceOf(ServerPlayer))
 
-  local stages = {
-    {fk.PreDamage, "from"},
-  }
+  local stages = {}
 
   if not damageStruct.isVirtualDMG then
-    table.insertTable(stages, { { fk.DamageCaused, "from" }, { fk.DamageInflicted, "to" } })
+    stages = {
+      { fk.PreDamage, "from"},
+      { fk.DamageCaused, "from" },
+      { fk.DamageInflicted, "to" },
+    }
   end
 
   for _, struct in ipairs(stages) do
