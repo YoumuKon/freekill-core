@@ -113,7 +113,7 @@ function Room:resume()
   local main_co = self.main_co
 
   if self:checkNoHuman() then
-    return true
+    goto GAME_OVER
   end
 
   if not self.game_finished then
@@ -168,17 +168,6 @@ function Room:isReady()
     return true
   end
 
-  -- 因为delay函数而延时：判断延时是否已经结束。
-  -- 注意整个delay函数的实现都搬到这来了，delay本身只负责挂起协程了。
-  if self.in_delay then
-    local rest = self.delay_duration - (os.getms() - self.delay_start) / 1000
-    if rest <= 0 then
-      self.in_delay = false
-      return true
-    end
-    return false, rest
-  end
-
   -- 剩下的就是因为等待应答而未就绪了
   -- 检查所有正在等回答的玩家，如果已经过了烧条时间
   -- 那么就不认为他还需要时间就绪了
@@ -188,13 +177,14 @@ function Room:isReady()
   for _, p in ipairs(self.players) do
     -- 这里判断的话需要用_splayer了，不然一控多的情况下会导致重复判断
     if p._splayer:thinking() then
-      ret = false
       -- 烧条烧光了的话就把thinking设为false
       rest = p.request_timeout * 1000 - (os.getms() -
         p.request_start) / 1000
 
       if rest <= 0 or p.serverplayer:getState() ~= fk.Player_Online then
         p._splayer:setThinking(false)
+      else
+        ret = false
       end
     end
 
@@ -797,6 +787,10 @@ local function surrenderCheck(room)
   room.hasSurrendered = false
 end
 
+local function setRequestTimer(room)
+  room.room:setRequestTimer(room.timeout * 1000 + 500)
+end
+
 --- 向某个玩家发起一次Request。
 ---@param player ServerPlayer @ 发出这个请求的目标玩家
 ---@param command string @ 请求的类型
@@ -810,9 +804,11 @@ function Room:doRequest(player, command, jsonData, wait)
   player:doRequest(command, jsonData, self.timeout)
 
   if wait then
+    setRequestTimer(self)
     local ret = player:waitForReply(self.timeout)
     player.serverplayer:setBusy(false)
     player.serverplayer:setThinking(false)
+    self.room:destroyRequestTimer()
     surrenderCheck(self)
     return ret
   end
@@ -826,6 +822,7 @@ function Room:doBroadcastRequest(command, players, jsonData)
   players = players or self.players
   self.request_queue = {}
   self.race_request_list = nil
+  setRequestTimer(self)
   for _, p in ipairs(players) do
     p:doRequest(command, jsonData or p.request_data)
   end
@@ -843,6 +840,7 @@ function Room:doBroadcastRequest(command, players, jsonData)
     p.serverplayer:setThinking(false)
   end
 
+  self.room:destroyRequestTimer()
   surrenderCheck(self)
 end
 
@@ -859,6 +857,7 @@ function Room:doRaceRequest(command, players, jsonData)
   players = players or self.players
   players = table.simpleClone(players)
   local player_len = #players
+  setRequestTimer(self)
   -- self:notifyMoveFocus(players, command)
   self.request_queue = {}
   self.race_request_list = players
@@ -877,7 +876,8 @@ function Room:doRaceRequest(command, players, jsonData)
     if remainTime - elapsed <= 0 then
       break
     end
-    for _, p in ipairs(players) do
+    for i = #players, 1, -1 do
+      local p = players[i]
       p:waitForReply(0)
       if p.reply_ready == true then
         winner = p
@@ -885,7 +885,7 @@ function Room:doRaceRequest(command, players, jsonData)
       end
 
       if p.reply_cancel then
-        table.removeOne(players, p)
+        table.remove(players, i)
         table.insertIfNeed(canceled_players, p)
       elseif p.id > 0 then
         -- 骗过调度器让他以为自己尚未就绪
@@ -911,20 +911,16 @@ function Room:doRaceRequest(command, players, jsonData)
     p.serverplayer:setThinking(false)
   end
 
+  self.room:destroyRequestTimer()
   surrenderCheck(self)
   return ret
 end
 
 
 --- 延迟一段时间。
----
---- 这个函数不应该在请求处理协程中使用。
 ---@param ms integer @ 要延迟的毫秒数
 function Room:delay(ms)
-  local start = os.getms()
-  self.delay_start = start
-  self.delay_duration = ms
-  self.in_delay = true
+  self.room:delay(ms)
   coroutine.yield("__handleRequest", ms)
 end
 
@@ -3740,6 +3736,7 @@ end
 ---@param winner string @ 获胜的身份，空字符串表示平局
 function Room:gameOver(winner)
   if not self.game_started then return end
+  self.room:destroyRequestTimer()
 
   if table.contains(
     { "running", "normal" },
