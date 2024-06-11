@@ -160,6 +160,13 @@ function Room:makeGeneralPile()
   return true
 end
 
+-- 因为现在已经不是轮询了，加上有点难分析
+-- 选择开摆
+function Room:isReady()
+  return true
+end
+
+--[[
 -- 供调度器使用的函数，用来指示房间是否就绪。
 -- 如果没有就绪的话，可能会返回第二个值来告诉调度器自己还有多久就绪。
 function Room:isReady()
@@ -197,6 +204,7 @@ function Room:isReady()
   end
   return ret, (rest and rest > 1) and rest or nil
 end
+--]]
 
 function Room:checkNoHuman(chkOnly)
   if #self.players == 0 then return end
