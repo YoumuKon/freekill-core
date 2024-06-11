@@ -2115,9 +2115,14 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
   local command = "AskForGuanxing"
   self:notifyMoveFocus(player, customNotify or command)
   local max_top = top_limit and top_limit[2] or #cards
-  local card_map = {table.slice(cards, 1, max_top + 1)}
+  local card_map = {}
+  if max_top > 0 then
+    table.insert(card_map, table.slice(cards, 1, max_top + 1))
+  else
+    table.insert(card_map, {})
+  end
   if max_top < #cards then
-    table.insert(card_map, table.slice(cards, max_top))
+    table.insert(card_map, table.slice(cards, max_top + 1))
   end
   local data = {
     prompt = "",
