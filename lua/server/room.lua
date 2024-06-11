@@ -163,6 +163,16 @@ end
 -- 因为现在已经不是轮询了，加上有点难分析
 -- 选择开摆
 function Room:isReady()
+  -- 因为delay函数而延时：判断延时是否已经结束。
+  -- 注意整个delay函数的实现都搬到这来了，delay本身只负责挂起协程了。
+  if self.in_delay then
+    local rest = self.delay_duration - (os.getms() - self.delay_start) / 1000
+    if rest <= 50 then
+      self.in_delay = false
+      return true
+    end
+    return false, rest
+  end
   return true
 end
 
@@ -928,6 +938,10 @@ end
 --- 延迟一段时间。
 ---@param ms integer @ 要延迟的毫秒数
 function Room:delay(ms)
+  local start = os.getms()
+  self.delay_start = start
+  self.delay_duration = ms
+  self.in_delay = true
   self.room:delay(ms)
   coroutine.yield("__handleRequest", ms)
 end
