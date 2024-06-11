@@ -165,6 +165,7 @@ end
 function Room:isReady()
   -- 因为delay函数而延时：判断延时是否已经结束。
   -- 注意整个delay函数的实现都搬到这来了，delay本身只负责挂起协程了。
+  --[[
   if self.in_delay then
     local rest = self.delay_duration - (os.getms() - self.delay_start) / 1000
     if rest <= 50 then
@@ -173,6 +174,7 @@ function Room:isReady()
     end
     return false, rest
   end
+  --]]
   return true
 end
 
