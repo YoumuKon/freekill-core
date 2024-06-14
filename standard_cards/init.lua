@@ -142,20 +142,30 @@ extension:addCards({
 local peachSkill = fk.CreateActiveSkill{
   name = "peach_skill",
   prompt = "#peach_skill",
-  mod_target_filter = function(self, to_select)
+  target_num = 1,
+  mod_target_filter = function(self, to_select, selected)
     return Fk:currentRoom():getPlayerById(to_select):isWounded() and
+    (
+      #selected == 0 or
       not table.find(Fk:currentRoom().alive_players, function(p)
         return p.dying
       end)
+    )
+  end,
+  target_filter = Util.CommonTargetFilter,
+  preselected = function(self, selected_cards, card, player, extra_data)
+    if not (extra_data and extra_data.analepticRecover) then
+      return { Self.id }
+    end
   end,
   can_use = function(self, player, card)
     return player:isWounded() and not player:isProhibited(player, card)
   end,
-  on_use = function(self, room, use)
-    if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
-      use.tos = { { use.from } }
-    end
-  end,
+  -- on_use = function(self, room, use)
+  --   if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
+  --     use.tos = { { use.from } }
+  --   end
+  -- end,
   on_effect = function(self, room, effect)
     local player = room:getPlayerById(effect.from)
     local target = room:getPlayerById(effect.to)
@@ -399,6 +409,7 @@ local collateralSkill = fk.CreateActiveSkill{
     end
     local extra_data = {
       must_targets = effect.subTargets,
+      preselected_targets = effect.subTargets,
       bypass_times = true,
     }
     local use = room:askForUseCard(to, "slash", nil, prompt, nil, extra_data, effect)
@@ -430,15 +441,20 @@ extension:addCards({
 local exNihiloSkill = fk.CreateActiveSkill{
   name = "ex_nihilo_skill",
   prompt = "#ex_nihilo_skill",
+  target_num = 1,
   mod_target_filter = Util.TrueFunc,
+  target_filter = Util.CommonTargetFilter,
+  preselected = function()
+    return { Self.id }
+  end,
   can_use = function(self, player, card)
     return not player:isProhibited(player, card)
   end,
-  on_use = function(self, room, cardUseEvent)
-    if not cardUseEvent.tos or #TargetGroup:getRealTargets(cardUseEvent.tos) == 0 then
-      cardUseEvent.tos = { { cardUseEvent.from } }
-    end
-  end,
+  -- on_use = function(self, room, cardUseEvent)
+  --   if not cardUseEvent.tos or #TargetGroup:getRealTargets(cardUseEvent.tos) == 0 then
+  --     cardUseEvent.tos = { { cardUseEvent.from } }
+  --   end
+  -- end,
   on_effect = function(self, room, effect)
     local target = room:getPlayerById(effect.to)
     if target.dead then return end
@@ -489,11 +505,14 @@ extension:addCards({
 local savageAssaultSkill = fk.CreateActiveSkill{
   name = "savage_assault_skill",
   prompt = "#savage_assault_skill",
-  can_use = Util.AoeCanUse,
-  on_use = Util.AoeOnUse,
+  min_target_num = 1,
   mod_target_filter = function(self, to_select, selected, user, card, distance_limited)
     return user ~= to_select
   end,
+  target_filter = Util.CommonTargetFilter,
+  preselected = Util.GlobalPreselected,
+  can_use = Util.AoeCanUse,
+  -- on_use = Util.AoeOnUse,
   on_effect = function(self, room, effect)
     local cardResponded = room:askForResponse(room:getPlayerById(effect.to), 'slash', nil, nil, false, nil, effect)
 
@@ -533,11 +552,14 @@ extension:addCards({
 local archeryAttackSkill = fk.CreateActiveSkill{
   name = "archery_attack_skill",
   prompt = "#archery_attack_skill",
-  can_use = Util.AoeCanUse,
-  on_use = Util.AoeOnUse,
+  min_target_num = 1,
   mod_target_filter = function(self, to_select, selected, user, card, distance_limited)
     return user ~= to_select
   end,
+  target_filter = Util.CommonTargetFilter,
+  preselected = Util.GlobalPreselected,
+  can_use = Util.AoeCanUse,
+  -- on_use = Util.AoeOnUse,
   on_effect = function(self, room, effect)
     local cardResponded = room:askForResponse(room:getPlayerById(effect.to), 'jink', nil, nil, false, nil, effect)
 
@@ -575,9 +597,12 @@ extension:addCards({
 local godSalvationSkill = fk.CreateActiveSkill{
   name = "god_salvation_skill",
   prompt = "#god_salvation_skill",
-  can_use = Util.GlobalCanUse,
-  on_use = Util.GlobalOnUse,
+  min_target_num = 1,
   mod_target_filter = Util.TrueFunc,
+  target_filter = Util.CommonTargetFilter,
+  preselected = Util.GlobalPreselected,
+  can_use = Util.GlobalCanUse,
+  -- on_use = Util.GlobalOnUse,
   about_to_effect = function(self, room, effect)
     if not room:getPlayerById(effect.to):isWounded() then
       return true
@@ -612,9 +637,12 @@ extension:addCards({
 local amazingGraceSkill = fk.CreateActiveSkill{
   name = "amazing_grace_skill",
   prompt = "#amazing_grace_skill",
-  can_use = Util.GlobalCanUse,
-  on_use = Util.GlobalOnUse,
+  min_target_num = 1,
   mod_target_filter = Util.TrueFunc,
+  target_filter = Util.CommonTargetFilter,
+  preselected = Util.GlobalPreselected,
+  can_use = Util.GlobalCanUse,
+  -- on_use = Util.GlobalOnUse,
   on_action = function(self, room, use, finished)
     if not finished then
       local toDisplay = room:getNCards(#TargetGroup:getRealTargets(use.tos))
@@ -682,15 +710,20 @@ extension:addCards({
 local lightningSkill = fk.CreateActiveSkill{
   name = "lightning_skill",
   prompt = "#lightning_skill",
+  target_num = 1,
   mod_target_filter = Util.TrueFunc,
+  target_filter = Util.CommonTargetFilter,
+  preselected = function()
+    return { Self.id }
+  end,
   can_use = function(self, player, card)
     return not player:isProhibited(player, card)
   end,
-  on_use = function(self, room, use)
-    if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
-      use.tos = { { use.from } }
-    end
-  end,
+  -- on_use = function(self, room, use)
+  --   if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
+  --     use.tos = { { use.from } }
+  --   end
+  -- end,
   on_effect = function(self, room, effect)
     local to = room:getPlayerById(effect.to)
     local judge = {
@@ -987,7 +1020,7 @@ local bladeSkill = fk.CreateTriggerSkill{
   on_cost = function(self, event, target, player, data)
     local room = player.room
     local use = room:askForUseCard(player, "slash", nil, "#blade_slash:" .. data.to,
-      true, { must_targets = {data.to}, exclusive_targets = {data.to}, bypass_distances = true, bypass_times = true })
+      true, { must_targets = {data.to}, preselected_targets = {data.to}, must_targets = {data.to}, bypass_distances = true, bypass_times = true })
     if use then
       use.extraUse = true
       self.cost_data = use

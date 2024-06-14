@@ -369,6 +369,33 @@ function CanSelectCardForSkill(card, to_select, selected_targets)
   return ret
 end
 
+function CardPreselectedTarget(card, extra_data_str)
+  local extra_data = extra_data_str == "" and nil or json.decode(extra_data_str)
+  local ret = {}
+  if extra_data then
+    if extra_data.no_preselect then
+      return {}
+    end
+    if type(extra_data.preselected_targets) == "table" then
+      ret = table.simpleClone(extra_data.preselected_targets)
+    end
+  end
+  local c ---@type Card
+  local selected_cards
+  if type(card) == "number" then
+    c = Fk:getCardById(card)
+    selected_cards = {card}
+  else
+    local t = json.decode(card)
+    return ActivePreselectedTarget(t.skill, t.subcards, extra_data)
+  end
+  table.insertTableIfNeed(ret, c.skill:getPreselectedTarget(selected_cards, c, Self, extra_data))
+  ret = table.filter(ret, function(to_select)
+    return Self:canUseTo(c, Fk:currentRoom():getPlayerById(to_select), extra_data)
+  end)
+  return ret
+end
+
 ---@param card string | integer
 ---@param selected_targets integer[] @ ids of selected players
 function CardFeasible(card, selected_targets)
@@ -499,6 +526,28 @@ function ActiveTargetFilter(skill_name, to_select, selected, selected_cards, ext
       if card then
         ret = card.skill:targetFilter(to_select, selected, selected_cards, card, extra_data)
         ret = ret and not Self:isProhibited(Fk:currentRoom():getPlayerById(to_select), card)
+      end
+    end
+  end
+  return ret
+end
+
+function ActivePreselectedTarget(skill_name, selected_cards, extra_data)
+  local skill = Fk.skills[skill_name]
+  local ret = {}
+  if extra_data and type(extra_data.preselected_targets) == "table" then
+    ret = table.simpleClone(extra_data.preselected_targets)
+  end
+  if skill then
+    if skill:isInstanceOf(ActiveSkill) then
+      table.insertTableIfNeed(ret, skill:getPreselectedTarget(selected_cards, nil, Self, extra_data))
+    elseif skill:isInstanceOf(ViewAsSkill) then
+      local card = skill:viewAs(selected_cards)
+      if card then
+        table.insertTableIfNeed(ret, card.skill:getPreselectedTarget(selected_cards, card, Self, extra_data))
+        ret = table.filter(ret, function(to_select)
+          return Self:canUseTo(card, Fk:currentRoom():getPlayerById(to_select), extra_data)
+        end)
       end
     end
   end

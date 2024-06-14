@@ -179,6 +179,7 @@ end
 ---@field public can_use? fun(self: ActiveSkill, player: Player, card: Card, extra_data: any): boolean?
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): boolean?
 ---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, extra_data: any): boolean?
+---@field public preselected? fun(self: ActiveSkill, selected_cards: integer[], card: Card, player: Player, extra_data: any): integer[]?
 ---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): boolean?
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): boolean?
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): boolean?
@@ -204,6 +205,7 @@ function fk.CreateActiveSkill(spec)
   if spec.card_filter then skill.cardFilter = spec.card_filter end
   if spec.target_filter then skill.targetFilter = spec.target_filter end
   if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
+  if spec.preselected then skill.preselectedTarget = spec.preselected end
   if spec.feasible then
     -- print(spec.name .. ": feasible is deprecated. Use target_num and card_num instead.")
     skill.feasible = spec.feasible
@@ -392,6 +394,7 @@ end
 ---@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card, to: Player): boolean?
 ---@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card, to: Player): number?
 ---@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card): number?
+---@field public preselected_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card): number?
 
 ---@param spec TargetModSpec
 ---@return TargetModSkill
@@ -414,6 +417,9 @@ function fk.CreateTargetModSkill(spec)
   end
   if spec.extra_target_func then
     skill.getExtraTargetNum = spec.extra_target_func
+  end
+  if spec.preselected_func then
+    skill.getPreselected = spec.preselected_func
   end
 
   return skill

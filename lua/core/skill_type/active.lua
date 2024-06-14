@@ -42,6 +42,16 @@ function ActiveSkill:cardFilter(to_select, selected, selected_targets)
   return true
 end
 
+-- 判断这张牌应该预先选择哪些目标（具体筛选由canUseTo决定）
+---@param selected_cards integer[] @ 已选牌
+---@param card Card @ 牌
+---@param player Player @ 使用者
+---@param extra_data UseExtraData @ 额外数据
+---@return integer[]? @ 预选目标
+function ActiveSkill:preselectedTarget(selected_cards, card, player, extra_data)
+  return {}
+end
+
 -- 判断一名角色是否可被此技能选中
 ---@param to_select integer @ 待选目标
 ---@param selected integer[] @ 已选目标
@@ -142,6 +152,23 @@ function ActiveSkill:getMaxCardNum()
   else
     return ret
   end
+end
+
+-- 获得技能最终的预选目标
+---@param selected_cards integer[] @ 已选牌
+---@param card Card @ 牌
+---@param player Player @ 使用者
+---@param extra_data UseExtraData @ 额外数据
+---@return integer[] @ 最终预选目标
+function ActiveSkill:getPreselectedTarget(selected_cards, card, player, extra_data)
+  local ret = self:preselectedTarget(selected_cards, card, player, extra_data) or {}
+  local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
+  for _, skill in ipairs(status_skills) do
+    local targets = skill:getPreselected(player, self, card)
+    if not targets then targets = {} end
+    table.insertTableIfNeed(ret, targets)
+  end
+  return ret
 end
 
 -- 获得技能的距离限制

@@ -135,6 +135,23 @@ Util.TranslateMapper = function(str) return Fk:translate(str) end
 
 -- for card preset
 
+--- 只考虑modTargetFilter和次数限制的TargetFilter
+Util.CommonTargetFilter = function(self, to_select, selected, selected_cards, card)
+  if #selected < self:getMaxTargetNum(Self, card) then
+    return self:modTargetFilter(to_select, selected, Self.id, card)
+  end
+end
+
+--- 全局选择的preselectedTarget（可以靠modTargetFilter过滤掉目标）
+Util.GlobalPreselected = function()
+  local room = Fk:currentRoom()
+  local ret = {}
+  for _, target in ipairs(room.alive_players) do
+    table.insertIfNeed(ret, target.id)
+  end
+  return ret
+end
+
 --- 全局卡牌(包括自己)的canUse
 Util.GlobalCanUse = function(self, player, card)
   local room = Fk:currentRoom()
