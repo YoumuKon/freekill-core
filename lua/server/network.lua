@@ -170,6 +170,7 @@ function Request:ask()
   -- 2. 进入循环等待，结束条件为已有n个回复或者超时或者有人点了
   --    若很多人都取消了导致最多回复数达不到n了，那么也结束
   local currentTime = os.time()
+  local ready_players = 0
   while true do
     local changed = false
     -- 判断1：若投降则直接结束全部询问，若超时则踢掉所有人类玩家（这样AI还可计算）
@@ -190,7 +191,6 @@ function Request:ask()
     end
 
     -- 判断2：收到足够多回复了
-    local ready_players = 0
     local use_ai = self.ai_start_time ~= nil
 
     for i = #players, 1, -1 do
@@ -220,7 +220,7 @@ function Request:ask()
       end
     end
 
-    if #players < self.n then break end
+    if #players + ready_players < self.n then break end
     if ready_players >= self.n then break end
 
     -- 防止万一，如果AI算完后还是有机器人notready的话也别等了
