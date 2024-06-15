@@ -113,7 +113,11 @@ function Request:_checkReply(player, use_ai)
       -- FIXME: 后面进行SmartAI的时候准备爆破此处
       -- player.ai.data = self.data[player.id]
       player.ai.jsonData = self.data[player.id]
-      reply = player.ai:makeReply()
+      if player.ai:isInstanceOf(RandomAI) then
+        reply = "__cancel"
+      else
+        reply = player.ai:makeReply()
+      end
     else
       -- 还没轮到AI呢，所以需要标记为未答复
       reply = "__notready"
