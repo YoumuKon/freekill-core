@@ -1,28 +1,3 @@
---[[
-  本文件定义了常见的请求-答复操作所需的类
-  原先的逻辑写在room和serverplayer，现在那里只有一个为了兼容性保留的套壳API
-
-  如文档所述，只要实现一个对多询问的机制就行了，当n个人发出回信后，询问即结束
-  注意若需要等待则交出程序控制权
-
-  在这里列出几个需要解决的重要问题。
-  * 网络问题与托管问题
-    玩家随时会掉线（后续版本还会推出托管），而掉线的玩家与已离开的玩家不应继续
-    等待他们回复，需要立刻获得控制权以进行处理。
-    处理网络状态的代码在C++中，为此为玩家设置thinking属性表示其是否正在烧条。
-    当正在思考中的玩家网络状态变化时，C++需要唤醒lua，而这个属性的设定由Lua进行。
-
-  * 一控多问题
-    一名玩家同时操控多人，当属于同一操作者的多个玩家被同时询问时需要特殊处理
-    控制者的视角中，其需要对各种询问依次做出答复，但若整个询问已经结束，
-    那么也别再处理剩余的询问。
-
-  * 手气卡问题
-    出现情景为22选将以及手气卡，特点是整个Request过程中玩家可能做出非答复的反应
-    服务端此时进入异步逻辑中处理回应，而不是进入Request函数
-    以及玩家视角中读条不能被重置
---]]
-
 ---@class Request : Object
 ---@field public room Room
 ---@field public players ServerPlayer[]
@@ -38,7 +13,7 @@
 ---@field private send_success table<fk.ServerPlayer, boolean> @ 数据是否发送成功，不成功的后面全部视为AI
 ---@field public result table<integer, any> @ 玩家id - 回复内容 nil表示完全未回复
 ---@field private pending_requests table<fk.ServerPlayer, integer[]> @ 一控多时暂存的请求
-local Request = class("RequestData")
+local Request = class("Request")
 
 ---@param command string
 ---@param players ServerPlayer[]
@@ -62,6 +37,10 @@ function Request:initialize(command, players, n)
   self.pending_requests = setmetatable({}, { __mode = "k" })
   self.send_success = setmetatable({}, { __mode = "k" })
   self.result = {}
+end
+
+function Request:__tostring()
+  return "<Request>"
 end
 
 function Request:setData(player, data)
@@ -161,6 +140,7 @@ function Request:ask()
   room.room:setRequestTimer(self.timeout * 1000 + 500)
 
   local players = table.simpleClone(self.players)
+  local currentTime = os.time()
 
   -- 1. 向所有人发送询问请求
   for _, p in ipairs(players) do
@@ -169,7 +149,7 @@ function Request:ask()
 
   -- 2. 进入循环等待，结束条件为已有n个回复或者超时或者有人点了
   --    若很多人都取消了导致最多回复数达不到n了，那么也结束
-  local currentTime = os.time()
+  local replied_players = 0
   local ready_players = 0
   while true do
     local changed = false
@@ -185,7 +165,8 @@ function Request:ask()
     end
 
     if table.every(players, function(p)
-      return p.serverplayer:getState() ~= fk.Player_Online
+      return p.serverplayer:getState() ~= fk.Player_Online or not
+        self.send_success[p.serverplayer]
     end) then
       self.ai_start_time = os.getms()
     end
@@ -203,6 +184,7 @@ function Request:ask()
         end
         self.result[player.id] = reply
         table.remove(players, i)
+        replied_players = replied_players + 1
         changed = true
 
         if reply ~= "__cancel" or self.accept_cancel then

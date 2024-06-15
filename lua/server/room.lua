@@ -798,6 +798,7 @@ function Room:doRequest(player, command, jsonData, wait)
   local request = Request:new(command, {player})
   request.send_json = false -- 因为参数已经json.encode过了，该死的兼容性
   request.receive_json = false
+  request.accept_cancel = true
   request:setData(player, jsonData)
   request:ask()
   return request.result[player.id]
@@ -813,6 +814,7 @@ function Room:doBroadcastRequest(command, players, jsonData)
   local request = Request:new(command, players)
   request.send_json = false -- 因为参数已经json.encode过了
   request.receive_json = false
+  request.accept_cancel = true
   for _, p in ipairs(players) do
     request:setData(p, jsonData or p.request_data)
   end
