@@ -2195,7 +2195,7 @@ function Room:handleUseCardReply(player, data)
     local use = {}    ---@type CardUseStruct
     use.from = player.id
     use.tos = {}
-    for _, target in ipairs(targets) do
+    for _, target in ipairs(targets or Util.DummyTable) do
       table.insert(use.tos, { target })
     end
     if #use.tos == 0 then
