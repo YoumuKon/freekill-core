@@ -33,7 +33,7 @@ function ReqActiveSkill:setup()
   -- progress.visible = true;
   -- okCancel.visible = true;
   self:updateCard()
-  scene:addItem(Button:new(self.scene, "Ok"))
+  scene:addItem(Button:new(self.scene, "OK"))
   scene:addItem(Button:new(self.scene, "Cancel"))
   scene:notifyUI()
 end
@@ -45,14 +45,14 @@ function ReqActiveSkill:checkButton(data)
   if skill then
     local ret = skill:feasible(self.selected_targets, self.pendings, player)
     if ret then
-      scene:update("Button", "Ok", { enabled = true })
+      scene:update("Button", "OK", { enabled = true })
       return
     end
   end
-  scene:update("Button", "Ok", { enabled = false })
+  scene:update("Button", "OK", { enabled = false })
 end
 
-function ReqActiveSkill:doOkButton()
+function ReqActiveSkill:doOKButton()
   self:disabledAll()
   ClientInstance:notifyUI("ReplyToServer", "")
 end
@@ -198,7 +198,7 @@ end
 function ReqActiveSkill:update(elemType, id, action, data)
   self.change = ClientInstance and {} or nil
   if elemType == "Button" then
-    if id == "Ok" then self:doOkButton()
+    if id == "OK" then self:doOKButton()
     elseif id == "Cancel" then self:doCancelButton() end
     return
   elseif elemType == "CardItem" then

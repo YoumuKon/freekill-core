@@ -38,25 +38,27 @@ end
 function ReqPlayCard:setup()
   self.change = ClientInstance and {} or nil
   local scene = self.scene
+  local player = self.player
 
   -- TODO: &牌堆
-  for _, cid in ipairs(self.player:getCardIds("h")) do
-    if self:canUseCard(self.player, Fk:getCardById(cid)) then
+  for _, cid in ipairs(player:getCardIds("h")) do
+    if self:canUseCard(player, Fk:getCardById(cid)) then
       scene:update("CardItem", cid, { enabled = true })
     end
   end
 
   -- RoomScene.enableSkills();
+  local skills = player:getAllSkills()
 
   -- 出牌阶段还要多模拟一个结束按钮
-  scene:addItem(Button:new(self.scene, "Ok"))
-  scene:addItem(Button:new(self.scene, "Cancel"))
+  -- scene:addItem(Button:new(self.scene, "OK"))
+  -- scene:addItem(Button:new(self.scene, "Cancel"))
   scene:addItem(Button:new(self.scene, "End"))
   scene:update("Button", "End", { enabled = true })
   scene:notifyUI()
 end
 
--- function ReqPlayCard:doOkButton()
+-- function ReqPlayCard:doOKButton()
 --   -- const reply = JSON.stringify({
 --   --   card: RoomScene.getSelectedCard(),
 --   --   targets: selected_targets,
@@ -102,11 +104,11 @@ function ReqPlayCard:checkButton(data)
     local skill = card.skill ---@type ActiveSkill
     local ret = skill:feasible(self.selected_targets, { card.id }, player, card)
     if ret then
-      scene:update("Button", "Ok", { enabled = true })
+      scene:update("Button", "OK", { enabled = true })
       return
     end
   end
-  scene:update("Button", "Ok", { enabled = false })
+  scene:update("Button", "OK", { enabled = false })
 end
 
 function ReqPlayCard:updateTarget(data)
@@ -200,7 +202,7 @@ end
 function ReqPlayCard:update(elemType, id, action, data)
   self.change = ClientInstance and {} or nil
   if elemType == "Button" then
-    if id == "Ok" then self:doOkButton()
+    if id == "OK" then self:doOKButton()
     elseif id == "Cancel" then self:doCancelButton()
     elseif id == "End" then self:doEndButton() end
     return
@@ -210,6 +212,7 @@ function ReqPlayCard:update(elemType, id, action, data)
   elseif elemType == "Photo" then
     self:selectTarget(id, data)
   elseif elemType == "SkillButton" then
+    self:selectSkill(id, data)
   end
   self.scene:notifyUI()
 end
