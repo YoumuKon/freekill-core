@@ -58,7 +58,7 @@ end
 
 -- function ReqPlayCard:doOKButton()
 --   -- const reply = JSON.stringify({
---   --   card: RoomScene.getSelectedCard(),
+--   --   card: dashboard.getSelectedCard(),
 --   --   targets: selected_targets,
 --   --   special_skill: roomScene.getCurrentCardUseMethod(),
 --   --   interaction_data: roomScene.skillInteraction.item ?
@@ -72,7 +72,11 @@ end
 -- end
 
 function ReqPlayCard:doOKButton()
-  ClientInstance:notifyUI("ReplyToServer", "")
+  local reply = {
+    card = self.selected_card:getEffectiveId(),
+    targets = self.selected_targets,
+  }
+  ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
 end
 
 function ReqPlayCard:doEndButton()

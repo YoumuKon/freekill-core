@@ -48,7 +48,15 @@ function ReqActiveSkill:checkButton(data)
 end
 
 function ReqActiveSkill:doOKButton()
-  ClientInstance:notifyUI("ReplyToServer", "")
+  local cardstr = json.encode{
+    skill = self.skill_name,
+    subcards = self.pendings
+  }
+  local reply = {
+    card = cardstr,
+    targets = self.selected_targets,
+  }
+  ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
 end
 
 function ReqActiveSkill:doCancelButton()
