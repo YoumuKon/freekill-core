@@ -51,8 +51,6 @@ function ReqPlayCard:setup()
   local skills = player:getAllSkills()
 
   -- 出牌阶段还要多模拟一个结束按钮
-  -- scene:addItem(Button:new(self.scene, "OK"))
-  -- scene:addItem(Button:new(self.scene, "Cancel"))
   scene:addItem(Button:new(self.scene, "End"))
   scene:update("Button", "End", { enabled = true })
   scene:notifyUI()
@@ -73,8 +71,11 @@ end
 --   ClientInstance:notifyUI("ReplyToServer", "__cancel")
 -- end
 
+function ReqPlayCard:doOKButton()
+  ClientInstance:notifyUI("ReplyToServer", "")
+end
+
 function ReqPlayCard:doEndButton()
-  self:disabledAll()
   ClientInstance:notifyUI("ReplyToServer", "")
 end
 
@@ -119,24 +120,25 @@ function ReqPlayCard:updateTarget(data)
   -- 重置
   self.selected_targets = {}
   for _, p in ipairs(room.alive_players) do
-    local dat = {}
     local pid = p.id
-    dat.state = "normal"
-    dat.enabled = false
-    dat.selected = false
+    local dat = {
+      state = "normal",
+      selected = false,
+    }
     scene:update("Photo", pid, dat)
   end
   -- 选择实体卡牌时
   if card then
     local skill = card.skill ---@type ActiveSkill
     for _, p in ipairs(room.alive_players) do
-      local dat = {}
       local pid = p.id
-      dat.state = "candidate"
-      dat.enabled = not not(not player:isProhibited(p, card) and skill and
-      skill:targetFilter(pid, self.selected_targets,
-      { card.id }, card, data.extra_data))
-      -- print(string.format("<%d %s>", pid, tostring(dat.enabled)))
+      local dat = {
+        state = "candidate",
+        enabled = not not(not player:isProhibited(p, card) and skill and
+        skill:targetFilter(pid, self.selected_targets,
+        { card.id }, card, data.extra_data)),
+      }
+      print(string.format("<%d %s>", pid, tostring(dat.enabled)))
       scene:update("Photo", pid, dat)
     end
   end
@@ -189,9 +191,12 @@ function ReqPlayCard:selectTarget(playerid, data)
     end
   else
     for _, p in ipairs(room.alive_players) do
-      local dat = {}
       local pid = p.id
-      dat.state = "normal"
+      local dat = {
+        state = "normal",
+        enabled = false,
+        selected = false,
+      }
       scene:update("Photo", pid, dat)
     end
   end

@@ -9,7 +9,6 @@ local Button = control.Button
 ---@field public prompt string 提示信息
 ---@field public cancelable boolean 可否取消
 ---@field public extra_data any 需要另外定义 先any
----@field public pending_skill string
 ---@field public pendings integer[] 卡牌id数组
 ---@field public selected_targets integer[] 选择的目标
 local ReqActiveSkill = RequestHandler:subclass("ReqActiveSkill")
@@ -33,44 +32,40 @@ function ReqActiveSkill:setup()
   -- progress.visible = true;
   -- okCancel.visible = true;
   self:updateCard()
-  scene:addItem(Button:new(self.scene, "OK"))
-  scene:addItem(Button:new(self.scene, "Cancel"))
+  self:updateTarget()
   scene:notifyUI()
 end
 
 function ReqActiveSkill:checkButton(data)
   local player = self.player
   local scene = self.scene
-  local skill = Fk.skills[self.pending_skill] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
+  local dat = { enabled = false }
   if skill then
-    local ret = skill:feasible(self.selected_targets, self.pendings, player)
-    if ret then
-      scene:update("Button", "OK", { enabled = true })
-      return
-    end
+    dat.enabled = not not (skill:feasible(self.selected_targets, self.pendings, player))
   end
-  scene:update("Button", "OK", { enabled = false })
+  scene:update("Button", "OK", dat)
 end
 
 function ReqActiveSkill:doOKButton()
-  self:disabledAll()
   ClientInstance:notifyUI("ReplyToServer", "")
 end
 
 function ReqActiveSkill:doCancelButton()
-  self:disabledAll()
   ClientInstance:notifyUI("ReplyToServer", "__cancel")
 end
 
 function ReqActiveSkill:updateCard()
   local scene = self.scene
-  local skill = Fk.skills[self.pending_skill] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
   -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
   for _, cid in ipairs(self.player:getCardIds("h")) do
-    local dat = {}
-    dat.selected = false
-    dat.enabled = not not(skill:cardFilter(cid, self.pendings,
-    self.selected_targets))
+    local dat = {
+      -- selected = false,
+      enabled = not not(skill:cardFilter(cid, self.pendings,
+      self.selected_targets)),
+    }
+    print(string.format("<%d %s>", cid, tostring(dat.enabled)))
     scene:update("CardItem", cid, dat)
   end
 end
@@ -78,7 +73,7 @@ end
 function ReqActiveSkill:selectCard(cardid, data)
   local scene = self.scene
   local selected = data.selected
-  local skill = Fk.skills[self.pending_skill] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
   scene:update("CardItem", cardid, data)
 
   if selected then
@@ -116,15 +111,16 @@ function ReqActiveSkill:updateTarget(data)
   local player = self.player
   local room = self.room
   local scene = self.scene
-  local skill = Fk.skills[self.pending_skill] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
   -- 重置
   self.selected_targets = {}
   for _, p in ipairs(room.alive_players) do
-    local dat = {}
     local pid = p.id
-    dat.state = "normal"
-    dat.enabled = false
-    dat.selected = false
+    local dat = {
+      state = "normal",
+      enabled = false,
+      selected = false,
+    }
     scene:update("Photo", pid, dat)
   end
   -- 选择技能目标时
@@ -148,7 +144,7 @@ function ReqActiveSkill:selectTarget(playerid, data)
   local room = self.room
   local scene = self.scene
   local selected = data.selected
-  local skill = Fk.skills[self.pending_skill] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
   scene:update("Photo", playerid, data)
 
   if skill then
@@ -185,9 +181,12 @@ function ReqActiveSkill:selectTarget(playerid, data)
     end
   else
     for _, p in ipairs(room.alive_players) do
-      local dat = {}
       local pid = p.id
-      dat.state = "normal"
+      local dat = {
+        state = "normal",
+        enabled = false,
+        selected = false,
+      }
       scene:update("Photo", pid, dat)
     end
   end
