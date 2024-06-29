@@ -24,6 +24,7 @@ end
 function ReqActiveSkill:setup()
   self.change = ClientInstance and {} or nil
   local scene = self.scene
+  p("setup active!")
   -- skillInteraction.sourceComponent = undefined;
   -- RoomScene.updateHandcards();
   -- RoomScene.enableCards(responding_card);
@@ -69,11 +70,10 @@ function ReqActiveSkill:updateCard()
   -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
   for _, cid in ipairs(self.player:getCardIds("h")) do
     local dat = {
-      -- selected = false,
-      enabled = not not(skill:cardFilter(cid, self.pendings,
+      selected = false,
+      enabled = not not(skill:cardFilter(cid, self.skill_name,
       self.selected_targets)),
     }
-    print(string.format("<%d %s>", cid, tostring(dat.enabled)))
     scene:update("CardItem", cid, dat)
   end
 end
