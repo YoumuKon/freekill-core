@@ -21,6 +21,38 @@ function ReqActiveSkill:initialize(player)
   self.selected_targets = {}
 end
 
+function ReqActiveSkill:checkTargets(skill, data)
+  local scene = self.scene
+  local room = self.room
+
+  for _, p in ipairs(room.alive_players) do
+    local dat = {
+      state = "candidate",
+    }
+    local pid = p.id
+    if not table.contains(self.selected_targets, pid) then
+      dat.enabled = not not(skill and
+      skill:targetFilter(pid, self.selected_targets, self.pendings))
+      print(string.format("<%d %s>", pid, tostring(dat.enabled)))
+      scene:update("Photo", pid, dat)
+    end
+  end
+end
+
+function ReqActiveSkill:checkCards(skill, data)
+  local scene = self.scene
+  local room = self.room
+
+  -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
+  for _, cid in ipairs(self.player:getCardIds("h")) do
+    local dat = {}
+    if not table.contains(self.pendings, cid) then
+      dat.enabled = not not(skill:cardFilter(cid, self.pendings))
+      scene:update("CardItem", cid, dat)
+    end
+  end
+end
+
 function ReqActiveSkill:setup()
   self.change = ClientInstance and {} or nil
   local scene = self.scene
@@ -34,16 +66,26 @@ function ReqActiveSkill:setup()
   -- okCancel.visible = true;
   self:updateCard()
   self:updateTarget()
+  scene:update("Button", "Cancel", { enabled = self.cancelable })
   scene:notifyUI()
 end
 
 function ReqActiveSkill:checkButton(data)
   local player = self.player
   local scene = self.scene
-  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill | ViewAsSkill
   local dat = { enabled = false }
   if skill then
-    dat.enabled = not not (skill:feasible(self.selected_targets, self.pendings, player))
+    if skill:isInstanceOf(ActiveSkill) then
+      dat.enabled = not not (skill:feasible(self.selected_targets, self.pendings, player))
+    elseif skill:isInstanceOf(ViewAsSkill) then
+      local card = skill:viewAs(self.pendings)
+      if card then
+        local card_skill = card.skill ---@type ActiveSkill
+        dat.enabled = not not (card_skill:feasible(
+        self.selected_targets, { card.id }, player, card))
+      end
+    end
   end
   scene:update("Button", "OK", dat)
 end
@@ -64,30 +106,24 @@ function ReqActiveSkill:doCancelButton()
   ClientInstance:notifyUI("ReplyToServer", "__cancel")
 end
 
-function ReqActiveSkill:updateCard()
+function ReqActiveSkill:updateCard(data)
   local scene = self.scene
   local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
-  -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
-  for _, cid in ipairs(self.player:getCardIds("h")) do
-    local dat = {
-      selected = false,
-      enabled = not not(skill:cardFilter(cid, self.skill_name,
-      self.selected_targets)),
-    }
-    scene:update("CardItem", cid, dat)
-  end
+  self.pendings = {}
+
+  self:checkCards(skill, data)
 end
 
 function ReqActiveSkill:selectCard(cardid, data)
   local scene = self.scene
   local selected = data.selected
-  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill | ViewAsSkill
   scene:update("CardItem", cardid, data)
 
   if selected then
     table.insert(self.pendings, cardid)
   else
-    -- 存储剩余目标
+    -- 存储剩余卡牌
     local previous_pendings = table.filter(self.pendings, function(id)
       return id ~= cardid
     end)
@@ -96,7 +132,7 @@ function ReqActiveSkill:selectCard(cardid, data)
       local ret
       ret = skill and
       skill:cardFilter(cid, self.pendings)
-      -- 从头开始写目标
+      -- 从头开始写卡牌
       if ret then
         table.insert(self.pendings, cid)
       end
@@ -104,42 +140,35 @@ function ReqActiveSkill:selectCard(cardid, data)
     end
   end
   -- 剩余合法性检测
-  -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
-  for _, cid in ipairs(self.player:getCardIds("h")) do
-    local dat = {}
-    if not table.contains(self.pendings, cid) then
-      dat.enabled = not not(skill:cardFilter(cid, self.pendings,
-      self.selected_targets))
-      scene:update("CardItem", cid, dat)
-    end
-  end
+  self:checkCards(skill, data)
 end
 
 function ReqActiveSkill:updateTarget(data)
-  local player = self.player
   local room = self.room
   local scene = self.scene
   local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
+  local actual_skill = skill ---@type ActiveSkill?
+  if skill:isInstanceOf(ViewAsSkill) then
+    local card = skill:viewAs(self.pendings)
+    if card then
+      actual_skill = card.skill
+    else
+      actual_skill = nil
+    end
+  end
   -- 重置
   self.selected_targets = {}
-  for _, p in ipairs(room.alive_players) do
-    local pid = p.id
-    local dat = {
-      state = "normal",
-      enabled = false,
-      selected = false,
-    }
-    scene:update("Photo", pid, dat)
-  end
   -- 选择技能目标时
-  if skill then
+  if actual_skill then
+    self:checkTargets(actual_skill, data)
+  else
     for _, p in ipairs(room.alive_players) do
-      local dat = {}
       local pid = p.id
-      dat.state = "candidate"
-      dat.enabled = not not(skill and
-      skill:targetFilter(pid, self.selected_targets, self.pendings))
-      -- print(string.format("<%d %s>", pid, tostring(dat.enabled)))
+      local dat = {
+        state = "normal",
+        enabled = false,
+        selected = false,
+      }
       scene:update("Photo", pid, dat)
     end
   end
@@ -152,10 +181,19 @@ function ReqActiveSkill:selectTarget(playerid, data)
   local room = self.room
   local scene = self.scene
   local selected = data.selected
-  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill
+  local skill = Fk.skills[self.skill_name] ---@type ActiveSkill | ViewAsSkill
   scene:update("Photo", playerid, data)
+  local actual_skill = skill ---@type ActiveSkill?
+  if skill:isInstanceOf(ViewAsSkill) then
+    local card = skill:viewAs(self.pendings)
+    if card then
+      actual_skill = card.skill
+    else
+      actual_skill = nil
+    end
+  end
 
-  if skill then
+  if actual_skill then
     if selected then
       table.insert(self.selected_targets, playerid)
     else
@@ -167,7 +205,7 @@ function ReqActiveSkill:selectTarget(playerid, data)
       for _, pid in ipairs(previous_targets) do
         local ret
         ret = skill and
-        skill:targetFilter(pid, self.selected_targets, self.pendings)
+        actual_skill:targetFilter(pid, self.selected_targets, self.pendings)
         -- 从头开始写目标
         if ret then
           table.insert(self.selected_targets, pid)
@@ -177,16 +215,7 @@ function ReqActiveSkill:selectTarget(playerid, data)
     end
     p(self.selected_targets)
     -- 剩余合法性检测
-    for _, p in ipairs(room.alive_players) do
-      local dat = {}
-      local pid = p.id
-      if not table.contains(self.selected_targets, pid) then
-        dat.enabled = not not(skill and
-        skill:targetFilter(pid, self.selected_targets, self.pendings))
-        print(string.format("<%d %s>", pid, tostring(dat.enabled)))
-        scene:update("Photo", pid, dat)
-      end
-    end
+    self:checkTargets(actual_skill, data)
   else
     for _, p in ipairs(room.alive_players) do
       local pid = p.id

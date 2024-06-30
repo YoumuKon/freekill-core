@@ -94,6 +94,7 @@ function ReqPlayCard:updateCard()
   local scene = self.scene
   local player = self.player
   self.selected_card = nil
+  self.pendings = {}
   -- TODO: 统一调用一个公有ID表（代表屏幕亮出的这些牌）
   for _, cid in ipairs(player:getCardIds("h")) do
     local dat = {
@@ -154,7 +155,6 @@ function ReqPlayCard:selectSkill(skill, data)
     ReqActiveSkill.updateTarget(self)
   else
     self.skill_name = nil
-    self.pendings = {}
     self:updateCard()
     self:updateTarget()
   end
