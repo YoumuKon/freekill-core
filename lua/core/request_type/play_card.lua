@@ -210,29 +210,12 @@ function ReqPlayCard:updateTarget(data)
   end
   -- 重置
   self.selected_targets = {}
-  for _, p in ipairs(room.alive_players) do
-    local pid = p.id
-    local dat = {
-      state = "normal",
-      selected = false,
-    }
-    scene:update("Photo", pid, dat)
-  end
+  local skill
   -- 选择实体卡牌时
   if card then
-    local skill = card.skill ---@type ActiveSkill
-    for _, p in ipairs(room.alive_players) do
-      local pid = p.id
-      local dat = {
-        state = "candidate",
-        enabled = not not(not player:isProhibited(p, card) and skill and
-        skill:targetFilter(pid, self.selected_targets,
-        { card.id }, card, data.extra_data)),
-      }
-      print(string.format("<%d %s>", pid, tostring(dat.enabled)))
-      scene:update("Photo", pid, dat)
-    end
+    skill = card.skill ---@type ActiveSkill
   end
+  self:checkTargets(skill, data)
   -- 确认按钮
   self:checkButton(data)
 end
@@ -289,8 +272,6 @@ function ReqPlayCard:selectTarget(playerid, data)
       local pid = p.id
       local dat = {
         state = "normal",
-        enabled = false,
-        selected = false,
       }
       scene:update("Photo", pid, dat)
     end

@@ -26,14 +26,21 @@ function ReqActiveSkill:checkTargets(skill, data)
   local room = self.room
 
   for _, p in ipairs(room.alive_players) do
-    local dat = {
-      state = "candidate",
-    }
     local pid = p.id
-    if not table.contains(self.selected_targets, pid) then
-      dat.enabled = not not(skill and
-      skill:targetFilter(pid, self.selected_targets, self.pendings))
-      print(string.format("<%d %s>", pid, tostring(dat.enabled)))
+    if skill then
+      local dat = {
+        state = "candidate",
+      }
+      if not table.contains(self.selected_targets, pid) then
+        dat.enabled = not not(skill:targetFilter(
+        pid, self.selected_targets, self.pendings))
+        print(string.format("<%d %s>", pid, tostring(dat.enabled)))
+        scene:update("Photo", pid, dat)
+      end
+    else
+      local dat = {
+        state = "normal",
+      }
       scene:update("Photo", pid, dat)
     end
   end
@@ -166,8 +173,6 @@ function ReqActiveSkill:updateTarget(data)
       local pid = p.id
       local dat = {
         state = "normal",
-        enabled = false,
-        selected = false,
       }
       scene:update("Photo", pid, dat)
     end
@@ -221,8 +226,6 @@ function ReqActiveSkill:selectTarget(playerid, data)
       local pid = p.id
       local dat = {
         state = "normal",
-        enabled = false,
-        selected = false,
       }
       scene:update("Photo", pid, dat)
     end
