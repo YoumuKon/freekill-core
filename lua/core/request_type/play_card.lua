@@ -256,25 +256,9 @@ function ReqPlayCard:selectTarget(playerid, data)
     end
     p(self.selected_targets)
     -- 剩余合法性检测
-    for _, p in ipairs(room.alive_players) do
-      local dat = {}
-      local pid = p.id
-      if not table.contains(self.selected_targets, pid) then
-        dat.enabled = not not(not player:isProhibited(p, card) and skill and
-        skill:targetFilter(pid, self.selected_targets,
-          {card.id}, card, data.extra_data))
-        print(string.format("<%d %s>", pid, tostring(dat.enabled)))
-        scene:update("Photo", pid, dat)
-      end
-    end
+    self:checkTargets(skill, data)
   else
-    for _, p in ipairs(room.alive_players) do
-      local pid = p.id
-      local dat = {
-        state = "normal",
-      }
-      scene:update("Photo", pid, dat)
-    end
+    self:checkTargets(nil, data)
   end
   -- 确认按钮
   self:checkButton(data)
