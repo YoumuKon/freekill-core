@@ -1311,8 +1311,9 @@ end
 ---@param skillName? string @ 技能名
 ---@param cancelable? boolean @ 能否点取消
 ---@param no_indicate? boolean @ 是否不显示指示线
+---@param targetTipName? string @ 引用的选择目标提示的函数名
 ---@return integer[] @ 选择的玩家id列表，可能为空
-function Room:askForChoosePlayers(player, targets, minNum, maxNum, prompt, skillName, cancelable, no_indicate)
+function Room:askForChoosePlayers(player, targets, minNum, maxNum, prompt, skillName, cancelable, no_indicate, targetTipName)
   if maxNum < 1 then
     return {}
   end
@@ -1324,7 +1325,8 @@ function Room:askForChoosePlayers(player, targets, minNum, maxNum, prompt, skill
     num = maxNum,
     min_num = minNum,
     pattern = "",
-    skillName = skillName
+    skillName = skillName,
+    targetTipName = targetTipName,
   }
   local _, ret = self:askForUseActiveSkill(player, "choose_players_skill", prompt or "", cancelable, data, no_indicate)
   if ret then
@@ -1397,8 +1399,9 @@ end
 ---@param prompt? string @ 提示信息
 ---@param cancelable? boolean @ 能否点取消
 ---@param no_indicate? boolean @ 是否不显示指示线
+---@param targetTipName? string @ 引用的选择目标提示的函数名
 ---@return integer[], integer
-function Room:askForChooseCardAndPlayers(player, targets, minNum, maxNum, pattern, prompt, skillName, cancelable, no_indicate)
+function Room:askForChooseCardAndPlayers(player, targets, minNum, maxNum, pattern, prompt, skillName, cancelable, no_indicate, targetTipName)
   if maxNum < 1 then
     return {}
   end
@@ -1417,7 +1420,8 @@ function Room:askForChooseCardAndPlayers(player, targets, minNum, maxNum, patter
     num = maxNum,
     min_num = minNum,
     pattern = pattern,
-    skillName = skillName
+    skillName = skillName,
+    targetTipName = targetTipName,
   }
   local _, ret = self:askForUseActiveSkill(player, "choose_players_skill", prompt or "", cancelable, data, no_indicate)
   if ret then
@@ -1445,7 +1449,7 @@ end
 ---@param cancelable? boolean @ 能否点取消
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@return integer[], integer[]
-function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, targets, minTargetNum, maxTargetNum, pattern, prompt, skillName, cancelable, no_indicate)
+function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, targets, minTargetNum, maxTargetNum, pattern, prompt, skillName, cancelable, no_indicate, targetTipName)
   cancelable = (cancelable == nil) and true or cancelable
   no_indicate = no_indicate or false
   pattern = pattern or "."
@@ -1464,6 +1468,7 @@ function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, target
     min_c_num = minCardNum,
     pattern = pattern,
     skillName = skillName,
+    targetTipName = targetTipName,
   }
   local _, ret = self:askForUseActiveSkill(player, "ex__choose_skill", prompt or "", cancelable, data, no_indicate)
   if ret then
@@ -3526,7 +3531,7 @@ function Room:handleAddLoseSkills(player, skill_names, source_skill, sendlog, no
   for _, skill in ipairs(skill_names) do
     if string.sub(skill, 1, 1) == "-" then
       local actual_skill = string.sub(skill, 2, #skill)
-      if player:hasSkill(actual_skill, true, true) then
+      if player:hasSkill(actual_skill, true, true) and not Fk.skills[actual_skill].permanent_skill then
         local lost_skills = player:loseSkill(actual_skill, source_skill)
         for _, s in ipairs(lost_skills) do
           self:doBroadcastNotify("LoseSkill", json.encode{
