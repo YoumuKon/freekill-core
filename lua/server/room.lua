@@ -3531,7 +3531,7 @@ function Room:handleAddLoseSkills(player, skill_names, source_skill, sendlog, no
   for _, skill in ipairs(skill_names) do
     if string.sub(skill, 1, 1) == "-" then
       local actual_skill = string.sub(skill, 2, #skill)
-      if player:hasSkill(actual_skill, true, true) and not Fk.skills[actual_skill].permanent_skill then
+      if player:hasSkill(actual_skill, true, true) then
         local lost_skills = player:loseSkill(actual_skill, source_skill)
         for _, s in ipairs(lost_skills) do
           self:doBroadcastNotify("LoseSkill", json.encode{
