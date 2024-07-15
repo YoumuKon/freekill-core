@@ -2120,8 +2120,9 @@ end
 ---@return table<"top"|"bottom", integer[]>
 function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotify, noPut, areaNames)
   -- 这一大堆都是来提前报错的
-  top_limit = top_limit or Util.DummyTable
-  bottom_limit = bottom_limit or Util.DummyTable
+  local leng = #cards
+  top_limit = top_limit or { 0, leng }
+  bottom_limit = bottom_limit or { 0, leng }
   if #top_limit > 0 then
     assert(top_limit[1] >= 0 and top_limit[2] >= 0, "limits error: The lower limit should be greater than 0")
     assert(top_limit[1] <= top_limit[2], "limits error: The upper limit should be less than the lower limit")
@@ -2131,40 +2132,40 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
     assert(bottom_limit[1] <= bottom_limit[2], "limits error: The upper limit should be less than the lower limit")
   end
   if #top_limit > 0 and #bottom_limit > 0 then
-    assert(#cards >= top_limit[1] + bottom_limit[1] and #cards <= top_limit[2] + bottom_limit[2], "limits Error: No enough space")
+    assert(leng >= top_limit[1] + bottom_limit[1] and leng <= top_limit[2] + bottom_limit[2], "limits Error: No enough space")
   end
   if areaNames then
     assert(#areaNames == 2, "areaNames error: Should have 2 elements")
+  else
+    areaNames =  { "Top", "Bottom" }
   end
   local command = "AskForGuanxing"
   self:notifyMoveFocus(player, customNotify or command)
-  local max_top = top_limit and top_limit[2] or #cards
+  local max_top = top_limit[2]
   local card_map = {}
   if max_top > 0 then
     table.insert(card_map, table.slice(cards, 1, max_top + 1))
-  else
-    table.insert(card_map, {})
   end
-  if max_top < #cards then
+  if max_top < leng then
     table.insert(card_map, table.slice(cards, max_top + 1))
   end
   local data = {
     prompt = "",
     is_free = true,
     cards = card_map,
-    min_top_cards = top_limit and top_limit[1] or 0,
-    max_top_cards = top_limit and top_limit[2] or #cards,
-    min_bottom_cards = bottom_limit and bottom_limit[1] or 0,
-    max_bottom_cards = bottom_limit and bottom_limit[2] or #cards,
-    top_area_name = areaNames and areaNames[1] or "Top",
-    bottom_area_name = areaNames and areaNames[2] or "Bottom",
+    min_top_cards = top_limit[1],
+    max_top_cards = top_limit[2],
+    min_bottom_cards = bottom_limit[1],
+    max_bottom_cards = bottom_limit[2],
+    top_area_name = areaNames[1],
+    bottom_area_name = areaNames[2],
   }
 
   local result = self:doRequest(player, command, json.encode(data))
   local top, bottom
   if result ~= "" then
     local d = json.decode(result)
-    if #top_limit > 0 and top_limit[2] == 0 then
+    if top_limit[2] == 0 then
       top = Util.DummyTable
       bottom = d[1]
     else
@@ -2172,8 +2173,9 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
       bottom = d[2] or Util.DummyTable
     end
   else
-    top = table.random(cards, top_limit and top_limit[2] or #cards) or Util.DummyTable
-    bottom = table.shuffle(table.filter(cards, function(id) return not table.contains(top, id) end)) or Util.DummyTable
+    local pos = math.min(top_limit[2], leng - bottom_limit[1])
+    top = table.slice(cards, 1, pos + 1)
+    bottom = table.slice(cards, pos + 1)
   end
 
   if not noPut then

@@ -75,6 +75,7 @@ function Engine:initialize()
   self.mini_games = {}
 
   self:loadPackages()
+  self:setLords()
   self:loadDisabled()
   self:addSkills(AuxSkills)
 end
@@ -349,9 +350,9 @@ function Engine:addGeneral(general)
     table.insert(self.same_generals[tName], general.name)
   end
 
-  if table.find(general.skills, function(s) return s.lordSkill end) then
-    table.insert(self.lords, general.name)
-  end
+  -- if table.find(general.skills, function(s) return s.lordSkill end) then
+  --   table.insert(self.lords, general.name)
+  -- end
 end
 
 --- 加载一系列武将。
@@ -360,6 +361,15 @@ function Engine:addGenerals(generals)
   assert(type(generals) == "table")
   for _, general in ipairs(generals) do
     self:addGeneral(general)
+  end
+end
+
+--- 为所有武将加载主公技和主公判定
+function Engine:setLords()
+  for _, general in pairs(self.generals) do
+    if table.find(general.skills, function(s) return s.lordSkill end) then
+      table.insert(self.lords, general.name)
+    end
   end
 end
 
