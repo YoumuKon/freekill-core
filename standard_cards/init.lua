@@ -705,7 +705,8 @@ local lightningSkill = fk.CreateActiveSkill{
         to = to,
         damage = 3,
         card = effect.card,
-        damageType = fk.ThunderDamage,
+        -- damageType = fk.ThunderDamage,
+        damageType = Fk:getDamageNature(fk.ThunderDamage) and fk.ThunderDamage or fk.NormalDamage,
         skillName = self.name,
       }
 

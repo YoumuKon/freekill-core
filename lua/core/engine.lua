@@ -29,6 +29,7 @@
 ---@field public printed_cards table<integer, Card> @ 被某些房间现场打印的卡牌，id都是负数且从-2开始
 ---@field private kingdoms string[] @ 总势力
 ---@field private kingdom_map table<string, string[]> @ 势力映射表
+---@field private damage_nature table<any, table> @ 伤害映射表
 ---@field private _custom_events any[] @ 自定义事件列表
 ---@field public poxi_methods table<string, PoxiSpec> @ “魄袭”框操作方法表
 ---@field public qml_marks table<string, QmlMarkSpec> @ 自定义Qml标记的表
@@ -69,6 +70,7 @@ function Engine:initialize()
   self.game_mode_disabled = {}
   self.kingdoms = {}
   self.kingdom_map = {}
+  self.damage_nature = { [fk.NormalDamage] = { "normal_damage", false } }
   self._custom_events = {}
   self.poxi_methods = {}
   self.qml_marks = {}
@@ -367,8 +369,12 @@ end
 --- 为所有武将加载主公技和主公判定
 function Engine:setLords()
   for _, general in pairs(self.generals) do
-    if table.find(general.skills, function(s) return s.lordSkill end) then
-      table.insert(self.lords, general.name)
+    local other_skills = table.map(general.other_skills, Util.Name2SkillMapper)
+    local skills = table.connect(general.skills, other_skills)
+    for _, skill in ipairs(skills) do
+      if skill.lordSkill then
+        table.insert(self.lords, general.name)
+      end
     end
   end
 end
@@ -395,6 +401,50 @@ function Engine:getKingdomMap(kingdom)
     end
   end
   return ret
+end
+
+--- 注册一个伤害
+---@param nature string | number @ 伤害ID
+---@param name string @ 属性伤害名
+---@param can_chain bool @ 是否可传导
+function Engine:addDamageNature(nature, name, can_chain)
+  assert(table.contains({ "string", "number" }, type(nature)), "Must use string or number as nature!")
+  assert(type(name) == "string", "Must use string as this damage nature's name!")
+  if can_chain == nil then can_chain = true end
+  self.damage_nature[nature] = { name, can_chain }
+end
+
+--- 返回伤害列表
+---@return table @ 具体信息（伤害ID => {伤害名，是否可传导}）
+function Engine:getDamageNatures()
+  local ret = {}
+  for k, v in pairs(self.damage_nature) do
+    ret[k] = v
+  end
+  return ret
+end
+
+--- 由伤害ID获得伤害属性
+---@param nature string | number @ 伤害ID
+---@return table @ 具体信息（{伤害名，是否可传导}），若不存在则为空
+function Engine:getDamageNature(nature)
+  return self.damage_nature[nature]
+end
+
+--- 由伤害ID获得伤害名
+---@param nature string | number @ 伤害ID
+---@return string @ 伤害名
+function Engine:getDamageNatureName(nature)
+  local ret = self:getDamageNature(nature)
+  return ret and ret[1] or ""
+end
+
+--- 判断一种伤害是否可传导
+---@param nature string | number @ 伤害ID
+---@return bool
+function Engine:canChain(nature)
+  local ret = self:getDamageNature(nature)
+  return ret and ret[2]
 end
 
 --- 判断一个武将是否在本房间可用。

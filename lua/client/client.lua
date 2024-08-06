@@ -894,7 +894,7 @@ fk.client_callback["SetPlayerMark"] = function(data)
       local spec = Fk.qml_marks[mtype]
       if spec then
         local text = spec.how_to_show(mark, value, p)
-        if text == "#hidden" then return end
+        if text == "#hidden" then data[3] = 0 end
       end
     end
     ClientInstance:notifyUI("SetPlayerMark", data)

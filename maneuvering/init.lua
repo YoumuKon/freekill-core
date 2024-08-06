@@ -4,6 +4,9 @@ local extension = Package:new("maneuvering", Package.CardPack)
 
 local slash = Fk:cloneCard("slash")
 
+Fk:addDamageNature(fk.FireDamage, "fire_damage")
+Fk:addDamageNature(fk.ThunderDamage, "thunder_damage")
+
 local thunderSlashSkill = fk.CreateActiveSkill{
   name = "thunder__slash_skill",
   prompt = function(self, selected_cards)
