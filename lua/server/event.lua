@@ -12,6 +12,7 @@ fk.BeforeTurnStart = 83
 fk.TurnStart = 3
 fk.TurnEnd = 73
 fk.AfterTurnEnd = 84
+fk.EventTurnChanging = 96
 fk.EventPhaseStart = 4
 fk.EventPhaseProceeding = 5
 fk.EventPhaseEnd = 6
@@ -138,4 +139,6 @@ fk.AfterPropertyChange = 94
 
 fk.AfterPlayerRevived = 95
 
-fk.NumOfEvents = 96
+-- 96 = EventTurnChanging
+
+fk.NumOfEvents = 97

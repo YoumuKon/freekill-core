@@ -143,12 +143,27 @@ local Round = GameEvent:subclass("GameEvent.Round")
 function Round:action()
   local room = self.room
   local p
+  local nextTurnOwner
+  local skipRoundPlus = false
   repeat
+    nextTurnOwner = nil
+    skipRoundPlus = false
     p = room.current
     GameEvent.Turn:create(p):exec()
     if room.game_finished then break end
-    room.current = room.current:getNextAlive(true, nil, true)
-  until p.seat >= p:getNextAlive(true, nil, true).seat
+
+    local changingData = { from = room.current, to = room.current:getNextAlive(true, nil, true), skipRoundPlus = false }
+    room.logic:trigger(fk.EventTurnChanging, room.current, changingData, true)
+
+    skipRoundPlus = changingData.skipRoundPlus
+    local nextAlive = room.current:getNextAlive(true, nil, true)
+    if nextAlive ~= changingData.to and not changingData.to.dead then
+      room.current = changingData.to
+      nextTurnOwner = changingData.to
+    else
+      room.current = nextAlive
+    end
+  until p.seat >= (nextTurnOwner or p:getNextAlive(true, nil, true)).seat and not skipRoundPlus
 end
 
 function Round:main()

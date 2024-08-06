@@ -623,7 +623,7 @@ function Player:getNextAlive(ignoreRemoved, num, ignoreRest)
   num = num or 1
   for _ = 1, num do
     ret = ret.next
-    while (ret.dead and not ignoreRest) or (doNotIgnore and ret:isRemoved()) do
+    while (ret.dead and (ret.rest == 0 or not ignoreRest)) or (doNotIgnore and ret:isRemoved()) do
       ret = ret.next
     end
   end
