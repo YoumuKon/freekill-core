@@ -221,10 +221,10 @@ function Damage:exit()
   logic:trigger(fk.DamageFinished, damageStruct.to, damageStruct)
 
   if damageStruct.chain_table and #damageStruct.chain_table > 0 then
-    local targets = table.filter(damageStruct.chain_table, function(p)
-      return p:isAlive()
+    damageStruct.chain_table = table.filter(damageStruct.chain_table, function(p)
+      return p:isAlive() and p.chained
     end)
-    for _, p in ipairs(targets) do
+    for _, p in ipairs(damageStruct.chain_table) do
       room:sendLog{
         type = "#ChainDamage",
         from = p.id
