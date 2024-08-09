@@ -96,6 +96,7 @@ fk.GameFinished = 66
 
 fk.AskForCardUse = 67
 fk.AskForCardResponse = 68
+fk.HandleAskForPlayCard = 97
 
 fk.StartPindian = 69
 fk.PindianCardsDisplayed = 70
@@ -140,5 +141,6 @@ fk.AfterPropertyChange = 94
 fk.AfterPlayerRevived = 95
 
 -- 96 = EventTurnChanging
+-- 97 = HandleAskForPlayCard
 
-fk.NumOfEvents = 97
+fk.NumOfEvents = 98

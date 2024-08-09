@@ -2361,7 +2361,10 @@ function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extr
       local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
       local result = self:doRequest(player, command, json.encode(data))
+      askForUseCardData.afterRequest = true
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
@@ -2403,6 +2406,7 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
     cardName = card_name,
     pattern = pattern,
     extraData = extra_data,
+    eventData = effectData,
   }
   self.logic:trigger(fk.AskForCardResponse, player, eventData)
 
@@ -2417,7 +2421,11 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
       local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
+      eventData.isResponse = true
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
       local result = self:doRequest(player, command, json.encode(data))
+      eventData.afterRequest = true
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
@@ -2445,8 +2453,9 @@ end
 ---@param prompt? string @ 提示信息
 ---@param cancelable? boolean @ 能否点取消
 ---@param extra_data? any @ 额外信息
+---@param effectData? CardEffectEvent @ 关联的卡牌生效流程
 ---@return CardUseStruct? @ 最终决胜出的卡牌使用信息
-function Room:askForNullification(players, card_name, pattern, prompt, cancelable, extra_data)
+function Room:askForNullification(players, card_name, pattern, prompt, cancelable, extra_data, effectData)
   if #players == 0 then
     return nil
   end
@@ -2469,7 +2478,17 @@ function Room:askForNullification(players, card_name, pattern, prompt, cancelabl
     local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
     Fk.currentResponsePattern = pattern
+
+    local eventData = {
+      cardName = card_name,
+      pattern = pattern,
+      extraData = extra_data,
+      eventData = effectData,
+    }
+    self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
     local winner = self:doRaceRequest(command, players, json.encode(data))
+    eventData.afterRequest = true
+    self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
 
     if winner then
       local result = winner.client_reply
@@ -3173,7 +3192,7 @@ function Room:handleCardEffect(event, cardEffectEvent)
           extra_data = { useEventId = parentUseEvent.id, effectTo = cardEffectEvent.to }
         end
       end
-      local use = self:askForNullification(players, nil, nil, prompt, true, extra_data)
+      local use = self:askForNullification(players, nil, nil, prompt, true, extra_data, cardEffectEvent)
       if use then
         use.toCard = cardEffectEvent.card
         use.responseToEvent = cardEffectEvent
