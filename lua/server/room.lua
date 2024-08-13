@@ -2980,25 +2980,24 @@ function Room:doCardUseEffect(cardUseEvent)
     return
   end
 
-  ---@class CardEffectEvent
-  local cardEffectEvent = {
-    from = cardUseEvent.from,
-    tos = cardUseEvent.tos,
-    card = cardUseEvent.card,
-    toCard = cardUseEvent.toCard,
-    responseToEvent = cardUseEvent.responseToEvent,
-    nullifiedTargets = cardUseEvent.nullifiedTargets,
-    disresponsiveList = cardUseEvent.disresponsiveList,
-    unoffsetableList = cardUseEvent.unoffsetableList,
-    additionalDamage = cardUseEvent.additionalDamage,
-    additionalRecover = cardUseEvent.additionalRecover,
-    cardsResponded = cardUseEvent.cardsResponded,
-    prohibitedCardNames = cardUseEvent.prohibitedCardNames,
-    extra_data = cardUseEvent.extra_data,
-  }
-
   -- If using card to other card (like jink or nullification), simply effect and return
   if cardUseEvent.toCard ~= nil then
+    ---@class CardEffectEvent
+    local cardEffectEvent = {
+      from = cardUseEvent.from,
+      tos = cardUseEvent.tos,
+      card = cardUseEvent.card,
+      toCard = cardUseEvent.toCard,
+      responseToEvent = cardUseEvent.responseToEvent,
+      nullifiedTargets = cardUseEvent.nullifiedTargets,
+      disresponsiveList = cardUseEvent.disresponsiveList,
+      unoffsetableList = cardUseEvent.unoffsetableList,
+      additionalDamage = cardUseEvent.additionalDamage,
+      additionalRecover = cardUseEvent.additionalRecover,
+      cardsResponded = cardUseEvent.cardsResponded,
+      prohibitedCardNames = cardUseEvent.prohibitedCardNames,
+      extra_data = cardUseEvent.extra_data,
+    }
     self:doCardEffect(cardEffectEvent)
 
     if cardEffectEvent.cardsResponded then
@@ -3010,16 +3009,33 @@ function Room:doCardUseEffect(cardUseEvent)
     return
   end
 
-  for i = 1, (cardUseEvent.additionalEffect or 0) + 1 do
+  local i = 0
+  while i < (cardUseEvent.additionalEffect or 0) + 1 do
     if #TargetGroup:getRealTargets(cardUseEvent.tos) > 0 and cardUseEvent.card.skill.onAction then
       cardUseEvent.card.skill:onAction(self, cardUseEvent)
-      cardEffectEvent.extra_data = cardUseEvent.extra_data
     end
 
     -- Else: do effect to all targets
     local collaboratorsIndex = {}
     for _, toId in ipairs(TargetGroup:getRealTargets(cardUseEvent.tos)) do
       if not table.contains(cardUseEvent.nullifiedTargets, toId) and self:getPlayerById(toId):isAlive() then
+        ---@class CardEffectEvent
+        local cardEffectEvent = {
+          from = cardUseEvent.from,
+          tos = cardUseEvent.tos,
+          card = cardUseEvent.card,
+          toCard = cardUseEvent.toCard,
+          responseToEvent = cardUseEvent.responseToEvent,
+          nullifiedTargets = cardUseEvent.nullifiedTargets,
+          disresponsiveList = cardUseEvent.disresponsiveList,
+          unoffsetableList = cardUseEvent.unoffsetableList,
+          additionalDamage = cardUseEvent.additionalDamage,
+          additionalRecover = cardUseEvent.additionalRecover,
+          cardsResponded = cardUseEvent.cardsResponded,
+          prohibitedCardNames = cardUseEvent.prohibitedCardNames,
+          extra_data = cardUseEvent.extra_data,
+        }
+
         if aimEventCollaborators[toId] then
           cardEffectEvent.to = toId
           collaboratorsIndex[toId] = collaboratorsIndex[toId] or 1
@@ -3076,6 +3092,8 @@ function Room:doCardUseEffect(cardUseEvent)
     if #TargetGroup:getRealTargets(cardUseEvent.tos) > 0 and cardUseEvent.card.skill.onAction then
       cardUseEvent.card.skill:onAction(self, cardUseEvent, true)
     end
+
+    i = i + 1
   end
 end
 
