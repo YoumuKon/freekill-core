@@ -284,6 +284,8 @@ function Turn:clear()
   logic:trigger(fk.AfterTurnEnd, current, nil, self.interrupted)
   current.phase = Player.NotActive
 
+  room:setTag("endTurn", false)
+
   for _, p in ipairs(room.players) do
     p:setCardUseHistory("", 0, Player.HistoryTurn)
     p:setSkillUseHistory("", 0, Player.HistoryTurn)
@@ -332,6 +334,7 @@ function Phase:main()
       [Player.Judge] = function()
         local cards = player:getCardIds(Player.Judge)
         while #cards > 0 do
+          if player._phase_end then break end
           local cid = table.remove(cards)
           if not cid then return end
           local card = player:removeVirtualEquip(cid)
@@ -359,11 +362,12 @@ function Phase:main()
           n = 2
         }
         room.logic:trigger(fk.DrawNCards, player, data)
-        room:drawCards(player, data.n, "game_rule")
+        if not player._phase_end then
+          room:drawCards(player, data.n, "game_rule")
+        end
         room.logic:trigger(fk.AfterDrawNCards, player, data)
       end,
       [Player.Play] = function()
-        player._play_phase_end = false
         while not player.dead do
           logic:trigger(fk.StartPlayCard, player, nil, true)
           room:notifyMoveFocus(player, "PlayCard")
@@ -375,13 +379,13 @@ function Phase:main()
             room:useCard(useResult)
           end
 
-          if player._play_phase_end then
-            player._play_phase_end = false
+          if player._phase_end then
             break
           end
         end
       end,
       [Player.Discard] = function()
+        if player._phase_end then return end
         local discardNum = #table.filter(
           player:getCardIds(Player.Hand), function(id)
             local card = Fk:getCardById(id)
@@ -423,6 +427,7 @@ function Phase:clear()
         room:setPlayerMark(p, name, 0)
       end
     end
+    p._phase_end = false
   end
 
   for cid, cmark in pairs(room.card_marks) do

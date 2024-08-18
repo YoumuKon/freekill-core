@@ -17,7 +17,8 @@ function RandomAI:useActiveSkill(skill, card)
     filter_func = Util.FalseFunc
   end
 
-  if self.command == "PlayCard" and (not skill:canUse(player, card) or player:prohibitUse(card)) then
+  if self.command == "PlayCard" and card and card.class and card:isInstanceOf(Card)
+  and (not skill:canUse(player, card) or player:prohibitUse(card)) then
     return ""
   end
 

@@ -479,7 +479,7 @@ function ServerPlayer:play(phase_table)
   end
 
   for i = 1, #phases do
-    if self.dead then
+    if self.dead or room:getTag("endTurn") or phases[i] == nil then
       self:changePhase(self.phase, Player.NotActive)
       break
     end
@@ -540,8 +540,15 @@ end
 
 --- 当进行到出牌阶段空闲点时，结束出牌阶段。
 function ServerPlayer:endPlayPhase()
-  self._play_phase_end = true
+  if self.phase == Player.Play then
+    self._phase_end = true
+  end
   -- TODO: send log
+end
+
+--- 结束当前阶段。
+function ServerPlayer:endCurrentPhase()
+  self._phase_end = true
 end
 
 --- 获得一个额外回合

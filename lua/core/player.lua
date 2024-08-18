@@ -221,6 +221,15 @@ function Player:getMark(mark)
   return mark
 end
 
+--- 获取角色对应Mark并初始化为table
+---@param mark string @ 标记
+---@return table
+function Player:getTableMark(mark)
+  local mark = self.mark[mark]
+  if type(mark) == "table" then return table.simpleClone(mark) end
+  return {}
+end
+
 --- 获取角色有哪些Mark。
 function Player:getMarkNames()
   local ret = {}

@@ -4232,4 +4232,10 @@ function Room:setPlayerRest(player, roundNum)
   self:broadcastProperty(player, "rest")
 end
 
+--- 结束当前回合（不会终止结算）
+function Room:endTurn()
+  self.current._phase_end = true
+  self:setTag("endTurn", true)
+end
+
 return Room
