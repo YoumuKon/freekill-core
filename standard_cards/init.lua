@@ -1049,13 +1049,19 @@ local axeSkill = fk.CreateTriggerSkill{
   attached_equip = "axe",
   events = {fk.CardEffectCancelledOut},
   can_trigger = function(self, event, target, player, data)
-    return player:hasSkill(self) and data.from == player.id and data.card.trueName == "slash" and not player.room:getPlayerById(data.to).dead
+    return player:hasSkill(self) and data.from == player.id and data.card.trueName == "slash" and
+      not player.room:getPlayerById(data.to).dead
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
     local pattern
-    if player:getEquipment(Card.SubtypeWeapon) then
-      pattern = ".|.|.|.|.|.|^"..tostring(player:getEquipment(Card.SubtypeWeapon))
+    if #player:getEquipments(Card.SubtypeWeapon) > 0 then
+      for _, id in ipairs(player:getEquipments(Card.SubtypeWeapon)) do
+        if Fk:getCardById(id).name == "axe" then
+          pattern = ".|.|.|.|.|.|^"..id
+          break
+        end
+      end
     else
       pattern = "."
     end
@@ -1249,78 +1255,120 @@ extension:addCards({
   niohShield,
 })
 
-local horseSkill = fk.CreateDistanceSkill{
-  name = "horse_skill",
-  global = true,
+local diluSkill = fk.CreateDistanceSkill{
+  name = "#dilu_skill",
   correct_func = function(self, from, to)
-    local ret = 0
-    if from:getEquipment(Card.SubtypeOffensiveRide) then
-      ret = ret - 1
+    if to:hasSkill(self) then
+      return 1
     end
-    if to:getEquipment(Card.SubtypeDefensiveRide) then
-      ret = ret + 1
-    end
-    return ret
   end,
 }
-if not Fk.skills["horse_skill"] then
-  Fk:addSkill(horseSkill)
-end
-
+Fk:addSkill(diluSkill)
 local diLu = fk.CreateDefensiveRide{
   name = "dilu",
   suit = Card.Club,
   number = 5,
+  equip_skill = diluSkill,
 }
 
 extension:addCards({
   diLu,
 })
 
+local jueyingSkill = fk.CreateDistanceSkill{
+  name = "#jueying_skill",
+  correct_func = function(self, from, to)
+    if to:hasSkill(self) then
+      return 1
+    end
+  end,
+}
+Fk:addSkill(jueyingSkill)
 local jueYing = fk.CreateDefensiveRide{
   name = "jueying",
   suit = Card.Spade,
   number = 5,
+  equip_skill = jueyingSkill,
 }
 
 extension:addCards({
   jueYing,
 })
 
+local zhuahuangfeidianSkill = fk.CreateDistanceSkill{
+  name = "#zhuahuangfeidian_skill",
+  correct_func = function(self, from, to)
+    if to:hasSkill(self) then
+      return 1
+    end
+  end,
+}
+Fk:addSkill(zhuahuangfeidianSkill)
 local zhuaHuangFeiDian = fk.CreateDefensiveRide{
   name = "zhuahuangfeidian",
   suit = Card.Heart,
   number = 13,
+  equip_skill = zhuahuangfeidianSkill,
 }
 
 extension:addCards({
   zhuaHuangFeiDian,
 })
 
+local chituSkill = fk.CreateDistanceSkill{
+  name = "#chitu_skill",
+  correct_func = function(self, from, to)
+    if from:hasSkill(self) then
+      return -1
+    end
+  end,
+}
+Fk:addSkill(chituSkill)
 local chiTu = fk.CreateOffensiveRide{
   name = "chitu",
   suit = Card.Heart,
   number = 5,
+  equip_skill = chituSkill,
 }
 
 extension:addCards({
   chiTu,
 })
 
+local dayuanSkill = fk.CreateDistanceSkill{
+  name = "#dayuan_skill",
+  correct_func = function(self, from, to)
+    if from:hasSkill(self) then
+      return -1
+    end
+  end,
+}
+Fk:addSkill(dayuanSkill)
 local daYuan = fk.CreateOffensiveRide{
   name = "dayuan",
   suit = Card.Spade,
   number = 13,
+  equip_skill = dayuanSkill,
 }
 
 extension:addCards({
   daYuan,
 })
 
+local zixingSkill = fk.CreateDistanceSkill{
+  name = "#zixing_skill",
+  correct_func = function(self, from, to)
+    if from:hasSkill(self) then
+      return -1
+    end
+  end,
+}
+Fk:addSkill(zixingSkill)
 local ziXing = fk.CreateOffensiveRide{
   name = "zixing",
   suit = Card.Diamond,
   number = 13,
+  equip_skill = zixingSkill,
 }
 
 extension:addCards({
