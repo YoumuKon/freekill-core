@@ -1257,6 +1257,7 @@ extension:addCards({
 
 local diluSkill = fk.CreateDistanceSkill{
   name = "#dilu_skill",
+  attached_equip = "dilu",
   correct_func = function(self, from, to)
     if to:hasSkill(self) then
       return 1
@@ -1277,6 +1278,7 @@ extension:addCards({
 
 local jueyingSkill = fk.CreateDistanceSkill{
   name = "#jueying_skill",
+  attached_equip = "jueying",
   correct_func = function(self, from, to)
     if to:hasSkill(self) then
       return 1
@@ -1297,6 +1299,7 @@ extension:addCards({
 
 local zhuahuangfeidianSkill = fk.CreateDistanceSkill{
   name = "#zhuahuangfeidian_skill",
+  attached_equip = "zhuahuangfeidian",
   correct_func = function(self, from, to)
     if to:hasSkill(self) then
       return 1
@@ -1317,6 +1320,7 @@ extension:addCards({
 
 local chituSkill = fk.CreateDistanceSkill{
   name = "#chitu_skill",
+  attached_equip = "chitu",
   correct_func = function(self, from, to)
     if from:hasSkill(self) then
       return -1
@@ -1337,6 +1341,7 @@ extension:addCards({
 
 local dayuanSkill = fk.CreateDistanceSkill{
   name = "#dayuan_skill",
+  attached_equip = "dayuan",
   correct_func = function(self, from, to)
     if from:hasSkill(self) then
       return -1
@@ -1357,6 +1362,7 @@ extension:addCards({
 
 local zixingSkill = fk.CreateDistanceSkill{
   name = "#zixing_skill",
+  attached_equip = "zixing",
   correct_func = function(self, from, to)
     if from:hasSkill(self) then
       return -1

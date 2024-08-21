@@ -467,6 +467,7 @@ extension:addCard(silverLion)
 
 local hualiuSkill = fk.CreateDistanceSkill{
   name = "#hualiu_skill",
+  attached_equip = "hualiu",
   correct_func = function(self, from, to)
     if to:hasSkill(self) then
       return 1
