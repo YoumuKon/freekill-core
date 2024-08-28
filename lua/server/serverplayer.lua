@@ -331,6 +331,7 @@ function ServerPlayer:turnOver()
   self.room.logic:trigger(fk.TurnedOver, self)
 end
 
+---@param cards integer|integer[]|Card|Card[]
 function ServerPlayer:showCards(cards)
   cards = Card:getIdList(cards)
   for _, id in ipairs(cards) do

@@ -477,6 +477,7 @@ Fk:loadTranslationTable{
 
   -- skill
   ["#InvokeSkill"] = "%from 发动了〖%arg〗",
+  ["#InvokeSkillTo"] = "%from 对 %to 发动了〖%arg〗",
 
   -- judge
   ["#StartJudgeReason"] = "%from 开始了 %arg 的判定",

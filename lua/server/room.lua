@@ -1101,7 +1101,8 @@ end
 ---@param player ServerPlayer @ 发动技能的那个玩家
 ---@param skill_name string @ 技能名
 ---@param skill_type? string | AnimationType @ 技能的动画效果，默认是那个技能的anim_type
-function Room:notifySkillInvoked(player, skill_name, skill_type)
+---@param tos? table<integer> @ 技能目标，填空则不声明
+function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
   local bigAnim = false
   if not skill_type then
     local skill = Fk.skills[skill_name]
@@ -1116,11 +1117,20 @@ function Room:notifySkillInvoked(player, skill_name, skill_type)
 
   if skill_type == "big" then bigAnim = true end
 
-  self:sendLog{
-    type = "#InvokeSkill",
-    from = player.id,
-    arg = skill_name,
-  }
+  if tos and #tos > 0 then
+    self:sendLog{
+      type = "#InvokeSkillTo",
+      from = player.id,
+      arg = skill_name,
+      to = tos,
+    }
+  else
+    self:sendLog{
+      type = "#InvokeSkill",
+      from = player.id,
+      arg = skill_name,
+    }
+  end
 
   if not bigAnim then
     self:doAnimate("InvokeSkill", {
@@ -2241,15 +2251,12 @@ function Room:handleUseCardReply(player, data)
     if skill.interaction then skill.interaction.data = data.interaction_data end
     if skill:isInstanceOf(ActiveSkill) then
       self:useSkill(player, skill, function()
-        if not skill.no_indicate then
-          self:doIndicate(player.id, targets)
-        end
         skill:onUse(self, {
           from = player.id,
           cards = selected_cards,
           tos = targets,
         })
-      end)
+      end, {tos = targets, cards = selected_cards, cost_data = {}})
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
       Self = player
@@ -3840,38 +3847,9 @@ end
 ---@param player ServerPlayer @ 发动技能的玩家
 ---@param skill Skill @ 发动的技能
 ---@param effect_cb fun() @ 实际要调用的函数
-function Room:useSkill(player, skill, effect_cb)
-  player:revealBySkillName(skill.name)
-  if not skill.mute then
-    if skill.attached_equip then
-      local equip = Fk.all_card_types[skill.attached_equip]
-      local pkgPath = "./packages/" .. equip.package.extensionName
-      local soundName = pkgPath .. "/audio/card/" .. equip.name
-      self:broadcastPlaySound(soundName)
-      self:sendLog{
-        type = "#InvokeSkill",
-        from = player.id,
-        arg = skill.name,
-      }
-      self:setEmotion(player, pkgPath .. "/image/anim/" .. equip.name)
-    else
-      player:broadcastSkillInvoke(skill.name)
-      self:notifySkillInvoked(player, skill.name)
-    end
-  end
-
-  if skill:isSwitchSkill() then
-    local switchSkillName = skill.switchSkillName
-    self:setPlayerMark(
-      player,
-      MarkEnum.SwithSkillPreName .. switchSkillName,
-      player:getSwitchSkillState(switchSkillName, true)
-    )
-  end
-
-  if effect_cb then
-    return execGameEvent(GameEvent.SkillEffect, effect_cb, player, skill)
-  end
+---@param skill_data? table @ 技能的信息
+function Room:useSkill(player, skill, effect_cb, skill_data)
+  return execGameEvent(GameEvent.SkillEffect, effect_cb, player, skill, skill_data or Util.DummyTable)
 end
 
 ---@param player ServerPlayer
@@ -4237,5 +4215,44 @@ function Room:endTurn()
   self.current._phase_end = true
   self:setTag("endTurn", true)
 end
+
+--清理遗留在处理区的卡牌
+---@param cards? integer[] @ 待清理的卡牌。不填则清理处理区所有牌
+---@param skillName? string @ 技能名
+function Room:cleanProcessingArea(cards, skillName)
+  local throw = cards and table.filter(cards, function(id) return self:getCardArea(id) == Card.Processing end) or self.processing_area
+  if #throw > 0 then
+    self:moveCardTo(throw, Card.DiscardPile, nil, fk.ReasonPutIntoDiscardPile, skillName)
+  end
+end
+
+--- 为角色或牌的表型标记添加值
+---@param sth ServerPlayer|Card @ 更新标记的玩家或卡牌
+---@param mark string @ 标记的名称
+---@param value any @ 要增加的值
+function Room:addTableMark(sth, mark, value)
+  local t = sth:getTableMark(mark)
+  table.insert(t, value)
+  if sth:isInstanceOf(Card) then
+    self:setCardMark(sth, mark, t)
+  else
+    self:setPlayerMark(sth, mark, t)
+  end
+end
+
+--- 为角色或牌的表型标记移除值
+---@param sth ServerPlayer @ 更新标记的玩家或卡牌
+---@param mark string @ 标记的名称
+---@param value any @ 要移除的值
+function Room:removeTableMark(sth, mark, value)
+  local t = sth:getTableMark(mark)
+  table.removeOne(t, value)
+  if sth:isInstanceOf(Card) then
+    self:setCardMark(sth, mark, #t > 0 and t or 0)
+  else
+    self:setPlayerMark(sth, mark, #t > 0 and t or 0)
+  end
+end
+
 
 return Room

@@ -404,6 +404,7 @@ Fk:loadTranslationTable({
 
   -- skill
   ["#InvokeSkill"] = '%from used skill "%arg"',
+  ["#InvokeSkillTo"] = '%from used skill "%arg" to %to',
 
   -- judge
   ["#StartJudgeReason"] = "%from started a judgement (%arg)",

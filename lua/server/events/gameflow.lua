@@ -369,6 +369,7 @@ function Phase:main()
       end,
       [Player.Play] = function()
         while not player.dead do
+          if player._phase_end then break end
           logic:trigger(fk.StartPlayCard, player, nil, true)
           room:notifyMoveFocus(player, "PlayCard")
           local result = room:doRequest(player, "PlayCard", player.id)
@@ -377,10 +378,6 @@ function Phase:main()
           local useResult = room:handleUseCardReply(player, result)
           if type(useResult) == "table" then
             room:useCard(useResult)
-          end
-
-          if player._phase_end then
-            break
           end
         end
       end,

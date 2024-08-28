@@ -514,4 +514,12 @@ function Card.static:getIdList(c)
   return ret
 end
 
+--- 获得卡牌的标记并初始化为表
+---@param mark string @ 标记
+---@return table
+function Card:getTableMark(mark)
+  local ret = self:getMark(mark)
+  return type(ret) == "table" and ret or {}
+end
+
 return Card
