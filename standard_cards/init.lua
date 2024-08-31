@@ -631,6 +631,7 @@ local amazingGraceSkill = fk.CreateActiveSkill{
 
       use.extra_data = use.extra_data or {}
       use.extra_data.AGFilled = toDisplay
+      use.extra_data.AGResult = {}
     else
       if use.extra_data and use.extra_data.AGFilled then
         table.forEach(room.players, function(p)
@@ -661,7 +662,8 @@ local amazingGraceSkill = fk.CreateActiveSkill{
 
     local chosen = room:askForAG(to, effect.extra_data.AGFilled, false, self.name)
     room:takeAG(to, chosen, room.players)
-    room:obtainCard(effect.to, chosen, true, fk.ReasonPrey)
+    table.insert(effect.extra_data.AGResult, {effect.to, chosen})
+    room:moveCardTo(chosen, Card.PlayerHand, effect.to, fk.ReasonPrey, self.name, nil, true, effect.to)
     table.removeOne(effect.extra_data.AGFilled, chosen)
   end
 }
@@ -1054,18 +1056,15 @@ local axeSkill = fk.CreateTriggerSkill{
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local pattern
-    if #player:getEquipments(Card.SubtypeWeapon) > 0 then
-      for _, id in ipairs(player:getEquipments(Card.SubtypeWeapon)) do
-        if Fk:getCardById(id).name == "axe" then
-          pattern = ".|.|.|.|.|.|^"..id
-          break
-        end
+    local cards = {}
+    for _, id in ipairs(player:getCardIds("he")) do
+      if not player:prohibitDiscard(id) and
+        not (table.contains(player:getEquipments(Card.SubtypeWeapon), id) and Fk:getCardById(id).name == "axe") then
+        table.insert(cards, id)
       end
-    else
-      pattern = "."
     end
-    local cards = room:askForDiscard(player, 2, 2, true, self.name, true, pattern, "#axe-invoke::"..data.to, true)
+    cards = room:askForDiscard(player, 2, 2, true, self.name, true, ".|.|.|.|.|.|"..table.concat(cards, ","),
+      "#axe-invoke::"..data.to, true)
     if #cards > 0 then
       self.cost_data = cards
       return true
