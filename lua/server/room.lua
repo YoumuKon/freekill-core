@@ -3710,18 +3710,15 @@ function Room:retrial(card, player, judge, skillName, exchange)
 end
 
 --- 弃置一名角色的牌。
----@param card_ids integer[]|integer @ 被弃掉的牌
+---@param card_ids integer[]|integer|Card|Card[] @ 被弃掉的牌
 ---@param skillName? string @ 技能名
 ---@param who ServerPlayer @ 被弃牌的人
 ---@param thrower? ServerPlayer @ 弃别人牌的人
 function Room:throwCard(card_ids, skillName, who, thrower)
-  if type(card_ids) == "number" then
-    card_ids = {card_ids}
-  end
   skillName = skillName or ""
   thrower = thrower or who
   self:moveCards({
-    ids = card_ids,
+    ids = Card:getIdList(card_ids),
     from = who.id,
     toArea = Card.DiscardPile,
     moveReason = fk.ReasonDiscard,
@@ -4241,7 +4238,7 @@ function Room:addTableMark(sth, mark, value)
 end
 
 --- 为角色或牌的表型标记移除值
----@param sth ServerPlayer @ 更新标记的玩家或卡牌
+---@param sth ServerPlayer|Card @ 更新标记的玩家或卡牌
 ---@param mark string @ 标记的名称
 ---@param value any @ 要移除的值
 function Room:removeTableMark(sth, mark, value)
@@ -4254,5 +4251,10 @@ function Room:removeTableMark(sth, mark, value)
   end
 end
 
+function Room:__index(k)
+  if k == "room_settings" then
+    return self.settings
+  end
+end
 
 return Room

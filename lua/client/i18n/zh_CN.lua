@@ -370,6 +370,7 @@ Fk:loadTranslationTable{
   ["chained"] = "横置",
   ["un-chained"] = "重置",
   ["reset-general"] = "复原",
+  ["reset"] = "复原武将牌",
 
   ["yang"] = "阳",
   ["yin"] = "阴",
@@ -396,6 +397,7 @@ Fk:loadTranslationTable{
   ["Distance"] = "距离",
   ["Judge"] = "判定",
   ["Retrial"] = "改判",
+  ["Pindian"] = "拼点",
 
   ["_sealed"] = "废除",
   ["weapon_sealed"] = "武器栏废除",
@@ -408,6 +410,8 @@ Fk:loadTranslationTable{
   ["DefensiveRideSlot"] = "防御坐骑栏",
   ["TreasureSlot"] = "宝物栏",
   ["JudgeSlot"] = "判定区",
+
+  ["skill"] = "技能",
 }
 
 -- related to sendLog
@@ -474,6 +478,8 @@ Fk:loadTranslationTable{
   ["#ResponsePlayV0Card"] = "%from 打出了 %arg",
 
   ["#FilterCard"] = "由于 %arg 的效果，与 %from 相关的 %arg2 被视为了 %arg3",
+  ["#AddTargetsBySkill"] = "用于 %arg 的效果，%from 使用的 %arg2 增加了目标 %to",
+  ["#RemoveTargetsBySkill"] = "用于 %arg 的效果，%from 使用的 %arg2 取消了目标 %to",
 
   -- skill
   ["#InvokeSkill"] = "%from 发动了〖%arg〗",
