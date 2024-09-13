@@ -2357,10 +2357,10 @@ function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extr
   }
   self.logic:trigger(fk.AskForCardUse, player, askForUseCardData)
 
+  local useResult
   if askForUseCardData.result and type(askForUseCardData.result) == 'table' then
-    return askForUseCardData.result
+    useResult = askForUseCardData.result
   else
-    local useResult
     local disabledSkillNames = {}
 
     repeat
@@ -2382,9 +2382,12 @@ function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extr
         end
       end
     until type(useResult) ~= "string"
-    return useResult
+
+    askForUseCardData.result = useResult
   end
-  return nil
+
+  self.logic:trigger(fk.AfterAskForCardUse, player, askForUseCardData)
+  return useResult
 end
 
 --- 询问一名玩家打出一张牌。
@@ -2417,14 +2420,14 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
   }
   self.logic:trigger(fk.AskForCardResponse, player, eventData)
 
+  local responseResult
   if eventData.result then
-    return eventData.result
+    responseResult = eventData.result
   else
-    local useResult
     local disabledSkillNames = {}
 
     repeat
-      useResult = nil
+      responseResult = nil
       local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
@@ -2436,19 +2439,21 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
-        useResult = self:handleUseCardReply(player, result)
+        responseResult = self:handleUseCardReply(player, result)
 
-        if type(useResult) == "string" and useResult ~= "" then
-          table.insertIfNeed(disabledSkillNames, useResult)
+        if type(responseResult) == "string" and responseResult ~= "" then
+          table.insertIfNeed(disabledSkillNames, responseResult)
         end
       end
-    until type(useResult) ~= "string"
+    until type(responseResult) ~= "string"
 
-    if useResult then
-      return useResult.card
+    if responseResult then
+      responseResult = responseResult.card
     end
   end
-  return nil
+
+  self.logic:trigger(fk.AfterAskForCardResponse, player, eventData)
+  return responseResult
 end
 
 --- 同时询问多名玩家是否使用某一张牌。
@@ -2464,6 +2469,7 @@ end
 ---@return CardUseStruct? @ 最终决胜出的卡牌使用信息
 function Room:askForNullification(players, card_name, pattern, prompt, cancelable, extra_data, effectData)
   if #players == 0 then
+    self.logic:trigger(fk.AfterAskForNullification, nil, { eventData = effectData })
     return nil
   end
 
@@ -2508,6 +2514,11 @@ function Room:askForNullification(players, card_name, pattern, prompt, cancelabl
     Fk.currentResponsePattern = nil
   until type(useResult) ~= "string"
 
+  local askForNullificationData = {
+    result = useResult,
+    eventData = effectData,
+  }
+  self.logic:trigger(fk.AfterAskForNullification, nil, askForNullificationData)
   return useResult
 end
 
