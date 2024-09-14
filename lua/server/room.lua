@@ -1388,6 +1388,11 @@ function Room:askForCard(player, minNum, maxNum, includeEquip, skillName, cancel
   else
     if cancelable then return {} end
     local cards = player:getCardIds("he&")
+    if type(expand_pile) == "string" then
+      table.insertTable(cards, player:getPile(expand_pile))
+    elseif type(expand_pile) == "table" then
+      table.insertTable(cards, expand_pile)
+    end
     local exp = Exppattern:Parse(pattern)
     cards = table.filter(cards, function(cid)
       return exp:match(Fk:getCardById(cid))
@@ -2550,13 +2555,36 @@ function Room:askForAG(player, id_list, cancelable, reason)
 end
 
 --- 给player发一条消息，在他的窗口中用一系列卡牌填充一个AG。
----@param player ServerPlayer @ 要通知的玩家
+---@param players ServerPlayer|ServerPlayer[] @ 要通知的玩家
 ---@param id_list integer[] | Card[] @ 要填充的卡牌
----@param disable_ids? integer[] | Card[] @ 未使用
-function Room:fillAG(player, id_list, disable_ids)
+---@param disable_ids? integer[] | Card[] @ 未使用 不能选择的牌
+function Room:fillAG(players, id_list, disable_ids)
+  local record = self:getTag("AGrecord") or {}
+  local new = true
+  if players.id ~= nil then
+    --- FIXEME: 很危险的判断，AG以后肯定要大改了，先这样算了
+    if #record > 0 and record[#record][2][1] == id_list[1] then
+      new = false
+      table.insert(record[#record][1], players.id)
+    end
+    players = { players }
+  end
   id_list = Card:getIdList(id_list)
   -- disable_ids = Card:getIdList(disable_ids)
-  player:doNotify("FillAG", json.encode{ id_list, disable_ids })
+  if new then
+    --[[ 不用关闭AG，开新AG会覆盖
+    if #record > 0 then
+      for _, pid in ipairs(record[#record][1]) do
+        self:getPlayerById(pid):doNotify("CloseAG", "")
+      end
+    end
+    --]]
+    table.insert(record, {table.map(players, Util.IdMapper), id_list, disable_ids, {}})
+  end
+  self:setTag("AGrecord", record)
+  for _, player in ipairs(players) do
+    player:doNotify("FillAG", json.encode{ id_list, disable_ids })
+  end
 end
 
 --- 告诉一些玩家，AG中的牌被taker取走了。
@@ -2565,6 +2593,12 @@ end
 ---@param notify_list? ServerPlayer[] @ 要告知的玩家，默认为全员
 function Room:takeAG(taker, id, notify_list)
   self:doBroadcastNotify("TakeAG", json.encode{ taker.id, id }, notify_list)
+  local record = self:getTag("AGrecord") or {}
+  if #record > 0 then
+    local currentRecord = record[#record]
+    currentRecord[4][tostring(id)] = taker.id
+    self:setTag("AGrecord", record)
+  end
 end
 
 --- 关闭player那侧显示的AG。
@@ -2572,8 +2606,31 @@ end
 --- 若不传参（即player为nil），那么关闭所有玩家的AG。
 ---@param player? ServerPlayer @ 要关闭AG的玩家
 function Room:closeAG(player)
+  local record = self:getTag("AGrecord") or {}
   if player then player:doNotify("CloseAG", "")
-  else self:doBroadcastNotify("CloseAG", "") end
+  else
+    self:doBroadcastNotify("CloseAG", "")
+  end
+  if #record > 0 then
+    local currentRecord = record[#record]
+    if player then
+      table.removeOne(currentRecord[1], player.id)
+      self:setTag("AGrecord", record)
+      if #currentRecord[1] > 0 then return end
+    end
+    table.remove(record, #record)
+    self:setTag("AGrecord", record)
+    if #record > 0 then
+      local newRecord = record[#record]
+      local players = table.map(newRecord[1], Util.Id2PlayerMapper)
+      for _, p in ipairs(players) do
+        p:doNotify("FillAG", json.encode{ newRecord[2], newRecord[3] })
+      end
+      for cid, pid in pairs(newRecord[4]) do
+        self:doBroadcastNotify("TakeAG", json.encode{ pid, tonumber(cid) }, players)
+      end
+    end
+  end
 end
 
 -- TODO: 重构request机制，不然这个还得手动拿client_reply

@@ -356,12 +356,7 @@ function ServerPlayer:showCards(cards)
   room.logic:trigger(fk.CardShown, self, { cardIds = cards })
 end
 
-local phase_name_table = {
-  [Player.Judge] = "phase_judge",
-  [Player.Draw] = "phase_draw",
-  [Player.Play] = "phase_play",
-  [Player.Discard] = "phase_discard",
-}
+
 
 ---@param from_phase Phase
 ---@param to_phase Phase
@@ -428,7 +423,7 @@ function ServerPlayer:gainAnExtraPhase(phase, delay)
     room:sendLog{
       type = "#GainAnExtraPhase",
       from = self.id,
-      arg = phase_name_table[phase],
+      arg = Util.PhaseStrMapper(phase),
     }
 
     GameEvent.Phase:create(self, self.phase):exec()
@@ -442,7 +437,7 @@ function ServerPlayer:gainAnExtraPhase(phase, delay)
     room:sendLog{
       type = "#PhaseSkipped",
       from = self.id,
-      arg = phase_name_table[phase],
+      arg = Util.PhaseStrMapper(phase),
     }
   end
 
@@ -515,7 +510,7 @@ function ServerPlayer:play(phase_table)
       room:sendLog{
         type = "#PhaseSkipped",
         from = self.id,
-        arg = phase_name_table[self.phase],
+        arg = Util.PhaseStrMapper(self.phase),
       }
     end
   end

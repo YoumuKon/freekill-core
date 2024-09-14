@@ -360,12 +360,15 @@ Fk:loadTranslationTable{
   ["hp_lost"] = "失去体力",
   ["lose_hp"] = "失去体力",
 
+  ["phase_roundstart"] = "回合开始",
   ["phase_start"] = "准备阶段",
   ["phase_judge"] = "判定阶段",
   ["phase_draw"] = "摸牌阶段",
   ["phase_play"] = "出牌阶段",
   ["phase_discard"] = "弃牌阶段",
   ["phase_finish"] = "结束阶段",
+  ["phase_notactive"] = "回合外",
+  ["phase_phasenone"] = "临时阶段",
 
   ["chained"] = "横置",
   ["un-chained"] = "重置",
@@ -495,6 +498,7 @@ Fk:loadTranslationTable{
   ["#TurnOver"] = "%from 将武将牌翻面，现在是 %arg",
   ["face_up"] = "正面朝上",
   ["face_down"] = "背面朝上",
+  ["turnOver"] = "翻面",
 
   -- damage, heal and lose HP
   ["#Damage"] = "%to 对 %from 造成了 %arg 点 %arg2 伤害",
