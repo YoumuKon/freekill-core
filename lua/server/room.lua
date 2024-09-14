@@ -2450,6 +2450,8 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
     if responseResult then
       responseResult = responseResult.card
     end
+
+    eventData.result = responseResult
   end
 
   self.logic:trigger(fk.AfterAskForCardResponse, player, eventData)
