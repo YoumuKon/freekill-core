@@ -1313,7 +1313,7 @@ end
 ---@param expand_pile? string @ 可选私人牌堆名称，如要分配你武将牌上的牌请填写
 ---@param skipMove? boolean @ 是否跳过移动。默认不跳过
 ---@param single_max? integer|table @ 限制每人能获得的最大牌数。输入整数或(以角色id为键以整数为值)的表
----@return table<integer[]> @ 返回一个表，键为角色id，值为分配给其的牌id数组
+---@return table<integer, integer[]> @ 返回一个表，键为角色id转字符串，值为分配给其的牌id数组
 function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prompt, expand_pile, skipMove, single_max)
   targets = targets or self.alive_players
   cards = cards or player:getCardIds("he")
@@ -1348,7 +1348,7 @@ function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prom
     residued_list = residueMap,
     expand_pile = expand_pile
   }
-  p(json.encode(residueMap))
+  -- p(json.encode(residueMap))
 
   while maxNum > 0 and #_cards > 0 do
     data.max_num = maxNum
@@ -1385,7 +1385,7 @@ function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prom
     end
   end
   if not skipMove then
-    self:doYiji(self, list, player.id, skillName)
+    self:doYiji(list, player.id, skillName)
   end
 
   return list
@@ -2020,18 +2020,20 @@ end
 --- 询问玩家任意交换几堆牌堆。
 ---
 ---@param player ServerPlayer @ 要询问的玩家
----@param piles table<string, integer[]> @ 卡牌id列表的列表，也就是……几堆牌堆的集合
----@param piles_name string[] @ 牌堆名，必须一一对应，否则统一替换为“牌堆X”
+---@param piles (integer[])[] @ 卡牌id列表的列表，也就是……几堆牌堆的集合
+---@param piles_name string[] @ 牌堆名，不足部分替换为“牌堆1、牌堆2...”
 ---@param customNotify? string @ 自定义读条操作提示
----@return table<string, integer[]>
+---@return (integer[])[]
 function Room:askForExchange(player, piles, piles_name, customNotify)
   local command = "AskForExchange"
   piles_name = piles_name or Util.DummyTable
-  if #piles_name ~= #piles then
-    piles_name = {}
-    for i, _ in ipairs(piles) do
+  local x = #piles - #piles_name
+  if x > 0 then
+    for i = 1, x, 1 do
       table.insert(piles_name, Fk:translate("Pile") .. i)
     end
+  elseif x < 0 then
+    piles_name = table.slice(piles_name, 1, #piles + 1)
   end
   self:notifyMoveFocus(player, customNotify or command)
   local data = {

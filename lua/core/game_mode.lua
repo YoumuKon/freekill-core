@@ -100,4 +100,14 @@ function GameMode:getAdjustedProperty (player)
   return list
 end
 
+--- 向游戏模式中添加拓展包过滤。
+---@param whitelist string[] @ 白名单
+---@param blacklist string[] @ 黑名单
+function GameMode:addPackageFilter(whitelist, blacklist)
+  assert(type(whitelist) == "table")
+  assert(type(blacklist) == "table")
+  table.insertTable(self.whitelist, whitelist)
+  table.insertTable(self.blacklist, blacklist)
+end
+
 return GameMode
