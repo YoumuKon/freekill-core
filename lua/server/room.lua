@@ -4175,6 +4175,7 @@ function Room:abortPlayerArea(player, playerSlots)
     from = player.id,
     toArea = Card.DiscardPile,
     moveReason = fk.ReasonPutIntoDiscardPile,
+    skillName = "gamerule_aborted"
   })
 
   table.insertTable(player.sealedSlots, slotsToSeal)
