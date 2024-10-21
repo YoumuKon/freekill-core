@@ -96,7 +96,8 @@ function GetCardData(id, virtualCardForm)
     color = card:getColorString(),
     mark = mark,
     type = card.type,
-    subtype = cardSubtypeStrings[card.sub_type]
+    subtype = cardSubtypeStrings[card.sub_type],
+    known = Self:cardVisible(id)
   }
   if card.skillName ~= "" then
     local orig = Fk:getCardById(id, true)
@@ -731,12 +732,6 @@ function SetInteractionDataOfSkill(skill_name, data)
   end
 end
 
-function ChangeSelf(pid)
-  local c = ClientInstance
-  c.client:changeSelf(pid) -- for qml
-  Self = c:getPlayerById(pid)
-end
-
 function GetPlayerHandcards(pid)
   local c = ClientInstance
   local p = c:getPlayerById(pid)
@@ -938,6 +933,44 @@ function FinishRequestUI()
   if h then
     h:_finish()
   end
+end
+
+-- TODO 传参带上cardMoveData...
+function CardVisibility(cardId, move)
+  local player = Self
+  local card = Fk:getCardById(cardId)
+  if not card then return false end
+  return player:cardVisible(cardId, move)
+end
+
+function RoleVisibility(targetId)
+  local player = Self
+  local target = ClientInstance:getPlayerById(targetId)
+  if not target then return false end
+  return player:roleVisible(target)
+end
+
+function IsMyBuddy(me, other)
+  local from = ClientInstance:getPlayerById(me)
+  local to = ClientInstance:getPlayerById(other)
+  return from and to and from:isBuddy(to)
+end
+
+-- special_name 为nil时是手牌
+function HasVisibleCard(me, other, special_name)
+  local from = ClientInstance:getPlayerById(me)
+  local to = ClientInstance:getPlayerById(other)
+  if not (from and to) then return false end
+  local ids
+  if not special_name then ids = to:getCardIds("h")
+  else ids = to:getPile(special_name) end
+
+  for _, id in ipairs(ids) do
+    if from:cardVisible(id) then
+      return true
+    end
+  end
+  return false
 end
 
 dofile "lua/client/i18n/init.lua"

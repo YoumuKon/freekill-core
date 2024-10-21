@@ -14,7 +14,6 @@
 ---@field public skipped_phases Phase[]
 ---@field public phase_state table[]
 ---@field public phase_index integer
----@field public role_shown boolean
 ---@field private _fake_skills Skill[]
 ---@field private _manually_fake_skills Skill[]
 ---@field public prelighted_skills Skill[]
@@ -96,91 +95,27 @@ function ServerPlayer:chat(msg)
   })
 end
 
-local function assign(t1, t2, k)
-  t1[k] = t2[k]
-end
-
--- 获取摘要信息。供重连/旁观使用
--- 根据参数，返回一个大表保存自己的信息，客户端自行分析
----@param player ServerPlayer
----@param observe? boolean
-function ServerPlayer:getSummary(player, observe)
-  local room = self.room
-  if not room.game_started then
-    local ret = { p = {} }
-    -- If game does not starts, that mean we are entering room that
-    -- all players are choosing their generals.
-    -- Note that when we are in this function, the main thread must be
-    -- calling delay() or waiting for reply.
-    if self.role_shown then
-      -- room:notifyProperty(player, self, "role")
-      ret.p.general = self.general
-      ret.p.deputyGeneral = self.deputyGeneral
-      ret.p.role = self.role
-    end
-    return ret
-  end
-
-  local properties = {}
-
-  assign(properties, self, "general")
-  assign(properties, self, "deputyGeneral")
-  assign(properties, self, "maxHp")
-  assign(properties, self, "hp")
-  assign(properties, self, "shield")
-  assign(properties, self, "gender")
-  assign(properties, self, "kingdom")
-
-  if self.dead then
-    assign(properties, self, "dead")
-    assign(properties, self, self.rest > 0 and "rest" or "role")
-  else
-    assign(properties, self, "seat")
-    assign(properties, self, "phase")
-  end
-
-  if not self.faceup then
-    assign(properties, self, "faceup")
-  end
-
-  if self.chained then
-    assign(properties, self, "chained")
-  end
-
-  if self.role_shown then
-    assign(properties, self, "role")
-  end
-
-  if #self.sealedSlots > 0 then
-    assign(properties, self, "sealedSlots")
-  end
-
+function ServerPlayer:toJsonObject()
+  local o = Player.toJsonObject(self)
   local sp = self._splayer
-
-  return {
-    -- data for Setup/AddPlayer
-    d = {
-      self.id,
-      sp:getScreenName(),
-      sp:getAvatar(),
-      false,
-      sp:getTotalGameTime(),
-    },
-    p = properties,
-    ch = self.cardUsedHistory,
-    sh = self.skillUsedHistory,
-    m = self.mark,
-    s = table.map(self.player_skills, Util.NameMapper),
-    c = self.player_cards,
-    sc = self.special_cards,
+  o.setup_data = {
+    self.id,
+    sp:getScreenName(),
+    sp:getAvatar(),
+    false,
+    sp:getTotalGameTime(),
   }
+  return o
 end
+
+-- 似乎没有必要
+-- function ServerPlayer:loadJsonObject() end
 
 function ServerPlayer:reconnect()
   local room = self.room
   self.serverplayer:setState(fk.Player_Online)
 
-  local summary = room:getSummary(self, false)
+  local summary = room:toJsonObject(self)
   self:doNotify("Reconnect", json.encode(summary))
   room:notifyProperty(self, self, "role")
   self:doNotify("RoomOwner", json.encode{ room.room:getOwner():getId() })
@@ -903,7 +838,7 @@ function ServerPlayer:addBuddy(other)
     other = self.room:getPlayerById(other)
   end
   Player.addBuddy(self, other)
-  self:doNotify("AddBuddy", json.encode{ other.id, other.player_cards[Player.Hand] })
+  self.room:doBroadcastNotify("AddBuddy", json.encode{ self.id, other.id })
 end
 
 function ServerPlayer:removeBuddy(other)
@@ -911,7 +846,7 @@ function ServerPlayer:removeBuddy(other)
     other = self.room:getPlayerById(other)
   end
   Player.removeBuddy(self, other)
-  self:doNotify("RmBuddy", tostring(other.id))
+  self.room:doBroadcastNotify("RmBuddy", json.encode{ self.id, other.id })
 end
 
 return ServerPlayer

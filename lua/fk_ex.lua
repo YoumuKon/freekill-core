@@ -18,6 +18,7 @@ MaxCardsSkill = require "core.skill_type.max_cards"
 TargetModSkill = require "core.skill_type.target_mod"
 FilterSkill = require "core.skill_type.filter"
 InvaliditySkill = require "lua.core.skill_type.invalidity"
+VisibilitySkill = require "lua.core.skill_type.visibility"
 
 BasicCard = require "core.card_type.basic"
 local Trick = require "core.card_type.trick"
@@ -456,6 +457,22 @@ function fk.CreateInvaliditySkill(spec)
   local skill = InvaliditySkill:new(spec.name)
   readStatusSpecToSkill(skill, spec)
   skill.getInvalidity = spec.invalidity_func
+
+  return skill
+end
+
+---@class VisibilitySpec: StatusSkillSpec
+---@field public card_visible? fun(self: VisibilitySkill, player: Player, card: Card): boolean?
+---@field public role_visible? fun(self: VisibilitySkill, player: Player, target: Player): boolean?
+
+---@param spec VisibilitySpec
+function fk.CreateVisibilitySkill(spec)
+  assert(type(spec.name) == "string")
+
+  local skill = VisibilitySkill:new(spec.name)
+  readStatusSpecToSkill(skill, spec)
+  if spec.card_visible then skill.cardVisible = spec.card_visible end
+  if spec.role_visible then skill.roleVisible = spec.role_visible end
 
   return skill
 end

@@ -96,11 +96,9 @@ function GameLogic:assignRoles()
     local p = room.players[i]
     p.role = roles[i]
     if p.role == "lord" then
-      p.role_shown = true
-      room:broadcastProperty(p, "role")
-    else
-      room:notifyProperty(p, p, "role")
+      room:setPlayerProperty(p, "role_shown", true)
     end
+    room:broadcastProperty(p, "role")
   end
 end
 
@@ -212,22 +210,9 @@ end
 
 function GameLogic:prepareDrawPile()
   local room = self.room
-  local allCardIds = Fk:getAllCardIds()
-
-  for i = #allCardIds, 1, -1 do
-    if Fk:getCardById(allCardIds[i]).is_derived then
-      local id = allCardIds[i]
-      table.removeOne(allCardIds, id)
-      table.insert(room.void, id)
-      room:setCardArea(id, Card.Void, nil)
-    end
-  end
-
-  table.shuffle(allCardIds)
-  room.draw_pile = allCardIds
-  for _, id in ipairs(room.draw_pile) do
-    self.room:setCardArea(id, Card.DrawPile, nil)
-  end
+  local seed = math.random(2 << 32 - 1)
+  room:prepareDrawPile(seed)
+  room:doBroadcastNotify("PrepareDrawPile", seed)
 end
 
 function GameLogic:attachSkillToPlayers()
