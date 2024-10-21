@@ -2,9 +2,12 @@
 
 local extension = Package:new("standard")
 extension.metadata = require "packages.standard.metadata"
-dofile "packages/freekill-core/standard/game_rule.lua"
-dofile "packages/freekill-core/standard/aux_skills.lua"
-dofile "packages/freekill-core/standard/aux_poxi.lua"
+
+local pkgprefix = "packages/"
+if UsingNewCore then pkgprefix = "packages/freekill-core/" end
+dofile(pkgprefix .. "standard/game_rule.lua")
+dofile(pkgprefix .. "standard/aux_skills.lua")
+dofile(pkgprefix .. "standard/aux_poxi.lua")
 
 Fk:appendKingdomMap("god", {"wei", "shu", "wu", "qun"})
 
@@ -1368,6 +1371,6 @@ Fk:loadTranslationTable{
 }
 
 -- load translations of this package
-dofile "packages/freekill-core/standard/i18n/init.lua"
+dofile(pkgprefix .. "standard/i18n/init.lua")
 
 return extension

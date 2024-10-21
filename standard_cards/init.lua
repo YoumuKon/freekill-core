@@ -1380,6 +1380,8 @@ extension:addCards({
   ziXing,
 })
 
-dofile "packages/freekill-core/standard_cards/i18n/init.lua"
+local pkgprefix = "packages/"
+if UsingNewCore then pkgprefix = "packages/freekill-core/" end
+dofile(pkgprefix .. "standard_cards/i18n/init.lua")
 
 return extension
