@@ -59,7 +59,7 @@ function Item:interact() end
   在实际针对Scene与Handler进行开发时，Scene只需要创建Item并管理就行了，
   与逻辑相关的代码都在RequestHandler及其子类中编写，然而直接负责管理各个
   UI组件的是Scene。以下是注意事项：
-  
+
   1. 使用scene:update方法来更新Item的属性：
   -------------------------------
 
@@ -71,7 +71,7 @@ function Item:interact() end
 
   2. 使用Scene提供的方法来访问元素
   ---------------------------------
-  
+
   例如RoomScene中已经创建了表达卡牌和技能的Item，因此在Handler的逻辑编写中，
   应当避免再去使用getCards或者getSkills这样获取原始属性的函数，而是直接访问Item
   例如：

@@ -70,7 +70,7 @@ end
 function ReqPlayCard:selectSpecialUse(data)
   -- 相当于使用一个以已选牌为pendings的主动技
   if not data or data == "_normal_use" then
-    self.skill_name = nil 
+    self.skill_name = nil
     self.pendings = nil
     self:setSkillPrompt(self.selected_card.skill, self.selected_card:getEffectiveId())
   else

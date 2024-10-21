@@ -59,7 +59,7 @@ end
 local playerAreas = { Player.Hand, Player.Equip, Player.Judge, Player.Special }
 
 --- 根据area获取相关的数组，若为玩家的区域则需指定玩家
---- 
+---
 --- 若不存在这种区域，需要返回nil
 ---@param area CardArea
 ---@param player Player?
