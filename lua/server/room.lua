@@ -89,7 +89,8 @@ function Room:initialize(_room)
 end
 
 -- 供调度器使用的函数。能让房间开始运行/从挂起状态恢复。
-function Room:resume()
+---@param reason string?
+function Room:resume(reason)
   -- 如果还没运行的话就先创建自己的主协程
   if not self.main_co then
     self.main_co = coroutine.create(function()
@@ -107,7 +108,7 @@ function Room:resume()
 
   if not self.game_finished then
     self.notify_count = 0
-    ret, err_msg, rest_time = coroutine.resume(main_co, err_msg)
+    ret, err_msg, rest_time = coroutine.resume(main_co, reason)
 
     -- handle error
     if ret == false then
