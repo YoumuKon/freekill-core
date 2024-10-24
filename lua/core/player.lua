@@ -1206,7 +1206,7 @@ function Player:cardVisible(cardId, move)
       if move.specialVisible then return true end
 
       if (type(move.visiblePlayers) == "number" and move.visiblePlayers == self.id) or
-      (type(move.visiblePlayers) == "table" and table.find(move.visiblePlayers, self.id)) then
+      (type(move.visiblePlayers) == "table" and table.contains(move.visiblePlayers, self.id)) then
         return true
       end
     end

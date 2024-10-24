@@ -62,6 +62,9 @@ function Client:initialize()
     end
 
     if (type(cb) == "function") then
+      if command:startsWith("AskFor") or command == "PlayCard" then
+        self:notifyUI("CancelRequest") -- 确保变成notactive 防止卡双active 权宜之计
+      end
       cb(data)
     else
       self:notifyUI(command, data)
