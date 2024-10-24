@@ -244,9 +244,9 @@ end
 fk.client_callback["EnterRoom"] = function(_data)
   Self = ClientPlayer:new(fk.Self)
   -- FIXME: 需要改Qml
-  --local ob = ClientInstance.observing
+  local ob = ClientInstance.observing
   ClientInstance = Client:new() -- clear old client data
-  --ClientInstance.observing = ob
+  ClientInstance.observing = ob
   ClientInstance.players = {Self}
   ClientInstance.alive_players = {Self}
   ClientInstance.discard_pile = {}

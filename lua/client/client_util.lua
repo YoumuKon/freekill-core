@@ -945,12 +945,11 @@ function FinishRequestUI()
   end
 end
 
--- TODO 传参带上cardMoveData...
-function CardVisibility(cardId, move)
+function CardVisibility(cardId)
   local player = Self
   local card = Fk:getCardById(cardId)
   if not card then return false end
-  return player:cardVisible(cardId, move)
+  return player:cardVisible(cardId)
 end
 
 function RoleVisibility(targetId)
