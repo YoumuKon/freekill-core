@@ -112,8 +112,8 @@ function MoveCards:main()
 
       ---@param info MoveInfo
       for _, info in ipairs(data.moveInfo) do
-        room:applyMoveInfo(data, info)
         local realFromArea = room:getCardArea(info.cardId)
+        room:applyMoveInfo(data, info)
         if data.toArea == Card.DrawPile or realFromArea == Card.DrawPile then
           room:doBroadcastNotify("UpdateDrawPile", #room.draw_pile)
         end
