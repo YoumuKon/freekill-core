@@ -1131,7 +1131,7 @@ end
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@return integer[] @ 选择的牌的id列表，可能是空的
 function Room:askForCard(player, minNum, maxNum, includeEquip, skillName, cancelable, pattern, prompt, expand_pile, no_indicate)
-  if minNum < 1 then
+  if maxNum < 1 then
     return {}
   end
   cancelable = (cancelable == nil) and true or cancelable
