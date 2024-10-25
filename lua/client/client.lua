@@ -71,25 +71,6 @@ function Client:initialize()
     else
       self:notifyUI(command, data)
     end
-
-    if self.recording and command == "GameLog" then
-      --and os.getms() - self.last_update_ui > 60000 then
-      -- self.last_update_ui = os.getms()
-      -- TODO: create a function
-      -- 刷所有人手牌上限
-      for _, p in ipairs(self.alive_players) do
-        self:notifyUI("MaxCard", {
-          pcardMax = p:getMaxCards(),
-          id = p.id,
-        })
-      end
-      -- 刷自己的手牌
-      for _, cid in ipairs(Self:getCardIds("h")) do
-        self:notifyUI("UpdateCard", cid)
-      end
-      -- 刷技能状态
-      self:notifyUI("UpdateSkill", nil)
-    end
   end
 
   self.disabled_packs = {}

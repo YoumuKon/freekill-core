@@ -995,4 +995,22 @@ function HasVisibleCard(me, other, special_name)
   return false
 end
 
+function RefreshStatusSkills()
+  local self = ClientInstance
+  if not self.recording then return end -- 在回放录像就别刷了
+  -- 刷所有人手牌上限
+  for _, p in ipairs(self.alive_players) do
+    self:notifyUI("MaxCard", {
+      pcardMax = p:getMaxCards(),
+      id = p.id,
+    })
+  end
+  -- 刷自己的手牌
+  for _, cid in ipairs(Self:getCardIds("h")) do
+    self:notifyUI("UpdateCard", cid)
+  end
+  -- 刷技能状态
+  self:notifyUI("UpdateSkill", nil)
+end
+
 dofile "lua/client/i18n/init.lua"
