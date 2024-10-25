@@ -1199,9 +1199,11 @@ end
 ---@param move? CardsMoveStruct
 ---@return boolean
 function Player:cardVisible(cardId, move)
+  local falsy = false -- 当难以决定时是否要选择暗置？
   if move then
     if table.find(move.moveInfo, function(info) return info.cardId == cardId end) then
       if move.moveVisible then return true end
+      if move.moveVisible == false then falsy = true end
       -- specialVisible还要控制这个pile对他人是否应该可见，但是不在这里生效
       if move.specialVisible then return true end
 
@@ -1230,9 +1232,9 @@ function Player:cardVisible(cardId, move)
   end
 
   if area == Card.DrawPile then return false
-  elseif table.contains(public_areas, area) then return true
+  elseif table.contains(public_areas, area) then return not falsy
   elseif move and area == Card.PlayerSpecial and not move.specialName:startsWith("$") then
-    return true
+    return not falsy
   elseif table.contains(player_areas, area) then
     local to = room:getCardOwner(cardId)
     return to == self or self:isBuddy(to)
