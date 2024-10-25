@@ -389,6 +389,9 @@ fk.client_callback["AskForCardChosen"] = function(data)
       card_data = {},
       _prompt = prompt,
     }
+    if #hand > 0 and not Self:cardVisible(hand[1]) then
+      hand = table.map(hand, function() return -1 end)
+    end
     if #hand ~= 0 then table.insert(ui_data.card_data, { "$Hand", hand }) end
     if #equip ~= 0 then table.insert(ui_data.card_data, { "$Equip", equip }) end
     if #judge ~= 0 then table.insert(ui_data.card_data, { "$Judge", judge }) end
@@ -428,6 +431,9 @@ fk.client_callback["AskForCardsChosen"] = function(data)
       card_data = {},
       _prompt = prompt,
     }
+    if #hand > 0 and not Self:cardVisible(hand[1]) then
+      hand = table.map(hand, function() return -1 end)
+    end
     if #hand ~= 0 then table.insert(ui_data.card_data, { "$Hand", hand }) end
     if #equip ~= 0 then table.insert(ui_data.card_data, { "$Equip", equip }) end
     if #judge ~= 0 then table.insert(ui_data.card_data, { "$Judge", judge }) end
@@ -709,13 +715,19 @@ end
 fk.client_callback["ShowCard"] = function(data)
   local from = data.from
   local cards = data.cards
-  ClientInstance:notifyUI("MoveCards", {
+  local merged = {
     {
       ids = cards,
       fromArea = Card.DrawPile,
       toArea = Card.Processing,
     }
-  })
+  }
+  local vdata = {}
+  for _, id in ipairs(cards) do
+    vdata[tostring(id)] = true
+  end
+  vdata.merged = merged
+  ClientInstance:notifyUI("MoveCards", vdata)
 end
 
 -- 说是限定技，其实也适用于觉醒技、转换技、使命技
