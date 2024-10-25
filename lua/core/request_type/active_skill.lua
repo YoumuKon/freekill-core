@@ -77,6 +77,9 @@ function ReqActiveSkill:setupInteraction()
   local skill = Fk.skills[self.skill_name]
   if skill and skill.interaction then
     local interaction = skill:interaction()
+    if not interaction then
+      return
+    end
     skill.interaction.data = interaction.default_choice or nil -- FIXME
     -- 假设只有1个interaction （其实目前就是这样）
     local i = Interaction:new(self.scene, "1", interaction)
