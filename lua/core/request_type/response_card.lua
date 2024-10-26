@@ -109,9 +109,10 @@ function ReqResponseCard:selectSkill(skill, data)
     end
     self.skill_name = skill
     self.selected_card = nil
-    self:setSkillPrompt(skill)
 
     ReqActiveSkill.setup(self)
+
+    self:setSkillPrompt(Fk.skills[skill])
   else
     self.skill_name = nil
     self.prompt = self.original_prompt
