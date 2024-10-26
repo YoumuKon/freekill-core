@@ -7,8 +7,12 @@ local ReqUseCard = ReqResponseCard:subclass("ReqUseCard")
 function ReqUseCard:skillButtonValidity(name)
   local player = self.player
   local skill = Fk.skills[name]
-  return skill:isInstanceOf(ViewAsSkill) and skill:enabledAtResponse(player, false)
-    and skill.pattern and Exppattern:Parse(self.pattern):matchExp(skill.pattern)
+  return
+    skill:isInstanceOf(ViewAsSkill) and
+    skill:enabledAtResponse(player, false) and
+    skill.pattern and
+    Exppattern:Parse(self.pattern):matchExp(skill.pattern) and
+    not table.contains(self.disabledSkillNames or {}, name)
 end
 
 function ReqUseCard:cardValidity(cid)
