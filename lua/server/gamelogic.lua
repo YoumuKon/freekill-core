@@ -132,29 +132,20 @@ function GameLogic:chooseGenerals()
 
   local nonlord = room:getOtherPlayers(lord, true)
   local generals = table.random(room.general_pile, #nonlord * generalNum)
+
+  local req = Request:new(nonlord, "AskForGeneral")
   for i, p in ipairs(nonlord) do
     local arg = table.slice(generals, (i - 1) * generalNum + 1, i * generalNum + 1)
-    p.request_data = json.encode{ arg, n }
-    p.default_reply = table.random(arg, n)
+    req:setData(p, { arg, n })
+    req:setDefaultReply(p, table.random(arg, n))
   end
 
-  room:notifyMoveFocus(nonlord, "AskForGeneral")
-  room:doBroadcastRequest("AskForGeneral", nonlord)
-
   for _, p in ipairs(nonlord) do
-    local general, deputy
-    if p.general == "" and p.reply_ready then
-      local general_ret = json.decode(p.client_reply)
-      general = general_ret[1]
-      deputy = general_ret[2]
-    else
-      general = p.default_reply[1]
-      deputy = p.default_reply[2]
-    end
+    local result = req:getResult(p)
+    local general, deputy = result[1], result[2]
     room:findGeneral(general)
     room:findGeneral(deputy)
     room:prepareGeneral(p, general, deputy)
-    p.default_reply = ""
   end
 
   room:askForChooseKingdom(nonlord)

@@ -275,7 +275,7 @@ function Phase:main()
   local room = self.room
   local logic = room.logic
 
-  local player = self.data[1] ---@type Player
+  local player = self.data[1] ---@type ServerPlayer
   if not logic:trigger(fk.EventPhaseStart, player) then
     if player.phase ~= Player.NotActive then
       logic:trigger(fk.EventPhaseProceeding, player)
@@ -332,8 +332,8 @@ function Phase:main()
         while not player.dead do
           if player._phase_end then break end
           logic:trigger(fk.StartPlayCard, player, nil, true)
-          room:notifyMoveFocus(player, "PlayCard")
-          local result = room:doRequest(player, "PlayCard", player.id)
+
+          local result = Request:new(player, "PlayCard"):getResult(player)
           if result == "" then break end
 
           local useResult = room:handleUseCardReply(player, result)

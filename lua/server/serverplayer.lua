@@ -30,13 +30,6 @@ function ServerPlayer:initialize(_self)
   self.id = _self:getId()
   self.room = nil
 
-  -- Below are for doBroadcastRequest
-  -- 但是几乎全部被船新request杀了
-  self.request_data = ""
-  --self.client_reply = ""
-  self.default_reply = ""
-  --self.reply_ready = false
-  --self.reply_cancel = false
   self.phases = {}
   self.skipped_phases = {}
   self.phase_state = {}
