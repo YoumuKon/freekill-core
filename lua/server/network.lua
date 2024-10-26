@@ -38,7 +38,6 @@ function Request:initialize(players, command, n)
 
   -- 剩下的需要自己构造后修改相关值，构造函数只给四个
   local room = players[1].room
-  if not room then dbg() end
   self.room = room
   self.data = {}
   self.default_reply = {}

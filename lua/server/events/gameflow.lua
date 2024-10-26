@@ -80,11 +80,11 @@ function DrawInitial:main()
     return
   end
 
-  room:notifyMoveFocus(room.alive_players, "AskForLuckCard")
-  local request = Request:new("AskForSkillInvoke", room.alive_players)
+  local request = Request:new(room.alive_players, "AskForSkillInvoke")
   for _, p in ipairs(room.alive_players) do
     request:setData(p, { "AskForLuckCard", "#AskForLuckCard:::" .. room.settings.luckTime })
   end
+  request.focus_text = "AskForLuckCard"
   request.luck_data = luck_data
   request.accept_cancel = true
   request:ask()
