@@ -1328,7 +1328,7 @@ function Player:loadJsonObject(o)
   for _, id in ipairs(o.player_cards[Player.Judge]) do
     room:setCardArea(id, Card.PlayerJudge, pid)
   end
-  for _, ids in ipairs(o.special_cards) do
+  for _, ids in pairs(o.special_cards) do
     for _, id in ipairs(ids) do
       room:setCardArea(id, Card.PlayerSpecial, pid)
     end
