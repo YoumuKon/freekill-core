@@ -1,7 +1,7 @@
 ---@class Request : Object
 ---@field public room Room
 ---@field public players ServerPlayer[]
----@field public n integer @ n个人做出回复后，询问结束
+---@field public n integer @ 产生n个winner后，询问直接结束
 ---@field public accept_cancel? boolean @ 是否将取消也算作是收到肯定答复
 ---@field public ai_start_time integer? @ 只剩AI思考开始的时间（微秒），delay专用
 ---@field public timeout? integer @ 本次耗时（秒），默认为房间内配置的出手时间
@@ -71,7 +71,6 @@ end
 --- 获取本次Request中此人的回复，若还未询问过，那么先询问
 --- * <any>: 成功发出回复 获取的是decode后的回复
 --- * "" (空串): 发出了“取消” 或者烧完了绳子 反正就是取消
---- * "__cancel": 若accept_cancel，那么把“取消”当作确实的回复内容
 ---@param player ServerPlayer
 ---@return any
 function Request:getResult(player)
@@ -206,10 +205,9 @@ function Request:ask()
   -- 2. 进入循环等待，结束条件为已有n个回复或者超时或者有人点了
   --    若很多人都取消了导致最多回复数达不到n了，那么也结束
   local replied_players = 0
-  local ready_players = 0
   while true do
     local changed = false
-    -- 判断1：若投降则直接结束全部询问，若超时则踢掉所有人类玩家（这样AI还可计算）
+    -- 若投降则直接结束全部询问，若超时则踢掉所有人类玩家（让AI还可计算）
     if room.hasSurrendered then break end
     local elapsed = os.time() - currentTime
     if self.timeout - elapsed <= 0 or resume_reason == "request_timer" then
@@ -220,16 +218,17 @@ function Request:ask()
       end
     end
 
+    -- 若players中只剩人机，那么允许人机进行计算
     if table.every(players, function(p)
       return p.serverplayer:getState() ~= fk.Player_Online or not
         self.send_success[p.serverplayer]
     end) then
       self.ai_start_time = os.getms()
     end
-
-    -- 判断2：收到足够多回复了
     local use_ai = self.ai_start_time ~= nil
 
+    -- 轮询所有参与回答的玩家，如果作出了答复，那么就把他从名单移除；
+    -- 然后如果作出的是“肯定”答复，那么添加到winner里面
     for i = #players, 1, -1 do
       local player = players[i]
       local reply = self:_checkReply(player, use_ai)
@@ -244,29 +243,30 @@ function Request:ask()
         changed = true
 
         if reply ~= "__cancel" or self.accept_cancel then
-          ready_players = ready_players + 1
           table.insert(self.winners, player)
-          if ready_players >= self.n then
-            for _, p in ipairs(self.players) do
+          if #self.winners >= self.n then
+            -- winner数量已经足够，剩下的人不用算了
+            for _, p in ipairs(players) do
               -- 避免触发后续的烧条检测
               if self.result[p.id] == nil then
                 self.result[p.id] = "__failed_in_race"
               end
             end
+            players = {} -- 清空参与者名单
             break -- 注意外面还有一层循环
           end
         end
       end
     end
 
-    if #players + ready_players < self.n then break end
-    if ready_players >= self.n then break end
+    if #players == 0 then break end
+    if #self.winners >= self.n then break end
 
     -- 防止万一，如果AI算完后还是有机器人notready的话也别等了
     -- 不然就永远别想被唤醒了
     if self.ai_start_time then break end
 
-    -- 需要等待呢，等待被唤醒吧
+    -- 需要等待呢，等待被唤醒吧，唤醒后继续下一次轮询检测
     if not changed then
       resume_reason = coroutine.yield("__handleRequest")
     end
@@ -310,6 +310,7 @@ function Request:_finish()
     p.serverplayer:setThinking(false)
     -- 这个什么timewaste_count也该扔了
     if self.result[p.id] == "__failed_in_race" then
+      p:doNotify("CancelRequest", "")
       self.result[p.id] = self.default_reply[p.id] or ""
     end
     if self.result[p.id] == nil then
