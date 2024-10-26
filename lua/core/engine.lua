@@ -265,9 +265,28 @@ function Engine:loadDisabled()
   for mode_name, game_mode in pairs(self.game_modes) do
     local disabled_packages = {}
     for name, pkg in pairs(self.packages) do
-      if table.contains(game_mode.blacklist or Util.DummyTable, name) or
-      (game_mode.whitelist and not table.contains(game_mode.whitelist, name)) or
-      table.contains(pkg.game_modes_blacklist or Util.DummyTable, mode_name) or
+      --- GameMode对Package筛选
+      if type(game_mode.whitelist) == "function" then
+        if not game_mode:whitelist(pkg) then
+          table.insert(disabled_packages, name)
+        end
+      elseif type(game_mode.whitelist) == "table" then
+        if not table.contains(game_mode.whitelist, name) then
+          table.insert(disabled_packages, name)
+        end
+      end
+      if type(game_mode.blacklist) == "function" then
+        if game_mode:blacklist(pkg) then
+          table.insert(disabled_packages, name)
+        end
+      elseif type(game_mode.blacklist) == "table" then
+        if table.contains(game_mode.blacklist, name) then
+          table.insert(disabled_packages, name)
+        end
+      end
+
+      --- Package对GameMode筛选
+      if table.contains(pkg.game_modes_blacklist or Util.DummyTable, mode_name) or
       (pkg.game_modes_whitelist and not table.contains(pkg.game_modes_whitelist, mode_name)) then
         table.insert(disabled_packages, name)
       end

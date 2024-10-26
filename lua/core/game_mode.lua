@@ -26,8 +26,8 @@
 ---@field public maxPlayer integer @ 最大玩家数
 ---@field public rule? TriggerSkill @ 规则（通过技能完成，通常用来为特定角色及特定时机提供触发事件）
 ---@field public logic? fun(): GameLogic @ 逻辑（通过function完成，通常用来初始化、分配身份及座次）
----@field public whitelist? string[] @ 白名单
----@field public blacklist? string[] @ 黑名单
+---@field public whitelist? string[] | fun(self: GameMode, pkg: Package): bool @ 白名单
+---@field public blacklist? string[] | fun(self: GameMode, pkg: Package): bool @ 黑名单
 ---@field public config_template? GameModeConfigEntry[] 游戏模式的配置页面，如此一个数组
 local GameMode = class("GameMode")
 
@@ -98,16 +98,6 @@ function GameMode:getAdjustedProperty (player)
     list.maxHp = player.maxHp + 1
   end
   return list
-end
-
---- 向游戏模式中添加拓展包过滤。
----@param whitelist string[] @ 白名单
----@param blacklist string[] @ 黑名单
-function GameMode:addPackageFilter(whitelist, blacklist)
-  assert(type(whitelist) == "table")
-  assert(type(blacklist) == "table")
-  table.insertTable(self.whitelist, whitelist)
-  table.insertTable(self.blacklist, blacklist)
 end
 
 return GameMode
