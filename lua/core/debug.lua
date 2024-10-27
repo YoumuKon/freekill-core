@@ -23,8 +23,7 @@ function Traceback()
 end
 
 local msgh = function(err)
-  if not err then return end -- 防止error in handling errors (attempt to concatenate a nil value)
-  fk.qCritical(err .. "\n" .. debug.traceback(nil, 2))
+  fk.qCritical(tostring(err) .. "\n" .. debug.traceback(nil, 2))
 end
 
 function Pcall(f, ...)
