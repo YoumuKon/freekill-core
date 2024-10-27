@@ -139,7 +139,11 @@ end
 function ReqPlayCard:doEndButton()
   self.scene:update("SpecialSkills", "1", { skills = {} })
   self.scene:notifyUI()
-  ClientInstance:notifyUI("ReplyToServer", "")
+  if ClientInstance then
+    ClientInstance:notifyUI("ReplyToServer", "")
+  else
+    return ""
+  end
 end
 
 function ReqPlayCard:selectCard(cid, data)

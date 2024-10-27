@@ -857,13 +857,9 @@ fk.client_callback["AskForUseActiveSkill"] = function(data)
   local skill = Fk.skills[data[1]]
   local extra_data = data[4]
   skill._extra_data = extra_data
-
   Fk.currentResponseReason = extra_data.skillName
-  local h = Fk.request_handlers["AskForUseActiveSkill"]:new(Self)
-  h.skill_name = data[1]
-  h.prompt     = data[2]
-  h.cancelable = data[3]
-  h.extra_data = data[4]
+
+  local h = Fk.request_handlers["AskForUseActiveSkill"]:new(Self, data)
   h.change = {}
   h:setup()
   h.scene:notifyUI()
@@ -873,13 +869,7 @@ end
 fk.client_callback["AskForUseCard"] = function(data)
   -- jsonData: card, pattern, prompt, cancelable, {}
   Fk.currentResponsePattern = data[2]
-  local h = Fk.request_handlers["AskForUseCard"]:new(Self)
-  -- h.skill_name = data[1] (skill_name是给选中的视为技用的)
-  h.pattern    = data[2]
-  h.prompt     = data[3]
-  h.cancelable = data[4]
-  h.extra_data = data[5]
-  h.disabledSkillNames = data[6]
+  local h = Fk.request_handlers["AskForUseCard"]:new(Self, data)
   h.change = {}
   h:setup()
   h.scene:notifyUI()
@@ -889,13 +879,7 @@ end
 fk.client_callback["AskForResponseCard"] = function(data)
   -- jsonData: card, pattern, prompt, cancelable, {}
   Fk.currentResponsePattern = data[2]
-  local h = Fk.request_handlers["AskForResponseCard"]:new(Self)
-  -- h.skill_name = data[1] (skill_name是给选中的视为技用的)
-  h.pattern    = data[2]
-  h.prompt     = data[3]
-  h.cancelable = data[4]
-  h.extra_data = data[5]
-  h.disabledSkillNames = data[6]
+  local h = Fk.request_handlers["AskForResponseCard"]:new(Self, data)
   h.change = {}
   h:setup()
   h.scene:notifyUI()

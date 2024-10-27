@@ -17,6 +17,19 @@ local ReqActiveSkill = require 'core.request_type.active_skill'
 ---@field public original_prompt string 最开始的提示信息；这种涉及技能按钮的需要这样一下
 local ReqResponseCard = ReqActiveSkill:subclass("ReqResponseCard")
 
+function ReqResponseCard:initialize(player, data)
+  ReqActiveSkill.initialize(self, player)
+
+  if data then
+    -- self.skill_name = data[1] (skill_name是给选中的视为技用的)
+    self.pattern    = data[2]
+    self.prompt     = data[3]
+    self.cancelable = data[4]
+    self.extra_data = data[5]
+    self.disabledSkillNames = data[6]
+  end
+end
+
 function ReqResponseCard:setup()
   if not self.original_prompt then
     self.original_prompt = self.prompt or ""
@@ -90,7 +103,11 @@ function ReqResponseCard:doOKButton()
     card = self.selected_card:getEffectiveId(),
     targets = self.selected_targets,
   }
-  ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
+  if ClientInstance then
+    ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
+  else
+    return reply
+  end
 end
 
 function ReqResponseCard:doCancelButton()
