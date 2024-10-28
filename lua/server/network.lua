@@ -299,8 +299,7 @@ end
 function Request:_finish()
   local room = self.room
   surrenderCheck(room)
-  -- FIXME: 这里QML中有个bug，这个命令应该是用来暗掉玩家面板的
-  -- room:doBroadcastNotify("CancelRequest", "")
+
   for _, p in ipairs(self.players) do
     p.serverplayer:setThinking(false)
     -- 这个什么timewaste_count也该扔了
@@ -327,7 +326,7 @@ function Request:_finish()
   for _, isHuman in pairs(self.send_success) do
     if not self.ai_start_time then break end
     if not isHuman then
-      local to_delay = 500 - (os.getms() - self.ai_start_time) / 1000
+      local to_delay = 800 - (os.getms() - self.ai_start_time) / 1000
       room:delay(to_delay)
       break
     end

@@ -1,4 +1,8 @@
-require "packages.standard.ai.aux_skills"
+if UsingNewCore then
+  require "standard.ai.aux_skills"
+else
+  require "packages.standard.ai.aux_skills"
+end
 
 -- 魏国
 

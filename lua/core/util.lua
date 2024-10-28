@@ -98,15 +98,15 @@ end
 ---@param val_func? fun(e: T): integer @ 计算权值的函数，对int[]可不写
 ---@param reverse? boolean @ 是否反排？反排的话优先返回权值小的元素
 function fk.sorted_pairs(t, val_func, reverse)
-  val_func = val_func or function(e) return e end
   local t2 = table.simpleClone(t)  -- 克隆一次表，用作迭代器上值
+  local t_vals = table.map(t2, val_func or function(e) return e end)
   local iter = function()
     local max_idx, max, max_val = -1, nil, nil
     for i, v in ipairs(t2) do
       if not max then
-        max_idx, max, max_val = i, v, val_func(v)
+        max_idx, max, max_val = i, v, t_vals[i]
       else
-        local val = val_func(v)
+        local val = t_vals[i]
         local checked = val > max_val
         if reverse then checked = not checked end
         if checked then
@@ -116,6 +116,7 @@ function fk.sorted_pairs(t, val_func, reverse)
     end
     if max_idx == -1 then return nil, nil end
     table.remove(t2, max_idx)
+    table.remove(t_vals, max_idx)
     return -1, max, max_val
   end
   return iter, nil, 1

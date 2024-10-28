@@ -79,6 +79,17 @@ function AI:getSelectedCards()
   return self.handler.pendings
 end
 
+---@return Card?
+function AI:getSelectedCard()
+  if not self:isInDashboard() then return Util.DummyTable end
+  local handler = self.handler
+  if handler.selected_card then return handler.selected_card end
+  if not handler.skill_name then return end
+  local skill = Fk.skills[handler.skill_name]
+  if not skill:isInstanceOf(ViewAsSkill) then return end
+  return skill:viewAs(handler.pendings)
+end
+
 ---@return ServerPlayer[]
 function AI:getSelectedTargets()
   if not self:isInDashboard() then return Util.DummyTable end
@@ -108,6 +119,30 @@ function AI:selectSkill(skill_name, selected)
   self.handler:update("SkillButton", skill_name, "click", { selected = selected })
 end
 
+function AI:unSelectAllCards()
+  for _, id in ipairs(self:getSelectedCards()) do
+    self:selectCard(id, false)
+  end
+end
+
+function AI:unSelectAllTargets()
+  for _, p in ipairs(self:getSelectedTargets()) do
+    self:selectTarget(p, false)
+  end
+end
+
+function AI:unSelectSkill()
+  local skill = self:getSelectedSkill()
+  if not skill then return end
+  self:selectSkill(skill, false)
+end
+
+function AI:unSelectAll()
+  self:unSelectSkill()
+  self:unSelectAllCards()
+  self:unSelectAllTargets()
+end
+
 function AI:okButtonEnabled()
   if not self:isInDashboard() then return false end
   return self.handler:feasible()
@@ -121,6 +156,7 @@ end
 
 function AI:makeReply()
   Self = self.player
+  -- local now = os.getms()
   local fn = self["handle" .. self.command]
   local ret = "__cancel"
   if fn then
@@ -133,6 +169,7 @@ function AI:makeReply()
   end
   if ret == "" then ret = "__cancel" end
   self.handler = nil
+  -- printf("%s 在%fms后得出结果：%s", self.command, (os.getms() - now) / 1000, json.encode(ret))
   return ret
 end
 
