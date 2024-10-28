@@ -940,7 +940,10 @@ function RevertSelection()
   h.scene:notifyUI()
 end
 
+local requestUIUpdating = false
 function UpdateRequestUI(elemType, id, action, data)
+  if requestUIUpdating then return end
+  requestUIUpdating = true
   local h = ClientInstance.current_request_handler
   h.change = {}
   local finish = h:update(elemType, id, action, data)
@@ -949,6 +952,7 @@ function UpdateRequestUI(elemType, id, action, data)
   else
     h:_finish()
   end
+  requestUIUpdating = false
 end
 
 function FinishRequestUI()
