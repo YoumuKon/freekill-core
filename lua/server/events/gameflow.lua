@@ -354,7 +354,7 @@ function Phase:main()
         ) - player:getMaxCards()
         room:broadcastProperty(player, "MaxCards")
         if discardNum > 0 then
-          room:askForDiscard(player, discardNum, discardNum, false, "game_rule", false)
+          room:askForDiscard(player, discardNum, discardNum, false, "phase_discard", false)
         end
       end,
       [Player.Finish] = function()

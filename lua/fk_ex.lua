@@ -666,6 +666,10 @@ function fk.CreateGameMode(spec)
     assert(type(spec.get_adjusted) == "function")
     ret.getAdjustedProperty = spec.get_adjusted
   end
+  if spec.reward_punish then
+    assert(type(spec.reward_punish) == "function")
+    ret.deathRewardAndPunish = spec.reward_punish
+  end
   return ret
 end
 

@@ -101,4 +101,17 @@ function GameMode:getAdjustedProperty (player)
   return list
 end
 
+
+-- 执行死亡奖惩
+---@param victim ServerPlayer @ 死亡角色
+---@param killer? ServerPlayer @ 击杀者
+function GameMode:deathRewardAndPunish (victim, killer)
+  if not killer or killer.dead then return end
+  if victim.role == "rebel" then
+    killer:drawCards(3, "kill")
+  elseif victim.role == "loyalist" and killer.role == "lord" then
+    killer:throwAllCards("he")
+  end
+end
+
 return GameMode

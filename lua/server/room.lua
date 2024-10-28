@@ -971,7 +971,7 @@ function Room:askForDiscard(player, minNum, maxNum, includeEquip, skillName, can
           return false
         end
       end
-      if skillName == "game_rule" then
+      if skillName == "phase_discard" then
         status_skills = Fk:currentRoom().status_skills[MaxCardsSkill] or Util.DummyTable
         for _, skill in ipairs(status_skills) do
           if skill:excludeFrom(player, card) then
