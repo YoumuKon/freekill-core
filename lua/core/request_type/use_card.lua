@@ -49,7 +49,7 @@ function ReqUseCard:targetValidity(pid)
       -- 若include中全都没选，且target不在include中则不可选择
       if table.every(data.include_targets, function(id)
         return not table.contains(self.selected_targets, id)
-      end) and not table.contains(data.must_targets, pid) then
+      end) and not table.contains(data.include_targets, pid) then
         ret = false
       end
     end
@@ -112,7 +112,7 @@ function ReqUseCard:selectTarget(playerid, data)
       self.selected_targets = {}
       for _, pid in ipairs(previous_targets) do
         local ret
-        ret = not player:isProhibited(pid, card) and skill and
+        ret = not player:isProhibited(self.room:getPlayerById(pid), card) and skill and
           skill:targetFilter(pid, self.selected_targets,
         { card.id }, card, data.extra_data)
         -- 从头开始写目标
