@@ -646,6 +646,9 @@ function fk.CreateGameMode(spec)
   ret.blacklist = spec.blacklist
   ret.rule = spec.rule
   ret.logic = spec.logic
+  ret.main_mode = spec.main_mode or spec.name
+  Fk.main_mode_list[ret.main_mode] = Fk.main_mode_list[ret.main_mode] or {}
+  table.insert(Fk.main_mode_list[ret.main_mode], ret.name)
 
   if spec.winner_getter then
     assert(type(spec.winner_getter) == "function")

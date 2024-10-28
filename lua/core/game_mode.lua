@@ -29,6 +29,7 @@
 ---@field public whitelist? string[] | fun(self: GameMode, pkg: Package): bool @ 白名单
 ---@field public blacklist? string[] | fun(self: GameMode, pkg: Package): bool @ 黑名单
 ---@field public config_template? GameModeConfigEntry[] 游戏模式的配置页面，如此一个数组
+---@field public main_mode? string @ 主模式名（用于判断此模式是否为某模式的衍生）
 local GameMode = class("GameMode")
 
 --- 构造函数，不可随意调用。

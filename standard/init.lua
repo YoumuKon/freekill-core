@@ -1242,6 +1242,7 @@ local role_mode = fk.CreateGameMode{
   minPlayer = 2,
   maxPlayer = 8,
   logic = role_getlogic,
+  main_mode = "role_mode",
   is_counted = function(self, room)
     return #room.players >= 5
   end,
