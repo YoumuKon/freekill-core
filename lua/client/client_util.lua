@@ -457,10 +457,25 @@ function GetSkillData(skill_name)
 end
 
 function GetSkillStatus(skill_name)
+  local player = Self
   local skill = Fk.skills[skill_name]
-  local locked = not skill:isEffectable(Self)
-  if not locked and type(Self:getMark(MarkEnum.InvalidSkills)) == "table" and table.contains(Self:getMark(MarkEnum.InvalidSkills), skill_name) then
-    locked = true
+  local locked = not skill:isEffectable(player)
+  if not locked then
+    for mark, value in pairs(player.mark) do
+      if mark == MarkEnum.InvalidSkills then
+        if table.contains(value, skill_name) then
+          locked = true
+          break
+        end
+      elseif mark:startsWith(MarkEnum.InvalidSkills .. "-") and table.contains(value, skill_name) then
+        for _, suffix in ipairs(MarkEnum.TempMarkSuffix) do
+          if mark:find(suffix, 1, true) then
+            locked = true
+            break
+          end
+        end
+      end
+    end
   end
   return {
     locked = locked, ---@type boolean
