@@ -1521,7 +1521,7 @@ end
 ---@return integer[] @ 选择的id
 function Room:askForCardsChosen(chooser, target, min, max, flag, reason, prompt)
   if min == 1 and max == 1 then
-    return { self:askForCardChosen(chooser, target, flag, reason) }
+    return { self:askForCardChosen(chooser, target, flag, reason, prompt) }
   end
 
   local cards

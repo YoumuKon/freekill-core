@@ -635,7 +635,14 @@ function fk.CreateTreasure(spec)
   return card
 end
 
----@param spec GameMode
+---@class GameModeSpec: GameMode
+---@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string
+---@field public surrender_func? fun(self: GameMode, playedTime: number): string
+---@field public is_counted? fun(self: GameMode, room: Room): boolean
+---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
+---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer: ServerPlayer)
+
+---@param spec GameModeSpec
 ---@return GameMode
 function fk.CreateGameMode(spec)
   assert(type(spec.name) == "string")

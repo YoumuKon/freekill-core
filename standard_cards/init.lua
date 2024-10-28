@@ -713,7 +713,7 @@ local lightningSkill = fk.CreateActiveSkill{
       }
 
       room:moveCards{
-        ids = Card:getIdList(effect.card),
+        ids = room:getSubcardsByRule(effect.card, { Card.Processing }),
         toArea = Card.DiscardPile,
         moveReason = fk.ReasonUse
       }
