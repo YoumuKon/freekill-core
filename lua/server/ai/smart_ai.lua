@@ -51,19 +51,6 @@ function SmartAI:__index(k)
   return ret
 end
 
--- AI框架中常用的模式化函数。
--- 先从表中选函数，若无则调用默认的。点点点是参数
-function SmartAI:callFromTable(func_table, default_func, key, ...)
-  local f = func_table[key]
-  if type(f) == "function" then
-    return f(...)
-  elseif type(default_func) == "function" then
-    return default_func(...)
-  else
-    return nil
-  end
-end
-
 -- 面板相关交互：对应操控手牌区、技能面板、直接选择目标的交互
 -- 对应UI中的"responding"状态和"playing"状态
 -- AI代码需要像实际操作UI那样完成以下几个任务：
@@ -74,33 +61,90 @@ end
 
 --- 主动技/视为技在SmartAI中几个选牌选目标的函数
 ---@class SmartAISkillSpec
----@field name string
----@field will_use? fun(skill: ActiveSkill, ai: SmartAI, card: Card): boolean?
+---@field will_use? fun(skill: ActiveSkill, ai: SmartAI, card: Card): boolean? 出牌阶段要不要使用？
 ---@field choose_interaction? fun(skill: ActiveSkill, ai: SmartAI): boolean?
 ---@field choose_cards? fun(skill: ActiveSkill, ai: SmartAI): boolean?
----@field choose_targets fun(skill: ActiveSkill, ai: SmartAI, card: Card?): any
+---@field choose_targets? fun(skill: ActiveSkill, ai: SmartAI, card: Card?): any
+---@field skill_invoke? boolean|fun(skill: Skill, ai: SmartAI): any
+---@field ask_choice? fun(skill: ActiveSkill, ai: SmartAI, choices: string[], min?: integer, max?: integer): any
+
+--@field ask_use_card? fun(skill: ActiveSkill, ai: SmartAI): any
+--@field ask_response? fun(skill: ActiveSkill, ai: SmartAI): any
 
 ---@type table<string, SmartAISkillSpec>
 fk.ai_skills = {}
 
----@param spec SmartAISkillSpec
-function SmartAI.static:registerActiveSkill(spec, key)
-  spec.will_use = spec.will_use or Util.FalseFunc
-  -- spec.choose_interaction = spec.choose_interaction or Util.FalseFunc
-  -- spec.choose_cards = spec.choose_cards or Util.FalseFunc
-  spec.choose_targets = spec.choose_targets or Util.FalseFunc
-  fk.ai_skills[key or spec.name] = spec
+local function applyAI(key, spec)
+  if not fk.ai_skills[key] then
+    fk.ai_skills[key] = {}
+  end
+  for k, v in pairs(spec) do
+    fk.ai_skills[key][k] = v
+  end
 end
 
+---@param key string|string[]
 ---@param spec SmartAISkillSpec
----@param key string? 可以指定不同于spec.name的key 以便复用
+function SmartAI.static:setSkillAI(key, spec)
+  if type(key) == "table" then
+    for _, k in ipairs(key) do
+      applyAI(k, spec)
+    end
+  else
+    applyAI(key, spec)
+  end
+end
+
+---@param key string|string[] 可以指定不同于spec.name的key 以便复用
+---@param spec SmartAISkillSpec
 ---@diagnostic disable-next-line
-function SmartAI:registerActiveSkill(spec, key)
+function SmartAI:setSkillAI(key, spec)
   error("This is a static method. Please use SmartAI:registerActiveSkill(...)")
 end
 
--- PlayCard: 出牌阶段空闲时间点使用牌/技能
------------------------------------------------
+local function hasKey(t1, t2, key)
+  if (t1 and t1[key]) or (t2 and t2[key]) then return true end
+end
+
+local function callFromTables(tab, backup, key, ...)
+  local fn
+  if tab and tab[key] then
+    fn = tab[key]
+  elseif backup and backup[key] then
+    fn = backup[key]
+  end
+  if not fn then return end
+  return fn(...)
+end
+
+function SmartAI:handleAskForUseActiveSkill()
+  local name = self.handler.skill_name
+  local skill = Fk.skills[name] --[[@as ActiveSkill]]
+  local current_skill = self:currentSkill()
+
+  -- 两个策略表，其中优先使用_spec里面的方法
+  local spec, _spec = fk.ai_skills[name], nil
+  if current_skill then
+    _spec = fk.ai_skills[current_skill.name]
+  end
+
+  if hasKey(_spec, spec, "choose_interaction") then
+    if not callFromTables(_spec, spec, "choose_interaction", skill, self) then
+      return
+    end
+  end
+
+  if hasKey(_spec, spec, "choose_cards") then
+    if not callFromTables(_spec, spec, "choose_cards", skill, self) then
+      return
+    end
+  end
+
+  local card = self:getSelectedCard()
+  if card then spec = fk.ai_skills[card.skill.name] end
+  local ret = callFromTables(_spec, spec, "choose_targets", skill, self, card)
+  if ret and ret ~= "" then return ret end
+end
 
 function SmartAI:handlePlayCard()
   local to_use = self:getEnabledCards()
@@ -120,7 +164,7 @@ function SmartAI:handlePlayCard()
     end
 
     local spec = fk.ai_skills[skill.name]
-    if spec and spec.will_use(skill, self, card) then
+    if spec and spec.will_use and spec.will_use(skill, self, card) then
       if not card then
         self:selectSkill(id_or_skill, true)
         if spec.choose_interaction and not spec.choose_interaction(skill, self) then
@@ -130,6 +174,7 @@ function SmartAI:handlePlayCard()
           goto continue
         end
         card = self:getSelectedCard() -- 可能nil 但总之也要进入最终选目标阶段
+        if card then spec = fk.ai_skills[card.skill.name] end
       else
         self:selectCard(id_or_skill, true)
       end
@@ -157,14 +202,22 @@ end
 -----------------------------
 
 ---@type table<string, boolean | fun(self: SmartAI, prompt: string): bool>
-fk.ai_skill_invoke = {}
+fk.ai_skill_invoke = { AskForLuckCard = false }
 
 function SmartAI:handleAskForSkillInvoke(data)
   local skillName, prompt = data[1], data[2]
-  local ask = fk.ai_skill_invoke[skillName]
+  local skill = Fk.skills[skillName]
+  local spec = fk.ai_skills[skillName]
+  local ask
+  if spec then
+    ask = spec.skill_invoke
+  else
+    ask = fk.ai_skill_invoke[skillName]
+  end
+
 
   if type(ask) == "function" then
-    return ask(self, prompt) and "1" or ""
+    return ask(skill, self) and "1" or ""
   elseif type(ask) == "boolean" then
     return ask and "1" or ""
   elseif Fk.skills[skillName].frequency == Skill.Frequent then

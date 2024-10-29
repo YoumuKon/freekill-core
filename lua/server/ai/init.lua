@@ -11,8 +11,8 @@ SmartAI = require "server.ai.smart_ai"
 local directories
 if UsingNewCore then
   directories = FileIO.ls("..")
-  -- require "standard.ai"
   require "standard_cards.ai"
+  require "standard.ai"
   require "maneuvering.ai"
 else
   directories = FileIO.ls("packages")

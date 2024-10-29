@@ -21,6 +21,7 @@
 ---@field public last_request Request @ 上一次完成的request
 ---@field public skill_costs table<string, any> @ 存放skill.cost_data用
 ---@field public card_marks table<integer, any> @ 存放card.mark之用
+---@field public current_cost_skill TriggerSkill? @ AI用
 local Room = AbstractRoom:subclass("Room")
 
 -- load classes used by the game

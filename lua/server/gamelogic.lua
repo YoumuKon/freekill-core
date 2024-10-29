@@ -563,7 +563,7 @@ end
 --- 如果当前事件刚好是技能生效事件，就返回那个技能名，否则返回空串。
 function GameLogic:getCurrentSkillName()
   local skillEvent = self:getCurrentEvent()
-  local ret = ""
+  local ret = nil
   if skillEvent.event == GameEvent.SkillEffect then
     local _, _, _skill = table.unpack(skillEvent.data)
     local skill = _skill.main_skill and _skill.main_skill or _skill

@@ -59,6 +59,21 @@ function AI:getEnabledTargets()
   return ret
 end
 
+function AI:hasEnabledTarget()
+  if not self:isInDashboard() then return false end
+  local room = self.room
+
+  for _, item in pairs(self.handler.scene:getAllItems("Photo")) do
+    if item.enabled and not item.selected then
+      return true
+    end
+  end
+  return false
+end
+
+--- 获取技能面板中所有可以按下的技能按钮
+---@return string[]
+
 --- 获取技能面板中所有可以按下的技能按钮
 ---@return string[]
 function AI:getEnabledSkills()
@@ -154,10 +169,25 @@ function AI:doOKButton()
   return self.handler:doOKButton()
 end
 
+---@return Skill?
+function AI:currentSkill()
+  local room = self.room
+  if room.current_cost_skill then return room.current_cost_skill end
+  local sname = room.logic:getCurrentSkillName()
+  if sname then
+    return Fk.skills[sname]
+  end
+end
+
 function AI:makeReply()
   Self = self.player
   -- local now = os.getms()
   local fn = self["handle" .. self.command]
+  local is_active = self.command == "AskForUseActiveSkill"
+  if is_active then
+    local skill = Fk.skills[self.data[1]]
+    skill._extra_data = self.data[4]
+  end
   local ret = "__cancel"
   if fn then
     local handler_class = Fk.request_handlers[self.command]
@@ -169,6 +199,10 @@ function AI:makeReply()
   end
   if ret == "" then ret = "__cancel" end
   self.handler = nil
+  if is_active then
+    local skill = Fk.skills[self.data[1]]
+    skill._extra_data = Util.DummyTable
+  end
   -- printf("%s 在%fms后得出结果：%s", self.command, (os.getms() - now) / 1000, json.encode(ret))
   return ret
 end
