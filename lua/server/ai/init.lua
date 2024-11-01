@@ -2,7 +2,7 @@
 
 AI = require "server.ai.ai"
 TrustAI = require "server.ai.trust_ai"
-RandomAI = require "server.ai.random_ai"
+-- RandomAI = require "server.ai.random_ai"
 
 ---[[ 在release版暂时不启动。
 SmartAI = require "server.ai.smart_ai"
@@ -12,8 +12,8 @@ local directories
 if UsingNewCore then
   directories = FileIO.ls("..")
   require "standard_cards.ai"
-  require "standard.ai"
-  require "maneuvering.ai"
+  -- require "standard.ai"
+  -- require "maneuvering.ai"
 else
   directories = FileIO.ls("packages")
   require "packages.standard.ai"

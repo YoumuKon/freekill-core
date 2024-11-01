@@ -163,6 +163,12 @@ function AI:okButtonEnabled()
   return self.handler:feasible()
 end
 
+function AI:isDeadend()
+  if not self:isInDashboard() then return true end
+  return (not self:okButtonEnabled()) and #self:getEnabledCards() == 0
+    and #self:getEnabledTargets() == 0
+end
+
 function AI:doOKButton()
   if not self:isInDashboard() then return end
   if not self:okButtonEnabled() then return "" end
@@ -197,7 +203,7 @@ function AI:makeReply()
     end
     ret = fn(self, self.data)
   end
-  if ret == "" then ret = "__cancel" end
+  if ret == nil or ret == "" then ret = "__cancel" end
   self.handler = nil
   if is_active then
     local skill = Fk.skills[self.data[1]]

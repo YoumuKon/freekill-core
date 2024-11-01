@@ -24,12 +24,19 @@
 ---@field public enemies ServerPlayer[] @ 敌人
 local SmartAI = TrustAI:subclass("SmartAI") -- 哦，我懒得写出闪之类的，不得不继承一下，饶了我吧
 
+SkillAI = require "lua.server.ai.skill"
+TriggerSkillAI = require "lua.server.ai.trigger_skill"
+
+---@type table<string, AIGameEvent>
+fk.ai_events = {}
+AIGameEvent = require "lua.server.ai.event"
+
 function SmartAI:initialize(player)
   TrustAI.initialize(self, player)
 end
 
 function SmartAI:makeReply()
-  self._memory = {}
+  self._memory = setmetatable({}, { __mode = "k" })
   return TrustAI.makeReply(self)
 end
 
@@ -59,47 +66,77 @@ end
 --   * 点确定
 --===================================================
 
---- 主动技/视为技在SmartAI中几个选牌选目标的函数
----@class SmartAISkillSpec
----@field will_use? fun(skill: ActiveSkill, ai: SmartAI, card: Card): boolean? 出牌阶段要不要使用？
----@field choose_interaction? fun(skill: ActiveSkill, ai: SmartAI): boolean?
----@field choose_cards? fun(skill: ActiveSkill, ai: SmartAI): boolean?
----@field choose_targets? fun(skill: ActiveSkill, ai: SmartAI, card: Card?): any
----@field skill_invoke? boolean|fun(skill: Skill, ai: SmartAI): any
----@field ask_choice? fun(skill: ActiveSkill, ai: SmartAI, choices: string[], min?: integer, max?: integer): any
+-- 考虑为triggerSkill设置收益修正函数
 
 --@field ask_use_card? fun(skill: ActiveSkill, ai: SmartAI): any
 --@field ask_response? fun(skill: ActiveSkill, ai: SmartAI): any
 
----@type table<string, SmartAISkillSpec>
+---@type table<string, SkillAI>
 fk.ai_skills = {}
 
-local function applyAI(key, spec)
-  if not fk.ai_skills[key] then
-    fk.ai_skills[key] = {}
-  end
-  for k, v in pairs(spec) do
-    fk.ai_skills[key][k] = v
-  end
-end
-
----@param key string|string[]
----@param spec SmartAISkillSpec
+---@param key string
+---@param spec SkillAISpec
 function SmartAI.static:setSkillAI(key, spec)
-  if type(key) == "table" then
-    for _, k in ipairs(key) do
-      applyAI(k, spec)
-    end
-  else
-    applyAI(key, spec)
+  if not fk.ai_skills[key] then
+    fk.ai_skills[key] = SkillAI:subclass(key)
+  end
+  local ai = fk.ai_skills[key]
+  local qsgs_wisdom_map = {
+    choose_interaction = "chooseInteraction",
+    choose_cards = "chooseCards",
+    choose_targets = "chooseTargets",
+    card_benefit = "getCardBenefit",
+    target_benefit = "getTargetBenefit",
+    ok_benefit = "getOkBenefit",
+    cancel_benefit = "getCancelBenefit",
+    card_predict = "predictCardEvent",
+    target_predict = "predictTargetEvent",
+    ok_predict = "predictOkEvent",
+    cancel_predict = "predictCancelEvent",
+  }
+  for k, v in pairs(spec) do
+    local key2 = qsgs_wisdom_map[k]
+    if key2 then ai[key2] = v end
   end
 end
 
----@param key string|string[] 可以指定不同于spec.name的key 以便复用
----@param spec SmartAISkillSpec
+--[[
+function SmartAI.static:inheritSkillAI(child, parent)
+  local parent_spec = fk.ai_skills[parent]
+  if not parent_spec then
+    fk.qWarning(string.format("cannot inherit AI table from skill %s to %s: %s", parent, child
+      "parent spec does not exist"))
+    return
+  end
+  if fk.ai_skills[child] then
+    fk.qWarning(string.format("cannot inherit AI table from skill %s to %s: %s", parent, child
+      "child has already registed its spec"))
+    return
+  end
+  fk.ai_skills[child] = setmetatable({}, { __index = parent_spec })
+end
+--]]
+
+--- 将spec中的键值保存到这个技能的ai中
+---@param key string
+---@param spec SkillAISpec
 ---@diagnostic disable-next-line
 function SmartAI:setSkillAI(key, spec)
-  error("This is a static method. Please use SmartAI:registerActiveSkill(...)")
+  error("This is a static method. Please use SmartAI:setSkillAI(...)")
+end
+
+--[[
+--- 将spec中的键值保存到这个技能的ai中
+---@param child string 可以指定不同于spec.name的key 以便复用
+---@param parent string
+---@diagnostic disable-next-line
+function SmartAI:inheritSkillAI(child, parent)
+  error("This is a static method. Please use SmartAI:inheritSkillAI(...)")
+end
+--]]
+
+---@param cid_or_skill integer|string
+function SmartAI:getBasicBenefit(cid_or_skill)
 end
 
 local function hasKey(t1, t2, key)
@@ -117,6 +154,7 @@ local function callFromTables(tab, backup, key, ...)
   return fn(...)
 end
 
+--[=[
 function SmartAI:handleAskForUseActiveSkill()
   local name = self.handler.skill_name
   local skill = Fk.skills[name] --[[@as ActiveSkill]]
@@ -146,12 +184,22 @@ function SmartAI:handleAskForUseActiveSkill()
   if ret and ret ~= "" then return ret end
 end
 
+--[[
+function SmartAI:handleAskForResponseCard()
+  local current_skill = self:currentSkill()
+end
+--]]
+--]=]
+
 function SmartAI:handlePlayCard()
   local to_use = self:getEnabledCards()
-  table.insertTable(to_use, self:getEnabledSkills())
+  -- table.insertTable(to_use, self:getEnabledSkills())
 
-  -- local value_func = function(str) return 1 end
-  -- for _, id_or_skill in fk.sorted_pairs(to_use, value_func) do
+  -- local cancel_benefit = 0
+  -- local value_func = function(id_or_str)
+  --   return 1
+  -- end
+  -- for _, id_or_skill, val in fk.sorted_pairs(to_use, value_func) do
   for _, id_or_skill in ipairs(to_use) do
     local skill
     local card
@@ -163,6 +211,17 @@ function SmartAI:handlePlayCard()
       skill = card.skill
     end
 
+    local ai = fk.ai_skills[skill.name]
+    if ai then
+      local start = os.getms()
+      self:selectCard(id_or_skill, true)
+      local ret = ai:chooseTargets()
+      local now = os.getms()
+      printf("%s: 计算每个目标收益并选择目标共花了%fms", skill.name, (now - start) / 1000)
+      if ret and ret ~= "" then return ret end
+    end
+
+    --[[
     local spec = fk.ai_skills[skill.name]
     if spec and spec.will_use and spec.will_use(skill, self, card) then
       if not card then
@@ -182,6 +241,7 @@ function SmartAI:handlePlayCard()
       local ret = spec.choose_targets(skill, self, card)
       if ret and ret ~= "" then return ret end
     end
+    --]]
 
     ::continue::
     self:unSelectAll()
@@ -201,6 +261,7 @@ end
 -- 函数返回true或者false即可。
 -----------------------------
 
+--[[
 ---@type table<string, boolean | fun(self: SmartAI, prompt: string): bool>
 fk.ai_skill_invoke = { AskForLuckCard = false }
 
@@ -226,6 +287,7 @@ function SmartAI:handleAskForSkillInvoke(data)
     return math.random() < 0.5 and "1" or ""
   end
 end
+--]]
 
 -- 敌友判断相关。
 -- 目前才开始，做个明身份打牌的就行了。
@@ -251,5 +313,36 @@ end
 --=================================================
 
 -- sorted_pairs 见 core/util.lua
+
+-- 基于事件的收益推理；内置事件
+--=================================================
+
+---@type table<string, TriggerSkillAI>
+fk.ai_trigger_skills = {}
+
+function SmartAI:getTriggerBenefit(event, target, data)
+  local logic = self.room.logic
+  local skills = logic.skill_table[event] or Util.DummyTable
+  local _target = self.room.current -- for iteration
+  local player = _target
+  local correct = 0
+  local val, exit
+
+  repeat
+    for _, skill in ipairs(skills) do
+      local ai = fk.ai_trigger_skills[skill.name]
+      if ai then
+        val, exit = ai:getCorrect(event, target, player, data)
+        val = val or 0
+        if self:isEnemy(player) then val = -val end
+        correct = correct + val
+        if exit then break end
+      end
+    end
+    player = player.next
+  until player == _target
+
+  return correct, exit
+end
 
 return SmartAI

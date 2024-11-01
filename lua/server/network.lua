@@ -162,7 +162,7 @@ function Request:_checkReply(player, use_ai)
       player.ai.command = self.command
       -- FIXME: 后面进行SmartAI的时候准备爆破此处
       player.ai.data = self.data[player.id]
-      reply = player.ai:makeReply()
+      reply = Pcall(player.ai.makeReply, player.ai)
     else
       -- 还没轮到AI呢，所以需要标记为未答复
       reply = "__notready"

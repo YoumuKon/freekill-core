@@ -1,3 +1,16 @@
+SmartAI:setSkillAI("slash_skill", {
+  target_predict = function(self, target)
+    ---@type DamageStruct
+    local dmg = {
+      from = self.player,
+      to = target,
+      damage = 1,
+    }
+    return fk.ai_events.Damage:new(self.ai, dmg)
+  end,
+})
+
+--[=====[
 local just_use = {
   name = "__just_use",
   will_use = Util.TrueFunc,
@@ -53,3 +66,4 @@ SmartAI:setSkillAI("god_salvation_skill", just_use)
 SmartAI:setSkillAI("amazing_grace_skill", just_use)
 SmartAI:setSkillAI("lightning_skill", just_use)
 SmartAI:setSkillAI("default_equip_skill", just_use)
+--]=====]
