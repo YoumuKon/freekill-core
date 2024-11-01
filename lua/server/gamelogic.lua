@@ -269,6 +269,10 @@ function GameLogic:action()
   while true do
     execGameEvent(GameEvent.Round)
     if room.game_finished then break end
+    local players = table.filter(room.alive_players, function(p) return not p.dead or p.rest > 0 end)
+    if #players == 0 then room:gameOver("") end
+    table.sort(players, function(a, b) return a.seat < b.seat end)
+    room.current = players[1]
   end
 end
 
@@ -561,6 +565,7 @@ function GameLogic:getMostRecentEvent(eventType)
 end
 
 --- 如果当前事件刚好是技能生效事件，就返回那个技能名，否则返回空串。
+---@return string|nil
 function GameLogic:getCurrentSkillName()
   local skillEvent = self:getCurrentEvent()
   local ret = nil
@@ -596,7 +601,7 @@ function GameLogic:getEventsOfScope(eventType, n, func, scope)
 end
 
 -- 在指定历史范围中找符合条件的事件（逆序）
----@param eventType integer @ 要查找的事件类型
+---@param eventType GameEvent @ 要查找的事件类型
 ---@param func fun(e: GameEvent): boolean @ 过滤用的函数
 ---@param n integer @ 最多找多少个
 ---@param end_id integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含）

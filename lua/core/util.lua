@@ -730,4 +730,15 @@ function AimGroup:getCancelledTargets(aimGroup)
   return aimGroup[AimGroup.Cancelled]
 end
 
+---@param target ServerPlayer
+---@param data AimStruct
+---@return boolean
+function AimGroup:isOnlyTarget(target, data)
+  if data.tos == nil then return false end
+  local tos = AimGroup:getAllTargets(data.tos)
+  return table.contains(tos, target.id) and not table.find(target.room.alive_players, function (p)
+    return p ~= target and table.contains(tos, p.id)
+  end)
+end
+
 return { TargetGroup, AimGroup, Util }
