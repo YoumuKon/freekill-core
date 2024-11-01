@@ -458,6 +458,7 @@ function ServerPlayer:bury()
   self:throwAllCards()
   self:throwAllMarks()
   self:clearPiles()
+  self:onAllSkillLose()
   self:reset()
 end
 
@@ -477,6 +478,12 @@ function ServerPlayer:throwAllCards(flag)
   end
 
   self.room:throwCard(cardIds, "", self)
+end
+
+function ServerPlayer:onAllSkillLose()
+  for _, skill in ipairs(self:getAllSkills()) do
+    skill:onLose(self, true)
+  end
 end
 
 function ServerPlayer:throwAllMarks()

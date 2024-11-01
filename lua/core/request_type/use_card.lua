@@ -4,6 +4,18 @@ local ReqResponseCard = require 'core.request_type.response_card'
 ---@class ReqUseCard: ReqResponseCard
 local ReqUseCard = ReqResponseCard:subclass("ReqUseCard")
 
+function ReqUseCard:updatePrompt()
+  if self.skill_name then
+    return ReqActiveSkill.updatePrompt(self)
+  end
+  local card = self.selected_card
+  if card and card.skill then
+    self:setSkillPrompt(card.skill, self.selected_card.id)
+  else
+    self:setPrompt(self.original_prompt or "")
+  end
+end
+
 function ReqUseCard:skillButtonValidity(name)
   local player = self.player
   local skill = Fk.skills[name]

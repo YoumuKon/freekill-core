@@ -323,7 +323,7 @@ function Phase:main()
         }
         room.logic:trigger(fk.DrawNCards, player, data)
         if not player._phase_end then
-          room:drawCards(player, data.n, "game_rule")
+          room:drawCards(player, data.n, "phase_draw")
         end
         room.logic:trigger(fk.AfterDrawNCards, player, data)
       end,

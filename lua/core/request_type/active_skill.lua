@@ -62,6 +62,7 @@ function ReqActiveSkill:setup(ignoreInteraction)
   self:updateUnselectedTargets()
 
   self:updateButtons()
+  self:updatePrompt()
 end
 
 function ReqActiveSkill:finish()
@@ -75,6 +76,15 @@ function ReqActiveSkill:setSkillPrompt(skill, cid)
   end
   if type(prompt) == "string" then
     self:setPrompt(prompt)
+  else
+    self:setPrompt(self.original_prompt or "")
+  end
+end
+
+function ReqActiveSkill:updatePrompt()
+  local skill = Fk.skills[self.skill_name]
+  if skill then
+    self:setSkillPrompt(skill)
   else
     self:setPrompt(self.original_prompt or "")
   end
@@ -380,6 +390,7 @@ function ReqActiveSkill:update(elemType, id, action, data)
   elseif elemType == "Interaction" then
     self:updateInteraction(data)
   end
+  self:updatePrompt()
 end
 
 return ReqActiveSkill

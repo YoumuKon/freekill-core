@@ -45,6 +45,16 @@ local function readCommonSpecToSkill(skill, spec)
     assert(type(spec.relate_to_place) == "string")
     skill.relate_to_place = spec.relate_to_place
   end
+
+  if spec.on_acquire then
+    assert(type(spec.on_acquire) == "function")
+    skill.onAcquire = spec.on_acquire
+  end
+
+  if spec.on_lose then
+    assert(type(spec.on_lose) == "function")
+    skill.onLose = spec.on_lose
+  end
 end
 
 local function readUsableSpecToSkill(skill, spec)
