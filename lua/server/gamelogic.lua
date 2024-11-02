@@ -271,7 +271,7 @@ function GameLogic:action()
   while true do
     execGameEvent(GameEvent.Round)
     if room.game_finished then break end
-    local players = table.filter(room.alive_players, function(p) return not p.dead or p.rest > 0 end)
+    local players = table.filter(room.players, function(p) return not p.dead or p.rest > 0 end)
     if #players == 0 then room:gameOver("") end
     table.sort(players, function(a, b) return a.seat < b.seat end)
     room.current = players[1]
