@@ -143,8 +143,6 @@ function GameLogic:chooseGenerals()
   for _, p in ipairs(nonlord) do
     local result = req:getResult(p)
     local general, deputy = result[1], result[2]
-    room:findGeneral(general)
-    room:findGeneral(deputy)
     room:prepareGeneral(p, general, deputy)
   end
 
@@ -271,10 +269,8 @@ function GameLogic:action()
   while true do
     execGameEvent(GameEvent.Round)
     if room.game_finished then break end
-    local players = table.filter(room.players, function(p) return not p.dead or p.rest > 0 end)
-    if #players == 0 then room:gameOver("") end
-    table.sort(players, function(a, b) return a.seat < b.seat end)
-    room.current = players[1]
+    if table.every(room.players, function(p) return p.dead and p.rest == 0 end) then room:gameOver("") end
+    room.current = room.players[1]
   end
 end
 

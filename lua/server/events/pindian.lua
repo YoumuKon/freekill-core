@@ -120,7 +120,7 @@ function Pindian:main()
     room:sendLog{
       type = "#ShowPindianCard",
       from = p.id,
-      card = { _pindianCard.id },
+      arg = _pindianCard:toLogString(),
     }
   end
 

@@ -537,6 +537,7 @@ Fk:loadTranslationTable{
   ["AskForDiscard"] = "弃牌",
   ["AskForCardChosen"] = "选牌",
   ["AskForCardsChosen"] = "选牌",
+  ["AskForPindian"] = "拼点",
 
   ["reveal_skill&"] = "亮将",
   ["#reveal_skill&"] = "选择一个武将亮将（点击左侧选择框展开）",
