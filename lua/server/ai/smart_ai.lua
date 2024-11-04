@@ -24,12 +24,13 @@
 ---@field public enemies ServerPlayer[] @ 敌人
 local SmartAI = TrustAI:subclass("SmartAI") -- 哦，我懒得写出闪之类的，不得不继承一下，饶了我吧
 
+AIParser = require 'lua.server.ai.parser'
 SkillAI = require "lua.server.ai.skill"
 TriggerSkillAI = require "lua.server.ai.trigger_skill"
 
 ---@type table<string, AIGameEvent>
 fk.ai_events = {}
-AIGameEvent = require "lua.server.ai.event"
+AIGameLogic, AIGameEvent = require "lua.server.ai.logic"
 
 function SmartAI:initialize(player)
   TrustAI.initialize(self, player)
@@ -214,8 +215,30 @@ function SmartAI:handlePlayCard()
     local ai = fk.ai_skills[skill.name]
     if ai then
       local start = os.getms()
+      local logic = AIGameLogic:new(self)
       self:selectCard(id_or_skill, true)
-      local ret = ai:chooseTargets()
+      logic:moveCardTo(id_or_skill, Card.Processing, nil, fk.ReasonUse)
+      -- local ret = ai:chooseTargets()
+      local targets = self:getEnabledTargets()
+      local ret
+      local fn = function(target)
+        local save_benefit = logic.benefit
+        logic:doCardEffect{
+          from = self.player.id,
+          to = target.id,
+          card = Fk:getCardById(id_or_skill),
+        }
+        local _ret = logic.benefit - save_benefit
+        logic.benefit = save_benefit
+        return _ret
+      end
+      for _, p in fk.sorted_pairs(targets, fn) do
+        if self:okButtonEnabled() then
+          ret = self:doOKButton()
+          break
+        end
+        self:selectTarget(p, true)
+      end
       local now = os.getms()
       printf("%s: 计算每个目标收益并选择目标共花了%fms", skill.name, (now - start) / 1000)
       if ret and ret ~= "" then return ret end
@@ -319,30 +342,5 @@ end
 
 ---@type table<string, TriggerSkillAI>
 fk.ai_trigger_skills = {}
-
-function SmartAI:getTriggerBenefit(event, target, data)
-  local logic = self.room.logic
-  local skills = logic.skill_table[event] or Util.DummyTable
-  local _target = self.room.current -- for iteration
-  local player = _target
-  local correct = 0
-  local val, exit
-
-  repeat
-    for _, skill in ipairs(skills) do
-      local ai = fk.ai_trigger_skills[skill.name]
-      if ai then
-        val, exit = ai:getCorrect(event, target, player, data)
-        val = val or 0
-        if self:isEnemy(player) then val = -val end
-        correct = correct + val
-        if exit then break end
-      end
-    end
-    player = player.next
-  until player == _target
-
-  return correct, exit
-end
 
 return SmartAI
