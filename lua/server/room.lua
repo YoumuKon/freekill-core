@@ -2966,10 +2966,5 @@ function Room:removeTableMark(sth, mark, value)
   end
 end
 
-function Room:__index(k)
-  if k == "room_settings" then
-    return self.settings
-  end
-end
 
 return Room

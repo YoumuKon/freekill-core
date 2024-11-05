@@ -243,7 +243,7 @@ fk.client_callback["EnterRoom"] = function(_data)
 
   local data = _data[3]
   ClientInstance.enter_room_data = json.encode(_data);
-  ClientInstance.room_settings = data
+  ClientInstance.settings = data
   table.insertTableIfNeed(
     data.disabledPack,
     Fk.game_mode_disabled[data.gameMode]
@@ -1086,7 +1086,7 @@ fk.client_callback["GameOver"] = function(jsonData)
     c.record[2] = table.concat({
       c.record[2],
       Self.player:getScreenName(),
-      c.room_settings.gameMode,
+      c.settings.gameMode,
       Self.general,
       Self.role,
       jsonData,
@@ -1104,7 +1104,7 @@ fk.client_callback["EnterLobby"] = function(jsonData)
     c.record[2] = table.concat({
       c.record[2],
       Self.player:getScreenName(),
-      c.room_settings.gameMode,
+      c.settings.gameMode,
       Self.general,
       Self.role,
       "",

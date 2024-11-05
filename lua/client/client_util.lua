@@ -761,7 +761,7 @@ end
 
 function ResetClientLua()
   local _data = ClientInstance.enter_room_data;
-  local data = ClientInstance.room_settings
+  local data = ClientInstance.settings
   Self = ClientPlayer:new(fk.Self)
   ClientInstance = Client:new() -- clear old client data
   ClientInstance.players = {Self}
@@ -769,7 +769,7 @@ function ResetClientLua()
   ClientInstance.discard_pile = {}
 
   ClientInstance.enter_room_data = _data;
-  ClientInstance.room_settings = data
+  ClientInstance.settings = data
 
   ClientInstance.disabled_packs = data.disabledPack
   ClientInstance.disabled_generals = data.disabledGenerals
@@ -781,7 +781,7 @@ function ResetAddPlayer(j)
 end
 
 function GetRoomConfig()
-  return ClientInstance.room_settings
+  return ClientInstance.settings
 end
 
 function GetPlayerGameData(pid)
@@ -828,7 +828,7 @@ function SetReplayingShowCards(o)
 end
 
 function CheckSurrenderAvailable(playedTime)
-  local curMode = ClientInstance.room_settings.gameMode
+  local curMode = ClientInstance.settings.gameMode
   return Fk.game_modes[curMode]:surrenderFunc(playedTime)
 end
 
