@@ -1,3 +1,31 @@
+SmartAI:setSkillAI("ganglie", {
+  think = function(self, ai)
+    -- 刚烈的think中要处理两种情况：一是askForSkillInvoke的确定取消，二是被刚烈的人决定是否弃置2牌
+    if ai:getPrompt():startsWith("#AskForDiscard") then
+      -- 权衡一下弃牌与扣血的收益
+      -- local cancel_val = 模拟自己扣血的收益
+      -- local ok_val = 模拟弃两张最垃圾牌的收益
+      --   比如说，等于discard_skill_ai:think()的收益什么的
+      -- if ok_val > cancel_val then
+      --   return ai:doOKButton()
+      -- else
+      --   return ""
+      -- end
+    else
+      -- 模拟一下self.skill:use 计算收益是否为正
+      return false
+    end
+  end,
+})
+
+SmartAI:setTriggerSkillAI("dawu", {
+  correct_func = function(self, logic, event, target, player, data)
+    if event ~= fk.DamageInflicted then return end
+    return self.skill:triggerable(event, target, player, data)
+  end,
+})
+
+--[=[
 if UsingNewCore then
   require "standard.ai.aux_skills"
 else
@@ -155,3 +183,4 @@ SmartAI:setSkillAI("qingnang", active_random_select_card)
 
 -- TODO: lijian
 SmartAI:setSkillAI("biyue", true_invoke)
+--]=]

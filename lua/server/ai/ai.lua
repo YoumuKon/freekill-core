@@ -17,6 +17,10 @@ function AI:initialize(player)
   self.player = player
 end
 
+function AI:__tostring()
+  return string.format("%s: %s", self.class.name, tostring(self.player))
+end
+
 -- activeSkill, responseCard, useCard, playCard 四巨头专属
 function AI:isInDashboard()
   if not (self.handler and self.handler:isInstanceOf(Fk.request_handlers["AskForUseActiveSkill"])) then
@@ -25,6 +29,12 @@ function AI:isInDashboard()
     return false
   end
   return true
+end
+
+function AI:getPrompt()
+  local handler = self.handler
+  if not handler then return "" end
+  return handler.prompt
 end
 
 --- 返回当前手牌区域内（包含展开的pile）中所有可选且未选中的卡牌 返回ids
@@ -120,17 +130,20 @@ end
 
 function AI:selectCard(cid, selected)
   if not self:isInDashboard() then return end
+  verbose("%s选择卡牌%d(%s)", selected and "" or "取消", cid, tostring(Fk:getCardById(cid)))
   self.handler:update("CardItem", cid, "click", { selected = selected })
 end
 
 ---@param player ServerPlayer
 function AI:selectTarget(player, selected)
   if not self:isInDashboard() then return end
+  verbose("%s选择角色%s", selected and "" or "取消", tostring(player))
   self.handler:update("Photo", player.id, "click", { selected = selected })
 end
 
 function AI:selectSkill(skill_name, selected)
   if not self:isInDashboard() then return end
+  verbose("%s选择技能%s", selected and "" or "取消", skill_name)
   self.handler:update("SkillButton", skill_name, "click", { selected = selected })
 end
 
@@ -187,7 +200,7 @@ end
 
 function AI:makeReply()
   Self = self.player
-  -- local now = os.getms()
+  local now = os.getms()
   local fn = self["handle" .. self.command]
   local is_active = self.command == "AskForUseActiveSkill"
   if is_active then
@@ -209,7 +222,7 @@ function AI:makeReply()
     local skill = Fk.skills[self.data[1]]
     skill._extra_data = Util.DummyTable
   end
-  -- printf("%s 在%fms后得出结果：%s", self.command, (os.getms() - now) / 1000, json.encode(ret))
+  verbose("%s 在%.2fms后得出结果：%s", self.command, (os.getms() - now) / 1000, json.encode(ret))
   return ret
 end
 

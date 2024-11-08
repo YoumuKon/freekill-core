@@ -32,19 +32,17 @@ function AIGameLogic:trigger(event, target, data)
   local skills = logic.skill_table[event] or Util.DummyTable
   local _target = ai.room.current -- for iteration
   local player = _target
-  local val, exit
+  local exit
 
   repeat
     for _, skill in ipairs(skills) do
       local skill_ai = fk.ai_trigger_skills[skill.name]
       if skill_ai then
-        val, exit = skill_ai:getCorrect(event, target, player, data)
-        val = val or 0
-        if ai:isEnemy(player) then val = -val end
-        self.benefit = self.benefit + val
+        exit = skill_ai:getCorrect(self, event, target, player, data)
         if exit then break end
       end
     end
+    if exit then break end
     player = player.next
   until player == _target
 
@@ -263,14 +261,11 @@ local SkillEffect = AIGameEvent:subclass("AIGameEvent.SkillEffect")
 fk.ai_events.SkillEffect = SkillEffect
 function SkillEffect:exec()
   local logic = self.logic
-  local player, skill, skill_data = table.unpack(self.data)
+  local effect_cb, player, skill, skill_data = table.unpack(self.data)
   local main_skill = skill.main_skill and skill.main_skill or skill
 
   logic:trigger(fk.SkillEffect, player, main_skill)
-
-  local skill_ai = fk.ai_skills[skill.name]
-  logic.benefit = logic.benefit + (skill_ai and skill_ai:getEffectBenefit() or 0)
-
+  effect_cb()
   logic:trigger(fk.AfterSkillEffect, player, main_skill)
 end
 
@@ -293,7 +288,7 @@ function MoveCards:exec()
       for _, id in ipairs(cardsMoveInfo.ids) do
         table.insert(infos, {
           cardId = id,
-          fromArea = self.ai.room:getCardArea(id),
+          fromArea = cardsMoveInfo.fromArea or self.ai.room:getCardArea(id),
           fromSpecialName = cardsMoveInfo.from and logic:getPlayerById(cardsMoveInfo.from):getPileNameOfId(id),
         })
       end
@@ -374,12 +369,29 @@ function UseCard:exec()
   end
 
   logic:trigger(fk.CardUseFinished, room:getPlayerById(cardUseEvent.from), cardUseEvent)
-  logic:moveCardTo(cardUseEvent.card, Card.DiscardPile, nil, fk.ReasonUse)
+  logic:moveCards{
+    fromArea = Card.Processing,
+    toArea = Card.DiscardPile,
+    ids = Card:getIdList(cardUseEvent.card),
+    moveReason = fk.ReasonUse,
+  }
 end
 
 function AIGameLogic:useCard(cardUseEvent)
   return not UseCard:new(self, cardUseEvent):getBenefit()
 end
+
+function AIGameLogic:deadPlayerFilter(playerIds)
+  local newPlayerIds = {}
+  for _, playerId in ipairs(playerIds) do
+    if self:getPlayerById(playerId):isAlive() then
+      table.insert(newPlayerIds, playerId)
+    end
+  end
+
+  return newPlayerIds
+end
+
 AIGameLogic.doCardUseEffect = GameEventWrappers.doCardUseEffect
 
 local CardEffect = AIGameEvent:subclass("AIGameEvent.CardEffect")
@@ -395,7 +407,13 @@ function AIGameLogic:handleCardEffect(event, cardEffectEvent)
   -- 闪和无懈早该重构重构了
   if event == fk.CardEffecting then
     if cardEffectEvent.card.skill then
-      SkillEffect:new(self, self:getPlayerById(cardEffectEvent.from), cardEffectEvent.card.skill)
+      SkillEffect:new(self, function()
+        local skill = cardEffectEvent.card.skill
+        local ai = fk.ai_skills[skill.name]
+        if ai then
+          ai:onEffect(self, cardEffectEvent)
+        end
+      end, self:getPlayerById(cardEffectEvent.from), cardEffectEvent.card.skill):getBenefit()
     end
   end
 end

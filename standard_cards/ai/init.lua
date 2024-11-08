@@ -1,12 +1,14 @@
-SmartAI:setSkillAI("slash_skill", {
-  target_predict = function(self, target)
-    ---@type DamageStruct
-    local dmg = {
-      from = self.player,
-      to = target,
-      damage = 1,
-    }
-    return fk.ai_events.Damage:new(self.ai, dmg)
+SmartAI:setCardSkillAI("slash_skill", {
+  estimated_benefit = 120,
+
+  on_effect = function(self, logic, effect)
+    self.skill:onEffect(logic, effect)
+  end,
+})
+
+SmartAI:setTriggerSkillAI("#nioh_shield_skill", {
+  correct_func = function(self, logic, event, target, player, data)
+    return self.skill:triggerable(event, target, player, data)
   end,
 })
 

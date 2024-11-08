@@ -8,12 +8,22 @@
 --- 触发技本身又会不断触发新的事件，比如刚烈反伤、反馈拿牌等。对于衍生事件
 --- 亦可进一步进行推理，但是AI会限制自己的搜索深度，所以推理结果不一定准确。
 ---@class TriggerSkillAI
----@field public skill Skill
----@field public ai SmartAI
+---@field public skill TriggerSkill
 local TriggerSkillAI = class("TriggerSkillAI")
 
-function TriggerSkillAI:getCorrect(event, target, player, data)
-  return 0
+---@param skill string
+function TriggerSkillAI:initialize(skill)
+  self.skill = Fk.skills[skill]
 end
+
+--- 获取触发技对收益评测的影响，通过基于logic触发更多模拟事件来模拟收益的变化
+---
+--- 返回true表示打断后续收益判断逻辑
+---@return boolean?
+function TriggerSkillAI:getCorrect(logic, event, target, player, data)
+end
+
+---@class TriggerSkillAISpec
+---@field correct_func fun(self: TriggerSkillAI, logic: AIGameLogic, event: Event, target: ServerPlayer?, player: ServerPlayer, data: any): boolean?
 
 return TriggerSkillAI
