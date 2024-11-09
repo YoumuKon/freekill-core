@@ -816,6 +816,7 @@ function GetTargetTip(pid)
   local card = handler.selected_card --[[@as Card?]]
   local skill = Fk.skills[handler.skill_name]
   local photo = handler.scene.items["Photo"][pid] --[[@as Photo]]
+  if not photo then return {} end
   local selectable = photo.enabled
   local extra_data = handler.extra_data
 
