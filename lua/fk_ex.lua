@@ -98,6 +98,8 @@ end
 ---@field public max_round_use_time? integer
 ---@field public max_game_use_time? integer
 ---@field public times? integer | fun(self: UsableSkill): integer
+---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
+---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
 
 ---@class StatusSkillSpec: StatusSkill
 
