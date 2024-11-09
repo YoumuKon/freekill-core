@@ -1238,6 +1238,13 @@ function Player:cardVisible(cardId, move)
   elseif move and area == Card.PlayerSpecial and not move.specialName:startsWith("$") then
     return not falsy
   elseif table.contains(player_areas, area) then
+    if area == Card.PlayerSpecial then
+      local owner = room:getCardOwner(cardId)
+      local specialName = owner:getPileNameOfId(cardId)
+      if not specialName:startsWith("$") then
+        return true
+      end
+    end
     local to = room:getCardOwner(cardId)
     return to == self or self:isBuddy(to)
   else
