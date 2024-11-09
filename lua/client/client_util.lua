@@ -336,49 +336,6 @@ function CanUseCardToTarget(card, to_select, selected, extra_data_str)
 end
 
 ---@param card string | integer
----@param to_select integer @ id of the target
----@param selected integer[] @ ids of selected targets
----@param selectable bool
----@param extra_data_str string @ extra data
-function GetUseCardTargetTip(card, to_select, selected, selectable, extra_data_str)
-  local extra_data = extra_data_str == "" and nil or json.decode(extra_data_str)
-  local c   ---@type Card
-  local selected_cards
-  if type(card) == "number" then
-    c = Fk:getCardById(card)
-    selected_cards = {card}
-  else
-    local t = json.decode(card)
-    return ActiveTargetTip(t.skill, to_select, selected, t.subcards, selectable, extra_data)
-  end
-
-  local ret
-  local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
-  for _, skill in ipairs(status_skills) do
-    ret = ret or {}
-    if #ret > 4 then
-      return ret
-    end
-
-    local tip = skill:getTargetTip(Self, to_select, selected, selected_cards, c, selectable, extra_data)
-    if type(tip) == "string" then
-      table.insert(ret, { content = ret, type = "normal" })
-    elseif type(tip) == "table" then
-      table.insertTable(ret, tip)
-    end
-  end
-
-  ret = ret or {}
-  local tip = c.skill:targetTip(to_select, selected, selected_cards, c, selectable, extra_data)
-  if type(tip) == "string" then
-    table.insert(ret, { content = ret, type = "normal" })
-  elseif type(tip) == "table" then
-    table.insertTable(ret, tip)
-  end
-  return ret
-end
-
----@param card string | integer
 ---@param to_select integer @ id of a card not selected
 ---@param selected_targets integer[] @ ids of selected players
 function CanSelectCardForSkill(card, to_select, selected_targets)
@@ -552,46 +509,6 @@ function ActiveTargetFilter(skill_name, to_select, selected, selected_cards, ext
       if card then
         ret = card.skill:targetFilter(to_select, selected, selected_cards, card, extra_data)
         ret = ret and not Self:isProhibited(Fk:currentRoom():getPlayerById(to_select), card)
-      end
-    end
-  end
-  return ret
-end
-
-function ActiveTargetTip(skill_name, to_select, selected, selected_cards, selectable, extra_data)
-  local skill = Fk.skills[skill_name]
-  local ret
-  if skill then
-    if skill:isInstanceOf(ActiveSkill) then
-      ret = skill:targetTip(to_select, selected, selected_cards, nil, selectable)
-      if type(ret) == "string" then
-        ret = { { content = ret, type = "normal" } }
-      end
-    elseif skill:isInstanceOf(ViewAsSkill) then
-      local card = skill:viewAs(selected_cards)
-      if card then
-        local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
-        for _, skill in ipairs(status_skills) do
-          ret = ret or {}
-          if #ret > 4 then
-            return ret
-          end
-
-          local tip = skill:getTargetTip(Self, to_select, selected, selected_cards, card, selectable, extra_data)
-          if type(tip) == "string" then
-            table.insert(ret, { content = ret, type = "normal" })
-          elseif type(tip) == "table" then
-            table.insertTable(ret, tip)
-          end
-        end
-
-        ret = ret or {}
-        local tip = card.skill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data)
-        if type(tip) == "string" then
-          table.insert(ret, { content = ret, type = "normal" })
-        elseif type(tip) == "table" then
-          table.insertTable(ret, tip)
-        end
       end
     end
   end
@@ -837,17 +754,38 @@ function SaveRecord()
   c.client:saveRecord(json.encode(c.record), c.record[2])
 end
 
-function GetCardProhibitReason(cid, method, pattern)
+function GetCardProhibitReason(cid)
   local card = Fk:getCardById(cid)
   if not card then return "" end
+  local handler = ClientInstance.current_request_handler
+  if (not handler) or (not handler:isInstanceOf(Fk.request_handlers["AskForUseActiveSkill"])) then return "" end
+  local method, pattern = "", handler.pattern or "."
+
+  if handler.class.name == "ReqPlayCard" then method = "play"
+  elseif handler.class.name == "ReqResponseCard" then method = "response"
+  elseif handler.class.name == "ReqUseCard" then method = "use"
+  elseif handler.skill_name == "discard_skill" then method = "discard"
+  end
+
   if method == "play" and not card.skill:canUse(Self, card) then return "" end
   if method ~= "play" and not card:matchPattern(pattern) then return "" end
   if method == "play" then method = "use" end
 
+  local fn_table = {
+    use = "prohibitUse",
+    response = "prohibitResponse",
+    discard = "prohibitDiscard",
+  }
+  local str_table = {
+    use = "method_use",
+    response = "method_response_play",
+    discard = "method_discard",
+  }
+
   local status_skills = Fk:currentRoom().status_skills[ProhibitSkill] or Util.DummyTable
   local s
   for _, skill in ipairs(status_skills) do
-    local fn = method == "use" and skill.prohibitUse or skill.prohibitResponse
+    local fn = skill[fn_table[method]]
     if fn(skill, Self, card) then
       s = skill
       break
@@ -859,12 +797,68 @@ function GetCardProhibitReason(cid, method, pattern)
   local skillName = s.name
   local ret = Fk:translate(skillName)
   if ret ~= skillName then
-    return ret .. Fk:translate("prohibit") .. Fk:translate(method == "use" and "method_use" or "method_response_play")
+    return ret .. Fk:translate("prohibit") .. Fk:translate(str_table[method])
   elseif skillName:endsWith("_prohibit") and skillName:startsWith("#") then
-    return Fk:translate(skillName:sub(2, -10)) .. Fk:translate("prohibit") .. Fk:translate(method == "use" and "method_use" or "method_response_play")
+    return Fk:translate(skillName:sub(2, -10)) .. Fk:translate("prohibit") .. Fk:translate(str_table[method])
   else
     return ret
   end
+end
+
+function GetTargetTip(pid)
+  local handler = ClientInstance.current_request_handler --[[@as ReqPlayCard ]]
+  if (not handler) or (not handler:isInstanceOf(Fk.request_handlers["AskForUseActiveSkill"])) then return "" end
+
+  local to_select = pid
+  local selected = handler.selected_targets
+  local selected_cards = handler.pendings
+  local card = handler.selected_card --[[@as Card?]]
+  local skill = Fk.skills[handler.skill_name]
+  local photo = handler.scene.items["Photo"][pid] --[[@as Photo]]
+  local selectable = photo.enabled
+  local extra_data = handler.extra_data
+
+  local ret = {}
+
+  if skill then
+    if skill:isInstanceOf(ActiveSkill) then
+      local tip = skill:targetTip(to_select, selected, selected_cards, nil, selectable)
+      if type(tip) == "string" then
+        table.insert(ret, { content = tip, type = "normal" })
+      elseif type(tip) == "table" then
+        table.insertTable(ret, tip)
+      end
+    elseif skill:isInstanceOf(ViewAsSkill) then
+      card = skill:viewAs(selected_cards)
+    end
+  end
+
+  if card then
+    local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
+    for _, sk in ipairs(status_skills) do
+      ret = ret or {}
+      if #ret > 4 then
+        return ret
+      end
+
+      local tip = sk:getTargetTip(Self, to_select, selected, selected_cards, card, selectable, extra_data)
+      if type(tip) == "string" then
+        table.insert(ret, { content = tip, type = "normal" })
+      elseif type(tip) == "table" then
+        table.insertTable(ret, tip)
+      end
+    end
+
+    ret = ret or {}
+    local tip = card.skill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data)
+    if type(tip) == "string" then
+      table.insert(ret, { content = tip, type = "normal" })
+    elseif type(tip) == "table" then
+      table.insertTable(ret, tip)
+    end
+  end
+
+  return ret
 end
 
 function CanSortHandcards(pid)
@@ -974,6 +968,7 @@ function FinishRequestUI()
   local h = ClientInstance.current_request_handler
   if h then
     h:_finish()
+    ClientInstance.current_request_handler = nil
   end
 end
 

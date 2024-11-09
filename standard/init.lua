@@ -1097,6 +1097,14 @@ local lijian = fk.CreateActiveSkill{
     }
     room:useCard(new_use)
   end,
+  target_tip = function(self, to_select, selected, _, __, selectable, ____)
+    if not selectable then return end
+    if #selected == 0 or (#selected > 0 and selected[1] == to_select) then
+      return "lijian_tip_1"
+    else
+      return "lijian_tip_2"
+    end
+  end,
 }
 local biyue = fk.CreateTriggerSkill{
   name = "biyue",

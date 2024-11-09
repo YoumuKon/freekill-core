@@ -659,6 +659,15 @@ function Room:delay(ms)
   coroutine.yield("__handleRequest", ms)
 end
 
+--- 延迟一段时间。界面上会显示所有人读条了。注意这个只能延迟多少秒。
+---@param sec integer @ 要延迟的秒数
+function Room:animDelay(sec)
+  local req = Request:new(self.alive_players, "EmptyRequest")
+  req.focus_text = ''
+  req.timeout = sec
+  req:ask()
+end
+
 --- 向多名玩家告知一次移牌行为。
 ---@param players? ServerPlayer[] @ 要被告知的玩家列表，默认为全员
 ---@param card_moves CardsMoveStruct[] @ 要告知的移牌信息列表
@@ -694,7 +703,8 @@ end
 --- 形象点说，就是在那些玩家下面显示一个“弃牌 思考中...”之类的烧条提示。
 ---@param players ServerPlayer | ServerPlayer[] @ 要获得焦点的一名或者多名角色
 ---@param command string @ 烧条的提示文字
-function Room:notifyMoveFocus(players, command)
+---@param timeout integer? @ focus的烧条时长
+function Room:notifyMoveFocus(players, command, timeout)
   if (players.class) then
     players = {players}
   end
@@ -715,7 +725,8 @@ function Room:notifyMoveFocus(players, command)
 
   self:doBroadcastNotify("MoveFocus", json.encode{
     ids,
-    command
+    command,
+    timeout
   })
 end
 
@@ -2218,7 +2229,6 @@ function Room:askForNullification(players, card_name, pattern, prompt, cancelabl
 
   repeat
     useResult = nil
-    self:doBroadcastNotify("WaitForNullification", "")
 
     local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 

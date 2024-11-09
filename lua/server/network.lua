@@ -190,7 +190,8 @@ function Request:ask()
   end
 
   -- 发送focus
-  room:notifyMoveFocus(self.focus_players or self.players, self.focus_text or self.command)
+  room:notifyMoveFocus(self.focus_players or self.players, self.focus_text or self.command,
+    math.floor(self.timeout * 1000))
 
   -- 1. 向所有人发送询问请求
   for _, p in ipairs(players) do

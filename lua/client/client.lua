@@ -213,18 +213,21 @@ fk.client_callback["SetCardFootnote"] = function(data)
   ClientInstance:setCardNote(data[1], data[2]);
 end
 
-local function setup(id, name, avatar)
+local function setup(id, name, avatar, msec)
   local self = fk.Self
   self:setId(id)
   self:setScreenName(name)
   self:setAvatar(avatar)
   Self = ClientPlayer:new(fk.Self)
+  if msec then
+    fk.ClientInstance:setupServerLag(msec)
+  end
 end
 
 fk.client_callback["Setup"] = function(data)
   -- jsonData: [ int id, string screenName, string avatar ]
-  local id, name, avatar = data[1], data[2], data[3]
-  setup(id, name, avatar)
+  local id, name, avatar, msec = data[1], data[2], data[3], data[4]
+  setup(id, name, avatar, msec)
 end
 
 fk.client_callback["EnterRoom"] = function(_data)
