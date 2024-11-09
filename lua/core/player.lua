@@ -1197,12 +1197,12 @@ end
 local public_areas = {Card.DiscardPile, Card.Processing, Card.Void, Card.PlayerEquip, Card.PlayerJudge}
 local player_areas = {Card.PlayerHand, Card.PlayerSpecial}
 
-local function defaultCardVisible(self, cardId, area, owner, falsy)
+local function defaultCardVisible(self, cardId, area, owner, falsy, special)
   if area == Card.DrawPile then return false
   elseif table.contains(public_areas, area) then return not falsy
   elseif table.contains(player_areas, area) then
     if area == Card.PlayerSpecial then
-      local specialName = owner:getPileNameOfId(cardId)
+      local specialName = special or owner:getPileNameOfId(cardId)
       if not specialName:startsWith("$") then
         return true
       end
@@ -1222,12 +1222,13 @@ function Player:cardVisible(cardId, move)
   if room.replaying and room.replaying_show then return true end
 
   local falsy = false -- 当难以决定时是否要选择暗置？
-  local oldarea, oldowner
+  local oldarea, oldspecial, oldowner
   if move then
     ---@type MoveInfo
     local info = table.find(move.moveInfo, function(info) return info.cardId == cardId end)
     if info then
       oldarea = info.fromArea
+      oldspecial = info.fromSpecialName
       oldowner = move.from and room:getPlayerById(move.from)
       if move.moveVisible then return true end
       if move.moveVisible == false then falsy = true end
@@ -1258,7 +1259,7 @@ function Player:cardVisible(cardId, move)
     return true
   elseif oldarea then
     -- 尽可能让牌可见
-    return defaultCardVisible(self, cardId, oldarea, oldowner, falsy)
+    return defaultCardVisible(self, cardId, oldarea, oldowner, falsy, oldspecial)
   end
 
   return false
