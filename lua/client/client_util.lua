@@ -781,6 +781,7 @@ function GetCardProhibitReason(cid)
     response = "method_response_play",
     discard = "method_discard",
   }
+  if not fn_table[method] then return "" end
 
   local status_skills = Fk:currentRoom().status_skills[ProhibitSkill] or Util.DummyTable
   local s
