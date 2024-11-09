@@ -671,7 +671,7 @@ end
 
 --- 设定玩家使用特定牌的历史次数。
 ---@param cardName string @ 牌名
----@param num integer @ 次数
+---@param num? integer @ 次数 默认0
 ---@param scope? integer @ 历史范围 全为nil意为清空
 function Player:setCardUseHistory(cardName, num, scope)
   if cardName == "" and num == nil and scope == nil then

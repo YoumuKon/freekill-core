@@ -2977,5 +2977,22 @@ function Room:removeTableMark(sth, mark, value)
   end
 end
 
+--- 无效化技能
+---@param player ServerPlayer
+---@param skill_name string
+---@param temp? string @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
+function Room:invalidateSkill(player, skill_name, temp)
+  temp = temp and temp or ""
+  self:addTableMark(player, MarkEnum.InvalidSkills .. temp, skill_name)
+end
+
+--- 有效化技能
+---@param player ServerPlayer
+---@param skill_name string
+---@param temp? string @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
+function Room:validateSkill(player, skill_name, temp)
+  temp = temp and temp or ""
+  self:removeTableMark(player, MarkEnum.InvalidSkills .. temp, skill_name)
+end
 
 return Room
