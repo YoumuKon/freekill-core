@@ -64,7 +64,7 @@ end
 fk.ai_skills = {}
 
 ---@param key string
----@param spec SkillAISpec
+---@param spec? SkillAISpec
 ---@param inherit? string
 function SmartAI.static:setSkillAI(key, spec, inherit)
   if not fk.ai_skills[key] then
@@ -88,11 +88,12 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
       ai[k] = ai2[k]
     end
   end
+  if not spec then return end
   for k, v in pairs(spec) do
     local key2 = qsgs_wisdom_map[k]
     if key2 == "think" then
       ai.think = function(_self, _ai)
-        local ret = v(_self, _ai)
+        local ret, val = v(_self, _ai)
         if ret and type(ret) == "table" then
           if ret.cards then
             ret.card = { skill = ai.skill.name, subcards = ret.cards }
@@ -104,7 +105,7 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
             end
           end
         end
-        return ret
+        return ret, val
       end
     elseif key2 then
       ai[key2] = type(v) == "function" and v or function() return v end
@@ -114,7 +115,7 @@ end
 
 --- 将spec中的键值保存到这个技能的ai中
 ---@param key string
----@param spec SkillAISpec 表
+---@param spec? SkillAISpec 表
 ---@param inherit? string 可以直接复用某个技能已有的函数 自然spec中更加优先
 ---@diagnostic disable-next-line
 function SmartAI:setSkillAI(key, spec, inherit)
@@ -139,7 +140,7 @@ SmartAI:setSkillAI("__card_skill", {
     local best_targets, best_val = nil, -100000
     for targets in self:searchTargetSelections(ai) do
       local val = val_func(targets)
-      if not best_targets or (best_val < val) then
+      if (not best_targets) or (best_val < val) then
         best_targets, best_val = targets, val
       end
       -- if best_val > estimate_val then break end
@@ -166,21 +167,22 @@ SmartAI:setSkillAI("__card_skill", {
     cards = table.random(cards, math.min(#cards, 5)) --[[@as integer[] ]]
     -- local cid = table.random(cards)
 
-    local best_ret, best_val = nil, -100000
+    local best_ret, best_val = "", -100000
     for _, cid in ipairs(cards) do
       ai:selectCard(cid, true)
       local ret, val = self:chooseTargets(ai)
+      verbose(1, "就目前选择的这张牌，考虑[%s]，收益为%d", table.concat(table.map(ret, function(p)return tostring(p)end), "+"), val)
       val = val or -100000
-      if not best_ret or (best_val < val) then
+      if best_val < val then
         best_ret, best_val = ret, val
       end
       if best_val >= estimate_val then break end
       ai:unSelectAll()
     end
 
-    if best_ret then
+    if best_ret and best_ret ~= "" then
       if best_val < 0 then
-        return ""
+        return "", best_val
       end
 
       best_ret = { card = ai:getSelectedCard().id, targets = best_ret }
@@ -190,14 +192,18 @@ SmartAI:setSkillAI("__card_skill", {
   end,
 })
 
-function SmartAI.static:setCardSkillAI(key, spec)
+function SmartAI.static:setCardSkillAI(key, spec, key2)
   SmartAI:setSkillAI(key, spec, "__card_skill")
+  if key2 then
+    SmartAI:setSkillAI(key, spec, key2)
+  end
 end
 
 -- 等价于SmartAI:setCardSkillAI(key, spec, "__card_skill")
 ---@param key string
----@param spec SkillAISpec 表
-function SmartAI:setCardSkillAI(key, spec)
+---@param spec? SkillAISpec 表
+---@param key2? string 要继承的
+function SmartAI:setCardSkillAI(key, spec, key2)
   error("This is a static method. Please use SmartAI:setCardSkillAI(...)")
 end
 
@@ -221,25 +227,6 @@ end
 ---@diagnostic disable-next-line
 function SmartAI:setTriggerSkillAI(key, spec)
   error("This is a static method. Please use SmartAI:setTriggerSkillAI(...)")
-end
-
----@param cid_or_skill integer|string
-function SmartAI:getBasicBenefit(cid_or_skill)
-end
-
-local function hasKey(t1, t2, key)
-  if (t1 and t1[key]) or (t2 and t2[key]) then return true end
-end
-
-local function callFromTables(tab, backup, key, ...)
-  local fn
-  if tab and tab[key] then
-    fn = tab[key]
-  elseif backup and backup[key] then
-    fn = backup[key]
-  end
-  if not fn then return end
-  return fn(...)
 end
 
 function SmartAI:handleAskForUseActiveSkill()
@@ -278,9 +265,10 @@ function SmartAI:handlePlayCard()
     return val or 0
   end
 
-  local cancel_val = math.min(-90 * (self.player:getMaxCards() - self.player:getHandcardNum()), 0)
+  local cancel_val = math.min(90 * (self.player:getMaxCards() - self.player:getHandcardNum()), 0)
 
-  local best_ret, best_val
+  local best_ret, best_val = "", cancel_val
+  verbose(1, "目前的决策：直接取消(收益%d)", best_val)
   for _, ai, val in fk.sorted_pairs(skill_ai_list, value_func) do
     verbose(1, "[*] 考虑 %s (预估收益%d)", ai.skill.name, val)
     if val < cancel_val then
@@ -289,13 +277,16 @@ function SmartAI:handlePlayCard()
     end
     self:selectSkill(ai.skill.name, true)
     local ret, real_val = ai:think(self)
+    verbose(1, "%s: 思考结果是%s，收益为%d", ai.skill.name, json.encode(ret), real_val)
     real_val = real_val or -100000
     -- if ret and ret ~= "" then return ret end
-    if not best_ret or (best_val < real_val) then
+    if best_val < real_val then
+      verbose(1, "将决策%s换成更好的%s (收益%d => %d)", json.encode(best_ret), json.encode(ret), best_val, real_val)
       best_ret, best_val = ret, real_val
     end
     self:unSelectAll()
   end
+  verbose(1, "推测出最佳决策是%s", json.encode(best_ret))
 
   if best_ret and best_ret ~= "" then return best_ret end
   return ""

@@ -18,7 +18,7 @@
 ---@field private _manually_fake_skills Skill[]
 ---@field public prelighted_skills Skill[]
 ---@field private _timewaste_count integer
----@field public ai AI
+---@field public ai SmartAI
 ---@field public ai_data any
 local ServerPlayer = Player:subclass("ServerPlayer")
 

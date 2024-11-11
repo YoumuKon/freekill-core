@@ -1,14 +1,4 @@
-SmartAI:setCardSkillAI("slash_skill", {
-  estimated_benefit = 100,
-
-  on_effect = function(self, logic, effect)
-    self.skill:onEffect(logic, effect)
-  end,
-})
-
--- jink
-
-SmartAI:setCardSkillAI("peach_skill", {
+SmartAI:setCardSkillAI("default_card_skill", {
   on_use = function(self, logic, effect)
     self.skill:onUse(logic, effect)
   end,
@@ -17,15 +7,28 @@ SmartAI:setCardSkillAI("peach_skill", {
   end,
 })
 
+SmartAI:setCardSkillAI("slash_skill", {
+  estimated_benefit = 100,
+}, "default_card_skill")
+
+-- jink
+
+SmartAI:setCardSkillAI("peach_skill", nil, "default_card_skill")
+
 SmartAI:setCardSkillAI("dismantlement_skill", {
   on_effect = function(self, logic, effect)
     local from = logic:getPlayerById(effect.from)
     local to = logic:getPlayerById(effect.to)
     if from.dead or to.dead or to:isAllNude() then return end
     -- local cid = logic:askForCardChosen(from, to, "hej", self.name)
-    local cid = to:getCardIds("j")[1] or to:getCardIds("e")[1] or to:getCardIds("h")[1]
+    local cid = (from.ai:isFriend(to) and to:getCardIds("j")[1] or nil)
+      or to:getCardIds("e")[1] or to:getCardIds("h")[1]
     logic:throwCard({cid}, self.skill.name, to, from)
   end,
+
+  -- TODO: think中区分用牌和里面的askFor, 完善那一步选牌的思考
+  -- think = function(self, ai)
+  -- end,
 })
 
 SmartAI:setCardSkillAI("snatch_skill", {
@@ -34,10 +37,11 @@ SmartAI:setCardSkillAI("snatch_skill", {
     local to = logic:getPlayerById(effect.to)
     if from.dead or to.dead or to:isAllNude() then return end
     -- local cid = logic:askForCardChosen(from, to, "hej", self.name)
-    local cid = to:getCardIds("j")[1] or to:getCardIds("e")[1] or to:getCardIds("h")[1]
+    local cid = (from.ai:isFriend(to) and to:getCardIds("j")[1] or nil)
+      or to:getCardIds("e")[1] or to:getCardIds("h")[1]
     logic:obtainCard(from, cid, false, fk.ReasonPrey)
   end,
-})
+}, "dismantlement_skill")
 
 -- duel
 -- collateral_skill
@@ -72,19 +76,12 @@ SmartAI:setCardSkillAI("archery_attack_skill", {
   end,
 })
 
-SmartAI:setCardSkillAI("god_salvation_skill", {
-  on_use = function(self, logic, effect)
-    self.skill:onUse(logic, effect)
-  end,
-  on_effect = function(self, logic, effect)
-    self.skill:onEffect(logic, effect)
-  end,
-})
+SmartAI:setCardSkillAI("god_salvation_skill", nil, "default_card_skill")
 
 -- amazing_grace_skill
 -- lightning_skill
 
-SmartAI:setCardSkillAI("indulgence_skill", {})
+SmartAI:setCardSkillAI("indulgence_skill")
 
 SmartAI:setCardSkillAI("default_equip_skill", {
   on_use = function(self, logic, effect)
@@ -98,19 +95,19 @@ SmartAI:setCardSkillAI("default_equip_skill", {
     cards = table.random(cards, math.min(#cards, 5)) --[[@as integer[] ]]
     -- local cid = table.random(cards)
 
-    local best_ret, best_val = nil, -100000
+    local best_ret, best_val = "", -100000
     for _, cid in ipairs(cards) do
       ai:selectCard(cid, true)
       local ret, val = self:chooseTargets(ai)
       val = val or -100000
-      if not best_ret or (best_val < val) then
+      if best_val < val then
         best_ret, best_val = ret, val
       end
       if best_val >= estimate_val then break end
       ai:unSelectAll()
     end
 
-    if best_ret then
+    if best_ret and best_ret ~= "" then
       if best_val < 0 then
         return ""
       end
@@ -127,61 +124,3 @@ SmartAI:setTriggerSkillAI("#nioh_shield_skill", {
     return self.skill:triggerable(event, target, player, data)
   end,
 })
-
---[=====[
-local just_use = {
-  name = "__just_use",
-  will_use = Util.TrueFunc,
-  choose_targets = function(skill, ai, card)
-    return ai:doOKButton()
-  end,
-}
-
-local use_to_friend = {
-  name = "__use_to_friend",
-  will_use = Util.TrueFunc,
-  choose_targets = function(skill, ai, card)
-    local targets = ai:getEnabledTargets()
-    for _, p in ipairs(targets) do
-      if ai:isFriend(p) then
-        ai:selectTarget(p, true)
-        break
-      end
-    end
-    return ai:doOKButton()
-  end,
-}
-
-local use_to_enemy = {
-  name = "__use_to_enemy",
-  will_use = Util.TrueFunc,
-  choose_targets = function(skill, ai, card)
-    local targets = ai:getEnabledTargets()
-    for _, p in ipairs(targets) do
-      if ai:isEnemy(p) then
-        ai:selectTarget(p, true)
-        break
-      end
-    end
-    return ai:doOKButton()
-  end,
-}
-
-SmartAI:setSkillAI("__just_use", just_use)
-SmartAI:setSkillAI("__use_to_enemy", use_to_enemy)
-SmartAI:setSkillAI("__use_to_friend", use_to_friend)
-SmartAI:setSkillAI("slash_skill", use_to_enemy)
-SmartAI:setSkillAI("dismantlement_skill", use_to_enemy)
-SmartAI:setSkillAI("snatch_skill", use_to_enemy)
-SmartAI:setSkillAI("duel_skill", use_to_enemy)
-SmartAI:setSkillAI("indulgence_skill", use_to_enemy)
-SmartAI:setSkillAI("jink_skill", just_use)
-SmartAI:setSkillAI("peach_skill", just_use)
-SmartAI:setSkillAI("ex_nihilo_skill", just_use)
-SmartAI:setSkillAI("savage_assault_skill", just_use)
-SmartAI:setSkillAI("archery_attack_skill", just_use)
-SmartAI:setSkillAI("god_salvation_skill", just_use)
-SmartAI:setSkillAI("amazing_grace_skill", just_use)
-SmartAI:setSkillAI("lightning_skill", just_use)
-SmartAI:setSkillAI("default_equip_skill", just_use)
---]=====]
