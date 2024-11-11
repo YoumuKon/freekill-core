@@ -26,6 +26,14 @@ function AIGameLogic:getPlayerById(id)
   return self.ai.room:getPlayerById(id)
 end
 
+function AIGameLogic:getOtherPlayers(p)
+  return self.ai.room:getOtherPlayers(p)
+end
+
+function AIGameLogic:getSubcardsByRule(card, fromAreas)
+  return Card:getIdList(card)
+end
+
 function AIGameLogic:trigger(event, target, data)
   local ai = self.ai
   local logic = ai.room.logic
@@ -249,7 +257,28 @@ end
 
 local Recover = AIGameEvent:subclass("AIGameEvent.Recover")
 fk.ai_events.Recover = Recover
-Recover.exec = AIParser.parseEventFunc(GameEvent.Recover.main)
+function Recover:exec()
+  local recoverStruct = table.unpack(self.data) ---@type RecoverStruct
+  local logic = self.logic
+
+  local who = recoverStruct.who
+
+  if logic:trigger(fk.PreHpRecover, who, recoverStruct) then
+    return true
+  end
+
+  recoverStruct.num = math.min(recoverStruct.num, who.maxHp - who.hp)
+
+  if recoverStruct.num < 1 then
+    return true
+  end
+
+  if not logic:changeHp(who, recoverStruct.num, "recover", recoverStruct.skillName) then
+    return true
+  end
+
+  logic:trigger(fk.HpRecover, who, recoverStruct)
+end
 
 function AIGameLogic:recover(recoverStruct)
   return not Recover:new(self, recoverStruct):getBenefit()
@@ -351,6 +380,11 @@ function UseCard:exec()
   local room = ai.room
   local logic = self.logic
   local cardUseEvent = table.unpack(self.data)
+
+  if cardUseEvent.card.skill then
+    local skill_ai = fk.ai_skills[cardUseEvent.card.skill.name]
+    if skill_ai then skill_ai:onUse(logic, cardUseEvent) end
+  end
 
   if logic:trigger(fk.PreCardUse, room:getPlayerById(cardUseEvent.from), cardUseEvent) then
     return true

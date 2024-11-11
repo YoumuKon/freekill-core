@@ -24,7 +24,9 @@ local SkillAI = class("SkillAI")
 --- 收益估计
 ---@param ai SmartAI
 ---@return integer?
-function SkillAI:getEstimatedBenefit(ai) end
+function SkillAI:getEstimatedBenefit(ai)
+  return 0
+end
 
 --- 要返回一个结果，以及收益值
 ---@param ai SmartAI
@@ -37,6 +39,93 @@ function SkillAI:initialize(skill)
 end
 
 -- 搜索类方法：怎么走下一步？
+-- choose系列的函数都是用作迭代算子的，因此它们需要能计算出所有的可选情况
+-- （至少是需要所有的以及觉得可行的可选情况，如果另外写AI的话）
+-- 但是也没办法一次性算出所有情况并拿去遍历。为此，只要每次调用都算出和之前不一样的解法就行了
+
+local function cardsAcceptable(smart_ai)
+  return smart_ai:okButtonEnabled() or (#smart_ai:getEnabledTargets() > 0)
+end
+
+local function cardsString(cards)
+  table.sort(cards)
+  return table.concat(cards, '+')
+end
+
+--- 针对一般技能的选卡搜索方案
+--- 注意选真牌时面板的合法性逻辑完全不同 对真牌就没必要如此遍历了
+---@param smart_ai SmartAI
+function SkillAI:searchCardSelections(smart_ai)
+  local searched = {}
+  local function search()
+    local selected = smart_ai:getSelectedCards() -- 搜索起点
+    local to_remove = selected[#selected]
+    -- 空情况也考虑一下
+    if #selected == 0 and not searched[""] and cardsAcceptable(smart_ai) then
+      return {}
+    end
+    -- 从所有可能的下一步找
+    for _, cid in ipairs(smart_ai:getEnabledCards()) do
+      table.insert(selected, cid)
+      local str = cardsString(selected)
+      if not searched[str] then
+        smart_ai:selectCard(cid, true)
+        if cardsAcceptable(smart_ai) then
+          searched[str] = true
+          return smart_ai:getSelectedCards()
+        end
+        smart_ai:selectCard(cid, false)
+      end
+      table.removeOne(selected, cid)
+    end
+
+    -- 返回上一步，考虑再次搜索
+    if not to_remove then return nil end
+    smart_ai:selectCard(to_remove, false)
+    return search()
+  end
+  return search
+end
+
+local function targetString(targets)
+  local ids = table.map(targets, Util.IdMapper)
+  table.sort(ids)
+  return table.concat(ids, '+')
+end
+
+---@param smart_ai SmartAI
+function SkillAI:searchTargetSelections(smart_ai)
+  local searched = {}
+  local function search()
+    local selected = smart_ai:getSelectedTargets() -- 搜索起点
+    local to_remove = selected[#selected]
+    -- 空情况也考虑一下
+    if #selected == 0 and not searched[""] and smart_ai:okButtonEnabled() then
+      searched[""] = true
+      return {}
+    end
+    -- 从所有可能的下一步找
+    for _, target in ipairs(smart_ai:getEnabledTargets()) do
+      table.insert(selected, target)
+      local str = targetString(selected)
+      if not searched[str] then
+        smart_ai:selectTarget(target, true)
+        if smart_ai:okButtonEnabled() then
+          searched[str] = true
+          return smart_ai:getSelectedTargets()
+        end
+        smart_ai:selectTarget(target, false)
+      end
+      table.removeOne(selected, target)
+    end
+
+    -- 返回上一步，考虑再次搜索
+    if not to_remove then return nil end
+    smart_ai:selectTarget(to_remove, false)
+    return search()
+  end
+  return search
+end
 
 ---@param ai SmartAI
 function SkillAI:chooseInteraction(ai) end

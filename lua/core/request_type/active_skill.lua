@@ -295,7 +295,7 @@ end
 
 function ReqActiveSkill:doOKButton()
   local skill = Fk.skills[self.skill_name]
-  local cardstr = json.encode{
+  local cardstr = {
     skill = self.skill_name,
     subcards = self.pendings
   }

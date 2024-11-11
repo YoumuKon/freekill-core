@@ -927,7 +927,7 @@ function Room:askForUseActiveSkill(player, skill_name, prompt, cancelable, extra
   data = result
   local card = data.card
   local targets = data.targets
-  local card_data = json.decode(card)
+  local card_data = card
   local selected_cards = card_data.subcards
   local interaction
   if not no_indicate then
@@ -1973,14 +1973,12 @@ function Room:askForExchange(player, piles, piles_name, customNotify)
 end
 --- 平时写DIY用不到的函数。
 ---@param player ServerPlayer
----@param data string
 ---@return CardUseStruct
 function Room:handleUseCardReply(player, data)
-  -- data = json.decode(data)
   local card = data.card
-  local targets = data.targets
-  if type(card) == "string" then
-    local card_data = json.decode(card)
+  local targets = data.targets or {}
+  if type(card) == "table" then
+    local card_data = card
     local skill = Fk.skills[card_data.skill]
     local selected_cards = card_data.subcards
     if skill.interaction then skill.interaction.data = data.interaction_data end

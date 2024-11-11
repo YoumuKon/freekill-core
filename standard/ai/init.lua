@@ -18,6 +18,13 @@ SmartAI:setSkillAI("ganglie", {
   end,
 })
 
+SmartAI:setSkillAI("zhiheng", {
+  think = function(self, ai)
+    local cards = ai:getEnabledCards()
+    return { cards = cards }
+  end,
+})
+
 SmartAI:setTriggerSkillAI("dawu", {
   correct_func = function(self, logic, event, target, player, data)
     if event ~= fk.DamageInflicted then return end

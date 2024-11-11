@@ -90,7 +90,25 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
   end
   for k, v in pairs(spec) do
     local key2 = qsgs_wisdom_map[k]
-    if key2 then ai[key2] = type(v) == "function" and v or function() return v end end
+    if key2 == "think" then
+      ai.think = function(_self, _ai)
+        local ret = v(_self, _ai)
+        if ret and type(ret) == "table" then
+          if ret.cards then
+            ret.card = { skill = ai.skill.name, subcards = ret.cards }
+            ret.cards = nil
+          end
+          if ret.targets then
+            if type(ret.targets[1]) == "table" then
+              ret.targets = table.map(ret.targets, Util.IdMapper)
+            end
+          end
+        end
+        return ret
+      end
+    elseif key2 then
+      ai[key2] = type(v) == "function" and v or function() return v end
+    end
   end
 end
 
@@ -105,18 +123,30 @@ end
 
 SmartAI:setSkillAI("__card_skill", {
   choose_targets = function(self, ai)
-    local targets = ai:getEnabledTargets()
+    -- local targets = ai:getEnabledTargets()
     local logic = AIGameLogic:new(ai)
-    local val_func = function(p)
+    local estimate_val = self:getEstimatedBenefit(ai)
+    local val_func = function(targets)
       logic.benefit = 0
       logic:useCard({
         from = ai.player.id,
-        tos = { { p.id } },
+        tos = table.map(targets, function(p) return { p.id } end),
         card = ai:getSelectedCard(),
       })
-      verbose("目前状况下，对%s的预测收益为%d", tostring(p), logic.benefit)
+      verbose(1, "目前状况下，对[%s]的预测收益为%d", table.concat(table.map(targets, function(p)return tostring(p)end), "+"), logic.benefit)
       return logic.benefit
     end
+    local best_targets, best_val = nil, -100000
+    for targets in self:searchTargetSelections(ai) do
+      local val = val_func(targets)
+      if not best_targets or (best_val < val) then
+        best_targets, best_val = targets, val
+      end
+      if best_val > estimate_val then break end
+    end
+    return best_targets, best_val
+
+    --[[
     for _, p, val in fk.sorted_pairs(targets, val_func) do
       if val > 0 then
         ai:selectTarget(p, true)
@@ -125,11 +155,13 @@ SmartAI:setSkillAI("__card_skill", {
         break
       end
     end
+    --]]
   end,
 
   think = function(self, ai)
     local skill_name = self.skill.name
     local pattern = skill_name:sub(1, #skill_name - 6)
+    local estimate_val = self:getEstimatedBenefit(ai)
     local cards = ai:getEnabledCards(pattern)
     cards = table.random(cards, math.min(#cards, 5)) --[[@as integer[] ]]
     -- local cid = table.random(cards)
@@ -142,7 +174,16 @@ SmartAI:setSkillAI("__card_skill", {
       if not best_ret or (best_val < val) then
         best_ret, best_val = ret, val
       end
+      if best_val >= estimate_val then break end
       ai:unSelectAll()
+    end
+
+    if best_ret then
+      if best_val < 0 then
+        return ""
+      end
+
+      best_ret = { card = ai:getSelectedCard().id, targets = best_ret }
     end
 
     return best_ret, best_val
@@ -228,8 +269,8 @@ function SmartAI:handlePlayCard()
       table.insertIfNeed(skill_ai_list, ai)
     end
   end
-  verbose("======== %s: 开始计算出牌阶段 ========", tostring(self))
-  verbose("待选技能：[%s]", table.concat(table.map(skill_ai_list, function(ai) return ai.skill.name end), ", "))
+  verbose(1, "======== %s: 开始计算出牌阶段 ========", tostring(self))
+  verbose(1, "待选技能：[%s]", table.concat(table.map(skill_ai_list, function(ai) return ai.skill.name end), ", "))
 
   local value_func = function(ai)
     if not ai then return -500 end
@@ -241,12 +282,14 @@ function SmartAI:handlePlayCard()
 
   local best_ret, best_val
   for _, ai, val in fk.sorted_pairs(skill_ai_list, value_func) do
-    verbose("[*] 考虑 %s (预估收益%d)", ai.skill.name, val)
+    verbose(1, "[*] 考虑 %s (预估收益%d)", ai.skill.name, val)
     if val < cancel_val then
-      verbose("由于预估收益小于取消的收益，不再思考")
+      verbose(1, "由于预估收益小于取消的收益，不再思考")
       break
     end
+    self:selectSkill(ai.skill.name, true)
     local ret, real_val = ai:think(self)
+    real_val = real_val or -100000
     -- if ret and ret ~= "" then return ret end
     if not best_ret or (best_val < real_val) then
       best_ret, best_val = ret, real_val

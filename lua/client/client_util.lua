@@ -938,6 +938,10 @@ function UpdateRequestUI(elemType, id, action, data)
   if requestUIUpdating then return end
   requestUIUpdating = true
   local h = ClientInstance.current_request_handler
+  if not h then
+    requestUIUpdating = false
+    return
+  end
   h.change = {}
   local finish = h:update(elemType, id, action, data)
   if not finish then
