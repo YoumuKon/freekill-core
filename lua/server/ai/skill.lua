@@ -18,8 +18,13 @@
 --- 所谓的“可能发生某种事件”大致类似GameEvent，但是内部功能大幅简化了（因为
 --- 只是用于简单的推理）。详见同文件夹下event.lua内容。
 ---@class SkillAI: Object
----@field public skill ActiveSkill
+---@field public skill Skill
 local SkillAI = class("SkillAI")
+
+---@param skill string
+function SkillAI:initialize(skill)
+  self.skill = Fk.skills[skill]
+end
 
 --- 收益估计
 ---@param ai SmartAI
@@ -28,14 +33,28 @@ function SkillAI:getEstimatedBenefit(ai)
   return 0
 end
 
+-- API类：SmartAI顶层会调用以下函数
+
+--- 面板类思考函数，囊括了出牌阶段、询问使用打出以及askForUseActiveSkill
+---
 --- 要返回一个结果，以及收益值
 ---@param ai SmartAI
 ---@return any?, integer?
 function SkillAI:think(ai) end
 
----@param skill string
-function SkillAI:initialize(skill)
-  self.skill = Fk.skills[skill]
+-- 剩下的都对应一种command，见函数名
+
+---@param ai SmartAI
+---@param target ServerPlayer @ 被选牌的人
+---@param flag any @ 用"hej"三个字母的组合表示能选择哪些区域, h 手牌区, e - 装备区, j - 判定区
+---@param prompt? string @ 提示信息
+function SkillAI:thinkForCardChosen(ai, target, flag, prompt)
+end
+
+---@param ai SmartAI
+---@param skill_name string @ 技能名
+---@param prompt? string @ 提示信息
+function SkillAI:thinkForSkillInvoke(ai, skill_name, prompt)
 end
 
 -- 搜索类方法：怎么走下一步？
@@ -66,17 +85,19 @@ function SkillAI:searchCardSelections(smart_ai)
     end
     -- 从所有可能的下一步找
     for _, cid in ipairs(smart_ai:getEnabledCards()) do
-      table.insert(selected, cid)
-      local str = cardsString(selected)
-      if not searched[str] then
-        smart_ai:selectCard(cid, true)
-        if cardsAcceptable(smart_ai) then
+      smart_ai:selectCard(cid, true)
+      if cardsAcceptable(smart_ai) then
+        table.insert(selected, cid)
+        local str = cardsString(selected)
+        if not searched[str] then
           searched[str] = true
           return smart_ai:getSelectedCards()
         end
-        smart_ai:selectCard(cid, false)
+        table.removeOne(selected, cid)
       end
-      table.removeOne(selected, cid)
+      local ret = search()
+      if ret then return ret end
+      smart_ai:selectCard(cid, false)
     end
 
     -- 返回上一步，考虑再次搜索
@@ -161,6 +182,8 @@ function SkillAI:onEffect(logic, cardEffectEvent) end
 ---@class SkillAISpec
 ---@field estimated_benefit? integer|fun(self: SkillAI, ai: SmartAI): integer?
 ---@field think? fun(self: SkillAI, ai: SmartAI): any?, integer?
+---@field think_card_chosen? fun(self: SkillAI, ai: SmartAI, target: ServerPlayer, flag: string, prompt: string?): integer
+---@field think_skill_invoke? fun(self: SkillAI, ai: SmartAI, skill_name: string, prompt: string?): boolean
 ---@field choose_interaction? fun(self: SkillAI, ai: SmartAI): boolean?
 ---@field choose_cards? fun(self: SkillAI, ai: SmartAI): boolean?
 ---@field choose_targets? fun(self: SkillAI, ai: SmartAI): any, integer?

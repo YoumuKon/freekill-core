@@ -1,3 +1,9 @@
+if UsingNewCore then
+  require "standard.ai.aux_skills"
+else
+  require "packages.standard.ai.aux_skills"
+end
+
 SmartAI:setSkillAI("ganglie", {
   think = function(self, ai)
     -- 刚烈的think中要处理两种情况：一是askForSkillInvoke的确定取消，二是被刚烈的人决定是否弃置2牌
@@ -33,11 +39,6 @@ SmartAI:setTriggerSkillAI("dawu", {
 })
 
 --[=[
-if UsingNewCore then
-  require "standard.ai.aux_skills"
-else
-  require "packages.standard.ai.aux_skills"
-end
 
 local true_invoke = { skill_invoke = true }
 local enemy_damage_invoke = {

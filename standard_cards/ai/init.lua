@@ -26,9 +26,11 @@ SmartAI:setCardSkillAI("dismantlement_skill", {
     logic:throwCard({cid}, self.skill.name, to, from)
   end,
 
-  -- TODO: think中区分用牌和里面的askFor, 完善那一步选牌的思考
-  -- think = function(self, ai)
-  -- end,
+  think_card_chosen = function(self, ai, target, _, __)
+    local cid = (ai:isFriend(target) and target:getCardIds("j")[1] or nil)
+      or target:getCardIds("e")[1] or target:getCardIds("h")[1]
+    return cid
+  end,
 })
 
 SmartAI:setCardSkillAI("snatch_skill", {

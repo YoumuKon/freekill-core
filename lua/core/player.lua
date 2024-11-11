@@ -1259,7 +1259,7 @@ function Player:cardVisible(cardId, move)
     return true
   elseif oldarea then
     -- 尽可能让牌可见
-    return defaultCardVisible(self, cardId, oldarea, oldowner, falsy, oldspecial)
+    return defaultCardVisible(self, cardId, oldarea, oldowner, false, oldspecial)
   end
 
   return false

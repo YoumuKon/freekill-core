@@ -47,15 +47,9 @@ function SmartAI:__index(k)
   return ret
 end
 
--- 面板相关交互：对应操控手牌区、技能面板、直接选择目标的交互
--- 对应UI中的"responding"状态和"playing"状态
--- AI代码需要像实际操作UI那样完成以下几个任务：
---   * 点击技能按钮，完成interaction与子卡选择；或者直接点可用手牌
---   * 选择目标
---   * 点确定
+-- 四面板交互，全部依赖skillAI:think
 --===================================================
 
--- 考虑为triggerSkill设置收益修正函数
 
 --@field ask_use_card? fun(skill: ActiveSkill, ai: SmartAI): any
 --@field ask_response? fun(skill: ActiveSkill, ai: SmartAI): any
@@ -71,9 +65,13 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
     fk.ai_skills[key] = SkillAI:new(key)
   end
   local ai = fk.ai_skills[key]
+
+  -- 神杀智慧之sgs_ex.lua: 致敬传奇靠造表创建对象写法
   local qsgs_wisdom_map = {
     estimated_benefit = "getEstimatedBenefit",
     think = "think",
+    think_card_chosen = "thinkForCardChosen",
+    think_skill_invoke = "thinkForSkillInvoke",
     choose_interaction = "chooseInteraction",
     choose_cards = "chooseCards",
     choose_targets = "chooseTargets",
@@ -161,7 +159,7 @@ SmartAI:setSkillAI("__card_skill", {
 
   think = function(self, ai)
     local skill_name = self.skill.name
-    local pattern = skill_name:sub(1, #skill_name - 6)
+    local pattern = ".|.|.|.|" .. skill_name:sub(1, #skill_name - 6)
     local estimate_val = self:getEstimatedBenefit(ai)
     local cards = ai:getEnabledCards(pattern)
     cards = table.random(cards, math.min(#cards, 5)) --[[@as integer[] ]]
@@ -277,7 +275,6 @@ function SmartAI:handlePlayCard()
     end
     self:selectSkill(ai.skill.name, true)
     local ret, real_val = ai:think(self)
-    verbose(1, "%s: 思考结果是%s，收益为%d", ai.skill.name, json.encode(ret), real_val)
     real_val = real_val or -100000
     -- if ret and ret ~= "" then return ret end
     if best_val < real_val then
@@ -295,41 +292,29 @@ end
 ---------------------------------------------------------------------
 
 -- 其他交互：不涉及面板而是基于弹窗式的交互
--- 这块就灵活变通了，没啥非常通用的回复格式
+-- SkillAI里面每个command给个方法
 -- ========================================
 
--- AskForSkillInvoke
--- 只能选择确定或者取消的交互。
--- 函数返回true或者false即可。
------------------------------
-
---[[
----@type table<string, boolean | fun(self: SmartAI, prompt: string): bool>
-fk.ai_skill_invoke = { AskForLuckCard = false }
+function SmartAI:handleAskForCardChosen(data)
+  local target_id, flag, reason, prompt = table.unpack(data)
+  local target = self.room:getPlayerById(target_id)
+  local ai = fk.ai_skills[reason]
+  if ai then
+    local ret = ai:thinkForCardChosen(self, target, flag, prompt)
+    return ret
+  end
+end
 
 function SmartAI:handleAskForSkillInvoke(data)
   local skillName, prompt = data[1], data[2]
-  local skill = Fk.skills[skillName]
-  local spec = fk.ai_skills[skillName]
-  local ask
-  if spec then
-    ask = spec.skill_invoke
-  else
-    ask = fk.ai_skill_invoke[skillName]
-  end
-
-
-  if type(ask) == "function" then
-    return ask(skill, self) and "1" or ""
-  elseif type(ask) == "boolean" then
-    return ask and "1" or ""
+  local ai = fk.ai_skills[skillName]
+  if ai then
+    local ret = ai:thinkForSkillInvoke(self, skillName, prompt)
+    return ret and "1" or ""
   elseif Fk.skills[skillName].frequency == Skill.Frequent then
     return "1"
-  else
-    return math.random() < 0.5 and "1" or ""
   end
 end
---]]
 
 -- 敌友判断相关。
 -- 目前才开始，做个明身份打牌的就行了。

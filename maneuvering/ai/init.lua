@@ -31,3 +31,24 @@ SmartAI:setCardSkillAI("supply_shortage_skill")
 --[[
 SmartAI:setSkillAI("analeptic_skill", just_use)
 --]]
+
+SmartAI:setTriggerSkillAI("#guding_blade_skill", {
+  correct_func = function(self, logic, event, target, player, data)
+    if self.skill:triggerable(event, target, player, data) then
+      data.damage = data.damage + 1
+    end
+  end,
+})
+
+SmartAI:setTriggerSkillAI("#vine_skill", {
+  correct_func = function(self, logic, event, target, player, data)
+    local skill = self.skill
+    if skill:triggerable(event, target, player, data) then
+      if event == fk.DamageInflicted then
+        data.damage = data.damage + 1
+      else
+        return true
+      end
+    end
+  end,
+})
