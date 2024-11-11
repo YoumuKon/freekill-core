@@ -209,13 +209,13 @@ Fk:addSkill(recast)
 local ironChainCardSkill = fk.CreateActiveSkill{
   name = "iron_chain_skill",
   prompt = "#iron_chain_skill",
+  can_use = Util.CanUse,
   min_target_num = 1,
   max_target_num = 2,
   mod_target_filter = Util.TrueFunc,
-  target_filter = function(self, to_select, selected, _, card)
-    if #selected < self:getMaxTargetNum(Self, card) then
-      return self:modTargetFilter(to_select, selected, Self.id, card)
-    end
+  target_filter = function(self, to_select, selected, _, card, extra_data)
+    return Util.TargetFilter(self, to_select, selected, _, card, extra_data) and
+      self:modTargetFilter(to_select, selected, Self.id, card)
   end,
   on_effect = function(_, room, cardEffectEvent)
     local to = room:getPlayerById(cardEffectEvent.to)
@@ -241,15 +241,15 @@ extension:addCards{
 local fireAttackSkill = fk.CreateActiveSkill{
   name = "fire_attack_skill",
   prompt = "#fire_attack_skill",
+  can_use = Util.CanUse,
   target_num = 1,
   mod_target_filter = function(_, to_select, _, _, _, _)
     local to = Fk:currentRoom():getPlayerById(to_select)
     return not to:isKongcheng()
   end,
-  target_filter = function(self, to_select, selected, _, card)
-    if #selected < self:getMaxTargetNum(Self, card) then
-      return self:modTargetFilter(to_select, selected, Self.id, card)
-    end
+  target_filter = function(self, to_select, selected, _, card, extra_data)
+    return Util.TargetFilter(self, to_select, selected, _, card, extra_data) and
+      self:modTargetFilter(to_select, selected, Self.id, card)
   end,
   on_effect = function(self, room, cardEffectEvent)
     local from = room:getPlayerById(cardEffectEvent.from)
@@ -261,7 +261,7 @@ local fireAttackSkill = fk.CreateActiveSkill{
 
     showCard = Fk:getCardById(showCard)
     local cards = room:askForDiscard(from, 1, 1, false, self.name, true,
-                                    ".|.|" .. showCard:getSuitString(), "#fire_attack-discard:" .. to.id .. "::" .. showCard:getSuitString())
+      ".|.|" .. showCard:getSuitString(), "#fire_attack-discard:" .. to.id .. "::" .. showCard:getSuitString())
     if #cards > 0 then
       room:damage({
         from = from,
@@ -288,6 +288,7 @@ extension:addCards{
 local supplyShortageSkill = fk.CreateActiveSkill{
   name = "supply_shortage_skill",
   prompt = "#supply_shortage_skill",
+  can_use = Util.CanUse,
   distance_limit = 1,
   mod_target_filter = function(self, to_select, _, user, card, distance_limited)
     local player = Fk:currentRoom():getPlayerById(to_select)
@@ -295,6 +296,7 @@ local supplyShortageSkill = fk.CreateActiveSkill{
     return from ~= player and not (distance_limited and not self:withinDistanceLimit(from, false, card, player))
   end,
   target_filter = function(self, to_select, selected, _, card, extra_data)
+    if not Util.TargetFilter(self, to_select, selected, _, card, extra_data) then return end
     local count_distances = not (extra_data and extra_data.bypass_distances)
     return #selected == 0 and self:modTargetFilter(to_select, selected, Self.id, card, count_distances)
   end,
