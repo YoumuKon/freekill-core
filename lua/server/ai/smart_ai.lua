@@ -142,7 +142,7 @@ SmartAI:setSkillAI("__card_skill", {
       if not best_targets or (best_val < val) then
         best_targets, best_val = targets, val
       end
-      if best_val > estimate_val then break end
+      -- if best_val > estimate_val then break end
     end
     return best_targets, best_val
 
@@ -348,8 +348,13 @@ end
 function SmartAI:isFriend(target)
   if Self.role == target.role then return true end
   local t = { "lord", "loyalist" }
+  local players = table.filter(self.room.alive_players, function(p) return p.role ~= "renegade" end)
+  local rebels = #table.filter(players, function(p) return p.role == "rebel" end)
+  local loyalists = #players - rebels
+  if rebels >= loyalists then
+    table.insert(t, "renegade")
+  end
   if table.contains(t, Self.role) and table.contains(t, target.role) then return true end
-  if Self.role == "renegade" or target.role == "renegade" then return math.random() < 0.6 end
   return false
 end
 
