@@ -6,21 +6,81 @@ end
 
 SmartAI:setSkillAI("ganglie", {
   think = function(self, ai)
-    -- 刚烈的think中要处理两种情况：一是askForSkillInvoke的确定取消，二是被刚烈的人决定是否弃置2牌
-    if ai:getPrompt():startsWith("#AskForDiscard") then
-      -- 权衡一下弃牌与扣血的收益
-      -- local cancel_val = 模拟自己扣血的收益
-      -- local ok_val = 模拟弃两张最垃圾牌的收益
-      --   比如说，等于discard_skill_ai:think()的收益什么的
-      -- if ok_val > cancel_val then
-      --   return ai:doOKButton()
-      -- else
-      --   return ""
-      -- end
-    else
-      -- 模拟一下self.skill:use 计算收益是否为正
-      return false
+    -- 处理askForUseActiveSkill(弃牌)
+    -- 权衡一下弃牌与扣血的收益
+    local cancel_val = ai:getBenefitOfEvents(function(logic)
+      logic:damage{
+        from = ai.room.logic:getCurrentEvent().data[2],
+        to = ai.player,
+        damage = 1,
+        skillName = self.skill.name,
+      }
+    end)
+    -- TODO: 把cancel_val告诉discard_skill让他思考弃牌，或者干脆封装一个用来选择弃什么牌的函数
+    -- local ok_val = 模拟弃两张最垃圾牌的收益
+    --   比如说，等于discard_skill_ai:think()的收益什么的
+    -- if ok_val > cancel_val then
+    --   return ai:doOKButton()
+    -- else
+    --   return ""
+    -- end
+  end,
+
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    ---@type DamageStruct
+    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local from = dmg.from
+    if not from then return false end
+    local dmg_val = ai:getBenefitOfEvents(function(logic)
+      logic:damage{
+        from = ai.player,
+        to = from,
+        damage = 1,
+        skillName = self.skill.name,
+      }
+    end)
+    local discard_val = ai:getBenefitOfEvents(function(logic)
+      local cards = from:getCardIds("h")
+      if #cards < 2 then
+        logic.benefit = -1
+        return
+      end
+      logic:throwCard(table.random(cards, 2), self.skill.name, from, from)
+    end)
+    if dmg_val > 0 or discard_val > 0 then
+      return true
     end
+    return false
+  end,
+})
+
+SmartAI:setSkillAI("tuxi", {
+  think = function(self, ai)
+    local player = ai.player
+    -- 选出界面上所有可选的目标
+    local players = ai:getEnabledTargets()
+    -- 对所有目标计算他们被拿走一张手牌后对自己的收益
+    local benefits = table.map(players, function(p)
+      return { p, ai:getBenefitOfEvents(function(logic)
+        local c = p:getCardIds("h")[1]
+        logic:obtainCard(player.id, c, false, fk.ReasonPrey)
+      end)}
+    end)
+    -- 选择收益最高且大于0的两位 判断偷两位的收益加上放弃摸牌的负收益是否可以补偿
+    local total_benefit = -ai:getBenefitOfEvents(function(logic)
+      logic:drawCards(player, 2, self.skill.name)
+    end)
+    local targets = {}
+    table.sort(benefits, function(a, b) return a[2] > b[2] end)
+    for i, benefit in ipairs(benefits) do
+      local p, val = table.unpack(benefit)
+      if val < 0 then break end
+      table.insert(targets, p)
+      total_benefit = total_benefit + val
+      if i == 2 then break end
+    end
+    if #targets == 0 or total_benefit <= 0 then return "" end
+    return { targets = targets }
   end,
 })
 
@@ -31,164 +91,14 @@ SmartAI:setSkillAI("zhiheng", {
   end,
 })
 
-SmartAI:setTriggerSkillAI("dawu", {
-  correct_func = function(self, logic, event, target, player, data)
-    if event ~= fk.DamageInflicted then return end
-    return self.skill:triggerable(event, target, player, data)
+SmartAI:setSkillAI("yingzi", {
+  think_skill_invoke = Util.TrueFunc,
+})
+
+SmartAI:setSkillAI("xiaoji", {
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    return ai:getBenefitOfEvents(function(logic)
+      logic:drawCards(ai.player, 2, self.skill.name)
+    end) > 0
   end,
 })
-
---[=[
-
-local true_invoke = { skill_invoke = true }
-local enemy_damage_invoke = {
-  skill_invoke = function(skill, ai)
-    local room = ai.room
-    local logic = room.logic
-
-    local event = logic:getCurrentEvent()
-    local dmg = event.data[1]
-    return ai:isEnemy(dmg.from)
-  end
-}
----@type SmartAISkillSpec
-local active_random_select_card = {
-  will_use = Util.TrueFunc,
-  ---@param skill ViewAsSkill
-  choose_cards = function(skill, ai)
-    repeat
-      local cids = ai:getEnabledCards()
-      if #cids == 0 then return ai:okButtonEnabled() end
-      ai:selectCard(cids[1], true)
-    until ai:okButtonEnabled() or ai:hasEnabledTarget()
-    return true
-  end,
-}
-
-local use_to_enemy = fk.ai_skills["__use_to_enemy"]
-local use_to_friend = fk.ai_skills["__use_to_friend"]
-local just_use = fk.ai_skills["__just_use"]
-
--- 魏国
-
-SmartAI:setSkillAI("jianxiong", true_invoke)
--- TODO: hujia
-
--- TODO: guicai 关于如何界定判定的好坏 需要向AI中单独说明
-SmartAI:setSkillAI("fankui", enemy_damage_invoke)
-
-SmartAI:setSkillAI("ganglie", {
-  skill_invoke = function(skill, ai)
-    local room = ai.room
-    local logic = room.logic
-
-    local event = logic:getCurrentEvent()
-    local dmg = event.data[1]
-    return ai:isEnemy(dmg.from)
-  end,
-  choose_cards = function(skill, ai)
-    local cards = ai:getEnabledCards()
-    if #cards > 2 then
-      for i = 1, 2 do ai:selectCard(cards[i], true) end
-      return true
-    end
-    return false -- 直接按取消键
-  end,
-  -- choose_targets只有个按ok 复用默认
-})
-
-SmartAI:setSkillAI("tuxi", {
-  choose_targets = function(skill, ai)
-    local targets = ai:getEnabledTargets()
-    local i = 0
-    for _, p in ipairs(targets) do
-      if ai:isEnemy(p) then
-        ai:selectTarget(p, true)
-        i = i + 1
-        if i >= 2 then return ai:doOKButton() end
-      end
-    end
-  end
-})
-
-SmartAI:setSkillAI("luoyi", { skill_invoke = false })
-
-SmartAI:setSkillAI("tiandu", true_invoke)
-SmartAI:setSkillAI("yiji", {
-  skill_invoke = true,
-  -- ask_active = function
-})
-
-SmartAI:setSkillAI("luoshen", true_invoke)
-SmartAI:setSkillAI("qingguo", active_random_select_card)
-
--- 蜀国
-SmartAI:setSkillAI("rende", active_random_select_card)
-SmartAI:setSkillAI("rende", use_to_friend)
-
--- TODO: jijiang
-SmartAI:setSkillAI("wusheng", active_random_select_card)
-
--- TODO: guanxing
-
--- TODO: longdan
-SmartAI:setSkillAI("longdan", active_random_select_card)
-
-SmartAI:setSkillAI("tieqi", {
-  skill_invoke = function(skill, ai)
-    local room = ai.room
-    local logic = room.logic
-
-    -- 询问反馈时，处于on_cost环节，当前事件必是damage且有from
-    local event = logic:getCurrentEvent()
-    local use = event.data[1] ---@type CardUseStruct
-    return table.find(use.tos, function(t)
-      return ai:isEnemy(room:getPlayerById(t[1]))
-    end)
-  end
-})
-
-SmartAI:setSkillAI("jizhi", true_invoke)
-
--- 吴国
-SmartAI:setSkillAI("zhiheng", {
-  choose_cards = function(self, ai)
-    for _, cid in ipairs(ai:getEnabledCards()) do
-      ai:selectCard(cid, true)
-    end
-    return true
-  end,
-})
-SmartAI:setSkillAI("zhiheng", just_use)
-
--- TODO: qixi
-SmartAI:setSkillAI("qixi", active_random_select_card)
-
-SmartAI:setSkillAI("keji", true_invoke)
-
-SmartAI:setSkillAI("kurou", just_use)
-
-SmartAI:setSkillAI("yingzi", true_invoke)
-
-SmartAI:setSkillAI("fanjian", use_to_enemy)
-
-SmartAI:setSkillAI("guose", active_random_select_card)
--- TODO: liuli
-
-SmartAI:setSkillAI("lianying", true_invoke)
-
-SmartAI:setSkillAI("xiaoji", true_invoke)
-
-SmartAI:setSkillAI("jieyin", active_random_select_card)
-SmartAI:setSkillAI("jieyin", use_to_friend)
-
--- 群雄
-SmartAI:setSkillAI("qingnang", active_random_select_card)
-SmartAI:setSkillAI("qingnang", use_to_friend)
-
--- TODO: jijiu
-SmartAI:setSkillAI("qingnang", active_random_select_card)
-
--- TODO: lijian
-SmartAI:setSkillAI("biyue", true_invoke)
---]=]

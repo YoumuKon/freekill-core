@@ -97,6 +97,9 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
             ret.card = { skill = ai.skill.name, subcards = ret.cards }
             ret.cards = nil
           end
+          if not ret.card then
+            ret.card = { skill = ai.skill.name, subcards = Util.DummyTable }
+          end
           if ret.targets then
             if type(ret.targets[1]) == "table" then
               ret.targets = table.map(ret.targets, Util.IdMapper)
@@ -348,5 +351,13 @@ end
 
 -- 基于事件的收益推理；内置事件
 --=================================================
+
+--- 传一个函数，函数里面模拟操作，返回一系列模拟操作后的收益
+---@param fn fun(logic: AIGameLogic) 此函数放置想要的事件
+function SmartAI:getBenefitOfEvents(fn)
+  local logic = AIGameLogic:new(self)
+  fn(logic)
+  return logic.benefit
+end
 
 return SmartAI
