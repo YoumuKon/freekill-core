@@ -48,12 +48,14 @@ function SkillAI:think(ai) end
 ---@param target ServerPlayer @ 被选牌的人
 ---@param flag any @ 用"hej"三个字母的组合表示能选择哪些区域, h 手牌区, e - 装备区, j - 判定区
 ---@param prompt? string @ 提示信息
+---@return integer, integer?
 function SkillAI:thinkForCardChosen(ai, target, flag, prompt)
 end
 
 ---@param ai SmartAI
 ---@param skill_name string @ 技能名
 ---@param prompt? string @ 提示信息
+---@return boolean, integer?
 function SkillAI:thinkForSkillInvoke(ai, skill_name, prompt)
 end
 
@@ -182,8 +184,8 @@ function SkillAI:onEffect(logic, cardEffectEvent) end
 ---@class SkillAISpec
 ---@field estimated_benefit? integer|fun(self: SkillAI, ai: SmartAI): integer?
 ---@field think? fun(self: SkillAI, ai: SmartAI): any?, integer?
----@field think_card_chosen? fun(self: SkillAI, ai: SmartAI, target: ServerPlayer, flag: string, prompt: string?): integer
----@field think_skill_invoke? fun(self: SkillAI, ai: SmartAI, skill_name: string, prompt: string?): boolean
+---@field think_card_chosen? fun(self: SkillAI, ai: SmartAI, target: ServerPlayer, flag: string, prompt: string?): integer, integer?
+---@field think_skill_invoke? fun(self: SkillAI, ai: SmartAI, skill_name: string, prompt: string?): boolean, integer?
 ---@field choose_interaction? fun(self: SkillAI, ai: SmartAI): boolean?
 ---@field choose_cards? fun(self: SkillAI, ai: SmartAI): boolean?
 ---@field choose_targets? fun(self: SkillAI, ai: SmartAI): any, integer?

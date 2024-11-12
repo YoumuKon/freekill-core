@@ -20,28 +20,38 @@ SmartAI:setCardSkillAI("dismantlement_skill", {
     local from = logic:getPlayerById(effect.from)
     local to = logic:getPlayerById(effect.to)
     if from.dead or to.dead or to:isAllNude() then return end
-    -- local cid = logic:askForCardChosen(from, to, "hej", self.name)
-    local cid = (from.ai:isFriend(to) and to:getCardIds("j")[1] or nil)
-      or to:getCardIds("e")[1] or to:getCardIds("h")[1]
-    logic:throwCard({cid}, self.skill.name, to, from)
+    local _, val = self:thinkForCardChosen(from.ai, to, "hej")
+    logic.benefit = logic.benefit + val
   end,
 
   think_card_chosen = function(self, ai, target, _, __)
-    local cid = (ai:isFriend(target) and target:getCardIds("j")[1] or nil)
-      or target:getCardIds("e")[1] or target:getCardIds("h")[1]
-    return cid
+    local cards = target:getCardIds("hej")
+    local cid, val = -1, -100000
+    for _, id in ipairs(cards) do
+      local v = ai:getBenefitOfEvents(function(logic)
+        logic:throwCard({id}, self.skill.name, target, ai.player)
+      end)
+      if v > val then
+        cid, val = id, v
+      end
+    end
+    return cid, val
   end,
 })
 
 SmartAI:setCardSkillAI("snatch_skill", {
-  on_effect = function(self, logic, effect)
-    local from = logic:getPlayerById(effect.from)
-    local to = logic:getPlayerById(effect.to)
-    if from.dead or to.dead or to:isAllNude() then return end
-    -- local cid = logic:askForCardChosen(from, to, "hej", self.name)
-    local cid = (from.ai:isFriend(to) and to:getCardIds("j")[1] or nil)
-      or to:getCardIds("e")[1] or to:getCardIds("h")[1]
-    logic:obtainCard(from, cid, false, fk.ReasonPrey)
+  think_card_chosen = function(self, ai, target, _, __)
+    local cards = target:getCardIds("hej")
+    local cid, val = -1, -100000
+    for _, id in ipairs(cards) do
+      local v = ai:getBenefitOfEvents(function(logic)
+        logic:obtainCard(ai.player, id, false, fk.ReasonPrey)
+      end)
+      if v > val then
+        cid, val = id, v
+      end
+    end
+    return cid, val
   end,
 }, "dismantlement_skill")
 

@@ -146,7 +146,7 @@ SmartAI:setSkillAI("__card_skill", {
       end
       -- if best_val > estimate_val then break end
     end
-    return best_targets, best_val
+    return best_targets or {}, best_val
 
     --[[
     for _, p, val in fk.sorted_pairs(targets, val_func) do
@@ -314,8 +314,11 @@ function SmartAI:handleAskForSkillInvoke(data)
   if ai then
     local ret = ai:thinkForSkillInvoke(self, skillName, prompt)
     return ret and "1" or ""
-  elseif Fk.skills[skillName].frequency == Skill.Frequent then
-    return "1"
+  else
+    local skill = Fk.skills[skillName]
+    if skill and skill.frequency == Skill.Frequent then
+      return "1"
+    end
   end
 end
 
