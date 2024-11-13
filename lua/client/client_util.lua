@@ -496,7 +496,7 @@ function GetTargetTip(pid)
 
   if skill then
     if skill:isInstanceOf(ActiveSkill) then
-      local tip = skill:targetTip(to_select, selected, selected_cards, nil, selectable)
+      local tip = skill:targetTip(to_select, selected, selected_cards, nil, selectable, extra_data)
       if type(tip) == "string" then
         table.insert(ret, { content = tip, type = "normal" })
       elseif type(tip) == "table" then
