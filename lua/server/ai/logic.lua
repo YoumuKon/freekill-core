@@ -38,12 +38,13 @@ function AIGameLogic:trigger(event, target, data)
   local ai = self.ai
   local logic = ai.room.logic
   local skills = logic.skill_table[event] or Util.DummyTable
+  local refresh_skills = logic.refresh_skill_table[event] or Util.DummyTable
   local _target = ai.room.current -- for iteration
   local player = _target
   local exit
 
   repeat
-    for _, skill in ipairs(skills) do
+    for _, skill in ipairs(table.connectIfNeed(skills, refresh_skills)) do
       local skill_ai = fk.ai_trigger_skills[skill.name]
       if skill_ai then
         exit = skill_ai:getCorrect(self, event, target, player, data)
@@ -451,5 +452,37 @@ function AIGameLogic:handleCardEffect(event, cardEffectEvent)
     end
   end
 end
+
+-- judge.lua
+
+local Judge = AIGameEvent:subclass("AIGameEvent.Judge")
+fk.ai_events.Judge = Judge
+function Judge:exec()
+  local data = table.unpack(self.data)
+  local logic = self.logic
+  local who = data.who
+
+  data.isJudgeEvent = true
+  logic:trigger(fk.StartJudge, who, data)
+  data.card = data.card or Fk:getCardById(self.ai.room.draw_pile[1] or 1)
+
+  logic:moveCardTo(data.card, Card.Processing, nil, fk.ReasonJudge)
+
+  logic:trigger(fk.AskForRetrial, who, data)
+  logic:trigger(fk.FinishRetrial, who, data)
+
+  if logic:trigger(fk.FinishJudge, who, data) then
+    return true
+  end
+
+  logic:moveCardTo(data.card, Card.DiscardPile, nil, fk.ReasonJudge)
+end
+
+---@param data JudgeStruct
+function AIGameLogic:judge(data)
+  return Judge:new(self, data):getBenefit()
+end
+
+-- 暂时不模拟改判。
 
 return AIGameLogic, AIGameEvent

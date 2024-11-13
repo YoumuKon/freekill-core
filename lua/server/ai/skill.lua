@@ -65,7 +65,8 @@ end
 -- 但是也没办法一次性算出所有情况并拿去遍历。为此，只要每次调用都算出和之前不一样的解法就行了
 
 local function cardsAcceptable(smart_ai)
-  return smart_ai:okButtonEnabled() or (#smart_ai:getEnabledTargets() > 0)
+  -- return smart_ai:okButtonEnabled() or (#smart_ai:getEnabledTargets() > 0)
+  return false
 end
 
 local function cardsString(cards)
@@ -83,23 +84,24 @@ function SkillAI:searchCardSelections(smart_ai)
     local to_remove = selected[#selected]
     -- 空情况也考虑一下
     if #selected == 0 and not searched[""] and cardsAcceptable(smart_ai) then
+      searched[""] = true
       return {}
     end
     -- 从所有可能的下一步找
     for _, cid in ipairs(smart_ai:getEnabledCards()) do
-      smart_ai:selectCard(cid, true)
-      if cardsAcceptable(smart_ai) then
-        table.insert(selected, cid)
-        local str = cardsString(selected)
-        if not searched[str] then
-          searched[str] = true
+      table.insert(selected, cid)
+      local str = cardsString(selected)
+      if not searched[str] then
+        searched[str] = true
+        smart_ai:selectCard(cid, true)
+        if cardsAcceptable(smart_ai) then
           return smart_ai:getSelectedCards()
         end
-        table.removeOne(selected, cid)
+        local ret = search()
+        if ret then return ret end
+        smart_ai:selectCard(cid, false)
       end
-      local ret = search()
-      if ret then return ret end
-      smart_ai:selectCard(cid, false)
+      table.removeOne(selected, cid)
     end
 
     -- 返回上一步，考虑再次搜索
@@ -132,11 +134,13 @@ function SkillAI:searchTargetSelections(smart_ai)
       table.insert(selected, target)
       local str = targetString(selected)
       if not searched[str] then
+        searched[str] = true
         smart_ai:selectTarget(target, true)
         if smart_ai:okButtonEnabled() then
-          searched[str] = true
           return smart_ai:getSelectedTargets()
         end
+        local ret = search()
+        if ret then return ret end
         smart_ai:selectTarget(target, false)
       end
       table.removeOne(selected, target)

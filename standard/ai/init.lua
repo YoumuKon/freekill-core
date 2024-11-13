@@ -86,10 +86,47 @@ SmartAI:setSkillAI("tuxi", {
   end,
 })
 
+SmartAI:setTriggerSkillAI("#kongchengAudio", {
+  correct_func = function(self, logic, event, target, player, data)
+    if self.skill:canRefresh(event, target, player, data) then
+      logic.benefit = logic.benefit + 350
+    end
+  end,
+})
+
+SmartAI:setSkillAI("jizhi", {
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    return ai:getBenefitOfEvents(function(logic)
+      logic:drawCards(ai.player, 1, self.skill.name)
+    end) > 0
+  end,
+})
+
 SmartAI:setSkillAI("zhiheng", {
   think = function(self, ai)
     local cards = ai:getEnabledCards()
-    return { cards = cards }
+    return { cards = cards }, 0
+  end,
+})
+
+SmartAI:setTriggerSkillAI("jiuyuan", {
+  correct_func = function(self, logic, event, target, player, data)
+    if self.skill:triggerable(event, target, player, data) then
+      data.num = data.num + 1
+    end
+  end,
+})
+
+SmartAI:setSkillAI("keji", {
+  think_skill_invoke = Util.TrueFunc,
+})
+
+SmartAI:setSkillAI("lianying", nil, "jizhi")
+SmartAI:setTriggerSkillAI("lianying", {
+  correct_func = function(self, logic, event, target, player, data)
+    if self.skill:triggerable(event, target, player, data) then
+      logic:drawCards(logic.player, 1, self.skill.name)
+    end
   end,
 })
 
@@ -104,3 +141,5 @@ SmartAI:setSkillAI("xiaoji", {
     end) > 0
   end,
 })
+
+SmartAI:setSkillAI("biyue", nil, "jizhi")

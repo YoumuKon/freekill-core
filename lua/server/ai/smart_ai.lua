@@ -268,7 +268,7 @@ function SmartAI:handlePlayCard()
     return val or 0
   end
 
-  local cancel_val = math.min(90 * (self.player:getMaxCards() - self.player:getHandcardNum()), 0)
+  local cancel_val = math.min(90 * (self.player:getMaxCards() - self.player:getHandcardNum()), -1)
 
   local best_ret, best_val = "", cancel_val
   verbose(1, "目前的决策：直接取消(收益%d)", best_val)
@@ -280,6 +280,7 @@ function SmartAI:handlePlayCard()
     end
     self:selectSkill(ai.skill.name, true)
     local ret, real_val = ai:think(self)
+    verbose(1, "%s: 思考结果是%s, 收益是%s", ai.skill.name, json.encode(ret), json.encode(real_val))
     real_val = real_val or -100000
     -- if ret and ret ~= "" then return ret end
     if best_val < real_val then
