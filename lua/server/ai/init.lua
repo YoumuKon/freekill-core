@@ -4,9 +4,8 @@ AI = require "server.ai.ai"
 TrustAI = require "server.ai.trust_ai"
 -- RandomAI = require "server.ai.random_ai"
 
----[[ 在release版暂时不启动。
 SmartAI = require "server.ai.smart_ai"
----[[ 调试中，暂且不加载额外的AI。
+
 -- load ai module from packages
 local directories
 if UsingNewCore then
@@ -24,7 +23,6 @@ table.removeOne(directories, "standard")
 table.removeOne(directories, "standard_cards")
 table.removeOne(directories, "maneuvering")
 
---[[
 local _disable_packs = json.decode(fk.GetDisabledPacks())
 
 for _, dir in ipairs(directories) do
@@ -36,4 +34,3 @@ for _, dir in ipairs(directories) do
 
   end
 end
---]]
