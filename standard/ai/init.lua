@@ -6,8 +6,9 @@ end
 
 SmartAI:setSkillAI("ganglie", {
   think = function(self, ai)
-    -- 处理askForUseActiveSkill(弃牌)
-    -- 权衡一下弃牌与扣血的收益
+    local cards = ai:getEnabledCards()
+    if #cards < 2 then return "" end
+    local to_discard = table.random(cards, 2) -- TODO: 用于选择最适合弃牌的ai函数
     local cancel_val = ai:getBenefitOfEvents(function(logic)
       logic:damage{
         from = ai.room.logic:getCurrentEvent().data[2],
@@ -16,14 +17,15 @@ SmartAI:setSkillAI("ganglie", {
         skillName = self.skill.name,
       }
     end)
-    -- TODO: 把cancel_val告诉discard_skill让他思考弃牌，或者干脆封装一个用来选择弃什么牌的函数
-    -- local ok_val = 模拟弃两张最垃圾牌的收益
-    --   比如说，等于discard_skill_ai:think()的收益什么的
-    -- if ok_val > cancel_val then
-    --   return ai:doOKButton()
-    -- else
-    --   return ""
-    -- end
+    local discard_val = ai:getBenefitOfEvents(function(logic)
+      logic:throwCard(to_discard, self.skill.name, ai.player, ai.player)
+    end)
+
+    if discard_val > cancel_val then
+      return { cards = to_discard }
+    else
+      return ""
+    end
   end,
 
   think_skill_invoke = function(self, ai, skill_name, prompt)

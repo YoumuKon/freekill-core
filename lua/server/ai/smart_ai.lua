@@ -6,15 +6,17 @@
 
 --]]
 
----@class SmartAI: TrustAI
+---@class SmartAI: TrustAI, AIUtil
 ---@field private _memory table<string, any> @ AI底层的空间换时间机制
 ---@field public friends ServerPlayer[] @ 队友
 ---@field public enemies ServerPlayer[] @ 敌人
 local SmartAI = TrustAI:subclass("SmartAI") -- 哦，我懒得写出闪之类的，不得不继承一下，饶了我吧
 
 AIParser = require 'lua.server.ai.parser'
-SkillAI = require "lua.server.ai.skill"
-TriggerSkillAI = require "lua.server.ai.trigger_skill"
+local require_skill = require "lua.server.ai.skill"
+SkillAI, TriggerSkillAI = require_skill[1], require_skill[2]
+local AIUtil = require 'lua.server.ai.util'
+SmartAI:include(AIUtil)
 
 ---@type table<string, AIGameEvent>
 fk.ai_events = {}
