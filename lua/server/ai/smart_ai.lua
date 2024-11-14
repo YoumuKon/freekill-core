@@ -96,11 +96,11 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
         local ret, val = v(_self, _ai)
         if ret and type(ret) == "table" then
           if ret.cards then
-            ret.card = { skill = ai.skill.name, subcards = ret.cards }
+            ret.card = { skill = _self.skill.name, subcards = ret.cards }
             ret.cards = nil
           end
           if not ret.card then
-            ret.card = { skill = ai.skill.name, subcards = Util.DummyTable }
+            ret.card = { skill = _self.skill.name, subcards = Util.DummyTable }
           end
           if ret.targets then
             if type(ret.targets[1]) == "table" then
@@ -240,7 +240,10 @@ function SmartAI:handleAskForUseActiveSkill()
   if current_skill then ai = fk.ai_skills[current_skill.name] end
   if not ai then ai = fk.ai_skills[name] end
   if not ai then return "" end
-  return ai:think(self)
+  verbose(1, "正在询问技能：%s", ai.skill.name)
+  local ret, real_val = ai:think(self)
+  verbose(1, "%s: 思考结果是%s, 收益是%s", ai.skill.name, json.encode(ret), json.encode(real_val))
+  return ret, real_val
 end
 
 function SmartAI:handlePlayCard()

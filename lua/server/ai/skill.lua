@@ -65,8 +65,8 @@ end
 -- 但是也没办法一次性算出所有情况并拿去遍历。为此，只要每次调用都算出和之前不一样的解法就行了
 
 local function cardsAcceptable(smart_ai)
-  -- return smart_ai:okButtonEnabled() or (#smart_ai:getEnabledTargets() > 0)
-  return false
+  return smart_ai:okButtonEnabled() or (#smart_ai:getEnabledTargets() > 0)
+  -- return false
 end
 
 local function cardsString(cards)
@@ -83,10 +83,12 @@ function SkillAI:searchCardSelections(smart_ai)
     local selected = smart_ai:getSelectedCards() -- 搜索起点
     local to_remove = selected[#selected]
     -- 空情况也考虑一下
+    verbose(1, "当前已选：%s", table.concat(selected, "|"))
     if #selected == 0 and not searched[""] and cardsAcceptable(smart_ai) then
       searched[""] = true
       return {}
     end
+    verbose(1, "当前可选：%s", table.concat(smart_ai:getEnabledCards(), "|"))
     -- 从所有可能的下一步找
     for _, cid in ipairs(smart_ai:getEnabledCards()) do
       table.insert(selected, cid)
@@ -123,12 +125,14 @@ function SkillAI:searchTargetSelections(smart_ai)
   local searched = {}
   local function search()
     local selected = smart_ai:getSelectedTargets() -- 搜索起点
-    local to_remove = selected[#selected]
+    -- local to_remove = selected[#selected]
     -- 空情况也考虑一下
+    verbose(1, "当前已选：%s", table.concat(table.map(selected, Util.IdMapper), "|"))
     if #selected == 0 and not searched[""] and smart_ai:okButtonEnabled() then
       searched[""] = true
       return {}
     end
+    verbose(1, "当前可选：%s", table.concat(table.map(smart_ai:getEnabledTargets(), Util.IdMapper), "|"))
     -- 从所有可能的下一步找
     for _, target in ipairs(smart_ai:getEnabledTargets()) do
       table.insert(selected, target)

@@ -82,7 +82,7 @@ SmartAI:setSkillAI("tuxi", {
       if i == 2 then break end
     end
     if #targets == 0 or total_benefit <= 0 then return "" end
-    return { targets = targets }
+    return { targets = targets }, total_benefit
   end,
 })
 
@@ -104,8 +104,12 @@ SmartAI:setSkillAI("jizhi", {
 
 SmartAI:setSkillAI("zhiheng", {
   think = function(self, ai)
+    local player = ai.player
     local cards = ai:getEnabledCards()
-    return { cards = cards }, 0
+    return { cards = cards }, ai:getBenefitOfEvents(function(logic)
+      logic:throwCard(cards, self.skill.name, player, player)
+      logic:drawCards(player, #cards, self.skill.name)
+    end)
   end,
 })
 
@@ -143,3 +147,13 @@ SmartAI:setSkillAI("xiaoji", {
 })
 
 SmartAI:setSkillAI("biyue", nil, "jizhi")
+
+SmartAI:setSkillAI("wusheng", nil, "spear_skill")
+
+SmartAI:setSkillAI("longdan", nil, "spear_skill")
+
+SmartAI:setSkillAI("guose", nil, "spear_skill")
+
+SmartAI:setSkillAI("jijiu", nil, "spear_skill")
+
+SmartAI:setSkillAI("qixi", nil, "spear_skill")
