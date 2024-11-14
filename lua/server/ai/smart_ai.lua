@@ -106,6 +106,8 @@ function SmartAI.static:setSkillAI(key, spec, inherit)
             if type(ret.targets[1]) == "table" then
               ret.targets = table.map(ret.targets, Util.IdMapper)
             end
+          else
+            ret.targets = Util.DummyTable
           end
         end
         return ret, val
