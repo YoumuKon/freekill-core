@@ -204,6 +204,7 @@ local recast = fk.CreateActiveSkill{
     room:recastCard(effect.cards, room:getPlayerById(effect.from))
   end
 }
+recast.cardSkill = true
 Fk:addSkill(recast)
 
 local ironChainCardSkill = fk.CreateActiveSkill{

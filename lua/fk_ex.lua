@@ -653,7 +653,7 @@ end
 ---@field public surrender_func? fun(self: GameMode, playedTime: number): string
 ---@field public is_counted? fun(self: GameMode, room: Room): boolean
 ---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
----@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer: ServerPlayer)
+---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer)
 
 ---@param spec GameModeSpec
 ---@return GameMode
