@@ -4,6 +4,23 @@ else
   require "packages.standard.ai.aux_skills"
 end
 
+SmartAI:setSkillAI("jianxiong", {
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    ---@type DamageStruct
+    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local player = ai.player
+    local card = dmg.card
+    if not card or player.room:getCardArea(card) ~= Card.Processing then return false end
+    local val = ai:getBenefitOfEvents(function(logic)
+      logic:obtainCard(player, card, true, fk.ReasonJustMove)
+    end)
+    if val > 0 then
+      return true
+    end
+    return false
+  end,
+})
+
 SmartAI:setSkillAI("ganglie", {
   think = function(self, ai)
     local cards = ai:getEnabledCards()
@@ -50,6 +67,29 @@ SmartAI:setSkillAI("ganglie", {
       logic:throwCard(table.random(cards, 2), self.skill.name, from, from)
     end)
     if dmg_val > 0 or discard_val > 0 then
+      return true
+    end
+    return false
+  end,
+})
+
+SmartAI:setSkillAI("fankui", {
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    ---@type DamageStruct
+    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local player = ai.player
+    local from = dmg.from
+    if not from then return false end
+    local val = ai:getBenefitOfEvents(function(logic)
+      local flag = from == player and "e" or "he"
+      local cards = from:getCardIds(flag)
+      if #cards < 1 then
+        logic.benefit = -1
+        return
+      end
+      logic:obtainCard(player, cards[1], false, fk.ReasonPrey)
+    end)
+    if val > 0 then
       return true
     end
     return false
