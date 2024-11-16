@@ -167,7 +167,7 @@ end
 
 --- 指定目标卡牌的targetFilter
 Util.TargetFilter = function(self, to_select, selected, selected_cards, card, extra_data)
-  if not self:modTargetFilter(to_select, selected, Self.id, card, true) then return end
+  if not self:modTargetFilter(to_select, selected, Self.id, card, not (extra_data and extra_data.bypass_distances)) then return end
   if #selected >= self:getMaxTargetNum(Self, card) then return end
   if Self:isProhibited(Fk:currentRoom():getPlayerById(to_select), card) then return end
   extra_data = extra_data or {}
