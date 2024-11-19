@@ -249,9 +249,10 @@ function CardManager:getSubcardsByRule(card, fromAreas)
   return cardIds
 end
 
----@param pattern string
----@param num? number
----@param fromPile? string @ 查找的来源区域，值为drawPile|discardPile|allPiles
+---从牌堆（或弃牌堆）内随机抽任意张牌
+---@param pattern string @ 查找规则
+---@param num? number @ 查找数量
+---@param fromPile? "drawPile" | "discardPile" | "allPiles" @ 查找的来源区域，默认从牌堆内寻找
 ---@return integer[] @ id列表 可能空
 function CardManager:getCardsFromPileByRule(pattern, num, fromPile)
   num = num or 1
