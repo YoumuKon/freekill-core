@@ -42,6 +42,7 @@ function GameMode:initialize(name, min, max)
   self.maxPlayer = math.min(max, 12)
 end
 
+-- 判断胜利者的函数，若不为""，则游戏存在胜利者（一般会结束游戏）
 ---@param victim ServerPlayer @ 死者
 ---@return string @ 胜者阵营
 function GameMode:getWinner(victim)
@@ -77,16 +78,40 @@ function GameMode:getWinner(victim)
   return winner
 end
 
+-- 判断什么时候可以投降的函数
 ---@param playedTime number @ 游戏时长（单位：秒）
 ---@return table
 function GameMode:surrenderFunc(playedTime)
   return {}
 end
 
+-- 判断是否计入场次的函数
 ---@param room Room @ 游戏房间
 ---@return boolean
 function GameMode:countInFunc(room)
   return true
+end
+
+-- 决定初始牌堆的函数
+---@param room Room @ 游戏房间
+---@param seed number @ 随机数种子
+function GameMode:prepareDrawPile(room, seed)
+  local allCardIds = Fk:getAllCardIds()
+
+  for i = #allCardIds, 1, -1 do
+    if Fk:getCardById(allCardIds[i]).is_derived then
+      local id = allCardIds[i]
+      table.removeOne(allCardIds, id)
+      table.insert(room.void, id)
+      room:setCardArea(id, Card.Void, nil)
+    end
+  end
+
+  table.shuffle(allCardIds, seed)
+  room.draw_pile = allCardIds
+  for _, id in ipairs(room.draw_pile) do
+    room:setCardArea(id, Card.DrawPile, nil)
+  end
 end
 
 -- 修改角色的属性

@@ -650,10 +650,11 @@ end
 
 ---@class GameModeSpec: GameMode
 ---@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string
----@field public surrender_func? fun(self: GameMode, playedTime: number): string
+---@field public surrender_func? fun(self: GameMode, playedTime: number): table
 ---@field public is_counted? fun(self: GameMode, room: Room): boolean
 ---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
 ---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer)
+---@field public prepare_drawpile? fun(self: GameMode, room: Room, seed: number)
 
 ---@param spec GameModeSpec
 ---@return GameMode
@@ -689,6 +690,10 @@ function fk.CreateGameMode(spec)
   if spec.reward_punish then
     assert(type(spec.reward_punish) == "function")
     ret.deathRewardAndPunish = spec.reward_punish
+  end
+  if spec.prepare_drawpile then
+    assert(type(spec.prepare_drawpile) == "function")
+    ret.prepareDrawPile = spec.prepare_drawpile
   end
   return ret
 end

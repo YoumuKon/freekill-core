@@ -199,22 +199,9 @@ end
 -- misc
 
 function CardManager:prepareDrawPile(seed)
-  local allCardIds = Fk:getAllCardIds()
-
-  for i = #allCardIds, 1, -1 do
-    if Fk:getCardById(allCardIds[i]).is_derived then
-      local id = allCardIds[i]
-      table.removeOne(allCardIds, id)
-      table.insert(self.void, id)
-      self:setCardArea(id, Card.Void, nil)
-    end
-  end
-
-  table.shuffle(allCardIds, seed)
-  self.draw_pile = allCardIds
-  for _, id in ipairs(self.draw_pile) do
-    self:setCardArea(id, Card.DrawPile, nil)
-  end
+  local gamemode = Fk.game_modes[self.settings.gameMode]
+  assert(gamemode)
+  gamemode:prepareDrawPile(self, seed)
 end
 
 function CardManager:shuffleDrawPile(seed)
