@@ -1154,6 +1154,10 @@ function Player:getQuestSkillState(skillName)
   return type(questSkillState) == "string" and questSkillState or nil
 end
 
+
+--- 获取角色未被废除的装备栏
+---@param subtype? string @ 指定的装备栏类型，填空为所有装备栏
+---@return string[]
 function Player:getAvailableEquipSlots(subtype)
   local tempSlots = table.simpleClone(self.equipSlots)
   local tempSealedSlots = table.simpleClone(self.sealedSlots)
