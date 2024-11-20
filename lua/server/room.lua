@@ -898,7 +898,7 @@ end
 ---@param cancelable? boolean @ 是否可以点取消
 ---@param extra_data? table @ 额外信息，因技能而异了
 ---@param no_indicate? boolean @ 是否不显示指示线
----@return boolean, table?
+---@return boolean, table? @ 返回第一个值为是否成功发动，第二值为技能选牌、目标等数据
 function Room:askForUseActiveSkill(player, skill_name, prompt, cancelable, extra_data, no_indicate)
   prompt = prompt or ""
   cancelable = (cancelable == nil) and true or cancelable
@@ -939,7 +939,7 @@ function Room:askForUseActiveSkill(player, skill_name, prompt, cancelable, extra
     skill.interaction.data = interaction
   end
 
-  if skill:isInstanceOf(ActiveSkill) then
+  if skill:isInstanceOf(ActiveSkill) and not extra_data.skipUse then
     skill:onUse(self, {
       from = player.id,
       cards = selected_cards,
@@ -1088,7 +1088,7 @@ end
 ---@param cancelable? boolean @ 能否点取消
 ---@param pattern? string @ 选牌规则
 ---@param prompt? string @ 提示信息
----@param expand_pile? string @ 可选私人牌堆名称
+---@param expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@return integer[] @ 选择的牌的id列表，可能是空的
 function Room:askForCard(player, minNum, maxNum, includeEquip, skillName, cancelable, pattern, prompt, expand_pile, no_indicate)
@@ -1143,7 +1143,7 @@ end
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@param targetTipName? string @ 引用的选择目标提示的函数名
 ---@param extra_data? table @额外信息
----@return integer[], integer
+---@return integer[], integer?
 function Room:askForChooseCardAndPlayers(player, targets, minNum, maxNum, pattern, prompt, skillName, cancelable, no_indicate, targetTipName, extra_data)
   if maxNum < 1 then
     return {}
@@ -1181,7 +1181,7 @@ end
 
 --- 询问玩家选择X张牌和Y名角色。
 ---
---- 返回两个值，第一个是选择的目标列表，第二个是选择的牌id列表
+--- 返回两个值，第一个是选择目标id列表，第二个是选择的牌id列表，第三个是否按了确定
 ---@param player ServerPlayer @ 要询问的玩家
 ---@param minCardNum integer @ 选卡牌最小值
 ---@param maxCardNum integer @ 选卡牌最大值
@@ -1193,7 +1193,7 @@ end
 ---@param cancelable? boolean @ 能否点取消
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@param extra_data? table @额外信息
----@return integer[], integer[]
+---@return integer[], integer[], boolean @ 第一个是选择目标id列表，第二个是选择的牌id列表，第三个是否按了确定
 function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, targets, minTargetNum, maxTargetNum, pattern, prompt, skillName, cancelable, no_indicate, targetTipName, extra_data)
   cancelable = (cancelable == nil) and true or cancelable
   no_indicate = no_indicate or false
@@ -1203,7 +1203,7 @@ function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, target
     local c = Fk:getCardById(id)
     return c:matchPattern(pattern)
   end)
-  if #pcards < minCardNum and not cancelable then return {}, {} end
+  if #pcards < minCardNum and not cancelable then return {}, {}, false end
 
   local data = {
     targets = targets,
@@ -1215,15 +1215,16 @@ function Room:askForChooseCardsAndPlayers(player, minCardNum, maxCardNum, target
     skillName = skillName,
     targetTipName = targetTipName,
     extra_data = extra_data,
+    expand_pile = extra_data and extra_data.expand_pile,
   }
-  local _, ret = self:askForUseActiveSkill(player, "ex__choose_skill", prompt or "", cancelable, data, no_indicate)
+  local success, ret = self:askForUseActiveSkill(player, "ex__choose_skill", prompt or "", cancelable, data, no_indicate)
   if ret then
-    return ret.targets, ret.cards
+    return ret.targets, ret.cards, success
   else
     if cancelable then
-      return {}, {}
+      return {}, {}, false
     else
-      return table.random(targets, minTargetNum), table.random(pcards, minCardNum)
+      return table.random(targets, minTargetNum), table.random(pcards, minCardNum), false
     end
   end
 end
@@ -1239,7 +1240,7 @@ end
 ---@param expand_pile? string|integer[] @ 可选私人牌堆名称，如要分配你武将牌上的牌请填写
 ---@param skipMove? boolean @ 是否跳过移动。默认不跳过
 ---@param single_max? integer|table @ 限制每人能获得的最大牌数。输入整数或(以角色id为键以整数为值)的表
----@return table<integer, integer[]> @ 返回一个表，键为角色id转字符串，值为分配给其的牌id数组
+---@return table<integer, integer[]> @ 返回一个表，键为角色id，值为分配给其的牌id数组
 function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prompt, expand_pile, skipMove, single_max)
   targets = targets or self.alive_players
   cards = cards or player:getCardIds("he")
