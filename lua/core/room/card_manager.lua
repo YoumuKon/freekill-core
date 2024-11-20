@@ -214,9 +214,6 @@ function CardManager:prepareDrawPile(seed)
   for _, id in ipairs(self.void) do
     self:setCardArea(id, Card.Void, nil)
   end
-
-  print(json.encode(self.draw_pile))
-  print(json.encode(self.void))
 end
 
 function CardManager:shuffleDrawPile(seed)

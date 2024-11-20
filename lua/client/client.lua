@@ -1204,6 +1204,10 @@ fk.client_callback["ShuffleDrawPile"] = function(data)
   ClientInstance:shuffleDrawPile(seed)
 end
 
+fk.client_callback["SyncDrawPile"] = function(data)
+  ClientInstance.draw_pile = data
+end
+
 -- Create ClientInstance (used by Lua)
 ClientInstance = Client:new()
 dofile "lua/client/client_util.lua"

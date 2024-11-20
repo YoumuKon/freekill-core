@@ -2610,6 +2610,11 @@ function Room:shuffleDrawPile()
   self.logic:trigger(fk.AfterDrawPileShuffle, nil, {})
 end
 
+-- 强制同步牌堆（用于在不因任何移动事件且不因洗牌导致的牌堆变动）
+function Room:syncDrawPile()
+  self:doBroadcastNotify("SyncDrawPile", json.encode(self.draw_pile))
+end
+
 ---@param room Room
 local function shouldUpdateWinRate(room)
   if room.settings.enableFreeAssign then
