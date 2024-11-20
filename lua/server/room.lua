@@ -1879,6 +1879,7 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
       table.insert(self.draw_pile, bottom[i])
     end
 
+    self:syncDrawPile()
     self:sendLog{
       type = "#GuanxingResult",
       from = player.id,
