@@ -2044,8 +2044,12 @@ function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extr
   self.logic:trigger(fk.AskForCardUse, player, askForUseCardData)
 
   local useResult
-  if askForUseCardData.result and type(askForUseCardData.result) == 'table' then
-    useResult = askForUseCardData.result
+  if askForUseCardData.result then
+    if type(askForUseCardData.result) == 'table' then
+      useResult = askForUseCardData.result
+    else
+      askForUseCardData.result = nil
+    end
   else
     local disabledSkillNames = {}
 
@@ -2112,7 +2116,11 @@ function Room:askForResponse(player, card_name, pattern, prompt, cancelable, ext
 
   local responseResult
   if eventData.result then
-    responseResult = eventData.result
+    if type(eventData.result) == "table" then
+      responseResult = eventData.result
+    else
+      eventData.result = nil
+    end
   else
     local disabledSkillNames = {}
 
