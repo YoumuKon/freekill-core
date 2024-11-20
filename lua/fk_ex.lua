@@ -654,7 +654,7 @@ end
 ---@field public is_counted? fun(self: GameMode, room: Room): boolean
 ---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
 ---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer)
----@field public prepare_drawpile? fun(self: GameMode, room: Room, seed: number)
+---@field public build_draw_pile? fun(self: GameMode): integer[], integer[]
 
 ---@param spec GameModeSpec
 ---@return GameMode
@@ -691,9 +691,9 @@ function fk.CreateGameMode(spec)
     assert(type(spec.reward_punish) == "function")
     ret.deathRewardAndPunish = spec.reward_punish
   end
-  if spec.prepare_drawpile then
-    assert(type(spec.prepare_drawpile) == "function")
-    ret.prepareDrawPile = spec.prepare_drawpile
+  if spec.build_draw_pile then
+    assert(type(spec.build_draw_pile) == "function")
+    ret.buildDrawPile = spec.build_draw_pile
   end
   return ret
 end

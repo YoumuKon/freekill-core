@@ -201,7 +201,22 @@ end
 function CardManager:prepareDrawPile(seed)
   local gamemode = Fk.game_modes[self.settings.gameMode]
   assert(gamemode)
-  gamemode:prepareDrawPile(self, seed)
+
+  local draw_pile, void_pile = gamemode:buildDrawPile()
+
+  table.shuffle(draw_pile, seed)
+  self.draw_pile = draw_pile
+  for _, id in ipairs(self.draw_pile) do
+    self:setCardArea(id, Card.DrawPile, nil)
+  end
+
+  self.void = void_pile
+  for _, id in ipairs(self.void) do
+    self:setCardArea(id, Card.Void, nil)
+  end
+
+  print(json.encode(self.draw_pile))
+  print(json.encode(self.void))
 end
 
 function CardManager:shuffleDrawPile(seed)

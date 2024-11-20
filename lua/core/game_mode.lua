@@ -92,26 +92,21 @@ function GameMode:countInFunc(room)
   return true
 end
 
--- 决定初始牌堆的函数
----@param room Room @ 游戏房间
----@param seed number @ 随机数种子
-function GameMode:prepareDrawPile(room, seed)
+-- 决定初始牌堆以及初始游戏外区域的函数
+-- 需要返回两个数组，一个是牌堆，一个是游戏外（void）
+function GameMode:buildDrawPile()
   local allCardIds = Fk:getAllCardIds()
+  local void = {}
 
   for i = #allCardIds, 1, -1 do
     if Fk:getCardById(allCardIds[i]).is_derived then
       local id = allCardIds[i]
-      table.removeOne(allCardIds, id)
-      table.insert(room.void, id)
-      room:setCardArea(id, Card.Void, nil)
+      table.remove(allCardIds, i)
+      table.insert(void, id)
     end
   end
 
-  table.shuffle(allCardIds, seed)
-  room.draw_pile = allCardIds
-  for _, id in ipairs(room.draw_pile) do
-    room:setCardArea(id, Card.DrawPile, nil)
-  end
+  return allCardIds, void
 end
 
 -- 修改角色的属性
