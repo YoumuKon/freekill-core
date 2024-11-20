@@ -1097,7 +1097,7 @@ function Room:askForCard(player, minNum, maxNum, includeEquip, skillName, cancel
   end
   cancelable = (cancelable == nil) and true or cancelable
   no_indicate = no_indicate or false
-  pattern = pattern or "."
+  pattern = pattern or (includeEquip and "." or ".|.|.|hand")
 
   local chosenCards = {}
   local data = {
