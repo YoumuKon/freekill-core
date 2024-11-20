@@ -697,13 +697,25 @@ fk.client_callback["MoveCards"] = function(raw_moves)
   -- jsonData: CardsMoveStruct[]
   ClientInstance:moveCards(raw_moves)
   local visible_data = {}
-  for _, move in ipairs(raw_moves) do
-    for _, info in ipairs(move.moveInfo) do
-      local cid = info.cardId
-      visible_data[tostring(cid)] = Self:cardVisible(cid, move)
-    end
-  end
   local separated = separateMoves(raw_moves)
+
+  local room = Fk:currentRoom()
+  for _, move in ipairs(separated) do
+    local cid = move.ids[1]
+    local singleVisible = (room.replaying and room.replaying_show) or move.moveVisible
+    if not singleVisible then
+      local card = Fk:getCardById(cid)
+      local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
+      for _, skill in ipairs(status_skills) do
+        local f = skill:cardVisible(Self, card)
+        if f ~= nil then
+          singleVisible = f
+          break
+        end
+      end
+    end
+    visible_data[tostring(cid)] = singleVisible
+  end
   local merged = mergeMoves(separated)
   visible_data.merged = merged
   ClientInstance:notifyUI("MoveCards", visible_data)
