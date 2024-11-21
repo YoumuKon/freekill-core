@@ -728,7 +728,7 @@ function Player:setSkillUseHistory(skill_name, num, scope)
   self.skillUsedHistory[skill_name][scope] = num
 end
 
---- 获取玩家使用特定牌的历史次数。
+--- 获取玩家使用特定牌的历史次数（只算计入次数的部分）。
 ---@param cardName string @ 牌名
 ---@param scope? integer @ 查询历史范围，默认Turn
 function Player:usedCardTimes(cardName, scope)

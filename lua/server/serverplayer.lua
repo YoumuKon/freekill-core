@@ -158,6 +158,7 @@ function ServerPlayer:turnOver()
   self.room.logic:trigger(fk.TurnedOver, self)
 end
 
+--- 令一名角色展示一些牌，请勿用于展示不属于该角色的牌
 ---@param cards integer|integer[]|Card|Card[]
 function ServerPlayer:showCards(cards)
   cards = Card:getIdList(cards)
@@ -348,6 +349,7 @@ function ServerPlayer:play(phase_table)
   end
 end
 
+--- 跳过本回合的某个额定阶段
 ---@param phase Phase
 function ServerPlayer:skip(phase)
   if not table.contains({
@@ -521,27 +523,32 @@ function ServerPlayer:removeVirtualEquip(cid)
   return ret
 end
 
+--- 增加卡牌使用次数
 function ServerPlayer:addCardUseHistory(cardName, num)
   Player.addCardUseHistory(self, cardName, num)
   self:doNotify("AddCardUseHistory", json.encode{cardName, num})
 end
 
+--- 设置卡牌已使用次数
 function ServerPlayer:setCardUseHistory(cardName, num, scope)
   Player.setCardUseHistory(self, cardName, num, scope)
   self:doNotify("SetCardUseHistory", json.encode{cardName, num, scope})
 end
 
+-- 增加技能发动次数
 function ServerPlayer:addSkillUseHistory(cardName, num)
   Player.addSkillUseHistory(self, cardName, num)
   self.room:doBroadcastNotify("AddSkillUseHistory", json.encode{self.id, cardName, num})
 end
 
+-- 设置技能已发动次数
 function ServerPlayer:setSkillUseHistory(cardName, num, scope)
   Player.setSkillUseHistory(self, cardName, num, scope)
   self.room:doBroadcastNotify("SetSkillUseHistory", json.encode{self.id, cardName, num, scope})
 end
 
----@param chained boolean
+--- 设置连环状态
+---@param chained boolean @ true为横置，false为重置
 function ServerPlayer:setChainState(chained)
   local room = self.room
   if room.logic:trigger(fk.BeforeChainStateChange, self) then
@@ -561,6 +568,7 @@ function ServerPlayer:setChainState(chained)
   room.logic:trigger(fk.ChainStateChanged, self)
 end
 
+--- 复原武将牌（翻至正面、解除连环状态）
 function ServerPlayer:reset()
   if self.faceup and not self.chained then return end
   self.room:sendLog{
