@@ -1198,25 +1198,6 @@ function Player:isBuddy(other)
   return self.id == id or table.contains(self.buddy_list, id)
 end
 
-local public_areas = {Card.DiscardPile, Card.Processing, Card.Void, Card.PlayerEquip, Card.PlayerJudge}
-local player_areas = {Card.PlayerHand, Card.PlayerSpecial}
-
-local function defaultCardVisible(self, cardId, area, owner, falsy, special)
-  if area == Card.DrawPile then return false
-  elseif table.contains(public_areas, area) then return not falsy
-  elseif table.contains(player_areas, area) then
-    if area == Card.PlayerSpecial then
-      local specialName = special or owner:getPileNameOfId(cardId)
-      if not specialName:startsWith("$") then
-        return true
-      end
-    end
-    return owner == self or self:isBuddy(owner)
-  else
-    return false
-  end
-end
-
 --- Player是否可看到某card
 --- @param cardId integer
 ---@param move? CardsMoveStruct
@@ -1224,8 +1205,19 @@ end
 function Player:cardVisible(cardId, move)
   local room = Fk:currentRoom()
   if room.replaying and room.replaying_show then return true end
+  local not_observing = (not room.observing or room.replaying)
 
-  local falsy = false -- 当难以决定时是否要选择暗置？
+  local function containArea(area, relevant, defaultVisible, specialName) --处理区的处理？
+    if area == Card.PlayerSpecial then
+      return relevant or (specialName and not specialName:startsWith("$"))
+    end
+    local areas = relevant
+      and {Card.PlayerEquip, Card.PlayerJudge, Card.PlayerHand}
+      or {Card.PlayerEquip, Card.PlayerJudge}
+    return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
+  end
+
+  local falsy = true -- 当难以决定时是否要选择暗置？
   local oldarea, oldspecial, oldowner
   if move then
     ---@type MoveInfo
@@ -1234,22 +1226,29 @@ function Player:cardVisible(cardId, move)
       oldarea = info.fromArea
       oldspecial = info.fromSpecialName
       oldowner = move.from and room:getPlayerById(move.from)
-      if move.moveVisible then return true end
-      if move.moveVisible == false then falsy = true end
-      if move.specialVisible then return true end
-
-      if (type(move.visiblePlayers) == "number" and move.visiblePlayers == self.id) or
-      (type(move.visiblePlayers) == "table" and table.contains(move.visiblePlayers, self.id)) then
+      if move.moveVisible or move.specialVisible then return true end
+      if move.visiblePlayers and not_observing then
+        local visiblePlayers = move.visiblePlayers
+        if type(visiblePlayers) == "number" then
+          if self:isBuddy(visiblePlayers) then
+            return true
+          end
+        elseif type(visiblePlayers) == "table" then
+          if table.find(visiblePlayers, function(pid) return self:isBuddy(pid) end) then
+            return true
+          end
+        end
+      end
+      if containArea(info.fromArea, not_observing and move.from and self:isBuddy(move.from), move.moveVisible == nil, oldspecial) then
         return true
       end
+      if move.moveVisible ~= nil then falsy = false end
     end
   end
 
   local area = room:getCardArea(cardId)
   local owner = room:getCardOwner(cardId)
   local card = Fk:getCardById(cardId)
-
-  if room.observing and not room.replaying then return table.contains(public_areas, area) end
 
   local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
   for _, skill in ipairs(status_skills) do
@@ -1259,11 +1258,8 @@ function Player:cardVisible(cardId, move)
     end
   end
 
-  if defaultCardVisible(self, cardId, area, owner, falsy) then
+  if containArea(area, not_observing and owner and self:isBuddy(owner), falsy, owner and owner:getPileNameOfId(cardId)) then
     return true
-  elseif oldarea then
-    -- 尽可能让牌可见
-    return defaultCardVisible(self, cardId, oldarea, oldowner, false, oldspecial)
   end
 
   return false

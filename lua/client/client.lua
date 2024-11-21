@@ -451,38 +451,7 @@ end
 ---@param moves CardsMoveStruct[]
 local function separateMoves(moves)
   local ret = {}  ---@type CardsMoveInfo[]
-
-  local function containArea(area, relevant, defaultVisible) --处理区的处理？
-    local areas = relevant
-      and {Card.PlayerEquip, Card.PlayerJudge, Card.PlayerHand}
-      or {Card.PlayerEquip, Card.PlayerJudge}
-    return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
-  end
-
   for _, move in ipairs(moves) do
-    local singleVisible = move.moveVisible
-    if not singleVisible then
-      if move.visiblePlayers then
-        local visiblePlayers = move.visiblePlayers
-        if type(visiblePlayers) == "number" then
-          if Self:isBuddy(visiblePlayers) then
-            singleVisible = true
-          end
-        elseif type(visiblePlayers) == "table" then
-          if table.find(visiblePlayers, function(pid) return Self:isBuddy(pid) end) then
-            singleVisible = true
-          end
-        end
-      else
-        if move.to and move.toArea == Card.PlayerSpecial and Self:isBuddy(move.to) then
-          singleVisible = true
-        end
-      end
-    end
-    if not singleVisible then
-      singleVisible = containArea(move.toArea, move.to and Self:isBuddy(move.to), move.moveVisible == nil)
-    end
-
     for _, info in ipairs(move.moveInfo) do
       table.insert(ret, {
         ids = {info.cardId},
@@ -493,8 +462,7 @@ local function separateMoves(moves)
         moveReason = move.moveReason,
         specialName = move.specialName,
         fromSpecialName = info.fromSpecialName,
-        proposer = move.proposer,
-        moveVisible = singleVisible or containArea(info.fromArea, move.from and Self:isBuddy(move.from), move.moveVisible == nil)
+        proposer = move.proposer
       })
     end
   end
@@ -697,25 +665,13 @@ fk.client_callback["MoveCards"] = function(raw_moves)
   -- jsonData: CardsMoveStruct[]
   ClientInstance:moveCards(raw_moves)
   local visible_data = {}
-  local separated = separateMoves(raw_moves)
-
-  local room = Fk:currentRoom()
-  for _, move in ipairs(separated) do
-    local cid = move.ids[1]
-    local singleVisible = (room.replaying and room.replaying_show) or move.moveVisible
-    if not singleVisible then
-      local card = Fk:getCardById(cid)
-      local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
-      for _, skill in ipairs(status_skills) do
-        local f = skill:cardVisible(Self, card)
-        if f ~= nil then
-          singleVisible = f
-          break
-        end
-      end
+  for _, move in ipairs(raw_moves) do
+    for _, info in ipairs(move.moveInfo) do
+      local cid = info.cardId
+      visible_data[tostring(cid)] = Self:cardVisible(cid, move)
     end
-    visible_data[tostring(cid)] = singleVisible
   end
+  local separated = separateMoves(raw_moves)
   local merged = mergeMoves(separated)
   visible_data.merged = merged
   ClientInstance:notifyUI("MoveCards", visible_data)
