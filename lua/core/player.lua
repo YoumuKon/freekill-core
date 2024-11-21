@@ -1250,11 +1250,13 @@ function Player:cardVisible(cardId, move)
   local owner = room:getCardOwner(cardId)
   local card = Fk:getCardById(cardId)
 
-  local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
-  for _, skill in ipairs(status_skills) do
-    local f = skill:cardVisible(self, card)
-    if f ~= nil then
-      return f
+  if not_observing then
+    local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
+    for _, skill in ipairs(status_skills) do
+      local f = skill:cardVisible(self, card)
+      if f ~= nil then
+        return f
+      end
     end
   end
 
