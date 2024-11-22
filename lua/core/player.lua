@@ -1194,6 +1194,7 @@ function Player:removeBuddy(other)
 end
 
 function Player:isBuddy(other)
+  if Fk:currentRoom().observing then return false end
   local id = type(other) == "number" and other or other.id
   return self.id == id or table.contains(self.buddy_list, id)
 end
@@ -1205,7 +1206,6 @@ end
 function Player:cardVisible(cardId, move)
   local room = Fk:currentRoom()
   if room.replaying and room.replaying_show then return true end
-  local not_observing = (not room.observing or room.replaying)
 
   local function containArea(area, relevant, defaultVisible, specialName) --处理区的处理？
     if area == Card.PlayerSpecial then
@@ -1227,7 +1227,7 @@ function Player:cardVisible(cardId, move)
       oldspecial = info.fromSpecialName
       oldowner = move.from and room:getPlayerById(move.from)
       if move.moveVisible or move.specialVisible then return true end
-      if move.visiblePlayers and not_observing then
+      if move.visiblePlayers then
         local visiblePlayers = move.visiblePlayers
         if type(visiblePlayers) == "number" then
           if self:isBuddy(visiblePlayers) then
@@ -1239,7 +1239,7 @@ function Player:cardVisible(cardId, move)
           end
         end
       end
-      if containArea(info.fromArea, not_observing and move.from and self:isBuddy(move.from), move.moveVisible == nil, oldspecial) then
+      if containArea(info.fromArea, move.from and self:isBuddy(move.from), move.moveVisible == nil, oldspecial) then
         return true
       end
       if move.moveVisible ~= nil then falsy = false end
@@ -1250,7 +1250,7 @@ function Player:cardVisible(cardId, move)
   local owner = room:getCardOwner(cardId)
   local card = Fk:getCardById(cardId)
 
-  if not_observing then
+  if not room.observing then
     local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
     for _, skill in ipairs(status_skills) do
       local f = skill:cardVisible(self, card)
@@ -1260,7 +1260,7 @@ function Player:cardVisible(cardId, move)
     end
   end
 
-  if containArea(area, not_observing and owner and self:isBuddy(owner), falsy, owner and owner:getPileNameOfId(cardId)) then
+  if containArea(area, owner and self:isBuddy(owner), falsy, owner and owner:getPileNameOfId(cardId)) then
     return true
   end
 
