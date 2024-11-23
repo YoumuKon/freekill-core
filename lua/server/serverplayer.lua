@@ -455,18 +455,19 @@ function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, v
 end
 
 function ServerPlayer:bury()
+  self:onAllSkillLose()
   self:setCardUseHistory("")
   self:setSkillUseHistory("")
   self:throwAllCards()
   self:throwAllMarks()
   self:clearPiles()
-  self:onAllSkillLose()
   self:reset()
 end
 
-function ServerPlayer:throwAllCards(flag)
+function ServerPlayer:throwAllCards(flag, skillName)
   local cardIds = {}
   flag = flag or "hej"
+  skillName = skillName or "game_rule"
   if string.find(flag, "h") then
     table.insertTable(cardIds, self.player_cards[Player.Hand])
   end
@@ -479,7 +480,14 @@ function ServerPlayer:throwAllCards(flag)
     table.insertTable(cardIds, self.player_cards[Player.Judge])
   end
 
-  self.room:throwCard(cardIds, "", self)
+  if not self.dead then
+    cardIds = table.filter(cardIds, function (id)
+      return not self:prohibitDiscard(id)
+    end)
+  end
+  if #cardIds > 0 then
+    self.room:throwCard(cardIds, skillName, self)
+  end
 end
 
 function ServerPlayer:onAllSkillLose()
@@ -536,15 +544,15 @@ function ServerPlayer:setCardUseHistory(cardName, num, scope)
 end
 
 -- 增加技能发动次数
-function ServerPlayer:addSkillUseHistory(cardName, num)
-  Player.addSkillUseHistory(self, cardName, num)
-  self.room:doBroadcastNotify("AddSkillUseHistory", json.encode{self.id, cardName, num})
+function ServerPlayer:addSkillUseHistory(skillName, num)
+  Player.addSkillUseHistory(self, skillName, num)
+  self.room:doBroadcastNotify("AddSkillUseHistory", json.encode{self.id, skillName, num})
 end
 
 -- 设置技能已发动次数
-function ServerPlayer:setSkillUseHistory(cardName, num, scope)
-  Player.setSkillUseHistory(self, cardName, num, scope)
-  self.room:doBroadcastNotify("SetSkillUseHistory", json.encode{self.id, cardName, num, scope})
+function ServerPlayer:setSkillUseHistory(skillName, num, scope)
+  Player.setSkillUseHistory(self, skillName, num, scope)
+  self.room:doBroadcastNotify("SetSkillUseHistory", json.encode{self.id, skillName, num, scope})
 end
 
 --- 设置连环状态
