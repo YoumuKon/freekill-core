@@ -2667,14 +2667,21 @@ function Room:gameOver(winner)
       local id = p.id
       local general = p.general
       local mode = self.settings.gameMode
+      local result
 
       if p.id > 0 then
         if table.contains(winner:split("+"), p.role) then
-          self.room:updateWinRate(id, general, mode, 1, p.dead)
+          result = 1
         elseif winner == "" then
-          self.room:updateWinRate(id, general, mode, 3, p.dead)
+          result = 3
         else
-          self.room:updateWinRate(id, general, mode, 2, p.dead)
+          result = 2
+        end
+
+        self.room:updatePlayerWinRate(id, mode, p.role, result)
+        self.room:updateGeneralWinRate(general, mode, p.role, result)
+        if p.deputyGeneral then
+          self.room:updateGeneralWinRate(p.deputyGeneral, mode, p.role, result)
         end
       end
     end
