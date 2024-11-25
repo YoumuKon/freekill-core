@@ -1187,14 +1187,14 @@ fk.client_callback["Reconnect"] = function(self, data)
     table.insert(self.record, {math.floor(os.getms() / 1000), false, "Reconnect", json.encode(data)})
   end
 
+  local setup_data = players[tostring(data.you)].setup_data
+  self:setup(setup_data[1], setup_data[2], setup_data[3])
+  fk.client_callback["AddTotalGameTime"](self, { setup_data[1], setup_data[5] })
+
   local enter_room_data = { data.timeout, data.settings }
   table.insert(enter_room_data, 1, #data.circle)
   fk.client_callback["EnterLobby"](self, "")
   fk.client_callback["EnterRoom"](self, enter_room_data)
-
-  local setup_data = players[tostring(data.you)].setup_data
-  self:setup(setup_data[1], setup_data[2], setup_data[3])
-  fk.client_callback["AddTotalGameTime"](self, { setup_data[1], setup_data[5] })
 
   loadRoomSummary(self, data)
 end
@@ -1207,12 +1207,12 @@ fk.client_callback["Observe"] = function(self, data)
     table.insert(self.record, {math.floor(os.getms() / 1000), false, "Observe", json.encode(data)})
   end
 
+  local setup_data = players[tostring(data.you)].setup_data
+  self:setup(setup_data[1], setup_data[2], setup_data[3])
+
   local enter_room_data = { data.timeout, data.settings }
   table.insert(enter_room_data, 1, #data.circle)
   fk.client_callback["EnterRoom"](self, enter_room_data)
-
-  local setup_data = players[tostring(data.you)].setup_data
-  self:setup(setup_data[1], setup_data[2], setup_data[3])
 
   loadRoomSummary(self, data)
 end
