@@ -2680,7 +2680,7 @@ function Room:gameOver(winner)
 
         self.room:updatePlayerWinRate(id, mode, p.role, result)
         self.room:updateGeneralWinRate(general, mode, p.role, result)
-        if p.deputyGeneral then
+        if p.deputyGeneral and p.deputyGeneral ~= "" then
           self.room:updateGeneralWinRate(p.deputyGeneral, mode, p.role, result)
         end
       end
