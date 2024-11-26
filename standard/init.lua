@@ -730,9 +730,7 @@ local keji = fk.CreateTriggerSkill{
       and #player.room.logic:getEventsOfScope(GameEvent.RespondCard, 1, PlayCheck, Player.HistoryTurn) == 0
     end
   end,
-  on_use = function(self, event, target, player, data)
-    return true
-  end
+  on_use = Util.TrueFunc,
 }
 local lvmeng = General:new(extension, "lvmeng", "wu", 4)
 lvmeng:addSkill(keji)

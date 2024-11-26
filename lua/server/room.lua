@@ -1275,7 +1275,6 @@ function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prom
     residued_list = residueMap,
     expand_pile = expand_pile
   }
-  -- p(json.encode(residueMap))
 
   while maxNum > 0 and #_cards > 0 do
     data.max_num = maxNum
@@ -1287,7 +1286,9 @@ function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prom
       for _, id in ipairs(give_cards) do
         table.insert(list[to], id)
         table.removeOne(_cards, id)
-        self:setCardMark(Fk:getCardById(id), "@DistributionTo", Fk:translate(self:getPlayerById(to).general))
+        local p = self:getPlayerById(to)
+        self:setCardMark(Fk:getCardById(id), "@DistributionTo",
+          Fk:translate(p.general == "anjiang" and "seat#" .. tostring(p.seat) or p.general))
       end
       minNum = math.max(0, minNum - #give_cards)
       maxNum = maxNum - #give_cards
