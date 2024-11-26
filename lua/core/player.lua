@@ -1196,7 +1196,8 @@ function Player:removeBuddy(other)
 end
 
 function Player:isBuddy(other)
-  if Fk:currentRoom().observing then return false end
+  local room = Fk:currentRoom()
+  if room.observing and not room.replaying then return false end
   local id = type(other) == "number" and other or other.id
   return self.id == id or table.contains(self.buddy_list, id)
 end
