@@ -1182,6 +1182,8 @@ end
 fk.client_callback["Reconnect"] = function(self, data)
   local players = data.players
 
+  fk.client_callback["EnterLobby"](self, "")
+
   if not self.replaying then
     self:startRecording()
     table.insert(self.record, {math.floor(os.getms() / 1000), false, "Reconnect", json.encode(data)})
@@ -1193,7 +1195,6 @@ fk.client_callback["Reconnect"] = function(self, data)
 
   local enter_room_data = { data.timeout, data.settings }
   table.insert(enter_room_data, 1, #data.circle)
-  fk.client_callback["EnterLobby"](self, "")
   fk.client_callback["EnterRoom"](self, enter_room_data)
 
   loadRoomSummary(self, data)
