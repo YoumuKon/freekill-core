@@ -307,6 +307,10 @@ function Client:enterRoom(_data)
   self.replaying = replaying
   self.replaying_show = showcards
 
+  -- FIXME: 应该在C++中修改，这种改法错大发了
+  -- FIXME: C++中加入房间时需要把Self也纳入players列表
+  local sp = Self.player
+  self.client:addPlayer(sp:getId(), sp:getScreenName(), sp:getAvatar())
   self.players = {Self}
   self.alive_players = {Self}
 
