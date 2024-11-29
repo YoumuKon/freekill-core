@@ -76,7 +76,7 @@ function AbstractRoom:toJsonObject()
   return {
     card_manager = card_manager,
     circle = table.map(self.players, Util.IdMapper),
-    current = self.current,
+    current = self.current.id,
     banners = self.banners,
     timeout = self.timeout,
     settings = self.settings,
@@ -89,7 +89,7 @@ function AbstractRoom:loadJsonObject(o)
   CardManager.loadJsonObject(self, o.card_manager)
 
   -- 需要上层（目前是Client）自己根据circle添加玩家
-  self.current = o.current
+  self.current = self:getPlayerById(o.current)
   self.banners = o.banners
   self.timeout = o.timeout
   self.settings = o.settings
