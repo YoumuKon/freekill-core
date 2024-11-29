@@ -76,7 +76,7 @@ function AbstractRoom:toJsonObject()
   return {
     card_manager = card_manager,
     circle = table.map(self.players, Util.IdMapper),
-    current = self.current.id,
+    current = self.current and self.current.id or nil,
     banners = self.banners,
     timeout = self.timeout,
     settings = self.settings,
