@@ -1131,7 +1131,7 @@ local role_getlogic = function()
     local lord_num = 3
 
     if lord ~= nil then
-      room.current = lord
+      room:setCurrent(lord)
       local a1 = #room.general_pile
       local a2 = #room.players * generalNum
       if a1 < a2 then

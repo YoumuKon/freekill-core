@@ -981,6 +981,12 @@ fk.client_callback["SetBanner"] = function(self, data)
   end
 end
 
+fk.client_callback["SetCurrent"] = function(self, data)
+  -- jsonData: [ int id ]
+  local playerId = data[1]
+  self:setCurrent(self:getPlayerById(playerId))
+end
+
 fk.client_callback["SetCardMark"] = function(self, data)
   -- jsonData: [ int id, string mark, int value ]
   local card, mark, value = data[1], data[2], data[3]

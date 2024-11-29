@@ -403,7 +403,7 @@ function ServerPlayer:gainAnExtraTurn(delay, skillName, turnData)
   }
 
   local current = room.current
-  room.current = self
+  room:setCurrent(self)
 
   room:addTableMark(self, "_extra_turn_count", skillName)
 
@@ -415,7 +415,7 @@ function ServerPlayer:gainAnExtraTurn(delay, skillName, turnData)
     room:setPlayerMark(self, "_extra_turn_count", mark)
   end
 
-  room.current = current
+  room:setCurrent(current)
 end
 
 --- 当前是否处于额外的回合。

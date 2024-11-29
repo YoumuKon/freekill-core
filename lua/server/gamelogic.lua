@@ -105,7 +105,7 @@ function GameLogic:chooseGenerals()
   local lord_generals = {}
 
   if lord ~= nil then
-    room.current = lord
+    room:setCurrent(lord)
     local generals = room:getNGenerals(generalNum)
     lord_generals = room:askForGeneral(lord, generals, n)
     local lord_general, deputy
@@ -265,7 +265,7 @@ function GameLogic:action()
     execGameEvent(GameEvent.Round)
     if room.game_finished then break end
     if table.every(room.players, function(p) return p.dead and p.rest == 0 end) then room:gameOver("") end
-    room.current = room.players[1]
+    room:setCurrent(room.players[1])
   end
 end
 

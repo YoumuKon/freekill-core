@@ -59,6 +59,12 @@ function AbstractRoom:getBanner(name)
   return self.banners[name]
 end
 
+--- 设置房间的当前行动者
+---@param player Player
+function AbstractRoom:setCurrent(player)
+  self.current = player
+end
+
 function AbstractRoom:toJsonObject()
   local card_manager = CardManager.toJsonObject(self)
 
@@ -70,6 +76,7 @@ function AbstractRoom:toJsonObject()
   return {
     card_manager = card_manager,
     circle = table.map(self.players, Util.IdMapper),
+    current = self.current,
     banners = self.banners,
     timeout = self.timeout,
     settings = self.settings,
@@ -82,6 +89,7 @@ function AbstractRoom:loadJsonObject(o)
   CardManager.loadJsonObject(self, o.card_manager)
 
   -- 需要上层（目前是Client）自己根据circle添加玩家
+  self.current = o.current
   self.banners = o.banners
   self.timeout = o.timeout
   self.settings = o.settings

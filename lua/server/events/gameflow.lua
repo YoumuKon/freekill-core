@@ -114,7 +114,7 @@ function Round:action()
     if room.current.seat > nextTurnOwner.seat and not changingData.skipRoundPlus then
       break
     else
-      room.current = nextTurnOwner
+      room:setCurrent(nextTurnOwner)
     end
   end
 end

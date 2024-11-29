@@ -481,6 +481,14 @@ function Room:setBanner(name, value)
   self:doBroadcastNotify("SetBanner", json.encode{ name, value })
 end
 
+--- 设置房间的当前行动者
+---@param player ServerPlayer
+function Room:setCurrent(player)
+  AbstractRoom.setCurrent(self, player)
+  -- rawset(self, "current", player)
+  self:doBroadcastNotify("SetCurrent", json.encode{ player and player.id or nil })
+end
+
 ---@param player ServerPlayer
 ---@param general string
 ---@param changeKingdom? boolean
