@@ -752,6 +752,10 @@ function Player:usedSkillTimes(skill_name, scope)
   return self.skillUsedHistory[skill_name][scope]
 end
 
+function Player:isAlive()
+  return self.dead == false
+end
+
 --- 获取玩家是否无手牌。
 function Player:isKongcheng()
   return #self:getCardIds(Player.Hand) == 0

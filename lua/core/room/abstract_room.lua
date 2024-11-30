@@ -97,6 +97,9 @@ function AbstractRoom:loadJsonObject(o)
     local pid = tonumber(k)
     self:getPlayerById(pid):loadJsonObject(v)
   end
+  self.alive_players = table.filter(self.players, function(p)
+    return p:isAlive()
+  end)
 end
 
 -- 判断当前模式是否为某类模式

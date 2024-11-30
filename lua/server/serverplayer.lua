@@ -135,10 +135,6 @@ function ServerPlayer:reconnect()
   room:broadcastProperty(self, "state")
 end
 
-function ServerPlayer:isAlive()
-  return self.dead == false
-end
-
 function ServerPlayer:turnOver()
   if self.room.logic:trigger(fk.BeforeTurnOver, self) then
     return
