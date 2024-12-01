@@ -268,7 +268,8 @@ function ServerPlayer:gainAnExtraPhase(phase, delay)
   room:broadcastProperty(self, "phase")
 end
 
----@param phase_table? Phase[]
+--- 执行回合的内容，即依次执行额定阶段
+---@param phase_table? Phase[] @ 回合的额定阶段，填空则为正常流程
 function ServerPlayer:play(phase_table)
   phase_table = phase_table or {}
   if #phase_table > 0 then

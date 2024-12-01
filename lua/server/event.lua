@@ -50,6 +50,7 @@ fk.RoundStart = 28
 fk.RoundEnd = 29
 fk.AfterRoundEnd = 85
 
+fk.PreTurnStart = 102
 fk.BeforeTurnOver = 79
 fk.TurnedOver = 30
 fk.BeforeChainStateChange = 80
@@ -125,7 +126,7 @@ fk.CardShown = 77
 fk.SkillEffect = 81
 fk.AfterSkillEffect = 82
 
--- 83 = PreTurnStart
+-- 83 = BeforeTurnOver
 -- 84 = AfterTurnEnd
 -- 85 = AfterRoundEnd
 -- 86 = AfterPhaseEnd
@@ -150,5 +151,7 @@ fk.AfterPlayerRevived = 95
 -- 98 = AfterAskForCardUse
 -- 99 = AfterAskForCardResponse
 -- 100 = AfterAskForNullification
+-- 101 = fk.EventPhaseSkipped
+-- 102 = fk.PreTurnStart
 
-fk.NumOfEvents = 102
+fk.NumOfEvents = 103

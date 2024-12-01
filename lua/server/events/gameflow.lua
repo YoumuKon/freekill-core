@@ -201,6 +201,10 @@ function Turn:prepare()
 
   room:sendLog{ type = "$AppendSeparator" }
 
+  if logic:trigger(fk.PreTurnStart, player, data) then
+    return true
+  end
+
   if not player.faceup then
     player:turnOver()
     return true
