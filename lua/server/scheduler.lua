@@ -62,6 +62,8 @@ function ResumeRoom(roomId, reason)
       coroutine.close(e._co)
     end
     runningRooms[room.id] = nil
+    room = nil
+    collectgarbage("collect")
   end
   return over
 end
