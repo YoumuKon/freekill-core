@@ -8,11 +8,14 @@
 fk.NonTrigger = 1
 fk.GamePrepared = 78
 fk.GameStart = 2
+
+fk.PreTurnStart = 102
 fk.BeforeTurnStart = 83
 fk.TurnStart = 3
 fk.TurnEnd = 73
 fk.AfterTurnEnd = 84
 fk.EventTurnChanging = 96
+
 fk.EventPhaseStart = 4
 fk.EventPhaseProceeding = 5
 fk.EventPhaseEnd = 6
@@ -50,7 +53,6 @@ fk.RoundStart = 28
 fk.RoundEnd = 29
 fk.AfterRoundEnd = 85
 
-fk.PreTurnStart = 102
 fk.BeforeTurnOver = 79
 fk.TurnedOver = 30
 fk.BeforeChainStateChange = 80
