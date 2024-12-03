@@ -863,15 +863,49 @@ extension:addCards({
 })
 
 fk.MarkArmorNullified = "mark__armor_nullified"
+fk.MarkArmorInvalidFrom = "mark__armor_invalid_from"
+fk.MarkArmorInvalidTo = "mark__armor_invalid_to"
 
 local armorInvalidity = fk.CreateInvaliditySkill {
   name = "armor_invalidity",
   global = true,
-  invalidity_func = function(self, from, skill)
-    if from:getMark(fk.MarkArmorNullified) > 0 and skill.attached_equip then
-      for _, card in ipairs(Fk.cards) do
-        if card.sub_type == Card.SubtypeArmor and skill.attached_equip == card.name then
-          return true
+  invalidity_func = function(self, player, skill)
+    if skill.attached_equip and Fk:cloneCard(skill.attached_equip).sub_type == Card.SubtypeArmor then
+      if player:getMark(fk.MarkArmorNullified) > 0 then return true end
+
+      --无视防具（规则集版）！
+      if RoomInstance then
+        local logic = RoomInstance.logic
+        local event = logic:getCurrentEvent()
+        local from = nil
+        repeat
+          if event.event == GameEvent.SkillEffect then
+            from = event.data[2]
+            break
+          elseif event.event == GameEvent.Damage then
+            local damage = event.data[1]
+            if damage.to.id ~= player.id then return false end
+            from = damage.from
+            break
+          elseif event.event == GameEvent.UseCard then
+            local use = event.data[1]
+            if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) and
+            not table.contains(AimGroup:getAllTargets(use.tos), player.id) then
+              return false
+            end
+            from = RoomInstance:getPlayerById(use.from)
+          end
+          event = event.parent
+        until event == nil
+        if from then
+          local suffixes = {""}
+          table.insertTable(suffixes, MarkEnum.TempMarkSuffix)
+          for _, suffix in ipairs(suffixes) do
+            if table.contains(from:getTableMark(fk.MarkArmorInvalidTo .. suffix), player.id) or
+            table.contains(player:getTableMark(fk.MarkArmorInvalidFrom .. suffix), from.id) then
+              return true
+            end
+          end
         end
       end
     end
