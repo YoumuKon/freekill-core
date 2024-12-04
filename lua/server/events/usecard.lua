@@ -657,8 +657,8 @@ function UseCardEventWrappers:doCardUseEffect(cardUseEvent)
     return
   end
 
-  local i = 0
-  while i < (cardUseEvent.additionalEffect or 0) + 1 do
+  cardUseEvent.additionalEffect = cardUseEvent.additionalEffect or 0
+  while true do
     if #TargetGroup:getRealTargets(cardUseEvent.tos) > 0 and cardUseEvent.card.skill.onAction then
       cardUseEvent.card.skill:onAction(self, cardUseEvent)
     end
@@ -741,7 +741,11 @@ function UseCardEventWrappers:doCardUseEffect(cardUseEvent)
       cardUseEvent.card.skill:onAction(self, cardUseEvent, true)
     end
 
-    i = i + 1
+    if cardUseEvent.additionalEffect > 0 then
+      cardUseEvent.additionalEffect = cardUseEvent.additionalEffect - 1
+    else
+      break
+    end
   end
 end
 

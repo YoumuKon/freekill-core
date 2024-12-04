@@ -879,4 +879,18 @@ function ServerPlayer:removeBuddy(other)
   self.room:doBroadcastNotify("RmBuddy", json.encode{ self.id, other.id })
 end
 
+-- 青釭剑
+
+---类〖青釭剑〗的无视防具效果（注意仅能在onAim的四个时机中使用）
+---@param data AimStruct
+function ServerPlayer:addQinggangTag(data)
+  if not data.qinggang_used then
+    data.qinggang_used = true
+    self.room:addPlayerMark(self, fk.MarkArmorNullified)
+    data.extra_data = data.extra_data or {}
+    data.extra_data.qinggang_tag = data.extra_data.qinggang_tag or {}
+    table.insert(data.extra_data.qinggang_tag, data.to)
+  end
+end
+
 return ServerPlayer
