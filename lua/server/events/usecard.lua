@@ -364,7 +364,10 @@ function CardEffect:main()
   local room = self.room
   local logic = room.logic
 
-  for _, event in ipairs({ fk.PreCardEffect, fk.BeforeCardEffect, fk.CardEffecting, fk.CardEffectFinished }) do
+  if cardEffectEvent.card.skill:aboutToEffect(room, cardEffectEvent) then
+    logic:breakEvent()
+  end
+  for _, event in ipairs({ fk.PreCardEffect, fk.BeforeCardEffect, fk.CardEffecting }) do
     if cardEffectEvent.isCancellOut then
       if logic:trigger(fk.CardEffectCancelledOut, room:getPlayerById(cardEffectEvent.from), cardEffectEvent) then
         cardEffectEvent.isCancellOut = false
@@ -404,6 +407,14 @@ function CardEffect:main()
     end
 
     room:handleCardEffect(event, cardEffectEvent)
+  end
+end
+
+function CardEffect:clear()
+  local cardEffectEvent = table.unpack(self.data)
+  if cardEffectEvent.to then
+    local room = self.room
+    room.logic:trigger(fk.CardEffectFinished, room:getPlayerById(cardEffectEvent.to), cardEffectEvent)
   end
 end
 
@@ -666,7 +677,7 @@ function UseCardEventWrappers:doCardUseEffect(cardUseEvent)
     -- Else: do effect to all targets
     local collaboratorsIndex = {}
     for _, toId in ipairs(TargetGroup:getRealTargets(cardUseEvent.tos)) do
-      if not table.contains(cardUseEvent.nullifiedTargets, toId) and self:getPlayerById(toId):isAlive() then
+      if self:getPlayerById(toId):isAlive() then
         ---@class CardEffectEvent
         local cardEffectEvent = {
           from = cardUseEvent.from,
@@ -758,7 +769,6 @@ end
 ---@param cardEffectEvent CardEffectEvent
 function UseCardEventWrappers:handleCardEffect(event, cardEffectEvent)
   if event == fk.PreCardEffect then
-    if cardEffectEvent.card.skill:aboutToEffect(self, cardEffectEvent) then return end
     if
       cardEffectEvent.card.trueName == "slash" and
       not (cardEffectEvent.unoffsetable or table.contains(cardEffectEvent.unoffsetableList or Util.DummyTable, cardEffectEvent.to))
