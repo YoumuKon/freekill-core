@@ -571,15 +571,16 @@ function GameLogic:getCurrentSkillName()
 end
 
 -- 在指定历史范围中找至多n个符合条件的事件
----@param eventType GameEvent @ 要查找的事件类型
+---@generic T: GameEvent
+---@param eventType T @ 要查找的事件类型
 ---@param n integer @ 最多找多少个
----@param func fun(e: GameEvent): boolean? @ 过滤用的函数
+---@param func fun(e: T): boolean? @ 过滤用的函数
 ---@param scope integer @ 查询历史范围，只能是当前阶段/回合/轮次
----@return GameEvent[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
+---@return T[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
 function GameLogic:getEventsOfScope(eventType, n, func, scope)
   scope = scope or Player.HistoryTurn
   local event = self:getCurrentEvent()
-  local start_event ---@type GameEvent
+  local start_event ---@type GameEvent?
   if scope == Player.HistoryGame then
     start_event = self.all_game_events[1]
   elseif scope == Player.HistoryRound then
@@ -594,11 +595,12 @@ function GameLogic:getEventsOfScope(eventType, n, func, scope)
 end
 
 -- 在指定历史范围中找符合条件的事件（逆序）
----@param eventType GameEvent @ 要查找的事件类型
----@param func fun(e: GameEvent): boolean? @ 过滤用的函数
+---@generic T: GameEvent
+---@param eventType T @ 要查找的事件类型
+---@param func fun(e: T): boolean? @ 过滤用的函数
 ---@param n integer @ 最多找多少个
 ---@param end_id integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含）
----@return GameEvent[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
+---@return T[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
 function GameLogic:getEventsByRule(eventType, n, func, end_id)
   local ret = {}
 	local events = self.event_recorder[eventType] or Util.DummyTable
@@ -616,10 +618,10 @@ end
 
 --- 获取实际的伤害事件
 ---@param n integer @ 最多找多少个
----@param func fun(e: GameEvent): boolean @ 过滤用的函数
+---@param func fun(e: GameEvent.Damage): boolean @ 过滤用的函数
 ---@param scope? integer @ 查询历史范围，只能是当前阶段/回合/轮次
 ---@param end_id? integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含）
----@return GameEvent[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
+---@return GameEvent.Damage[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
 function GameLogic:getActualDamageEvents(n, func, scope, end_id)
   if not end_id then
     scope = scope or Player.HistoryTurn
@@ -657,7 +659,7 @@ function GameLogic:getActualDamageEvents(n, func, scope, end_id)
 
   if scope then
     local event = self:getCurrentEvent()
-    local start_event ---@type GameEvent
+    local start_event ---@type GameEvent?
     if scope == Player.HistoryGame then
       start_event = self.all_game_events[1]
     elseif scope == Player.HistoryRound then
