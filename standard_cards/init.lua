@@ -889,10 +889,7 @@ local armorInvalidity = fk.CreateInvaliditySkill {
             break
           elseif event.event == GameEvent.UseCard then
             local use = event.data[1]
-            if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) and
-            not table.contains(AimGroup:getAllTargets(use.tos), player.id) then
-              return false
-            end
+            if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
             from = RoomInstance:getPlayerById(use.from)
           end
           event = event.parent
