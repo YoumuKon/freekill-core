@@ -467,7 +467,7 @@ local paoxiaoAudio = fk.CreateTriggerSkill{
   can_refresh = function(self, event, target, player, data)
     return target == player and player:hasSkill(self) and
       data.card.trueName == "slash" and
-      player:usedCardTimes("slash") > 1
+      player:usedCardTimes("slash", Player.HistoryPhase) > 1
   end,
   on_refresh = function(self, event, target, player, data)
     player:broadcastSkillInvoke("paoxiao")
