@@ -482,7 +482,7 @@ local paoxiao = fk.CreateTargetModSkill{
   name = "paoxiao",
   frequency = Skill.Compulsory,
   bypass_times = function(self, player, skill, scope)
-    if player:hasSkill(self) and skill.trueName == "slash_skill"
+    if player:hasSkill(self) and skill.trueName == "slash_skill" --- 究竟是【杀】的限制呢，还是【杀】技能的限制呢？
       and scope == Player.HistoryPhase then
       return true
     end

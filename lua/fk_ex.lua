@@ -75,10 +75,10 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.max_card_num = spec.max_card_num or skill.max_card_num
   skill.card_num_table = spec.card_num_table or skill.card_num_table
   skill.max_use_time = {
-    spec.max_phase_use_time or 9999,
-    spec.max_turn_use_time or 9999,
-    spec.max_round_use_time or 9999,
-    spec.max_game_use_time or 9999,
+    spec.max_phase_use_time,
+    spec.max_turn_use_time,
+    spec.max_round_use_time,
+    spec.max_game_use_time,
   }
   skill.distance_limit = spec.distance_limit or skill.distance_limit
   skill.expand_pile = spec.expand_pile
