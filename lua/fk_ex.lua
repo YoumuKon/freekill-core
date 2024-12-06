@@ -92,16 +92,39 @@ function fk.readStatusSpecToSkill(skill, spec)
   end
 end
 
----@class UsableSkillSpec: UsableSkill
+---@class SkillSpec
+---@field public name string @ 技能名
+---@field public frequency? Frequency @ 技能发动的频繁程度，通常compulsory（锁定技）及limited（限定技）用的多。
+---@field public mute? boolean @ 决定是否关闭技能配音
+---@field public no_indicate? boolean @ 决定是否关闭技能指示线
+---@field public anim_type? string|AnimationType @ 技能类型定义
+---@field public global? boolean @ 决定是否是全局技能
+---@field public attached_equip? string @ 属于什么装备的技能？
+---@field public switch_skill_name? string @ 转换技名字
+---@field public relate_to_place? string @ 主将技/副将技
+---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
+---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
+
+---@class UsableSkillSpec: SkillSpec
+---@field public main_skill? UsableSkill
+---@field public max_use_time? integer[]
+---@field public expand_pile? string | integer[] | fun(self: UsableSkill): integer[]|string?
+---@field public derived_piles? string | string[]
 ---@field public max_phase_use_time? integer
 ---@field public max_turn_use_time? integer
 ---@field public max_round_use_time? integer
 ---@field public max_game_use_time? integer
 ---@field public times? integer | fun(self: UsableSkill): integer
----@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
----@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
+---@field public min_target_num? integer
+---@field public max_target_num? integer
+---@field public target_num? integer
+---@field public target_num_table? integer[]
+---@field public min_card_num? integer
+---@field public max_card_num? integer
+---@field public card_num? integer
+---@field public card_num_table? integer[]
 
----@class StatusSkillSpec: StatusSkill
+---@class StatusSkillSpec: SkillSpec
 
 ---@alias TrigFunc fun(self: TriggerSkill, event: Event, target: ServerPlayer, player: ServerPlayer, data: any): boolean?
 ---@class TriggerSkillSpec: UsableSkillSpec
