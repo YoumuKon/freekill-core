@@ -225,7 +225,7 @@ end
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): boolean?
 ---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card: Card, distance_limited: boolean): boolean?
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
----@field public interaction any
+---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@param spec ActiveSkillSpec
@@ -278,6 +278,7 @@ end
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: integer[]): string
+---@field public interaction? any
 
 ---@param spec ViewAsSkillSpec
 ---@return ViewAsSkill
