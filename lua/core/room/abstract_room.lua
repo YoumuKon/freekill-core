@@ -13,6 +13,8 @@
 ---@field public current_request_handler RequestHandler @ 当前正处理的请求数据
 ---@field public timeout integer @ 出牌时长上限
 ---@field public settings table @ 房间的额外设置，差不多是json对象
+---@field public disabled_packs string[] @ 未开启的扩展包名（是小包名，不是大包名）
+---@field public disabled_generals string[] @ 未开启的武将
 local AbstractRoom = class("AbstractRoom")
 
 local CardManager = require 'core.room.card_manager'

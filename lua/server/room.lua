@@ -15,7 +15,6 @@
 ---@field public game_finished boolean @ 游戏是否已经结束
 ---@field public tag table<string, any> @ Tag清单，其实跟Player的标记是差不多的东西
 ---@field public general_pile string[] @ 武将牌堆，这是可用武将名的数组
----@field public disabled_packs string[] @ 未开启的扩展包名（是小包名，不是大包名）
 ---@field public logic GameLogic @ 这个房间使用的游戏逻辑，可能根据游戏模式而变动
 ---@field public request_queue table<userdata, table>
 ---@field public request_self table<integer, integer>
