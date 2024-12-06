@@ -37,7 +37,7 @@ end
 ---@param scope integer @ 查询历史范围（默认为回合）
 ---@param card? Card @ 牌，若没有牌，则尝试制造一张虚拟牌
 ---@param card_name? string @ 牌名
----@param to any @ 目标
+---@param to? Player @ 目标
 ---@return bool
 function UsableSkill:withinTimesLimit(player, scope, card, card_name, to)
   if to and to.dead then return false end -- 一般情况不会对死人使用技能的……
