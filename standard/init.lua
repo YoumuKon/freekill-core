@@ -636,9 +636,10 @@ local zhiheng = fk.CreateActiveSkill{
   name = "zhiheng",
   prompt = "#zhiheng-active",
   anim_type = "drawcard",
-  can_use = function(self, player)
-    return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
-  end,
+  max_phase_use_time = 1,
+  -- can_use = function(self, player)
+  --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
+  -- end,
   target_num = 0,
   min_card_num = 1,
   card_filter = function(self, to_select)
@@ -762,9 +763,10 @@ local yingzi = fk.CreateTriggerSkill{
 local fanjian = fk.CreateActiveSkill{
   name = "fanjian",
   prompt = "#fanjian-active",
-  can_use = function(self, player)
-    return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
-  end,
+  max_phase_use_time = 1,
+  -- can_use = function(self, player)
+  --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
+  -- end,
   card_filter = Util.FalseFunc,
   target_filter = function(self, to_select, selected)
     return #selected == 0 and to_select ~= Self.id
@@ -938,9 +940,10 @@ local jieyin = fk.CreateActiveSkill{
   name = "jieyin",
   prompt = "#jieyin-active",
   anim_type = "support",
-  can_use = function(self, player)
-    return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
-  end,
+  max_phase_use_time = 1,
+  -- can_use = function(self, player)
+  --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
+  -- end,
   card_filter = function(self, to_select, selected)
     return #selected < 2 and Fk:currentRoom():getCardArea(to_select) == Player.Hand and not Self:prohibitDiscard(Fk:getCardById(to_select))
   end,
@@ -980,9 +983,10 @@ local qingnang = fk.CreateActiveSkill{
   name = "qingnang",
   prompt = "#qingnang-active",
   anim_type = "support",
-  can_use = function(self, player)
-    return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
-  end,
+  max_phase_use_time = 1,
+  -- can_use = function(self, player)
+  --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
+  -- end,
   card_filter = function(self, to_select, selected, targets)
     return #selected == 0 and Fk:currentRoom():getCardArea(to_select) == Player.Hand and
     not Self:prohibitDiscard(Fk:getCardById(to_select))
@@ -1066,9 +1070,10 @@ local lijian = fk.CreateActiveSkill{
   name = "lijian",
   prompt = "#lijian-active",
   anim_type = "offensive",
-  can_use = function(self, player)
-    return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
-  end,
+  max_phase_use_time = 1,
+  -- can_use = function(self, player)
+  --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
+  -- end,
   card_filter = function(self, to_select, selected)
     return #selected == 0 and not Self:prohibitDiscard(Fk:getCardById(to_select))
   end,
