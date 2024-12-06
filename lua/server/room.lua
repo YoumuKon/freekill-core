@@ -2564,33 +2564,10 @@ end
 -- 杂项函数
 
 function Room:adjustSeats()
-  local players = {}
-  local p = 0
-
-  for i = 1, #self.players do
-    if self.players[i].role == "lord" then
-      p = i
-      break
-    end
-  end
-  for j = p, #self.players do
-    table.insert(players, self.players[j])
-  end
-  for j = 1, p - 1 do
-    table.insert(players, self.players[j])
-  end
-
-  self.players = players
-
-  local player_circle = {}
-  for i = 1, #self.players do
-    self.players[i].seat = i
-    table.insert(player_circle, self.players[i].id)
-  end
-
-  self:doBroadcastNotify("ArrangeSeats", json.encode(player_circle))
+  self.logic:adjustSeats()
 end
 
+--- 令两名角色交换座位
 ---@param a ServerPlayer
 ---@param b ServerPlayer
 function Room:swapSeat(a, b)
@@ -2603,18 +2580,23 @@ function Room:swapSeat(a, b)
 
   players[ai] = b
   players[bi] = a
-  a.seat, b.seat = b.seat, a.seat
 
-  local player_circle = {}
-  for _, v in ipairs(players) do
-    table.insert(player_circle, v.id)
+  self:arrangeSeats()
+end
+
+--- 按输入的角色表重新改变座位。若无输入，仅更新角色座位UI
+---@param players? ServerPlayer[]
+function Room:arrangeSeats(players)
+  assert(players == nil or #players == #self.players)
+  players = players or self.players
+  self.players = players
+
+  for i = 1, #players do
+    players[i].seat = i
+    players[i].next = players[i + 1] or players[1]
   end
 
-  for i = 1, #players - 1 do
-    players[i].next = players[i + 1]
-  end
-  players[#players].next = players[1]
-
+  local player_circle = table.map(players, Util.IdMapper)
   self:doBroadcastNotify("ArrangeSeats", json.encode(player_circle))
 end
 

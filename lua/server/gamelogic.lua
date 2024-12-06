@@ -62,7 +62,7 @@ function GameLogic:run()
   self.room.game_started = true
   room:doBroadcastNotify("StartGame", "")
   self:assignRoles()
-  room:adjustSeats()
+  self:adjustSeats()
   self:chooseGenerals()
 
   self:buildPlayerCircle()
@@ -81,6 +81,7 @@ local function execGameEvent(tp, ...)
   return ret
 end
 
+--- 分配身份
 function GameLogic:assignRoles()
   local room = self.room
   local n = #room.players
@@ -97,6 +98,29 @@ function GameLogic:assignRoles()
   end
 end
 
+--- 安排座位。若有主公则作为1号位
+function GameLogic:adjustSeats()
+  local player_circle = {}
+  local players = self.room.players
+  local p = 1
+
+  for i = 1, #players do
+    if players[i].role == "lord" then
+      p = i
+      break
+    end
+  end
+  for j = p, #players do
+    table.insert(player_circle, players[j])
+  end
+  for j = 1, p - 1 do
+    table.insert(player_circle, players[j])
+  end
+
+  self.room:arrangeSeats(player_circle)
+end
+
+--- 进行选将
 function GameLogic:chooseGenerals()
   local room = self.room
   local generalNum = room.settings.generalNum
@@ -154,6 +178,7 @@ function GameLogic:buildPlayerCircle()
   players[#players].next = players[1]
 end
 
+--- 公布武将
 function GameLogic:broadcastGeneral()
   local room = self.room
   local players = room.players
