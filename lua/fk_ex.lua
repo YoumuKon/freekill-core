@@ -514,9 +514,11 @@ function fk.CreateVisibilitySkill(spec)
   return skill
 end
 
----@class CardSpec: Card
----@field public skill? Skill
----@field public equip_skill? Skill
+---@class CardSpec
+---@field public name string @ 卡牌的名字
+---@field public suit? Suit @ 卡牌的花色（四色及无花色）
+---@field public number? integer @ 卡牌的点数（0到K）
+---@field public skill? ActiveSkill
 ---@field public special_skills? string[]
 ---@field public is_damage_card? boolean
 ---@field public multiple_targets? boolean
@@ -593,6 +595,12 @@ function fk.CreateDelayedTrickCard(spec)
   return card
 end
 
+---@class EquipCardSpec: CardSpec
+---@field public equip_skill? Skill
+---@field public dynamic_equip_skills? fun(player: Player): Skill[]
+---@field public on_install? fun(self: EquipCard, room: Room, player: ServerPlayer)
+---@field public on_uninstall? fun(self: EquipCard, room: Room, player: ServerPlayer)
+
 local function readCardSpecToEquip(card, spec)
   if spec.equip_skill then
     if spec.equip_skill.class and spec.equip_skill:isInstanceOf(Skill) then
@@ -613,7 +621,11 @@ local function readCardSpecToEquip(card, spec)
   if spec.on_uninstall then card.onUninstall = spec.on_uninstall end
 end
 
----@param spec CardSpec
+---@class WeaponSpec: EquipCardSpec
+---@field public attack_range? integer
+---@field public dynamic_attack_range? fun(player: Player): int
+
+---@param spec WeaponSpec
 ---@return Weapon
 function fk.CreateWeapon(spec)
   preprocessCardSpec(spec)
@@ -632,7 +644,7 @@ function fk.CreateWeapon(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return Armor
 function fk.CreateArmor(spec)
   preprocessCardSpec(spec)
@@ -642,7 +654,7 @@ function fk.CreateArmor(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return DefensiveRide
 function fk.CreateDefensiveRide(spec)
   preprocessCardSpec(spec)
@@ -652,7 +664,7 @@ function fk.CreateDefensiveRide(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return OffensiveRide
 function fk.CreateOffensiveRide(spec)
   preprocessCardSpec(spec)
@@ -662,7 +674,7 @@ function fk.CreateOffensiveRide(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return Treasure
 function fk.CreateTreasure(spec)
   preprocessCardSpec(spec)
