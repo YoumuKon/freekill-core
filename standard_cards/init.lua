@@ -891,6 +891,7 @@ local armorInvalidity = fk.CreateInvaliditySkill {
             local use = event.data[1]
             if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
             from = RoomInstance:getPlayerById(use.from)
+            break
           end
           event = event.parent
         until event == nil
