@@ -75,10 +75,10 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.max_card_num = spec.max_card_num or skill.max_card_num
   skill.card_num_table = spec.card_num_table or skill.card_num_table
   skill.max_use_time = {
-    spec.max_phase_use_time or 9999,
-    spec.max_turn_use_time or 9999,
-    spec.max_round_use_time or 9999,
-    spec.max_game_use_time or 9999,
+    spec.max_phase_use_time,
+    spec.max_turn_use_time,
+    spec.max_round_use_time,
+    spec.max_game_use_time,
   }
   skill.distance_limit = spec.distance_limit or skill.distance_limit
   skill.expand_pile = spec.expand_pile
@@ -214,19 +214,19 @@ function fk.CreateTriggerSkill(spec)
 end
 
 ---@class ActiveSkillSpec: UsableSkillSpec
----@field public can_use? fun(self: ActiveSkill, player: Player, card: Card, extra_data: any): any
+---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, extra_data: any): any
+---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): any
 ---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
 ---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card: Card, distance_limited: boolean): any
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
 ---@field public interaction? any
----@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@param spec ActiveSkillSpec
 ---@return ActiveSkill
@@ -428,12 +428,12 @@ function fk.CreateMaxCardsSkill(spec)
 end
 
 ---@class TargetModSpec: StatusSkillSpec
----@field public bypass_times? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card: Card, to: Player): any
----@field public residue_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card: Card, to: Player): number?
----@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card, to: Player): any
----@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card, to: Player): number?
----@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card: Card): number?
----@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public bypass_times? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): any
+---@field public residue_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): number?
+---@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): any
+---@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): number?
+---@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card): number?
+---@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@param spec TargetModSpec
 ---@return TargetModSkill
