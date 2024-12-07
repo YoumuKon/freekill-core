@@ -126,7 +126,7 @@ end
 
 ---@class StatusSkillSpec: SkillSpec
 
----@alias TrigFunc fun(self: TriggerSkill, event: Event, target: ServerPlayer, player: ServerPlayer, data: any): boolean?
+---@alias TrigFunc fun(self: TriggerSkill, event: Event, target: ServerPlayer, player: ServerPlayer, data: any): any
 ---@class TriggerSkillSpec: UsableSkillSpec
 ---@field public global? boolean
 ---@field public events? Event | Event[]
@@ -214,16 +214,16 @@ function fk.CreateTriggerSkill(spec)
 end
 
 ---@class ActiveSkillSpec: UsableSkillSpec
----@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): boolean?
----@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): boolean?
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): boolean?
----@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): boolean?
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): boolean?
----@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): boolean?
----@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): boolean?
----@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): boolean?
----@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): boolean?
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): boolean?
+---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
+---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
+---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): any
+---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
+---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
+---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
+---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
@@ -270,11 +270,11 @@ function fk.CreateActiveSkill(spec)
 end
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
----@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[]): boolean?
+---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[]): any
 ---@field public view_as fun(self: ViewAsSkill, cards: integer[]): Card?
 ---@field public pattern? string
----@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): boolean?
----@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): boolean?
+---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
+---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: integer[]): string
@@ -350,11 +350,11 @@ function fk.CreateDistanceSkill(spec)
 end
 
 ---@class ProhibitSpec: StatusSkillSpec
----@field public is_prohibited? fun(self: ProhibitSkill, from: Player, to: Player, card: Card): boolean?
----@field public prohibit_use? fun(self: ProhibitSkill, player: Player, card: Card): boolean?
----@field public prohibit_response? fun(self: ProhibitSkill, player: Player, card: Card): boolean?
----@field public prohibit_discard? fun(self: ProhibitSkill, player: Player, card: Card): boolean?
----@field public prohibit_pindian? fun(self: ProhibitSkill, from: Player, to: Player): boolean?
+---@field public is_prohibited? fun(self: ProhibitSkill, from: Player, to: Player, card: Card): any
+---@field public prohibit_use? fun(self: ProhibitSkill, player: Player, card: Card): any
+---@field public prohibit_response? fun(self: ProhibitSkill, player: Player, card: Card): any
+---@field public prohibit_discard? fun(self: ProhibitSkill, player: Player, card: Card): any
+---@field public prohibit_pindian? fun(self: ProhibitSkill, from: Player, to: Player): any
 
 ---@param spec ProhibitSpec
 ---@return ProhibitSkill
@@ -375,8 +375,8 @@ end
 ---@class AttackRangeSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: AttackRangeSkill, from: Player, to: Player): number?
 ---@field public fixed_func? fun(self: AttackRangeSkill, player: Player): number?
----@field public within_func? fun(self: AttackRangeSkill, from: Player, to: Player): boolean?
----@field public without_func? fun(self: AttackRangeSkill, from: Player, to: Player): boolean?
+---@field public within_func? fun(self: AttackRangeSkill, from: Player, to: Player): any
+---@field public without_func? fun(self: AttackRangeSkill, from: Player, to: Player): any
 
 ---@param spec AttackRangeSpec
 ---@return AttackRangeSkill
@@ -406,7 +406,7 @@ end
 ---@class MaxCardsSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: MaxCardsSkill, player: Player): number?
 ---@field public fixed_func? fun(self: MaxCardsSkill, player: Player): number?
----@field public exclude_from? fun(self: MaxCardsSkill, player: Player, card: Card): boolean?
+---@field public exclude_from? fun(self: MaxCardsSkill, player: Player, card: Card): any
 
 ---@param spec MaxCardsSpec
 ---@return MaxCardsSkill
@@ -428,9 +428,9 @@ function fk.CreateMaxCardsSkill(spec)
 end
 
 ---@class TargetModSpec: StatusSkillSpec
----@field public bypass_times? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): boolean?
+---@field public bypass_times? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): any
 ---@field public residue_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): number?
----@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): boolean?
+---@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): any
 ---@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): number?
 ---@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card): number?
 ---@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
@@ -465,7 +465,7 @@ function fk.CreateTargetModSkill(spec)
 end
 
 ---@class FilterSpec: StatusSkillSpec
----@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): boolean?
+---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any
 ---@field public view_as? fun(self: FilterSkill, card: Card, player: Player): Card?
 ---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
 
@@ -484,7 +484,7 @@ function fk.CreateFilterSkill(spec)
 end
 
 ---@class InvaliditySpec: StatusSkillSpec
----@field public invalidity_func? fun(self: InvaliditySkill, from: Player, skill: Skill): boolean?
+---@field public invalidity_func? fun(self: InvaliditySkill, from: Player, skill: Skill): any
 
 ---@param spec InvaliditySpec
 ---@return InvaliditySkill
@@ -499,8 +499,8 @@ function fk.CreateInvaliditySkill(spec)
 end
 
 ---@class VisibilitySpec: StatusSkillSpec
----@field public card_visible? fun(self: VisibilitySkill, player: Player, card: Card): boolean?
----@field public role_visible? fun(self: VisibilitySkill, player: Player, target: Player): boolean?
+---@field public card_visible? fun(self: VisibilitySkill, player: Player, card: Card): any
+---@field public role_visible? fun(self: VisibilitySkill, player: Player, target: Player): any
 
 ---@param spec VisibilitySpec
 function fk.CreateVisibilitySkill(spec)
@@ -514,9 +514,11 @@ function fk.CreateVisibilitySkill(spec)
   return skill
 end
 
----@class CardSpec: Card
----@field public skill? Skill
----@field public equip_skill? Skill
+---@class CardSpec
+---@field public name string @ 卡牌的名字
+---@field public suit? Suit @ 卡牌的花色（四色及无花色）
+---@field public number? integer @ 卡牌的点数（0到K）
+---@field public skill? ActiveSkill
 ---@field public special_skills? string[]
 ---@field public is_damage_card? boolean
 ---@field public multiple_targets? boolean
@@ -593,6 +595,12 @@ function fk.CreateDelayedTrickCard(spec)
   return card
 end
 
+---@class EquipCardSpec: CardSpec
+---@field public equip_skill? Skill
+---@field public dynamic_equip_skills? fun(player: Player): Skill[]
+---@field public on_install? fun(self: EquipCard, room: Room, player: ServerPlayer)
+---@field public on_uninstall? fun(self: EquipCard, room: Room, player: ServerPlayer)
+
 local function readCardSpecToEquip(card, spec)
   if spec.equip_skill then
     if spec.equip_skill.class and spec.equip_skill:isInstanceOf(Skill) then
@@ -613,7 +621,11 @@ local function readCardSpecToEquip(card, spec)
   if spec.on_uninstall then card.onUninstall = spec.on_uninstall end
 end
 
----@param spec CardSpec
+---@class WeaponSpec: EquipCardSpec
+---@field public attack_range? integer
+---@field public dynamic_attack_range? fun(player: Player): int
+
+---@param spec WeaponSpec
 ---@return Weapon
 function fk.CreateWeapon(spec)
   preprocessCardSpec(spec)
@@ -632,7 +644,7 @@ function fk.CreateWeapon(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return Armor
 function fk.CreateArmor(spec)
   preprocessCardSpec(spec)
@@ -642,7 +654,7 @@ function fk.CreateArmor(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return DefensiveRide
 function fk.CreateDefensiveRide(spec)
   preprocessCardSpec(spec)
@@ -652,7 +664,7 @@ function fk.CreateDefensiveRide(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return OffensiveRide
 function fk.CreateOffensiveRide(spec)
   preprocessCardSpec(spec)
@@ -662,7 +674,7 @@ function fk.CreateOffensiveRide(spec)
   return card
 end
 
----@param spec CardSpec
+---@param spec EquipCardSpec
 ---@return Treasure
 function fk.CreateTreasure(spec)
   preprocessCardSpec(spec)
@@ -726,8 +738,8 @@ end
 
 ---@class PoxiSpec
 ---@field name string
----@field card_filter fun(to_select: int, selected: int[], data: any, extra_data: any): boolean?
----@field feasible fun(selected: int[], data: any, extra_data: any): boolean?
+---@field card_filter fun(to_select: int, selected: int[], data: any, extra_data: any): any
+---@field feasible fun(selected: int[], data: any, extra_data: any): any
 ---@field post_select? fun(selected: int[], data: any, extra_data: any): int[]
 ---@field default_choice? fun(data: any, extra_data: any): int[]
 ---@field prompt? string | fun(data: any, extra_data: any): string
