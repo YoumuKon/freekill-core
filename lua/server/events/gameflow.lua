@@ -7,6 +7,7 @@ local function drawInit(room, player, n)
   for _, id in ipairs(cardIds) do
     Fk:filterCard(id, player)
   end
+
   local move_to_notify = {}   ---@type CardsMoveStruct
   move_to_notify.toArea = Card.PlayerHand
   move_to_notify.to = player.id
@@ -19,6 +20,7 @@ local function drawInit(room, player, n)
   room:notifyMoveCards(nil, {move_to_notify})
 
   for _, id in ipairs(cardIds) do
+    table.removeOne(room.draw_pile, id)
     room:setCardArea(id, Card.PlayerHand, player.id)
   end
 end

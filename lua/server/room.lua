@@ -337,8 +337,6 @@ end
 
 --- 从摸牌堆中获取若干张牌。
 ---
---- 注意了，这个函数会对牌堆进行实际操作，也就是说它返回一系列id后，牌堆中就会少这么多id。
----
 --- 如果牌堆中没有足够的牌可以获得，那么会触发洗牌；还是不够的话，游戏就平局。
 ---@param num integer @ 要获得的牌的数量
 ---@param from? string @ 获得牌的位置，可以是 ``"top"`` 或者 ``"bottom"``，表示牌堆顶还是牌堆底
@@ -362,12 +360,14 @@ function Room:getNCards(num, from)
     i = #self.draw_pile + 1 - num
     j = #self.draw_pile
   end
-  local cardIds = {}
-  for index = i, j, 1 do
-    table.insert(cardIds, table.remove(self.draw_pile, i))
-  end
+  -- local cardIds = {}
+  -- for index = i, j, 1 do
+  --   table.insert(cardIds, table.remove(self.draw_pile, i))
+  -- end
 
-  self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
+  local cardIds = table.slice(self.draw_pile, i, j + 1)
+
+  -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
 
   return cardIds
 end
@@ -1882,9 +1882,11 @@ function Room:askForGuanxing(player, cards, top_limit, bottom_limit, customNotif
 
   if not noPut then
     for i = #top, 1, -1 do
+      table.removeOne(self.draw_pile, top[i])
       table.insert(self.draw_pile, 1, top[i])
     end
     for i = 1, #bottom, 1 do
+      table.removeOne(self.draw_pile, bottom[i])
       table.insert(self.draw_pile, bottom[i])
     end
 

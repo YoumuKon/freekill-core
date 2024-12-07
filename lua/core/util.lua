@@ -484,6 +484,7 @@ function table.random(self, n)
   return n0 == nil and ret[1] or ret
 end
 
+--- 截取[begin, end)段（end是开区间）
 ---@generic T
 ---@param self T[]
 ---@param begin? integer
