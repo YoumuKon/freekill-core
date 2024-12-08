@@ -153,12 +153,14 @@ function ServerPlayer:turnOver()
 end
 
 --- 令一名角色展示一些牌
+---
+--- 因为要过锁视技，最好不要展示不属于你的牌
 ---@param cards integer|integer[]|Card|Card[]
 function ServerPlayer:showCards(cards)
-  -- cards = Card:getIdList(cards)
-  -- for _, id in ipairs(cards) do
-  --   Fk:filterCard(id, self)
-  -- end
+  cards = Card:getIdList(cards)
+  for _, id in ipairs(cards) do
+    Fk:filterCard(id, self)
+  end
 
   local room = self.room
   -- room:sendLog{

@@ -199,7 +199,7 @@ end
 
 -- misc
 
---- 展示一堆牌
+--- 展示一堆牌（注意，这样子是不会过锁视技的）
 ---@param cards integer|integer[]|Card|Card[] @ 要展示的牌
 ---@param from? Player
 function CardManager:showCards(cards, from)
