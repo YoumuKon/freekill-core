@@ -160,7 +160,7 @@ function ServerPlayer:showCards(cards)
   --   Fk:filterCard(id, self)
   -- end
 
-  -- local room = self.room
+  local room = self.room
   -- room:sendLog{
   --   type = "#ShowCard",
   --   from = self.id,
@@ -174,9 +174,9 @@ function ServerPlayer:showCards(cards)
   --   type = "##ShowCard",
   --   from = self.id,
   -- })
-
-  -- room.logic:trigger(fk.CardShown, self, { cardIds = cards })
   self.room:showCards(cards, self)
+
+  room.logic:trigger(fk.CardShown, self, { cardIds = cards })
 end
 
 
