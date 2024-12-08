@@ -880,8 +880,10 @@ local armorInvalidity = fk.CreateInvaliditySkill {
         local from = nil
         repeat
           if event.event == GameEvent.SkillEffect then
-            from = event.data[2]
-            break
+            if not event.data[3].cardSkill then
+              from = event.data[2]
+              break
+            end
           elseif event.event == GameEvent.Damage then
             local damage = event.data[1]
             if damage.to.id ~= player.id then return false end
