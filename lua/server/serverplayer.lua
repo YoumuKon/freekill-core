@@ -152,30 +152,31 @@ function ServerPlayer:turnOver()
   self.room.logic:trigger(fk.TurnedOver, self)
 end
 
---- 令一名角色展示一些牌，请勿用于展示不属于该角色的牌
+--- 令一名角色展示一些牌
 ---@param cards integer|integer[]|Card|Card[]
 function ServerPlayer:showCards(cards)
-  cards = Card:getIdList(cards)
-  for _, id in ipairs(cards) do
-    Fk:filterCard(id, self)
-  end
+  -- cards = Card:getIdList(cards)
+  -- for _, id in ipairs(cards) do
+  --   Fk:filterCard(id, self)
+  -- end
 
-  local room = self.room
-  room:sendLog{
-    type = "#ShowCard",
-    from = self.id,
-    card = cards,
-  }
-  room:doBroadcastNotify("ShowCard", json.encode{
-    from = self.id,
-    cards = cards,
-  })
-  room:sendFootnote(cards, {
-    type = "##ShowCard",
-    from = self.id,
-  })
+  -- local room = self.room
+  -- room:sendLog{
+  --   type = "#ShowCard",
+  --   from = self.id,
+  --   card = cards,
+  -- }
+  -- room:doBroadcastNotify("ShowCard", json.encode{
+  --   from = self.id,
+  --   cards = cards,
+  -- })
+  -- room:sendFootnote(cards, {
+  --   type = "##ShowCard",
+  --   from = self.id,
+  -- })
 
-  room.logic:trigger(fk.CardShown, self, { cardIds = cards })
+  -- room.logic:trigger(fk.CardShown, self, { cardIds = cards })
+  self.room:showCards(cards, self)
 end
 
 

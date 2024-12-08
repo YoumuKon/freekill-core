@@ -775,7 +775,7 @@ fk.client_callback["MoveCards"] = function(self, raw_moves)
 end
 
 fk.client_callback["ShowCard"] = function(self, data)
-  local from = data.from
+  -- local from = data.from
   local cards = data.cards
   local merged = {
     {
