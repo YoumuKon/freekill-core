@@ -324,11 +324,12 @@ function Phase:main()
         end
       end,
       [Player.Draw] = function()
+        if player._phase_end then return end
         local data = {
           n = 2
         }
         room.logic:trigger(fk.DrawNCards, player, data)
-        if not player._phase_end then
+        if data.n > 0 then
           room:drawCards(player, data.n, "phase_draw")
         end
         room.logic:trigger(fk.AfterDrawNCards, player, data)
