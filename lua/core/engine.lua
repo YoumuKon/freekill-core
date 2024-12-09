@@ -700,7 +700,7 @@ end
 function Engine:getAllCardIds(except)
   local result = {}
   for _, card in ipairs(self.cards) do
-    if not (except and table.contains(except, card.id)) then
+    if card.package and not (except and table.contains(except, card.id)) then
       if not table.contains(self:currentRoom().disabled_packs, card.package.name) then
         table.insert(result, card.id)
       end
