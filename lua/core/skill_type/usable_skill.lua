@@ -120,6 +120,8 @@ function UsableSkill:onLose(player, is_death)
       moveReason = fk.ReasonPutIntoDiscardPile,
     })
   end
+
+  Skill.onLose(self, player, is_death)
 end
 
 return UsableSkill
