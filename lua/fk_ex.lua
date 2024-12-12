@@ -740,10 +740,10 @@ end
 
 ---@class PoxiSpec
 ---@field name string
----@field card_filter fun(to_select: int, selected: int[], data: any, extra_data: any): any
----@field feasible fun(selected: int[], data: any, extra_data: any): any
----@field post_select? fun(selected: int[], data: any, extra_data: any): int[]
----@field default_choice? fun(data: any, extra_data: any): int[]
+---@field card_filter fun(to_select: integer, selected: integer[], data: any, extra_data: any): any
+---@field feasible fun(selected: integer[], data: any, extra_data: any): any
+---@field post_select? fun(selected: integer[], data: any, extra_data: any): integer[]
+---@field default_choice? fun(data: any, extra_data: any): integer[]
 ---@field prompt? string | fun(data: any, extra_data: any): string
 
 ---@class QmlMarkSpec
