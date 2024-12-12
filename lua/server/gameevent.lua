@@ -15,16 +15,16 @@
 ---@field public killed boolean @ 事件因为终止一切结算而被中断（所谓的“被杀”）
 local GameEvent = class("GameEvent")
 
----@type (fun(self: GameEvent): bool)[]
+---@type (fun(self: GameEvent): boolean?)[]
 GameEvent.prepare_funcs = {}
 
----@type (fun(self: GameEvent): bool)[]
+---@type (fun(self: GameEvent): boolean?)[]
 GameEvent.functions = {}
 
----@type (fun(self: GameEvent): bool)[]
+---@type (fun(self: GameEvent): boolean?)[]
 GameEvent.cleaners = {}
 
----@type (fun(self: GameEvent): bool)[]
+---@type (fun(self: GameEvent): boolean?)[]
 GameEvent.exit_funcs = {}
 
 local dummyFunc = Util.DummyFunc
