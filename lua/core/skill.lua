@@ -175,7 +175,7 @@ end
 
 -- 获得此技能时，触发此函数
 ---@param player ServerPlayer
----@param is_start bool
+---@param is_start boolean?
 function Skill:onAcquire(player, is_start)
   local room = player.room
 
@@ -190,7 +190,7 @@ end
 
 -- 失去此技能时，触发此函数
 ---@param player ServerPlayer
----@param is_death bool
+---@param is_death boolean?
 function Skill:onLose(player, is_death)
   local room = player.room
   if self.attached_skill_name then

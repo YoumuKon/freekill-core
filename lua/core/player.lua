@@ -1295,7 +1295,7 @@ end
 
 --- 比较两名角色的性别是否相同。
 ---@param other Player @ 另一名角色
----@param diff? bool @ 比较二者不同
+---@param diff boolean? @ 比较二者不同
 ---@return boolean @ 返回比较结果
 function Player:compareGenderWith(other, diff)
   if self == other then return not diff end

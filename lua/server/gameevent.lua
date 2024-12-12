@@ -118,7 +118,7 @@ end
 -- 找第一个与当前事件有继承关系的特定事件
 ---@generic T: GameEvent
 ---@param eventType T @ 事件类型
----@param includeSelf bool @ 是否包括本事件
+---@param includeSelf boolean? @ 是否包括本事件
 ---@param depth? integer @ 搜索深度
 ---@return T?
 function GameEvent:findParent(eventType, includeSelf, depth)
