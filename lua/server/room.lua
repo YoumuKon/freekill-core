@@ -2391,7 +2391,7 @@ function Room:askForCustomDialog(player, focustxt, qmlPath, extra_data)
   return req:getResult(player)
 end
 
---- 询问移动场上的一张牌
+--- 询问移动场上的一张牌。不可取消
 ---@param player ServerPlayer @ 移动的操作
 ---@param targetOne ServerPlayer @ 移动的目标1玩家
 ---@param targetTwo ServerPlayer @ 移动的目标2玩家
@@ -2518,6 +2518,8 @@ function Room:askForChooseToMoveCardInBoard(player, prompt, skillName, cancelabl
   cancelable = (cancelable == nil) and true or cancelable
   no_indicate = (no_indicate == nil) and true or no_indicate
   excludeIds = type(excludeIds) == "table" and excludeIds or {}
+
+  if #self:canMoveCardInBoard(flag, excludeIds) == 0 and not cancelable then return {} end
 
   local data = {
     flag = flag,
@@ -2684,10 +2686,11 @@ function Room:gameOver(winner)
   end
 end
 
----@param flag? string
----@param players? ServerPlayer[]
----@param excludeIds? integer[]
----@return integer[] @ 玩家id列表 可能为空
+--- 获取可以移动场上牌的第一对目标。用于判断场上是否可以移动的牌
+---@param flag? "e"|"j" @ 判断移动的区域
+---@param players? ServerPlayer[] @ 可移动的玩家
+---@param excludeIds? integer[] @ 不能移动的卡牌id
+---@return integer[] @ 玩家id列表 可能为空表
 function Room:canMoveCardInBoard(flag, players, excludeIds)
   if flag then
     assert(flag == "e" or flag == "j")
@@ -2696,19 +2699,16 @@ function Room:canMoveCardInBoard(flag, players, excludeIds)
   players = players or self.alive_players
   excludeIds = type(excludeIds) == "table" and excludeIds or {}
 
-  local targets = {}
-  table.find(players, function(p)
-    local canMoveTo = table.find(players, function(another)
-      return p ~= another and p:canMoveCardsInBoardTo(another, flag, excludeIds)
+  for _, from in ipairs(players) do
+    local to = table.find(players, function(p)
+      return p ~= from and from:canMoveCardsInBoardTo(p, flag, excludeIds)
     end)
-
-    if canMoveTo then
-      targets = {p.id, canMoveTo.id}
+    if to then
+      return { from.id, to.id }
     end
-    return canMoveTo
-  end)
+  end
 
-  return targets
+  return {}
 end
 
 --- 现场印卡。当然了，这个卡只和这个房间有关。
@@ -2919,7 +2919,23 @@ function Room:addTableMark(sth, mark, value)
   end
 end
 
---- 为角色或牌的表型标记移除值
+--- 为角色或牌的表型标记添加值，若已存在则不添加
+---@param sth ServerPlayer|Card @ 更新标记的玩家或卡牌
+---@param mark string @ 标记的名称
+---@param value any @ 要增加的值
+---@return boolean @ 是否添加成功
+function Room:addTableMarkIfNeed(sth, mark, value)
+  local t = sth:getTableMark(mark)
+  if not table.insertIfNeed(t, value) then return false end
+  if sth:isInstanceOf(Card) then
+    self:setCardMark(sth, mark, t)
+  else
+    self:setPlayerMark(sth, mark, t)
+  end
+  return true
+end
+
+--- 为角色或牌的表型标记移除值，移为空表后重置标记值为0
 ---@param sth ServerPlayer|Card @ 更新标记的玩家或卡牌
 ---@param mark string @ 标记的名称
 ---@param value any @ 要移除的值
