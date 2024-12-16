@@ -302,10 +302,12 @@ function Client:enterRoom(_data)
   local ob = self.observing
   local replaying = self.replaying
   local showcards = self.replaying_show
+  local recording = self.recording
   self:initialize(self.client) -- clear old client data
   self.observing = ob
   self.replaying = replaying
   self.replaying_show = showcards
+  self.recording = recording -- 重连/旁观的录像后面那段EnterRoom会触发该函数
 
   -- FIXME: 应该在C++中修改，这种改法错大发了
   -- FIXME: C++中加入房间时需要把Self也纳入players列表
