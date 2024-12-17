@@ -27,7 +27,7 @@ function CardManager:initCardManager()
   self.card_marks = {}
 end
 
---- 基本算是私有函数，别去用
+--- 设置一张卡牌的所在区域。内部私有函数，DIY别用
 ---@param cardId integer
 ---@param cardArea CardArea
 ---@param owner? integer
@@ -58,7 +58,7 @@ end
 
 local playerAreas = { Player.Hand, Player.Equip, Player.Judge, Player.Special }
 
---- 根据area获取相关的数组，若为玩家的区域则需指定玩家
+--- 根据area获取相关的卡牌id数组，若为玩家的区域则需指定玩家
 ---
 --- 若不存在这种区域，需要返回nil
 ---@param area CardArea
@@ -99,10 +99,11 @@ function CardManager:applyMoveInfo(data, info)
   local realFromArea = self:getCardArea(info.cardId)
   local room = Fk:currentRoom()
 
+  local moveFrom = self.owner_map[info.cardId]
   local fromAreaIds = self:getCardsByArea(realFromArea,
-    data.from and room:getPlayerById(data.from), false, info.fromSpecialName)
+  moveFrom and room:getPlayerById(moveFrom), false, info.fromSpecialName)
 
-  table.removeOne(fromAreaIds, info.cardId)
+  if fromAreaIds == nil or not table.removeOne(fromAreaIds, info.cardId) then return false end
 
   local toAreaIds = self:getCardsByArea(data.toArea,
     data.to and room:getPlayerById(data.to), false, data.specialName)
