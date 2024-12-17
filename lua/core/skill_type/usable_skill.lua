@@ -69,7 +69,7 @@ function UsableSkill:withinTimesLimit(player, scope, card, card_name, to)
   local temp_suf = table.simpleClone(MarkEnum.TempMarkSuffix)
   local card_temp_suf = table.simpleClone(MarkEnum.CardTempMarkSuffix)
 
-  ---@param object Card|Player
+  ---@param object? Card|Player
   ---@param markname string
   ---@param suffixes string[]
   ---@return boolean

@@ -2519,7 +2519,7 @@ function Room:askForChooseToMoveCardInBoard(player, prompt, skillName, cancelabl
   no_indicate = (no_indicate == nil) and true or no_indicate
   excludeIds = type(excludeIds) == "table" and excludeIds or {}
 
-  if #self:canMoveCardInBoard(flag, excludeIds) == 0 and not cancelable then return {} end
+  if #self:canMoveCardInBoard(flag, nil, excludeIds) == 0 and not cancelable then return {} end
 
   local data = {
     flag = flag,
