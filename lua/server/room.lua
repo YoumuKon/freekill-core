@@ -2851,6 +2851,11 @@ function Room:addPlayerEquipSlots(player, playerSlots)
     else
       table.insert(player.equipSlots, slot)
     end
+    self:sendLog{
+      type = "#AddNewArea",
+      from = player.id,
+      arg = slot,
+    }
   end
 
   self:broadcastProperty(player, "equipSlots")

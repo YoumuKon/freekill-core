@@ -495,6 +495,7 @@ Fk:loadTranslationTable{
 
   ["#AbortArea"] = "%from 的 %arg 被废除",
   ["#ResumeArea"] = "%from 的 %arg 被恢复",
+  ["#AddNewArea"] = "%from 新增了一个 %arg",
 
   ["#ShowCard"] = "%from 展示了牌 %card",
   ["#Recast"] = "%from 重铸了 %card",

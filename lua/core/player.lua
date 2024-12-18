@@ -36,6 +36,8 @@
 ---@field public skillUsedHistory table<string, integer[]> @ 发动技能次数的历史记录
 ---@field public fixedDistance table<Player, integer> @ 与其他玩家的固定距离列表
 ---@field public buddy_list integer[] @ 队友列表，或者说自己可以观看别人手牌的那些玩家的列表
+---@field public equipSlots string[] @ 装备栏列表
+---@field public sealedSlots string[] @ 被废除的装备栏列表
 local Player = class("Player")
 
 ---@alias Phase integer
@@ -75,7 +77,7 @@ function Player:initialize()
   self.property_keys = {
     "general", "deputyGeneral", "maxHp", "hp", "shield", "gender", "kingdom",
     "dead", "role", "role_shown", "rest", "seat", "phase", "faceup", "chained",
-    "sealedSlots",
+    "equipSlots", "sealedSlots",
 
     "surrendered",
   }
