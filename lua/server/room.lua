@@ -599,6 +599,7 @@ end
 ---@param jsonData string @ 请求的数据
 ---@param wait? boolean @ 是否要等待答复，默认为true
 ---@return string @ 收到的答复，如果wait为false的话就返回nil
+---@deprecated
 function Room:doRequest(player, command, jsonData, wait)
   -- fk.qCritical("Room:doRequest is deprecated!")
   if wait == true then error("wait can't be true") end
@@ -615,6 +616,7 @@ end
 ---@param command string @ 请求类型
 ---@param players? ServerPlayer[] @ 发出请求的玩家列表
 ---@param jsonData? string @ 请求数据
+---@deprecated
 function Room:doBroadcastRequest(command, players, jsonData)
   -- fk.qCritical("Room:doBroadcastRequest is deprecated!")
   players = players or self.players
@@ -637,6 +639,7 @@ end
 ---@param players ServerPlayer[] @ 要竞争这次请求的玩家列表
 ---@param jsonData string @ 请求数据
 ---@return ServerPlayer? @ 在这次竞争请求中获胜的角色，可能是nil
+---@deprecated
 function Room:doRaceRequest(command, players, jsonData)
   -- fk.qCritical("Room:doRaceRequest is deprecated!")
   players = players or self.players
