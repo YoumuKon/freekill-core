@@ -28,7 +28,7 @@ local Room = AbstractRoom:subclass("Room")
 -- load classes used by the game
 Request = require "server.network"
 GameEvent = require "server.gameevent"
-GameEventWrappers = require "lua/server/events"
+GameEventWrappers = require "lua.server.events"
 Room:include(GameEventWrappers)
 GameLogic = require "server.gamelogic"
 ServerPlayer = require "server.serverplayer"

@@ -5,6 +5,8 @@
 -- 关于各种CreateXXXSkill的介绍，请见相应文档，这里不做赘述。
 
 -- 首先加载所有详细的技能类型、卡牌类型等等，以及时机列表
+TriggerEvent = require "core.trigger_event"
+require "core.events"
 dofile "lua/server/event.lua"
 dofile "lua/server/system_enum.lua"
 dofile "lua/server/mark_enum.lua"

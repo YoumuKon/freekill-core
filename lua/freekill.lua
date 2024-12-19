@@ -4,7 +4,7 @@
 -- 向Lua虚拟机中加载库、游戏中的类，以及加载Mod等等。
 
 -- 加载第三方库
-package.path = "./?.lua;./?/init.lua;./lua/lib/?.lua;./lua/?.lua"
+package.path = "./?.lua;./?/init.lua;./lua/lib/?.lua;./lua/?.lua;./lua/?/init.lua"
 
 -- middleclass: 轻量级的面向对象库
 class = require "middleclass"
