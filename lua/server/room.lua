@@ -2947,14 +2947,16 @@ end
 ---@param sth ServerPlayer|Card @ 更新标记的玩家或卡牌
 ---@param mark string @ 标记的名称
 ---@param value any @ 要移除的值
+---@return boolean @ 是否移除成功(若标记中未含此值则移除失败)
 function Room:removeTableMark(sth, mark, value)
   local t = sth:getTableMark(mark)
-  table.removeOne(t, value)
+  if not table.removeOne(t, value) then return false end
   if sth:isInstanceOf(Card) then
     self:setCardMark(sth, mark, #t > 0 and t or 0)
   else
     self:setPlayerMark(sth, mark, #t > 0 and t or 0)
   end
+  return true
 end
 
 --- 无效化技能
