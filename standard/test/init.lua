@@ -19,14 +19,26 @@ function TestStandard:testJianxiong()
 end
 
 function TestStandard:testGangLie()
-  local room = LRoom
+  local room = LRoom ---@type Room
   local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer
-  RunInRoom(function() room:handleAddLoseSkills(me, "ganglie") end)
+  RunInRoom(function()
+    room:handleAddLoseSkills(me, "ganglie")
+    if comp2:getCardIds("h")[1] then room:throwCard(comp2:getCardIds("h"), nil, comp2, comp2) end
+    room:drawCards(comp2, 2)
+  end)
 
   local slash = Fk:getCardById(1)
-  SetNextReplies(me, { "__cancel", "1" })
+  local cardstr = {
+    skill = "discard_skill",
+    subcards = comp2:getCardIds("h")
+  }
+  local reply = {
+    card = cardstr,
+  }
+  SetNextReplies(me, { "__cancel", "1", "__cancel", "1" })
+  -- SetNextReplies(comp2, { "__cancel", json.encode(reply) })
+  local origin_hp = comp2.hp
   RunInRoom(function()
-    room:drawCards(comp2, 2)
     room:moveCardTo(2, Card.DrawPile)
     room:useCard{
       from = comp2.id,
@@ -34,6 +46,17 @@ function TestStandard:testGangLie()
       card = slash,
     }
   end)
-  p(me:toJsonObject())
-  p(comp2:toJsonObject()) -- TODO: 问题来了：我该如何让AI觉得我必须绝不取消呢？
+  lu.assertEquals(comp2.hp, origin_hp - 1)
+  lu.assertEquals(#comp2:getCardIds("h"), 2)
+  -- origin_hp = comp2.hp
+  -- RunInRoom(function()
+  --   room:moveCardTo(2, Card.DrawPile)
+  --   room:useCard{
+  --     from = comp2.id,
+  --     tos = { { me.id } },
+  --     card = slash,
+  --   }
+  -- end)
+  -- lu.assertEquals(comp2.hp, origin_hp)
+  -- lu.assertEquals(#comp2:getCardIds("h"), 0)
 end
