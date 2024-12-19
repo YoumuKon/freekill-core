@@ -2,7 +2,7 @@ TestStandard = { setup = InitRoom, tearDown = ClearRoom }
 
 function TestStandard:testJianxiong()
   local room = LRoom
-  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer
+  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
   RunInRoom(function() room:handleAddLoseSkills(me, "jianxiong") end)
 
   local slash = Fk:getCardById(1)
@@ -20,7 +20,7 @@ end
 
 function TestStandard:testGangLie()
   local room = LRoom ---@type Room
-  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer
+  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
   RunInRoom(function()
     room:handleAddLoseSkills(me, "ganglie")
   end)
@@ -60,4 +60,34 @@ function TestStandard:testGangLie()
   end)
   lu.assertEquals(comp2.hp, origin_hp)
   lu.assertEquals(#comp2:getCardIds("h"), 0)
+end
+
+function TestStandard:testFanKui()
+  local room = LRoom
+  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
+  RunInRoom(function() room:handleAddLoseSkills(me, "fankui") end)
+
+  -- 空牌的情况
+  local slash = Fk:getCardById(1)
+  SetNextReplies(me, { "__cancel", "1" })
+  RunInRoom(function()
+    room:useCard{
+      from = comp2.id,
+      tos = { { me.id } },
+      card = slash,
+    }
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 0)
+
+  -- 有牌的情况
+  SetNextReplies(me, { "__cancel", "1" })
+  RunInRoom(function()
+    room:obtainCard(comp2, { 3 })
+    room:useCard{
+      from = comp2.id,
+      tos = { { me.id } },
+      card = slash,
+    }
+  end)
+  lu.assertEquals(me:getCardIds("h")[1], 3)
 end
