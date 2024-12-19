@@ -69,7 +69,7 @@ function TestStandard:testFanKui()
 
   -- 空牌的情况
   local slash = Fk:getCardById(1)
-  SetNextReplies(me, { "__cancel", "1" })
+  SetNextReplies(me, { "__cancel" })
   RunInRoom(function()
     room:useCard{
       from = comp2.id,
@@ -80,7 +80,7 @@ function TestStandard:testFanKui()
   lu.assertEquals(#me:getCardIds("h"), 0)
 
   -- 有牌的情况
-  SetNextReplies(me, { "__cancel", "1" })
+  SetNextReplies(me, { "__cancel", "1", "3" })
   RunInRoom(function()
     room:obtainCard(comp2, { 3 })
     room:useCard{
