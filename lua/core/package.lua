@@ -87,4 +87,13 @@ function Package:addGameMode(game_mode)
   table.insert(self.game_modes, game_mode)
 end
 
+---@param skels SkillSkeleton[]
+function Package:loadSkillSkels(skels)
+  for _, e in ipairs(skels) do
+    if type(e) == "table" then
+      table.insert(self.skill_skels, e)
+    end
+  end
+end
+
 return Package

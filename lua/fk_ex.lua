@@ -98,7 +98,6 @@ function fk.readStatusSpecToSkill(skill, spec)
 end
 
 ---@class SkillSpec
----@field public package? Package
 ---@field public name string @ 技能名
 ---@field public frequency? Frequency @ 技能发动的频繁程度，通常compulsory（锁定技）及limited（限定技）用的多。
 ---@field public mute? boolean @ 决定是否关闭技能配音
@@ -121,7 +120,6 @@ function SkillSkeleton:initialize(spec)
   self.name = spec.name
   self.frequency = spec.frequency or Skill.NotFrequent
   fk.readCommonSpecToSkill(self, spec)
-  table.insert(spec.package.skill_skels, self)
   self.effect_list = {}
 end
 
