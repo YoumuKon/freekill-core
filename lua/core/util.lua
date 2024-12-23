@@ -468,8 +468,15 @@ end
 
 ---@generic T
 ---@param self T[]
----@param n? integer
----@return T|T[]
+---@return T
+---@diagnostic disable-next-line
+function table.random(self) end
+
+---@generic T
+---@param self T[]
+---@param n integer
+---@return T[]
+---@diagnostic disable-next-line: duplicate-set-field
 function table.random(self, n)
   local n0 = n
   n = n or 1
