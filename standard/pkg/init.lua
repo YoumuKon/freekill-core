@@ -7,86 +7,11 @@ extension:loadSkillSkels(require(prefix .. "standard.pkg.skills"))
 
 General:new(extension, "caocao", "wei", 4):addSkills { "jianxiong", "hujia" }
 General:new(extension, "simayi", "wei", 3):addSkills { "guicai", "fankui" }
-General:new(extension, "xiahoudun", "wei", 4):addSkill "ganglie"
+General:new(extension, "xiahoudun", "wei", 4):addSkills { "ganglie" }
+General:new(extension, "zhangliao", "wei", 4):addSkills { "tuxi" }
+General:new(extension, "xuchu", "wei", 4):addSkills { "luoyi" }
+General:new(extension, "guojia", "wei", 3):addSkills { "tiandu", "yiji" }
 
-local tuxi = fk.CreateTriggerSkill{
-  name = "tuxi",
-  anim_type = "control",
-  events = {fk.EventPhaseStart},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and player.phase == Player.Draw and
-      table.find(player.room:getOtherPlayers(player, false), function(p) return not p:isKongcheng() end)
-  end,
-  on_cost = function(self, event, target, player, data)
-    local room = player.room
-    local targets = table.map(table.filter(room:getOtherPlayers(player, false), function(p)
-      return not p:isKongcheng() end), Util.IdMapper)
-
-    local result = room:askForChoosePlayers(player, targets, 1, 2, "#tuxi-ask", self.name)
-    if #result > 0 then
-      room:sortPlayersByAction(result)
-      self.cost_data = {tos = result}
-      return true
-    end
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    for _, id in ipairs(self.cost_data.tos) do
-      if player.dead then break end
-      local p = room:getPlayerById(id)
-      if not p.dead and not p:isKongcheng() then
-        local c = room:askForCardChosen(player, p, "h", self.name)
-        room:obtainCard(player.id, c, false, fk.ReasonPrey)
-      end
-    end
-    return true
-  end,
-}
-local zhangliao = General:new(extension, "zhangliao", "wei", 4)
-zhangliao:addSkill(tuxi)
-
-local luoyi = fk.CreateTriggerSkill{
-  name = "luoyi",
-  anim_type = "offensive",
-  events = {fk.DrawNCards},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and data.n > 0
-  end,
-  on_use = function(self, event, target, player, data)
-    data.n = data.n - 1
-  end,
-}
-local luoyi_trigger = fk.CreateTriggerSkill{
-  name = "#luoyi_trigger",
-  mute = true,
-  events = {fk.DamageCaused},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:usedSkillTimes("luoyi", Player.HistoryTurn) > 0 and
-      data.card and (data.card.trueName == "slash" or data.card.name == "duel") and data.by_user
-  end,
-  on_cost = Util.TrueFunc,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    player:broadcastSkillInvoke("luoyi")
-    room:notifySkillInvoked(player, "luoyi")
-    data.damage = data.damage + 1
-  end,
-}
-local xuchu = General:new(extension, "xuchu", "wei", 4)
-luoyi:addRelatedSkill(luoyi_trigger)
-xuchu:addSkill(luoyi)
-
-local tiandu = fk.CreateTriggerSkill{
-  name = "tiandu",
-  anim_type = "drawcard",
-  events = {fk.FinishJudge},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and player.room:getCardArea(data.card) == Card.Processing
-  end,
-  on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card, true, fk.ReasonJustMove)
-  end,
-}
 local yiji_active = fk.CreateActiveSkill{
   name = "yiji_active",
   expand_pile = function(self)
@@ -102,95 +27,8 @@ local yiji_active = fk.CreateActiveSkill{
     return #selected == 0 and to_select ~= Self.id
   end,
 }
-local yiji = fk.CreateTriggerSkill{
-  name = "yiji",
-  anim_type = "masochism",
-  events = {fk.Damaged},
-  on_trigger = function(self, event, target, player, data)
-    self.cancel_cost = false
-    for _ = 1, data.damage do
-      if self.cancel_cost or not player:hasSkill(self) then break end
-      self:doCost(event, target, player, data)
-    end
-  end,
-  on_cost = function(self, event, target, player, data)
-    local room = player.room
-    if room:askForSkillInvoke(player, self.name, data) then
-      return true
-    end
-    self.cancel_cost = true
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    local ids = room:getNCards(2)
-    while true do
-      room:setPlayerMark(player, "yiji_cards", ids)
-      local _, ret = room:askForUseActiveSkill(player, "yiji_active", "#yiji-give", true, nil, true)
-      room:setPlayerMark(player, "yiji_cards", 0)
-      if ret then
-        for _, id in ipairs(ret.cards) do
-          table.removeOne(ids, id)
-        end
-        room:moveCardTo(ret.cards, Card.PlayerHand, room:getPlayerById(ret.targets[1]), fk.ReasonGive,
-        self.name, nil, false, player.id, nil, player.id)
-        if #ids == 0 then break end
-        if player.dead then
-          room:moveCards({
-            ids = ids,
-            toArea = Card.DiscardPile,
-            moveReason = fk.ReasonJustMove,
-            skillName = self.name,
-          })
-          break
-        end
-      else
-        room:moveCardTo(ids, Player.Hand, player, fk.ReasonGive, self.name, nil, false, player.id)
-        break
-      end
-    end
-  end,
-}
-local guojia = General:new(extension, "guojia", "wei", 3)
 Fk:addSkill(yiji_active)
-guojia:addSkill(tiandu)
-guojia:addSkill(yiji)
 
-local luoshen = fk.CreateTriggerSkill{
-  name = "luoshen",
-  anim_type = "drawcard",
-  events = {fk.EventPhaseStart},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and player.phase == Player.Start
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    while true do
-      local judge = {
-        who = player,
-        reason = self.name,
-        pattern = ".|.|spade,club",
-      }
-      room:judge(judge)
-      if judge.card.color ~= Card.Black or player.dead or not room:askForSkillInvoke(player, self.name) then
-        break
-      end
-    end
-  end,
-}
-local luoshen_obtain = fk.CreateTriggerSkill{
-  name = "#luoshen_obtain",
-  mute = true,
-  frequency = Skill.Compulsory,
-  events = {fk.FinishJudge},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and not player.dead and data.reason == "luoshen" and data.card.color == Card.Black and
-    player.room:getCardArea(data.card) == Card.Processing
-  end,
-  on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card)
-  end,
-}
-luoshen:addRelatedSkill(luoshen_obtain)
 local qingguo = fk.CreateViewAsSkill{
   name = "qingguo",
   anim_type = "defensive",
@@ -211,7 +49,7 @@ local qingguo = fk.CreateViewAsSkill{
   end,
 }
 local zhenji = General:new(extension, "zhenji", "wei", 3, 3, General.Female)
-zhenji:addSkill(luoshen)
+zhenji:addSkill("luoshen")
 zhenji:addSkill(qingguo)
 
 local rende = fk.CreateActiveSkill{
@@ -351,19 +189,6 @@ paoxiao:addRelatedSkill(paoxiaoAudio)
 local zhangfei = General:new(extension, "zhangfei", "shu", 4)
 zhangfei:addSkill(paoxiao)
 
-local guanxing = fk.CreateTriggerSkill{
-  name = "guanxing",
-  anim_type = "control",
-  events = {fk.EventPhaseStart},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and
-      player.phase == Player.Start
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    room:askForGuanxing(player, room:getNCards(math.min(5, #room.alive_players)))
-  end,
-}
 local kongchengAudio = fk.CreateTriggerSkill{
   name = "#kongchengAudio",
   refresh_events = {fk.AfterCardsMove},
@@ -396,7 +221,7 @@ local kongcheng = fk.CreateProhibitSkill{
 }
 kongcheng:addRelatedSkill(kongchengAudio)
 local zhugeliang = General:new(extension, "zhugeliang", "shu", 3)
-zhugeliang:addSkill(guanxing)
+zhugeliang:addSkill("guanxing")
 zhugeliang:addSkill(kongcheng)
 
 local longdan = fk.CreateViewAsSkill{
@@ -443,43 +268,10 @@ local mashu = fk.CreateDistanceSkill{
     end
   end,
 }
-local tieqi = fk.CreateTriggerSkill{
-  name = "tieqi",
-  anim_type = "offensive",
-  events = {fk.TargetSpecified},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and
-      data.card.trueName == "slash"
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    local judge = {
-      who = player,
-      reason = self.name,
-      pattern = ".|.|heart,diamond",
-    }
-    room:judge(judge)
-    if judge.card.color == Card.Red then
-      data.disresponsive = true
-    end
-  end,
-}
 local machao = General:new(extension, "machao", "shu", 4)
 machao:addSkill(mashu)
-machao:addSkill(tieqi)
+machao:addSkill("tieqi")
 
-local jizhi = fk.CreateTriggerSkill{
-  name = "jizhi",
-  anim_type = "drawcard",
-  events = {fk.CardUsing},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self) and data.card:isCommonTrick() and
-      (not data.card:isVirtual() or #data.card.subcards == 0)
-  end,
-  on_use = function(self, event, target, player, data)
-    player:drawCards(1, self.name)
-  end,
-}
 local qicai = fk.CreateTargetModSkill{
   name = "qicai",
   frequency = Skill.Compulsory,
@@ -488,7 +280,7 @@ local qicai = fk.CreateTargetModSkill{
   end,
 }
 local huangyueying = General:new(extension, "huangyueying", "shu", 3, 3, General.Female)
-huangyueying:addSkill(jizhi)
+huangyueying:addSkill("jizhi")
 huangyueying:addSkill(qicai)
 
 local zhiheng = fk.CreateActiveSkill{
@@ -512,30 +304,9 @@ local zhiheng = fk.CreateActiveSkill{
     end
   end,
 }
-
-local jiuyuan = fk.CreateTriggerSkill{
-  name = "jiuyuan$",
-  anim_type = "support",
-  frequency = Skill.Compulsory,
-  events = {fk.PreHpRecover},
-  can_trigger = function(self, event, target, player, data)
-    return
-      target == player and
-      player:hasSkill(self) and
-      data.card and
-      data.card.trueName == "peach" and
-      data.recoverBy and
-      data.recoverBy.kingdom == "wu" and
-      data.recoverBy ~= player
-  end,
-  on_use = function(self, event, target, player, data)
-    data.num = data.num + 1
-  end,
-}
-
 local sunquan = General:new(extension, "sunquan", "wu", 4)
 sunquan:addSkill(zhiheng)
-sunquan:addSkill(jiuyuan)
+sunquan:addSkill("jiuyuan")
 
 local qixi = fk.CreateViewAsSkill{
   name = "qixi",
@@ -561,39 +332,7 @@ local qixi = fk.CreateViewAsSkill{
 local ganning = General:new(extension, "ganning", "wu", 4)
 ganning:addSkill(qixi)
 
-local keji = fk.CreateTriggerSkill{
-  name = "keji",
-  anim_type = "defensive",
-  events = {fk.EventPhaseChanging},
-  can_trigger = function(self, event, target, player, data)
-    if target == player and player:hasSkill(self) and data.to == Player.Discard then
-      local room = player.room
-      local play_ids = {}
-      player.room.logic:getEventsOfScope(GameEvent.Phase, 1, function (e)
-        if e.data[2] == Player.Play and e.end_id then
-          table.insert(play_ids, {e.id, e.end_id})
-        end
-        return false
-      end, Player.HistoryTurn)
-      if #play_ids == 0 then return true end
-      local function PlayCheck (e)
-        local in_play = false
-        for _, ids in ipairs(play_ids) do
-          if e.id > ids[1] and e.id < ids[2] then
-            in_play = true
-            break
-          end
-        end
-        return in_play and e.data[1].from == player.id and e.data[1].card.trueName == "slash"
-      end
-      return #player.room.logic:getEventsOfScope(GameEvent.UseCard, 1, PlayCheck, Player.HistoryTurn) == 0
-      and #player.room.logic:getEventsOfScope(GameEvent.RespondCard, 1, PlayCheck, Player.HistoryTurn) == 0
-    end
-  end,
-  on_use = Util.TrueFunc,
-}
-local lvmeng = General:new(extension, "lvmeng", "wu", 4)
-lvmeng:addSkill(keji)
+General:new(extension, "lvmeng", "wu", 4):addSkills { "keji" }
 
 local kurou = fk.CreateActiveSkill{
   name = "kurou",
@@ -611,14 +350,6 @@ local kurou = fk.CreateActiveSkill{
 local huanggai = General:new(extension, "huanggai", "wu", 4)
 huanggai:addSkill(kurou)
 
-local yingzi = fk.CreateTriggerSkill{
-  name = "yingzi",
-  anim_type = "drawcard",
-  events = {fk.DrawNCards},
-  on_use = function(self, event, target, player, data)
-    data.n = data.n + 1
-  end,
-}
 local fanjian = fk.CreateActiveSkill{
   name = "fanjian",
   prompt = "#fanjian-active",
@@ -648,7 +379,7 @@ local fanjian = fk.CreateActiveSkill{
   end,
 }
 local zhouyu = General:new(extension, "zhouyu", "wu", 3)
-zhouyu:addSkill(yingzi)
+zhouyu:addSkill("yingzi")
 zhouyu:addSkill(fanjian)
 
 local guose = fk.CreateViewAsSkill{
@@ -672,51 +403,9 @@ local guose = fk.CreateViewAsSkill{
     return not response
   end
 }
-local liuli = fk.CreateTriggerSkill{
-  name = "liuli",
-  anim_type = "defensive",
-  events = {fk.TargetConfirming},
-  can_trigger = function(self, event, target, player, data)
-    local ret = target == player and player:hasSkill(self) and
-      data.card.trueName == "slash"
-    if ret then
-      local room = player.room
-      local from = room:getPlayerById(data.from)
-      for _, p in ipairs(room.alive_players) do
-        if p ~= player and p.id ~= data.from and player:inMyAttackRange(p) and not from:isProhibited(p, data.card) then
-          return true
-        end
-      end
-    end
-  end,
-  on_cost = function(self, event, target, player, data)
-    local room = player.room
-    local prompt = "#liuli-target"
-    local targets = {}
-    local from = room:getPlayerById(data.from)
-    for _, p in ipairs(room.alive_players) do
-      if p ~= player and p.id ~= data.from and player:inMyAttackRange(p) and not from:isProhibited(p, data.card) then
-        table.insert(targets, p.id)
-      end
-    end
-    if #targets == 0 then return false end
-    local plist, cid = room:askForChooseCardAndPlayers(player, targets, 1, 1, nil, prompt, self.name, true)
-    if #plist > 0 then
-      self.cost_data = {tos = plist, cards = {cid}}
-      return true
-    end
-  end,
-  on_use = function(self, event, target, player, data)
-    local room = player.room
-    local to = self.cost_data.tos[1]
-    room:throwCard(self.cost_data.cards, self.name, player, player)
-    AimGroup:cancelTarget(data, player.id)
-    AimGroup:addTargets(room, data, to)
-  end,
-}
 local daqiao = General:new(extension, "daqiao", "wu", 3, 3, General.Female)
 daqiao:addSkill(guose)
-daqiao:addSkill(liuli)
+daqiao:addSkill("liuli")
 
 local qianxun = fk.CreateProhibitSkill{
   name = "qianxun",
@@ -727,74 +416,10 @@ local qianxun = fk.CreateProhibitSkill{
     end
   end,
 }
-local lianying = fk.CreateTriggerSkill{
-  name = "lianying",
-  anim_type = "drawcard",
-  events = {fk.AfterCardsMove},
-  can_trigger = function(self, event, target, player, data)
-    if not player:hasSkill(self) then return end
-    if not player:isKongcheng() then return end
-    for _, move in ipairs(data) do
-      if move.from == player.id then
-        for _, info in ipairs(move.moveInfo) do
-          if info.fromArea == Card.PlayerHand then
-            return true
-          end
-        end
-      end
-    end
-  end,
-  on_use = function(self, event, target, player, data)
-    player:drawCards(1, self.name)
-  end,
-}
 local luxun = General:new(extension, "luxun", "wu", 3)
 luxun:addSkill(qianxun)
-luxun:addSkill(lianying)
+luxun:addSkill("lianying")
 
-local xiaoji = fk.CreateTriggerSkill{
-  name = "xiaoji",
-  anim_type = "drawcard",
-  events = {fk.AfterCardsMove},
-  can_trigger = function(self, event, target, player, data)
-    if not player:hasSkill(self) then return end
-    for _, move in ipairs(data) do
-      if move.from == player.id then
-        for _, info in ipairs(move.moveInfo) do
-          if info.fromArea == Card.PlayerEquip then
-            return true
-          end
-        end
-      end
-    end
-  end,
-  on_trigger = function(self, event, target, player, data)
-    local i = 0
-    for _, move in ipairs(data) do
-      if move.from == player.id then
-        for _, info in ipairs(move.moveInfo) do
-          if info.fromArea == Card.PlayerEquip then
-            i = i + 1
-          end
-        end
-      end
-    end
-    self.cancel_cost = false
-    for _ = 1, i do
-      if self.cancel_cost or not player:hasSkill(self) then break end
-      self:doCost(event, target, player, data)
-    end
-  end,
-  on_cost = function(self, event, target, player, data)
-    if player.room:askForSkillInvoke(player, self.name) then
-      return true
-    end
-    self.cancel_cost = true
-  end,
-  on_use = function(self, event, target, player, data)
-    player:drawCards(2, self.name)
-  end,
-}
 local jieyin = fk.CreateActiveSkill{
   name = "jieyin",
   prompt = "#jieyin-active",
@@ -835,7 +460,7 @@ local jieyin = fk.CreateActiveSkill{
   end
 }
 local sunshangxiang = General:new(extension, "sunshangxiang", "wu", 3, 3, General.Female)
-sunshangxiang:addSkill(xiaoji)
+sunshangxiang:addSkill("xiaoji")
 sunshangxiang:addSkill(jieyin)
 
 local qingnang = fk.CreateActiveSkill{
@@ -895,35 +520,7 @@ local huatuo = General:new(extension, "huatuo", "qun", 3)
 huatuo:addSkill(qingnang)
 huatuo:addSkill(jijiu)
 
-local wushuang = fk.CreateTriggerSkill{
-  name = "wushuang",
-  anim_type = "offensive",
-  frequency = Skill.Compulsory,
-  events = {fk.TargetSpecified, fk.TargetConfirmed},
-  can_trigger = function(self, event, target, player, data)
-    if not player:hasSkill(self) then
-      return false
-    end
-
-    if event == fk.TargetSpecified then
-      return target == player and table.contains({ "slash", "duel" }, data.card.trueName)
-    else
-      return data.to == player.id and data.card.trueName == "duel"
-    end
-  end,
-  on_use = function(self, event, target, player, data)
-    data.fixedResponseTimes = data.fixedResponseTimes or {}
-    if data.card.trueName == "slash" then
-      data.fixedResponseTimes["jink"] = 2
-    else
-      data.fixedResponseTimes["slash"] = 2
-      data.fixedAddTimesResponsors = data.fixedAddTimesResponsors or {}
-      table.insert(data.fixedAddTimesResponsors, (event == fk.TargetSpecified and data.to or data.from))
-    end
-  end,
-}
-local lvbu = General:new(extension, "lvbu", "qun", 4)
-lvbu:addSkill(wushuang)
+General:new(extension, "lvbu", "qun", 4):addSkills { "wushuang" }
 
 local lijian = fk.CreateActiveSkill{
   name = "lijian",
@@ -967,21 +564,9 @@ local lijian = fk.CreateActiveSkill{
     end
   end,
 }
-local biyue = fk.CreateTriggerSkill{
-  name = "biyue",
-  anim_type = "drawcard",
-  events = {fk.EventPhaseStart},
-  can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(self)
-      and player.phase == Player.Finish
-  end,
-  on_use = function(self, event, target, player, data)
-    player:drawCards(1, self.name)
-  end,
-}
 local diaochan = General:new(extension, "diaochan", "qun", 3, 3, General.Female)
 diaochan:addSkill(lijian)
-diaochan:addSkill(biyue)
+diaochan:addSkill("biyue")
 
 local role_getlogic = function()
   local role_logic = GameLogic:subclass("role_logic")
