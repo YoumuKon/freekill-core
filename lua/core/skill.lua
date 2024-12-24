@@ -18,6 +18,7 @@
 ---@field public switchSkillName string @ 转换技名字
 ---@field public times integer @ 技能剩余次数，负数不显示，正数显示
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
+---@field public main_skill Skill
 local Skill = class("Skill")
 
 ---@alias Frequency integer

@@ -1,6 +1,6 @@
 -- 牢函数
 
----@class TriggerSkillSpec: UsableSkillSpec
+---@class LegacyTriggerSkillSpec: UsableSkillSpec
 ---@field public global? boolean
 ---@field public events? (TriggerEvent|integer|string) | (TriggerEvent|integer|string)[]
 ---@field public refresh_events? (TriggerEvent|integer|string) | (TriggerEvent|integer|string)[]
@@ -14,15 +14,15 @@
 ---@field public can_wake? TrigFunc
 
 --@deprecated
----@param spec TriggerSkillSpec
----@return TriggerSkill
+---@param spec LegacyTriggerSkillSpec
+---@return LegacyTriggerSkill
 function fk.CreateTriggerSkill(spec)
   assert(type(spec.name) == "string")
   --assert(type(spec.on_trigger) == "function")
   if spec.frequency then assert(type(spec.frequency) == "number") end
 
   local frequency = spec.frequency or Skill.NotFrequent
-  local skill = TriggerSkill:new(spec.name, frequency)
+  local skill = LegacyTriggerSkill:new(spec.name, frequency)
   fk.readUsableSpecToSkill(skill, spec)
 
   if type(spec.events) == "number" then

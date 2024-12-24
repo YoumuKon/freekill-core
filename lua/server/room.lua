@@ -33,6 +33,9 @@ Room:include(GameEventWrappers)
 GameLogic = require "server.gamelogic"
 ServerPlayer = require "server.serverplayer"
 
+-- 唉，兼容牢函数
+GameLogic:include(dofile "lua/compat/gamelogic.lua")
+
 ---@type Player
 Self = nil -- `Self' is client-only, but we need it in AI
 dofile "lua/server/ai/init.lua"

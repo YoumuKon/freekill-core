@@ -1,64 +1,70 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
----@class TriggerSkill : UsableSkill
----@field public global boolean
----@field public event TriggerEvent
----@field public priority number
-local TriggerSkill = UsableSkill:subclass("TriggerSkill")
+-- 牢triggerSkill
 
-function TriggerSkill:initialize(name, frequency)
+---@class LegacyTriggerSkill : UsableSkill
+---@field public global boolean
+---@field public events (TriggerEvent|integer|string)[]
+---@field public refresh_events (TriggerEvent|integer|string)[]
+---@field public priority_table table<(TriggerEvent|integer|string), number>
+local LegacyTriggerSkill = UsableSkill:subclass("LegacyTriggerSkill")
+
+function LegacyTriggerSkill:initialize(name, frequency)
   UsableSkill.initialize(self, name, frequency)
 
   self.global = false
-  self.priority = 1
+  self.events = {}
+  self.refresh_events = {}
+  self.priority_table = {}  -- GameEvent --> priority
 end
 
 -- Default functions
 
 ---Determine whether a skill can refresh at this moment
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
-function TriggerSkill:canRefresh(event, target, player, data) return false end
+function LegacyTriggerSkill:canRefresh(event, target, player, data) return false end
 
 ---Refresh the skill (e.g. clear marks)
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
-function TriggerSkill:refresh(event, target, player, data) end
+function LegacyTriggerSkill:refresh(event, target, player, data) end
 
 ---Determine whether a skill can trigger at this moment
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
----@return boolean?
-function TriggerSkill:triggerable(event, target, player, data)
+---@return boolean
+function LegacyTriggerSkill:triggerable(event, target, player, data)
   return target and (target == player)
     and (self.global or target:hasSkill(self))
 end
 
 -- Determine how to cost this skill.
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
----@return boolean? @ returns true if trigger is broken
-function TriggerSkill:trigger(event, target, player, data)
+---@return boolean @ returns true if trigger is broken
+function LegacyTriggerSkill:trigger(event, target, player, data)
   return self:doCost(event, target, player, data)
 end
 
 -- do cost and skill effect.
 -- DO NOT modify this function
-function TriggerSkill:doCost(event, target, player, data)
+function LegacyTriggerSkill:doCost(event, target, player, data)
   local start_time = os.getms()
   local room = player.room
   room.current_cost_skill = self
   local ret = self:cost(event, target, player, data)
   local end_time = os.getms()
 
+  local room = player.room
   -- 对于那种cost直接返回true的锁定技，如果是预亮技，那么还是询问一下好
   if ret and player:isFakeSkill(self) and end_time - start_time < 1000 and
     (self.main_skill and self.main_skill or self).visible then
@@ -67,7 +73,7 @@ function TriggerSkill:doCost(event, target, player, data)
   room.current_cost_skill = nil
 
   local cost_data_bak = self.cost_data
-  room.logic:trigger(fk.BeforeTriggerSkillUse, player, { skill = self, willUse = ret })
+  room.logic:trigger(fk.BeforeLegacyTriggerSkillUse, player, { skill = self, willUse = ret })
   self.cost_data = cost_data_bak
 
   if ret then
@@ -86,12 +92,13 @@ function TriggerSkill:doCost(event, target, player, data)
 end
 
 -- ask player how to use this skill.
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
----@return boolean? @ returns true if trigger is broken
-function TriggerSkill:cost(event, target, player, data)
+---@return boolean @ returns true if trigger is broken
+function LegacyTriggerSkill:cost(event, target, player, data)
+  local ret = false
   if self.frequency == Skill.Compulsory or self.frequency == Skill.Wake then
     return true
   end
@@ -103,23 +110,23 @@ function TriggerSkill:cost(event, target, player, data)
 end
 
 ---Use this skill
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
 ---@return boolean?
-function TriggerSkill:use(event, target, player, data) end
+function LegacyTriggerSkill:use(event, target, player, data) end
 
-function TriggerSkill:canWake(event, target, player, data)
+function LegacyTriggerSkill:canWake(event, target, player, data)
   return true
 end
 
----@param event TriggerEvent @ TriggerEvent
----@param target ServerPlayer? @ Player who triggered this event
+---@param event TriggerEvent|integer|string @ TriggerEvent
+---@param target ServerPlayer @ Player who triggered this event
 ---@param player ServerPlayer @ Player who is operating
 ---@param data any @ useful data of the event
----@return boolean?
-function TriggerSkill:enableToWake(event, target, player, data)
+---@return boolean
+function LegacyTriggerSkill:enableToWake(event, target, player, data)
   return
     type(player:getMark(MarkEnum.StraightToWake)) == "table" and
     table.find(player:getMark(MarkEnum.StraightToWake), function(skillName)
@@ -128,4 +135,4 @@ function TriggerSkill:enableToWake(event, target, player, data)
     self:canWake(event, target, player, data)
 end
 
-return TriggerSkill
+return LegacyTriggerSkill

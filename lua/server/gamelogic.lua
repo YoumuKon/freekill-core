@@ -1,10 +1,9 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
----@class GameLogic: Object
+---@class GameLogic: Object, GameLogicLegacyMixin
 ---@field public room Room
 ---@field public skill_table table<(TriggerEvent|integer|string), TriggerSkill[]>
 ---@field public skill_priority_table table<(TriggerEvent|integer|string), number[]>
----@field public refresh_skill_table table<(TriggerEvent|integer|string), TriggerSkill[]>
 ---@field public skills string[]
 ---@field public game_event_stack Stack
 ---@field public cleaner_stack Stack
@@ -12,14 +11,21 @@
 ---@field public all_game_events GameEvent[]
 ---@field public event_recorder table<GameEvent, GameEvent>
 ---@field public current_event_id integer
+---@field public current_trigger_event_id integer
 local GameLogic = class("GameLogic")
 
 function GameLogic:initialize(room)
   self.room = room
-  self.skill_table = {}   -- TriggerEvent --> TriggerSkill[]
+
+  self.skills = {}
+  self.skill_table = {}
   self.skill_priority_table = {}
-  self.refresh_skill_table = {}
-  self.skills = {}    -- skillName[]
+  -- 牢技能
+  self.legacy_skill_table = {}   -- TriggerEvent --> TriggerSkill[]
+  self.legacy_skill_priority_table = {}
+  self.legacy_refresh_skill_table = {}
+  self.legacy_skills = {}    -- skillName[]
+
   self.game_event_stack = Stack:new()
   self.cleaner_stack = Stack:new()
   self.all_game_events = {}
@@ -42,6 +48,7 @@ function GameLogic:initialize(room)
   self.specific_events_id = {
     [GameEvent.Damage] = 1,
   }
+  self.current_trigger_event_id = 0
 
   self.role_table = {
     { "lord" },
@@ -294,140 +301,57 @@ function GameLogic:action()
   end
 end
 
----@param skill TriggerSkill
+---@param skill TriggerSkill|LegacyTriggerSkill
 function GameLogic:addTriggerSkill(skill)
-  if skill == nil or table.contains(self.skills, skill.name) then
+  if not skill then return end
+  if skill:isInstanceOf(LegacyTriggerSkill) then
+    ---@cast skill LegacyTriggerSkill
+    self:addLegacyTriggerSkill(skill)
     return
   end
 
+  ---@cast skill TriggerSkill
+  if table.contains(self.skills, skill.name) then return end
   table.insert(self.skills, skill.name)
+  local event = skill.event
+  if self.skill_table[event] == nil then self.skill_table[event] = {} end
+  table.insert(self.skill_table[event], skill)
 
-  for _, event in ipairs(skill.refresh_events) do
-    if self.refresh_skill_table[event] == nil then
-      self.refresh_skill_table[event] = {}
-    end
-    table.insert(self.refresh_skill_table[event], skill)
+  if self.skill_priority_table[event] == nil then
+    self.skill_priority_table[event] = {}
   end
 
-  for _, event in ipairs(skill.events) do
-    if self.skill_table[event] == nil then
-      self.skill_table[event] = {}
+  local priority_tab = self.skill_priority_table[event]
+  local prio = skill.priority
+  if not table.contains(priority_tab, prio) then
+    for i, v in ipairs(priority_tab) do
+      if v < prio then
+        table.insert(priority_tab, i, prio)
+        break
+      end
     end
-    table.insert(self.skill_table[event], skill)
 
-    if self.skill_priority_table[event] == nil then
-      self.skill_priority_table[event] = {}
-    end
-
-    local priority_tab = self.skill_priority_table[event]
-    local prio = skill.priority_table[event]
     if not table.contains(priority_tab, prio) then
-      for i, v in ipairs(priority_tab) do
-        if v < prio then
-          table.insert(priority_tab, i, prio)
-          break
-        end
-      end
-
-      if not table.contains(priority_tab, prio) then
-        table.insert(priority_tab, prio)
-      end
-    end
-
-    if not table.contains(self.skill_priority_table[event],
-      skill.priority_table[event]) then
-
-      table.insert(self.skill_priority_table[event],
-        skill.priority_table[event])
+      table.insert(priority_tab, prio)
     end
   end
 
-  if skill.visible then
-    if (Fk.related_skills[skill.name] == nil) then return end
-    for _, s in ipairs(Fk.related_skills[skill.name]) do
-      if (s.class == TriggerSkill) then
-        self:addTriggerSkill(s)
-      end
-    end
-  end
+  -- 没有related_skills了。
 end
 
 ---@param event TriggerEvent|integer|string
 ---@param target? ServerPlayer
----@param data? any
+---@param data? any data应该传入一个构造好的某某class实例
 function GameLogic:trigger(event, target, data, refresh_only)
-  local room = self.room
-  local broken = false
-  local skills = self.skill_table[event] or {}
-  local skills_to_refresh = self.refresh_skill_table[event] or Util.DummyTable
-  local _target = room.current -- for iteration
-  local player = _target
-  local cur_event = self:getCurrentEvent() or {}
-  -- 如果当前事件被杀，就强制只refresh
-  -- 因为被杀的事件再进行正常trigger只可能在cleaner和exit了
-  refresh_only = refresh_only or cur_event.killed
-
-  if #skills_to_refresh > 0 then repeat do
-    -- refresh skills. This should not be broken
-    for _, skill in ipairs(skills_to_refresh) do
-      if skill:canRefresh(event, target, player, data) then
-        skill:refresh(event, target, player, data)
-      end
-    end
-    player = player.next
-  end until player == _target end
-
-  if #skills == 0 or refresh_only then return end
-
-  local prio_tab = self.skill_priority_table[event]
-  local prev_prio = math.huge
-
-  for _, prio in ipairs(prio_tab) do
-    if broken then break end
-    if prio >= prev_prio then
-      -- continue
-      goto trigger_loop_continue
-    end
-
-    repeat do
-      local invoked_skills = {}
-      local filter_func = function(skill)
-        return skill.priority_table[event] == prio and
-          not table.contains(invoked_skills, skill) and
-          skill:triggerable(event, target, player, data)
-      end
-
-      local skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
-
-      while #skill_names > 0 do
-        local skill_name = prio <= 0 and table.random(skill_names) or
-          room:askForChoice(player, skill_names, "trigger", "#choose-trigger")
-
-        local skill = skill_name == "game_rule" and GameRule
-          or Fk.skills[skill_name]
-
-        table.insert(invoked_skills, skill)
-        broken = skill:trigger(event, target, player, data)
-        skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
-
-        broken = broken or (event == fk.AskForPeaches
-          and room:getPlayerById(data.who).hp > 0) or
-          (table.contains({fk.PreDamage, fk.DamageCaused, fk.DamageInflicted}, event) and data.damage < 1) or
-          cur_event.killed
-
-        if broken then break end
-      end
-
-      if broken then break end
-
-      player = player.next
-    end until player == _target
-
-    prev_prio = prio
-    ::trigger_loop_continue::
+  local broken = self:triggerForLegacy(event, target, data, refresh_only)
+  if broken then return broken end
+  if not (type(event) == "table" and event:isSubclassOf(TriggerEvent)) then
+    return broken
   end
 
-  return broken
+  local event_obj = event:new(self.room, target, data)
+  event_obj.refresh_only = refresh_only
+  return event_obj:exec()
 end
 
 -- 此为启动事件管理器并启动第一个事件的初始函数

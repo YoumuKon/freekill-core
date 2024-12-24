@@ -5,12 +5,14 @@
 -- 关于各种CreateXXXSkill的介绍，请见相应文档，这里不做赘述。
 
 -- 首先加载所有详细的技能类型、卡牌类型等等，以及时机列表
+
 TriggerEvent = require "core.trigger_event"
 require "core.events"
 dofile "lua/server/event.lua"
 dofile "lua/server/system_enum.lua"
 dofile "lua/server/mark_enum.lua"
 TriggerSkill = require "core.skill_type.trigger"
+LegacyTriggerSkill = require "core.skill_type.trigger_legacy"
 ActiveSkill = require "core.skill_type.active"
 ViewAsSkill = require "core.skill_type.view_as"
 DistanceSkill = require "core.skill_type.distance"
@@ -172,51 +174,51 @@ end
 
 ---@param skill Skill
 ---@param idx integer
----@param key TriggerEvent|integer|string
+---@param key TriggerEvent
 ---@param attr TrigSkelAttribute
 ---@param spec TrigSkelSpec
 ---@return TriggerSkill
 function SkillSkeleton:createTriggerSkill(skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_trig", skill.name, idx)
-  -- 先用牢TriggerSkill顶住 船新Trigger再说吧
   local sk = TriggerSkill:new(new_name, skill.frequency)
   fk.readCommonSpecToSkill(sk, self)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(skill.name) }, Config.language)
-  if spec.can_trigger or spec.on_trigger or spec.on_cost or spec.on_use or
-    spec.can_wake then
-    sk.events = { key }
-    if spec.can_trigger then
-      local can_trigger = function(_self, event, target, player, data)
-        if (not attr.not_has_skill) and not
-          player:hasSkill(attr.is_delay_effect and sk or skill) then return end
-        if (not attr.player_not_target) and
-          not (target == nil or target == player) then return end
-        return spec.can_trigger(_self, event, target, player, data)
-      end
-      if skill.frequency == Skill.Wake then
-        sk.triggerable = function(_self, event, target, player, data)
-          return can_trigger(_self, event, target, player, data) and
-            sk:enableToWake(event, target, player, data)
-        end
-      else
-        sk.triggerable = can_trigger
-      end
-      if skill.frequency == Skill.Wake and spec.can_wake then
-        sk.canWake = spec.can_wake
-      end
+  sk.event = key
+  if spec.can_trigger then
+    local can_trigger = function(_self, event, target, player, data)
+      if (not attr.not_has_skill) and not
+        player:hasSkill(attr.is_delay_effect and sk or skill) then return end
+      if (not attr.player_not_target) and
+        not (target == nil or target == player) then return end
+      return spec.can_trigger(_self, event, target, player, data)
     end
-    if spec.on_trigger then sk.trigger = spec.on_trigger end
-    if spec.on_cost then sk.cost = spec.on_cost end
-    if spec.on_use then sk.use = spec.on_use end
-    -- TODO
-    sk.priority_table[key] = 1
+    if skill.frequency == Skill.Wake then
+      sk.triggerable = function(_self, event, target, player, data)
+        return can_trigger(_self, event, target, player, data) and
+          sk:enableToWake(event, target, player, data)
+      end
+    else
+      sk.triggerable = can_trigger
+    end
+    if skill.frequency == Skill.Wake and spec.can_wake then
+      sk.canWake = spec.can_wake
+    end
   end
-  if spec.can_refresh or spec.on_refresh then
-    sk.refresh_events = { key }
-    if spec.can_refresh then sk.canRefresh = spec.can_refresh end
-    if spec.on_refresh then sk.refresh = spec.on_refresh end
+  if spec.on_trigger then sk.trigger = spec.on_trigger end
+  if spec.on_cost then sk.cost = spec.on_cost end
+  if spec.on_use then sk.use = spec.on_use end
+
+  if spec.can_refresh then sk.canRefresh = spec.can_refresh end
+  if spec.on_refresh then sk.refresh = spec.on_refresh end
+
+  if spec.can_refresh and not (spec.can_trigger or spec.can_wake or spec.on_trigger
+    or spec.on_cost or spec.on_use) then
+    sk.triggerable = Util.FalseFunc
   end
-  -- TODO: useAbleSpec
+
+  -- TODO: useAbleSpec, priority
+  sk.priority = 1
+
   return sk
 end
 
