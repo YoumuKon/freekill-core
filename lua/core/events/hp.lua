@@ -16,9 +16,15 @@ HpChangedData = class("HpChangedData")
 ---@field public num integer @ 失去体力的数值
 ---@field public skillName string @ 导致这次失去的技能名
 
+---@class HpLostData: HpLostDataSpec, Object
+HpLostData = class("HpLostData")
+
 --- MaxHpChangedData 描述跟体力上限变化有关的数据
 ---@class MaxHpChangedDataSpec
 ---@field public num integer @ 体力上限变化量，可能是正数或者负数
+
+---@class MaxHpChangedData: MaxHpChangedDataSpec, Object
+MaxHpChangedData = class("MaxHpChangedData")
 
 --- DamageType 伤害的属性
 ---@alias DamageType integer
@@ -51,6 +57,9 @@ DamageStruct = class("DamageStruct")
 ---@field public recoverBy? ServerPlayer @ 此次回复的回复来源
 ---@field public skillName? string @ 因何种技能而回复
 ---@field public card? Card @ 造成此次回复的卡牌
+
+---@class RecoverStruct: RecoverStructSpec, Object
+RecoverStruct = class("RecoverStruct")
 
 ---@class HpChangedEvent: TriggerEvent
 ---@field data HpChangedData
@@ -107,13 +116,16 @@ fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 
 -- 注释环节
 
---[[
-先三个大any得了
+---@alias DamageTrigFunc fun(self: TriggerSkill, event: DamageEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: DamageStruct): any
+
+---@alias HpChangedTrigFunc fun(self: TriggerSkill, event: HpChangedEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: HpChangedData): any
+
 ---@class DamageSkelAttr: TrigSkelAttribute
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: HpChangedEvent,
----  attr: TrigSkelAttribute?, data: HpChangedSkelSpec): SkillSkeleton
+---  attr: TrigSkelAttribute?, data: TrigSkelSpec<HpChangedTrigFunc>): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DamageEvent,
----  attr: DamageSkelAttr?, data: DamageSkelSpec): SkillSkeleton
---]]
+---  attr: DamageSkelAttr?, data: TrigSkelSpec<DamageTrigFunc>): SkillSkeleton

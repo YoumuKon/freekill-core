@@ -162,15 +162,16 @@ end
 ---@field public player_not_target? boolean
 --- 若为false或nil，自动添加判断(target == nil or target == player)
 
----@alias TrigFunc fun(self: TriggerSkill, event: TriggerEvent|integer|string, target: ServerPlayer, player: ServerPlayer, data: any): any
----@class TrigSkelSpec
----@field public on_trigger? TrigFunc
----@field public can_trigger? TrigFunc
----@field public on_cost? TrigFunc
----@field public on_use? TrigFunc
----@field public on_refresh? TrigFunc
----@field public can_refresh? TrigFunc
----@field public can_wake? TrigFunc
+---@alias TrigFunc fun(self: TriggerSkill, event: TriggerEvent, target: ServerPlayer?, player: ServerPlayer, data: any): any
+---@class TrigSkelSpec<T>: {
+--- on_trigger?: T,
+--- can_trigger?: T,
+--- on_cost?: T,
+--- on_use?: T,
+--- on_refresh?: T,
+--- can_refresh?: T,
+--- can_wake?: T,
+--- }
 
 ---@param skill Skill
 ---@param idx integer
