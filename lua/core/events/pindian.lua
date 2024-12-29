@@ -1,9 +1,14 @@
----@class fk.StartPindian: TriggerEvent
-fk.StartPindian = TriggerEvent:subclass("fk.StartPindian")
----@class fk.PindianCardsDisplayed: TriggerEvent
-fk.PindianCardsDisplayed = TriggerEvent:subclass("fk.PindianCardsDisplayed")
----@class fk.PindianResultConfirmed: TriggerEvent
-fk.PindianResultConfirmed = TriggerEvent:subclass("fk.PindianResultConfirmed")
----@class fk.PindianFinished: TriggerEvent
-fk.PindianFinished = TriggerEvent:subclass("fk.PindianFinished")
+---@class PindianEvent: TriggerEvent
+---@field data PindianData
+local PindianEvent = TriggerEvent:subclass("PindianEvent")
+
+
+---@class fk.StartPindian: PindianEvent
+fk.StartPindian = PindianEvent:subclass("fk.StartPindian")
+---@class fk.PindianCardsDisplayed: PindianEvent
+fk.PindianCardsDisplayed = PindianEvent:subclass("fk.PindianCardsDisplayed")
+---@class fk.PindianResultConfirmed: PindianEvent
+fk.PindianResultConfirmed = PindianEvent:subclass("fk.PindianResultConfirmed")
+---@class fk.PindianFinished: PindianEvent
+fk.PindianFinished = PindianEvent:subclass("fk.PindianFinished")
 
