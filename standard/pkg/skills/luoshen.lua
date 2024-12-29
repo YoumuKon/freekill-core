@@ -10,7 +10,7 @@ return fk.CreateSkill({
     while true do
       local judge = {
         who = player,
-        reason = self.name,
+        reason = "luoshen",
         pattern = ".|.|spade,club",
       }
       room:judge(judge)
@@ -25,6 +25,7 @@ return fk.CreateSkill({
     return not player.dead and data.reason == "luoshen" and data.card.color == Card.Black and
     player.room:getCardArea(data.card) == Card.Processing
   end,
+  on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
     player.room:obtainCard(player.id, data.card)
   end,

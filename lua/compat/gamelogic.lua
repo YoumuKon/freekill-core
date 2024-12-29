@@ -82,7 +82,7 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
 
   local orig_data = data
   local data_converted = false
-  if data and data.toLegacy then
+  if data and type(data) == "table" and data.toLegacy then
     data_converted = true
     data = data:toLegacy()
   end
