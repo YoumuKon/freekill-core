@@ -506,10 +506,10 @@ function table.slice(self, begin, _end)
 end
 
 ---@generic T, T2
----@param self table<T, T2>
----@param targetTbl table<T, T2>
-function table.assign(self, targetTbl)
-  for key, value in pairs(targetTbl) do
+---@param self table<T, T2> @ 要被赋值的表
+---@param source table<T, T2> @ 赋值来源的表
+function table.assign(self, source)
+  for key, value in pairs(source) do
     if self[key] then
       if type(value) == "table" then
         table.insertTable(self[key], value)

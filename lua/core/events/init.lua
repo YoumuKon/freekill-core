@@ -1,3 +1,9 @@
+---@class TriggerData: Object
+TriggerData = class("TriggerData")
+function TriggerData:initialize(spec)
+  table.assign(self, spec)
+end
+
 require "core.events.misc"
 require "core.events.hp"
 require "core.events.death"

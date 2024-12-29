@@ -43,23 +43,19 @@ local function sendDamageLog(room, damageStruct)
 end
 
 ---@class GameEvent.ChangeHp : GameEvent
+---@field public data [ServerPlayer, HpChangedData]
 local ChangeHp = GameEvent:subclass("GameEvent.ChangeHp")
 function ChangeHp:main()
-  local player, num, reason, skillName, damageStruct = table.unpack(self.data)
+  local player, data = table.unpack(self.data)
   local room = self.room
   local logic = room.logic
+  local num = data.num
+  local reason = data.reason
+  local damageStruct = data.damageEvent
   if num == 0 then
     return false
   end
   assert(reason == nil or table.contains({ "loseHp", "damage", "recover" }, reason))
-
-  ---@type HpChangedData
-  local data = {
-    num = num,
-    reason = reason,
-    skillName = skillName,
-    damageEvent = damageStruct,
-  }
 
   if reason == "damage" then
     if damageStruct then
@@ -144,10 +140,15 @@ end
 ---@param damageStruct? DamageStruct @ 伤害数据
 ---@return boolean
 function HpEventWrappers:changeHp(player, num, reason, skillName, damageStruct)
-  return exec(ChangeHp, player, num, reason, skillName, damageStruct)
+  local data = HpChangedData {
+    num = num, reason = reason,
+    skillName = skillName, damageEvent = damageStruct
+  }
+  return exec(ChangeHp, player, data)
 end
 
 ---@class GameEvent.Damage : GameEvent
+---@field public data [DamageStruct]
 local Damage = GameEvent:subclass("GameEvent.Damage")
 function Damage:main()
   local damageStruct = table.unpack(self.data)
@@ -267,10 +268,11 @@ function Damage:exit()
 end
 
 --- 根据伤害数据造成伤害。
----@param damageStruct DamageStruct
+---@param damageStruct DamageStructSpec
 ---@return boolean
 function HpEventWrappers:damage(damageStruct)
-  return exec(Damage, damageStruct)
+  local data = DamageStruct:new(damageStruct)
+  return exec(Damage, data)
 end
 
 ---@class GameEvent.LoseHp : GameEvent

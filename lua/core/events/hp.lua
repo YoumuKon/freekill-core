@@ -8,23 +8,23 @@
 ---@field public damageEvent? DamageStruct @ 引起这次体力变化的伤害数据
 ---@field public preventDying? boolean @ 是否阻止本次体力变更流程引发濒死流程
 
----@class HpChangedData: HpChangedDataSpec, Object
-HpChangedData = class("HpChangedData")
+---@class HpChangedData: HpChangedDataSpec, TriggerData
+HpChangedData = TriggerData:subclass("HpChangedData")
 
 --- HpLostData 描述跟失去体力有关的数据
 ---@class HpLostDataSpec
 ---@field public num integer @ 失去体力的数值
 ---@field public skillName string @ 导致这次失去的技能名
 
----@class HpLostData: HpLostDataSpec, Object
-HpLostData = class("HpLostData")
+---@class HpLostData: HpLostDataSpec, TriggerData
+HpLostData = TriggerData:subclass("HpLostData")
 
 --- MaxHpChangedData 描述跟体力上限变化有关的数据
 ---@class MaxHpChangedDataSpec
 ---@field public num integer @ 体力上限变化量，可能是正数或者负数
 
----@class MaxHpChangedData: MaxHpChangedDataSpec, Object
-MaxHpChangedData = class("MaxHpChangedData")
+---@class MaxHpChangedData: MaxHpChangedDataSpec, TriggerData
+MaxHpChangedData = TriggerData:subclass("MaxHpChangedData")
 
 --- DamageType 伤害的属性
 ---@alias DamageType integer
@@ -46,9 +46,11 @@ fk.IceDamage = 4
 ---@field public beginnerOfTheDamage? boolean @ 是否是本次铁索传导的起点
 ---@field public by_user? boolean @ 是否由卡牌直接生效造成的伤害
 ---@field public chain_table? ServerPlayer[] @ 铁索连环表
+---@field public isVirtualDMG? boolean @ 是否是虚拟伤害
+---@field public dealtRecorderId integer? @ 这啥啊
 
----@class DamageStruct: DamageStructSpec, Object
-DamageStruct = class("DamageStruct")
+---@class DamageStruct: DamageStructSpec, TriggerData
+DamageStruct = TriggerData:subclass("DamageStruct")
 
 --- RecoverStruct 描述和回复体力有关的数据。
 ---@class RecoverStructSpec
@@ -58,8 +60,8 @@ DamageStruct = class("DamageStruct")
 ---@field public skillName? string @ 因何种技能而回复
 ---@field public card? Card @ 造成此次回复的卡牌
 
----@class RecoverStruct: RecoverStructSpec, Object
-RecoverStruct = class("RecoverStruct")
+---@class RecoverStruct: RecoverStructSpec, TriggerData
+RecoverStruct = TriggerData:subclass("RecoverStruct")
 
 ---@class HpChangedEvent: TriggerEvent
 ---@field data HpChangedData
@@ -116,16 +118,27 @@ fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 
 -- 注释环节
 
----@alias DamageTrigFunc fun(self: TriggerSkill, event: DamageEvent,
----  target: ServerPlayer, player: ServerPlayer, data: DamageStruct): any
-
 ---@alias HpChangedTrigFunc fun(self: TriggerSkill, event: HpChangedEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: HpChangedData): any
+---@alias HpLostTrigFunc fun(self: TriggerSkill, event: HpLostEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: HpLostData): any
+---@alias DamageTrigFunc fun(self: TriggerSkill, event: DamageEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: DamageStruct): any
+---@alias RecoverTrigFunc fun(self: TriggerSkill, event: RecoverEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: RecoverStruct): any
+---@alias MaxHpChangedTrigFunc fun(self: TriggerSkill, event: MaxHpChangedEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: MaxHpChangedData): any
 
 ---@class DamageSkelAttr: TrigSkelAttribute
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: HpChangedEvent,
 ---  attr: TrigSkelAttribute?, data: TrigSkelSpec<HpChangedTrigFunc>): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: HpLostEvent,
+---  attr: DamageSkelAttr?, data: TrigSkelSpec<HpLostTrigFunc>): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DamageEvent,
 ---  attr: DamageSkelAttr?, data: TrigSkelSpec<DamageTrigFunc>): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: RecoverEvent,
+---  attr: DamageSkelAttr?, data: TrigSkelSpec<RecoverTrigFunc>): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: MaxHpChangedEvent,
+---  attr: TrigSkelAttribute?, data: TrigSkelSpec<MaxHpChangedTrigFunc>): SkillSkeleton
