@@ -321,7 +321,7 @@ end
 
 ---@generic T
 ---@param self T[]
----@param seed integer
+---@param seed integer?
 function table.shuffle(self, seed)
   seed = seed or math.random(2 << 32 - 1)
   local rnd = fk.QRandomGenerator(seed)

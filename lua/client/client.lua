@@ -454,7 +454,8 @@ fk.client_callback["AskForCardChosen"] = function(self, data)
   -- jsonData: [ int target_id, string flag, int reason ]
   local id, flag, reason, prompt = data[1], data[2], data[3], data[4]
   local target = self:getPlayerById(id)
-  local hand = target.player_cards[Player.Hand]
+  local hand = table.simpleClone(target.player_cards[Player.Hand])
+  table.shuffle(hand)
   local equip = target.player_cards[Player.Equip]
   local judge = target.player_cards[Player.Judge]
 
@@ -499,7 +500,8 @@ fk.client_callback["AskForCardsChosen"] = function(self, data)
   local id, min, max, flag, reason, prompt = table.unpack(data)
     --data[1], data[2], data[3], data[4], data[5], data[6]
   local target = self:getPlayerById(id)
-  local hand = target.player_cards[Player.Hand]
+  local hand = table.simpleClone(target.player_cards[Player.Hand])
+  table.shuffle(hand)
   local equip = target.player_cards[Player.Equip]
   local judge = target.player_cards[Player.Judge]
 
