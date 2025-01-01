@@ -246,12 +246,12 @@ function CardManager:shuffleDrawPile(seed)
     return
   end
 
+  table.shuffle(self.discard_pile, seed)
   table.insertTable(self.draw_pile, self.discard_pile)
   for _, id in ipairs(self.discard_pile) do
     self:setCardArea(id, Card.DrawPile, nil)
   end
   self.discard_pile = {}
-  table.shuffle(self.draw_pile, seed)
 end
 
 --- 筛选出某卡牌在指定区域内的子牌id数组
