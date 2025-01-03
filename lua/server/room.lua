@@ -2977,4 +2977,25 @@ function Room:validateSkill(player, skill_name, temp)
   self:removeTableMark(player, MarkEnum.InvalidSkills .. temp, skill_name)
 end
 
+
+--- 将触发技或状态技添加到房间
+---@param skill Skill|string
+function Room:addSkill(skill)
+  if type(skill) == "string" then
+    skill = Fk.skills[skill]
+  end
+  if skill == nil then return end
+  if skill:isInstanceOf(StatusSkill) then
+    self.status_skills[skill.class] = self.status_skills[skill.class] or {}
+    table.insertIfNeed(self.status_skills[skill.class], skill)
+    -- add status_skill to cilent room
+    for _, p in ipairs(self.players) do
+      p:doNotify("AddSkill", json.encode{p.id, skill.name})
+    end
+  elseif skill:isInstanceOf(TriggerSkill) then
+    self.logic:addTriggerSkill(skill)
+  end
+end
+
+
 return Room
