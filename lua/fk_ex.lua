@@ -688,7 +688,16 @@ function fk.CreateTreasure(spec)
   return card
 end
 
----@class GameModeSpec: GameMode
+---@class GameModeSpec
+---@field public name string @ 游戏模式名
+---@field public minPlayer integer @ 最小玩家数
+---@field public maxPlayer integer @ 最大玩家数
+---@field public rule? TriggerSkill @ 规则（通过技能完成，通常用来为特定角色及特定时机提供触发事件）
+---@field public logic? fun(): GameLogic @ 逻辑（通过function完成，通常用来初始化、分配身份及座次）
+---@field public whitelist? string[] | fun(self: GameMode, pkg: Package): boolean? @ 白名单
+---@field public blacklist? string[] | fun(self: GameMode, pkg: Package): boolean? @ 黑名单
+---@field public config_template? GameModeConfigEntry[] 游戏模式的配置页面，如此一个数组
+---@field public main_mode? string @ 主模式名（用于判断此模式是否为某模式的衍生）
 ---@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string
 ---@field public surrender_func? fun(self: GameMode, playedTime: number): table
 ---@field public is_counted? fun(self: GameMode, room: Room): boolean
