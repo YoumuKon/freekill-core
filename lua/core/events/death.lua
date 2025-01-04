@@ -1,23 +1,32 @@
----@class fk.EnterDying: TriggerEvent
-fk.EnterDying = TriggerEvent:subclass("fk.EnterDying")
----@class fk.Dying: TriggerEvent
-fk.Dying = TriggerEvent:subclass("fk.Dying")
----@class fk.AfterDying: TriggerEvent
-fk.AfterDying = TriggerEvent:subclass("fk.AfterDying")
+---@class DyingEvent: TriggerEvent
+---@field data DyingData
+local DyingEvent = TriggerEvent:subclass("DyingEvent")
 
----@class fk.AskForPeaches: TriggerEvent
-fk.AskForPeaches = TriggerEvent:subclass("fk.AskForPeaches")
----@class fk.AskForPeachesDone: TriggerEvent
-fk.AskForPeachesDone = TriggerEvent:subclass("fk.AskForPeachesDone")
----@class fk.Death: TriggerEvent
-fk.Death = TriggerEvent:subclass("fk.Death")
----@class fk.BeforeGameOverJudge: TriggerEvent
-fk.BeforeGameOverJudge = TriggerEvent:subclass("fk.BeforeGameOverJudge")
----@class fk.GameOverJudge: TriggerEvent
-fk.GameOverJudge = TriggerEvent:subclass("fk.GameOverJudge")
----@class fk.Deathed: TriggerEvent
-fk.Deathed = TriggerEvent:subclass("fk.Deathed")
----@class fk.BuryVictim: TriggerEvent
-fk.BuryVictim = TriggerEvent:subclass("fk.BuryVictim")
+---@class fk.EnterDying: DyingEvent
+fk.EnterDying = DyingEvent:subclass("fk.EnterDying")
+---@class fk.Dying: DyingEvent
+fk.Dying = DyingEvent:subclass("fk.Dying")
+---@class fk.AfterDying: DyingEvent
+fk.AfterDying = DyingEvent:subclass("fk.AfterDying")
+---@class fk.AskForPeaches: DyingEvent
+fk.AskForPeaches = DyingEvent:subclass("fk.AskForPeaches")
+---@class fk.AskForPeachesDone: DyingEvent
+fk.AskForPeachesDone = DyingEvent:subclass("fk.AskForPeachesDone")
+
+---@class DeathEvent: TriggerEvent
+---@field data DeathData
+local DeathEvent = TriggerEvent:subclass("DeathEvent")
+
+---@class fk.Death: DeathEvent
+fk.Death = DeathEvent:subclass("fk.Death")
+---@class fk.BeforeGameOverJudge: DeathEvent
+fk.BeforeGameOverJudge = DeathEvent:subclass("fk.BeforeGameOverJudge")
+---@class fk.GameOverJudge: DeathEvent
+fk.GameOverJudge = DeathEvent:subclass("fk.GameOverJudge")
+---@class fk.Deathed: DeathEvent
+fk.Deathed = DeathEvent:subclass("fk.Deathed")
+---@class fk.BuryVictim: DeathEvent
+fk.BuryVictim = DeathEvent:subclass("fk.BuryVictim")
+
 ---@class fk.AfterPlayerRevived: TriggerEvent
 fk.AfterPlayerRevived = TriggerEvent:subclass("fk.AfterPlayerRevived")

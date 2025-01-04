@@ -68,7 +68,7 @@ end
 function Judge:clear()
   local data = table.unpack(self.data)
   local room = self.room
-  if (self.interrupted or not data.skipDrop) and room:getCardArea(data.card.id) == Card.Processing then
+  if (self.interrupted or not data.skipDrop) and data.card and room:getCardArea(data.card.id) == Card.Processing then
     room:moveCardTo(data.card, Card.DiscardPile, nil, fk.ReasonJudge)
   end
   if not self.interrupted then return end
