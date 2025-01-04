@@ -1,9 +1,13 @@
----@class fk.StartJudge: TriggerEvent
-fk.StartJudge = TriggerEvent:subclass("fk.StartJudge")
----@class fk.AskForRetrial: TriggerEvent
-fk.AskForRetrial = TriggerEvent:subclass("fk.AskForRetrial")
----@class fk.FinishRetrial: TriggerEvent
-fk.FinishRetrial = TriggerEvent:subclass("fk.FinishRetrial")
----@class fk.FinishJudge: TriggerEvent
-fk.FinishJudge = TriggerEvent:subclass("fk.FinishJudge")
+---@class JudgeEvent: TriggerEvent
+---@field data JudgeData
+local JudgeEvent = TriggerEvent:subclass("JudgeEvent")
+
+---@class fk.StartJudge: JudgeEvent
+fk.StartJudge = JudgeEvent:subclass("fk.StartJudge")
+---@class fk.AskForRetrial: JudgeEvent
+fk.AskForRetrial = JudgeEvent:subclass("fk.AskForRetrial")
+---@class fk.FinishRetrial: JudgeEvent
+fk.FinishRetrial = JudgeEvent:subclass("fk.FinishRetrial")
+---@class fk.FinishJudge: JudgeEvent
+fk.FinishJudge = JudgeEvent:subclass("fk.FinishJudge")
 

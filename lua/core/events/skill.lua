@@ -1,9 +1,13 @@
----@class fk.SkillEffect: TriggerEvent
-fk.SkillEffect = TriggerEvent:subclass("fk.SkillEffect")
----@class fk.AfterSkillEffect: TriggerEvent
-fk.AfterSkillEffect = TriggerEvent:subclass("fk.AfterSkillEffect")
----@class fk.EventLoseSkill: TriggerEvent
-fk.EventLoseSkill = TriggerEvent:subclass("fk.EventLoseSkill")
----@class fk.EventAcquireSkill: TriggerEvent
-fk.EventAcquireSkill = TriggerEvent:subclass("fk.EventAcquireSkill")
+---@class SkillEffectEvent: TriggerEvent
+---@field data SkillEffectData
+local SkillEffectEvent = TriggerEvent:subclass("SkillEffectEvent")
+
+---@class fk.SkillEffect: SkillEffectEvent
+fk.SkillEffect = SkillEffectEvent:subclass("fk.SkillEffect")
+---@class fk.AfterSkillEffect: SkillEffectEvent
+fk.AfterSkillEffect = SkillEffectEvent:subclass("fk.AfterSkillEffect")
+---@class fk.EventLoseSkill: SkillEffectEvent
+fk.EventLoseSkill = SkillEffectEvent:subclass("fk.EventLoseSkill")
+---@class fk.EventAcquireSkill: SkillEffectEvent
+fk.EventAcquireSkill = SkillEffectEvent:subclass("fk.EventAcquireSkill")
 
