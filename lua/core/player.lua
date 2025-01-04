@@ -463,7 +463,11 @@ end
 --- 获取玩家攻击范围。
 function Player:getAttackRange()
   local baseValue = 1
-  local weapons = self:getEquipments(Card.SubtypeWeapon)
+
+  local weapons = table.filter(self:getEquipments(Card.SubtypeWeapon), function (id)
+    local weapon = Fk:getCardById(id)---@type Weapon
+    return weapon:AvailableAttackRange(self)
+  end)
   if #weapons > 0 then
     baseValue = 0
     for _, id in ipairs(weapons) do
