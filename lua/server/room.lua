@@ -443,7 +443,9 @@ function Room:removeCardMark(card, mark, count)
   self:setCardMark(card, mark, math.max(num - count, 0))
 end
 
+--- 设置角色的某个属性，并广播给所有人
 ---@param player ServerPlayer
+---@param property string @ 属性名称
 function Room:setPlayerProperty(player, property, value)
   player[property] = value
   self:broadcastProperty(player, property)
@@ -2605,6 +2607,7 @@ function Room:shuffleDrawPile()
 
   -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
   self:doBroadcastNotify("ShuffleDrawPile", seed)
+  self:doBroadcastNotify("UpdateDrawPile", tostring(#self.draw_pile))
 
   self.logic:trigger(fk.AfterDrawPileShuffle, nil, {})
 end
