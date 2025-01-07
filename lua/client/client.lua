@@ -142,6 +142,16 @@ function Client:getPlayerById(id)
   return nil
 end
 
+---@param seat integer
+---@return ClientPlayer
+function Client:getPlayerBySeat(seat)
+  if seat == Self.seat then return Self end
+  for _, p in ipairs(self.players) do
+    if p.seat == seat then return p end
+  end
+  return nil
+end
+
 ---@param moves CardsMoveStruct[]
 function Client:moveCards(moves)
   for _, data in ipairs(moves) do

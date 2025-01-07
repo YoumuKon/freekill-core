@@ -211,6 +211,22 @@ function Room:getPlayerById(id)
   return nil
 end
 
+--- 根据角色座位号，获得那名角色本人
+---@param seat integer @ 角色的座位号
+---@return ServerPlayer @ 这个座位号对应的ServerPlayer实例
+function Room:getPlayerBySeat(seat)
+  if not seat then return nil end
+
+  assert(type(seat) == "number")
+  for _, p in ipairs(self.players) do
+    if p.seat == seat then
+      return p
+    end
+  end
+
+  return nil
+end
+
 --- 将房间中的玩家按照行动顺序重新排序。
 ---@param playerIds integer[] @ 玩家id列表，这个数组会被这个函数排序
 function Room:sortPlayersByAction(playerIds, isTargetGroup)
