@@ -1,7 +1,21 @@
 ---@class TriggerData: Object
+---@field private _data any
 TriggerData = class("TriggerData")
+
 function TriggerData:initialize(spec)
-  table.assign(self, spec)
+  -- table.assign(self, spec)
+  self._data = spec
+end
+
+function TriggerData:__index(k)
+  if k == "_data" then return rawget(self, k) end
+  return self._data[k]
+end
+
+function TriggerData:__newindex(k, v)
+  if k == "_data" then rawset(self, k, v) end
+  if not self._data then rawset(self, k, v) end
+  self._data[k] = v
 end
 
 require "core.events.misc"
