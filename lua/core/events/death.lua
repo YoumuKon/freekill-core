@@ -2,9 +2,10 @@
 --- DyingData 描述和濒死事件有关的数据
 ---@class DyingDataSpec
 ---@field public who PlayerId @ 濒死角色
----@field public damage DamageStruct @ 造成此次濒死的伤害数据
+---@field public damage? DamageData @ 造成此次濒死的伤害数据
 ---@field public ignoreDeath? boolean @ 是否不进行死亡结算
 
+--- 描述和濒死事件有关的数据
 ---@class DyingData: DyingDataSpec, TriggerData
 DyingData = TriggerData:subclass("DyingData")
 
@@ -26,8 +27,9 @@ fk.AskForPeachesDone = DyingEvent:subclass("fk.AskForPeachesDone")
 --- DeathData 描述和死亡事件有关的数据
 ---@class DeathDataSpec
 ---@field public who PlayerId @ 死亡角色
----@field public damage DamageStruct @ 造成此次死亡的伤害数据
+---@field public damage? DamageData @ 造成此次死亡的伤害数据
 
+--- 描述和死亡事件有关的数据
 ---@class DeathData: DeathDataSpec, TriggerData
 DeathData = TriggerData:subclass("DeathData")
 
@@ -46,8 +48,22 @@ fk.Deathed = DeathEvent:subclass("fk.Deathed")
 ---@class fk.BuryVictim: DeathEvent
 fk.BuryVictim = DeathEvent:subclass("fk.BuryVictim")
 
----@class fk.AfterPlayerRevived: TriggerEvent
-fk.AfterPlayerRevived = TriggerEvent:subclass("fk.AfterPlayerRevived")
+--- ReviveData 描述和复活事件有关的数据
+---@class ReviveDataSpec
+---@field public who ServerPlayer @ 复活角色
+---@field public reason? string @ 复活角色的原因
+
+--- 描述和复活事件有关的数据
+---@class ReviveData: ReviveDataSpec, TriggerData
+---@overload fun(spec: ReviveDataSpec): ReviveData
+ReviveData = TriggerData:subclass("ReviveData")
+
+---@class ReviveEvent: TriggerEvent
+---@field data ReviveData
+local ReviveEvent = TriggerEvent:subclass("ReviveEvent")
+
+---@class fk.AfterPlayerRevived: ReviveEvent
+fk.AfterPlayerRevived = ReviveEvent:subclass("fk.AfterPlayerRevived")
 
 -- 注释
 
@@ -64,3 +80,10 @@ fk.AfterPlayerRevived = TriggerEvent:subclass("fk.AfterPlayerRevived")
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DeathEvent,
 ---  attr: TrigSkelAttribute?, data: TrigSkelSpec<DeathDataSpec>): SkillSkeleton
+
+---@alias ReviveTrigFunc fun(self: TriggerSkill, event: ReviveEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: ReviveData): any
+
+---@class SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: ReviveEvent,
+---  attr: TrigSkelAttribute?, data: TrigSkelSpec<ReviveDataSpec>): SkillSkeleton

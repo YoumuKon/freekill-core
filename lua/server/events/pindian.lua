@@ -11,6 +11,7 @@ local function exec(tp, ...)
 end
 
 ---@class GameEvent.Pindian : GameEvent
+---@field public data [PindianData]
 local Pindian = GameEvent:subclass("GameEvent.Pindian")
 function Pindian:main()
   local pindianData = table.unpack(self.data)
@@ -40,7 +41,6 @@ function Pindian:main()
   local moveInfos = {}
   if not pindianData.fromCard then
     table.insert(targets, pindianData.from)
-    pindianData.from.request_data = json.encode(data)
   else
     if not pindianData._fromCard then
       local _pindianCard = pindianData.fromCard
@@ -211,9 +211,9 @@ end
 
 
 --- 根据拼点信息开始拼点。
----@param pindianData PindianStruct
+---@param pindianData PindianDataSpec
 function PindianEventWrappers:pindian(pindianData)
-  return exec(Pindian, pindianData)
+  return exec(Pindian, PindianData:new(pindianData))
 end
 
 return { Pindian, PindianEventWrappers }
