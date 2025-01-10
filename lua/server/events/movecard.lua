@@ -70,6 +70,7 @@ function MoveCards:main()
           drawPilePosition = cardsMoveInfo.drawPilePosition,
           moveMark = cardsMoveInfo.moveMark,
           visiblePlayers = cardsMoveInfo.visiblePlayers,
+          extra_data = cardsMoveInfo.extra_data,
         }
 
         table.insert(cardsMoveStructs, cardsMoveStruct)
