@@ -1064,7 +1064,7 @@ end
 ---@param maxNum integer @ 最大值
 ---@param prompt? string @ 提示信息
 ---@param skillName? string @ 技能名
----@param cancelable? boolean @ 能否点取消
+---@param cancelable? boolean @ 能否点取消，默认可以
 ---@param no_indicate? boolean @ 是否不显示指示线
 ---@param targetTipName? string @ 引用的选择目标提示的函数名
 ---@param extra_data? table @额外信息
