@@ -690,7 +690,7 @@ end
 
 function RefreshStatusSkills()
   local self = ClientInstance
-  if not self.recording then return end -- 在回放录像就别刷了
+  -- if not self.recording then return end -- 在回放录像就别刷了
   -- 刷所有人手牌上限及可见标记；以及身份可见性
   for _, p in ipairs(self.alive_players) do
     self:notifyUI("MaxCard", {
