@@ -911,11 +911,7 @@ end
 ---@param tos ServerPlayer | ServerPlayer[] @ 目标角色（列表）
 ---@param skillName? string @ 技能名
 ---@param extra? boolean @ 是否不计入次数
-<<<<<<< HEAD
 ---@return UseCardDataSpec | false
-=======
----@return CardUseStruct?
->>>>>>> master
 function UseCardEventWrappers:useVirtualCard(card_name, subcards, from, tos, skillName, extra)
   local card = Fk:cloneCard(card_name)
   if skillName then card.skillName = skillName end
