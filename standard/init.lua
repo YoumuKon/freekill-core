@@ -336,6 +336,7 @@ local qingguo = fk.CreateViewAsSkill{
   name = "qingguo",
   anim_type = "defensive",
   pattern = "jink",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
     if #selected == 1 then return false end
     return Fk:getCardById(to_select).color == Card.Black
@@ -443,9 +444,9 @@ local wusheng = fk.CreateViewAsSkill{
   name = "wusheng",
   anim_type = "offensive",
   pattern = "slash",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
-    if #selected == 1 then return false end
-    return Fk:getCardById(to_select).color == Card.Red
+    return #selected == 0 and Fk:getCardById(to_select).color == Card.Red
   end,
   view_as = function(self, cards)
     if #cards ~= 1 then
@@ -543,6 +544,7 @@ zhugeliang:addSkill(kongcheng)
 local longdan = fk.CreateViewAsSkill{
   name = "longdan",
   pattern = "slash,jink",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
     if #selected == 1 then return false end
     local _c = Fk:getCardById(to_select)
@@ -682,9 +684,9 @@ local qixi = fk.CreateViewAsSkill{
   name = "qixi",
   anim_type = "control",
   pattern = "dismantlement",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
-    if #selected == 1 then return false end
-    return Fk:getCardById(to_select).color == Card.Black
+    return #selected == 0 and Fk:getCardById(to_select).color == Card.Black
   end,
   view_as = function(self, cards)
     if #cards ~= 1 then
@@ -796,9 +798,9 @@ local guose = fk.CreateViewAsSkill{
   name = "guose",
   anim_type = "control",
   pattern = "indulgence",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
-    if #selected == 1 then return false end
-    return Fk:getCardById(to_select).suit == Card.Diamond
+    return #selected == 0 and Fk:getCardById(to_select).suit == Card.Diamond
   end,
   view_as = function(self, cards)
     if #cards ~= 1 then
@@ -1014,9 +1016,9 @@ local jijiu = fk.CreateViewAsSkill{
   name = "jijiu",
   anim_type = "support",
   pattern = "peach",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
-    if #selected == 1 then return false end
-    return Fk:getCardById(to_select).color == Card.Red
+    return #selected == 0 and Fk:getCardById(to_select).color == Card.Red
   end,
   view_as = function(self, cards)
     if #cards ~= 1 then
