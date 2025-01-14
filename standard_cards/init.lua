@@ -1121,6 +1121,7 @@ local spearSkill = fk.CreateViewAsSkill{
   prompt = "#spear_skill",
   attached_equip = "spear",
   pattern = "slash",
+  handly_pile = true,
   card_filter = function(self, to_select, selected)
     if #selected == 2 then return false end
     return table.contains(Self:getHandlyIds(true), to_select)

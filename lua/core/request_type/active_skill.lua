@@ -120,7 +120,7 @@ function ReqActiveSkill:expandPile(pile, extra_ids, extra_footnote)
     -- self.extra_cards = exira_ids
   else
     -- FIXME: 可能存在的浅拷贝
-    ids = table.simpleClone(player:getPile(pile))
+    ids = extra_ids or table.simpleClone(player:getPile(pile))
     footnote = pile
   end
   self.expanded_piles[pile] = ids
@@ -152,7 +152,7 @@ function ReqActiveSkill:retractAllPiles()
 end
 
 function ReqActiveSkill:expandPiles()
-  local skill = Fk.skills[self.skill_name]
+  local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   local player = self.player
   if not skill then return end
   -- 特殊：equips至少有一张能亮着的情况下才展开 且无视是否存在skill.expand_pile
@@ -163,6 +163,27 @@ function ReqActiveSkill:expandPiles()
     end
   end
 
+  if skill.handly_pile then
+    for pile in pairs(player.special_cards) do
+      if pile:endsWith('&') then
+        self:expandPile(pile)
+      end
+    end
+
+    local cardsExpanded = {}
+    local filterSkills = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable ---@type FilterSkill[]
+    for _, filter in ipairs(filterSkills) do
+      local ids = filter:handlyCardsFilter(player)
+      if ids then
+        ids = table.filter(ids, function(id) return not table.contains(cardsExpanded, id) end)
+        if #ids > 0 then
+          self:expandPile(filter.name, ids)
+          table.insertTable(cardsExpanded, ids)
+        end
+      end
+    end
+  end
+  
   if not skill.expand_pile then return end
   local pile = skill.expand_pile
   if type(pile) == "function" then
@@ -201,7 +222,7 @@ function ReqActiveSkill:isCancelable()
 end
 
 function ReqActiveSkill:cardValidity(cid)
-  local skill = Fk.skills[self.skill_name]
+  local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   if not skill then return false end
   return skill:cardFilter(cid, self.pendings)
 end

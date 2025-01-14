@@ -231,6 +231,7 @@ end
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
 ---@param spec ActiveSkillSpec
 ---@return ActiveSkill
@@ -258,6 +259,7 @@ function fk.CreateActiveSkill(spec)
   if spec.on_nullified then skill.onNullified = spec.on_nullified end
   if spec.prompt then skill.prompt = spec.prompt end
   if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.handly_pile then skill.handly_pile = spec.handly_pile end
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
@@ -280,9 +282,10 @@ end
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
----@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: integer[]): string
 ---@field public interaction? any
+---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
 ---@param spec ViewAsSkillSpec
 ---@return ViewAsSkill
@@ -331,6 +334,7 @@ function fk.CreateViewAsSkill(spec)
   if spec.after_use and type(spec.after_use) == "function" then
     skill.afterUse = spec.after_use
   end
+  skill.handly_pile = spec.handly_pile
 
   return skill
 end
@@ -472,6 +476,7 @@ end
 ---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any
 ---@field public view_as? fun(self: FilterSkill, card: Card, player: Player): Card?
 ---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
+---@field public handly_cards? fun(self: FilterSkill, player: Player): integer[]? @ 视为拥有可以如手牌般使用或打出的牌
 
 ---@param spec FilterSpec
 ---@return FilterSkill
@@ -483,6 +488,7 @@ function fk.CreateFilterSkill(spec)
   skill.cardFilter = spec.card_filter
   skill.viewAs = spec.view_as
   skill.equipSkillFilter = spec.equip_skill_filter
+  skill.handlyCardsFilter = spec.handly_cards
 
   return skill
 end

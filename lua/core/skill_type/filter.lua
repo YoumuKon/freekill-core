@@ -24,4 +24,11 @@ function FilterSkill:equipSkillFilter(skill, player)
   return nil
 end
 
+--- 视为拥有的如手牌般使用的牌
+---@param player Player
+---@return integer[]
+function FilterSkill:handlyCardsFilter(player)
+  return {}
+end
+
 return FilterSkill

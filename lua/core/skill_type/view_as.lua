@@ -3,6 +3,7 @@
 ---@class ViewAsSkill : UsableSkill
 ---@field public pattern string @ cards that can be viewAs'ed by this skill
 ---@field public interaction any
+---@field public handly_pile boolean? @ 能否选择“如手牌般使用或打出”的牌
 local ViewAsSkill = UsableSkill:subclass("ViewAsSkill")
 
 function ViewAsSkill:initialize(name, frequency)

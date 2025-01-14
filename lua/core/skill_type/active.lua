@@ -10,6 +10,8 @@
 ---@field public card_num integer
 ---@field public card_num_table integer[]
 ---@field public interaction any
+---@field public prompt string | function?
+---@field public handly_pile boolean?  @ 是否能够选择“如手牌使用或打出”的牌
 local ActiveSkill = UsableSkill:subclass("ActiveSkill")
 
 function ActiveSkill:initialize(name, frequency)

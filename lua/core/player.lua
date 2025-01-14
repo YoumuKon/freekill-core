@@ -201,9 +201,9 @@ function Player:addMark(mark, count)
   self:setMark(mark, math.max(num + count, 0))
 end
 
---- 为角色移除Mark。
+--- 为角色移除数个Mark。仅能用于数字型标记，且至多减至0
 ---@param mark string @ 标记
----@param count integer @ 为标记删除的数量
+---@param count? integer @ 为标记删除的数量，默认1
 function Player:removeMark(mark, count)
   count = count or 1
   local num = self.mark[mark]
@@ -213,7 +213,7 @@ end
 
 --- 为角色设置Mark至指定数量。
 ---@param mark string @ 标记
----@param count? integer @ 为标记删除的数量
+---@param count? any @ 标记要设定的数量
 function Player:setMark(mark, count)
   if count == 0 then count = nil end
   if self.mark[mark] ~= count then
@@ -388,13 +388,20 @@ end
 
 --- 返回所有“如手牌般使用或打出”的牌。
 --- 或者说，返回所有名字以“&”结尾的pile的牌。
----@param include_hand? boolean @ 是否包含真正的手牌
+---@param include_hand? boolean @ 是否包含真正的手牌，默认包含
 ---@return integer[]
 function Player:getHandlyIds(include_hand)
   include_hand = include_hand or include_hand == nil
   local ret = include_hand and self:getCardIds("h") or {}
   for k, v in pairs(self.special_cards) do
     if k:endsWith("&") then table.insertTable(ret, v) end
+  end
+  local filterSkills = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable ---@type FilterSkill[]
+  for _, filter in ipairs(filterSkills) do
+    local ids = filter:handlyCardsFilter(self)
+    if ids then
+      table.insertTableIfNeed(ret, ids)
+    end
   end
   return ret
 end

@@ -50,6 +50,18 @@ function ReqResponseCard:expandPiles()
       self:expandPile(pile)
     end
   end
+  local cardsExpanded = {}
+  local filterSkills = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable ---@type FilterSkill[]
+  for _, filter in ipairs(filterSkills) do
+    local ids = filter:handlyCardsFilter(player)
+    if ids then
+      ids = table.filter(ids, function(id) return not table.contains(cardsExpanded, id) end)
+      if #ids > 0 then
+        self:expandPile(filter.name, ids)
+        table.insertTable(cardsExpanded, ids)
+      end
+    end
+  end
 end
 
 function ReqResponseCard:skillButtonValidity(name)
