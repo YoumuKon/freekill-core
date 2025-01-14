@@ -100,7 +100,7 @@ function General:addRelatedSkill(skill)
 end
 
 --- 获取武将所有技能。
----@param include_lord? boolean
+---@param include_lord? boolean @ 是否包含主公技。默认否
 ---@return string[]
 function General:getSkillNameList(include_lord)
   local ret = {}

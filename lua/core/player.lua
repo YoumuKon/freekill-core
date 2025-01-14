@@ -13,7 +13,7 @@
 ---@field public shield integer @ 护甲数
 ---@field public kingdom string @ 势力
 ---@field public role string @ 身份
----@field public role_shown boolean
+---@field public role_shown boolean @ 身份是否明置
 ---@field public general string @ 武将
 ---@field public deputyGeneral string @ 副将
 ---@field public gender integer @ 性别
@@ -146,6 +146,7 @@ function Player:setGeneral(general, setHp, addSkills)
   end
 end
 
+--- 根据角色的主副将计算角色的体力上限
 function Player:getGeneralMaxHp()
   local general = Fk.generals[type(self:getMark("__heg_general")) == "string" and self:getMark("__heg_general") or self.general]
   local deputy = Fk.generals[type(self:getMark("__heg_deputy")) == "string" and self:getMark("__heg_deputy") or self.deputyGeneral]

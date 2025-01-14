@@ -249,7 +249,6 @@ function fk.CreateActiveSkill(spec)
   if spec.target_filter then skill.targetFilter = spec.target_filter end
   if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
   if spec.feasible then
-    -- print(spec.name .. ": feasible is deprecated. Use target_num and card_num instead.")
     skill.feasible = spec.feasible
   end
   if spec.on_use then skill.onUse = spec.on_use end
@@ -711,11 +710,11 @@ end
 ---@field public blacklist? string[] | fun(self: GameMode, pkg: Package): boolean? @ 黑名单
 ---@field public config_template? GameModeConfigEntry[] 游戏模式的配置页面，如此一个数组
 ---@field public main_mode? string @ 主模式名（用于判断此模式是否为某模式的衍生）
----@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string
+---@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string @ 在死亡流程中用于判断是否结束游戏，并输出胜利者身份
 ---@field public surrender_func? fun(self: GameMode, playedTime: number): table
----@field public is_counted? fun(self: GameMode, room: Room): boolean
----@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
----@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer)
+---@field public is_counted? fun(self: GameMode, room: Room): boolean @ 是否计入胜率统计
+---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table @ 调整玩家初始属性
+---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer) @ 死亡奖惩
 ---@field public build_draw_pile? fun(self: GameMode): integer[], integer[]
 
 ---@param spec GameModeSpec

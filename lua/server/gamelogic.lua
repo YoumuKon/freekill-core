@@ -234,7 +234,7 @@ function GameLogic:attachSkillToPlayers()
       fk.qCritical("Skill: "..skillName.." doesn't exist!")
       return
     end
-    if skill.lordSkill and (player.role ~= "lord" or #room.players < 5) then
+    if skill.lordSkill and (player.role ~= "lord") then
       return
     end
 
