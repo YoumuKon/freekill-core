@@ -112,6 +112,10 @@ end
 ---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
 ---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
 ---@field public attached_skill_name? string @ 给其他角色添加技能的名称
+
+---@class SkillSkeleton : Object, SkillSpec
+---@field public effect_list ([any, any, any])[]
+---@field public tests fun()[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', attribute: nil, data: DistanceSpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', attribute: nil, data: ProhibitSpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', attribute: nil, data: AttackRangeSpec)
@@ -120,9 +124,6 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: 'filter', attribute: nil, data: FilterSpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', attribute: nil, data: InvaliditySpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', attribute: nil, data: VisibilitySpec)
-
----@class SkillSkeleton : Object, SkillSpec
----@field public effect_list ([any, any, any])[]
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
@@ -131,10 +132,17 @@ function SkillSkeleton:initialize(spec)
   self.frequency = spec.frequency or Skill.NotFrequent
   fk.readCommonSpecToSkill(self, spec)
   self.effect_list = {}
+  self.tests = {}
 end
 
 function SkillSkeleton:addEffect(key, attribute, data)
   table.insert(self.effect_list, { key, attribute, data })
+  return self
+end
+
+---@param fn fun()
+function SkillSkeleton:addTest(fn)
+  table.insert(self.tests, fn)
   return self
 end
 
