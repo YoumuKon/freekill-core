@@ -363,7 +363,7 @@ end
 
 --- 根据回复数据回复体力。
 ---@param recoverDataSpec RecoverDataSpec
----@return boolean
+---@return boolean @ 是否成功回复体力
 function HpEventWrappers:recover(recoverDataSpec)
   local recoverData = RecoverData:new(recoverDataSpec)
   return exec(Recover, recoverData)
