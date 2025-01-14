@@ -112,6 +112,14 @@ end
 ---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
 ---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
 ---@field public attached_skill_name? string @ 给其他角色添加技能的名称
+---@field public addEffect fun(self: SkillSkeleton, key: 'distance', attribute: nil, data: DistanceSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', attribute: nil, data: ProhibitSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', attribute: nil, data: AttackRangeSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'maxcards', attribute: nil, data: MaxCardsSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'targetmod', attribute: nil, data: TargetModSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'filter', attribute: nil, data: FilterSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', attribute: nil, data: InvaliditySpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', attribute: nil, data: VisibilitySpec)
 
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effect_list ([any, any, any])[]
@@ -221,6 +229,10 @@ function SkillSkeleton:createTriggerSkill(skill, idx, key, attr, spec)
   sk.priority = 1
 
   return sk
+end
+
+---@param key 'distance'
+function SkillSkeleton:createDistanceSkill(skill, idx, key, attr, spec)
 end
 
 ---@param spec SkillSpec
