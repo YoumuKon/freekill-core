@@ -307,8 +307,8 @@ function TestStandard:testYingzi()
     room:handleAddLoseSkills(me, "yingzi")
   end)
 
-  SetNextReplies(me, { "1" })
-  RunInRoom(function()
+  FkTest.setNextReplies(me, { "1" })
+  FkTest.runInRoom(function()
     local data = { ---@type TurnDataSpec
       who = me,
       reason = "game_rule",
@@ -402,8 +402,8 @@ function TestStandard:testBiYue()
     room:handleAddLoseSkills(me, "biyue")
   end)
 
-  SetNextReplies(me, { "1" })
-  RunInRoom(function()
+  FkTest.setNextReplies(me, { "1" })
+  FkTest.runInRoom(function()
     local data = { ---@type TurnDataSpec
       who = me,
       reason = "game_rule",
