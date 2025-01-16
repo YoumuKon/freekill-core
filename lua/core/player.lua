@@ -475,18 +475,18 @@ function Player:getAttackRange()
   local baseValue = 1
 
   local weapons = table.filter(self:getEquipments(Card.SubtypeWeapon), function (id)
-    local weapon = Fk:getCardById(id)---@class Weapon
+    local weapon = Fk:getCardById(id) ---@class Weapon
     return weapon:AvailableAttackRange(self)
   end)
   if #weapons > 0 then
     baseValue = 0
     for _, id in ipairs(weapons) do
-      local weapon = Fk:getCardById(id)---@class Weapon
+      local weapon = Fk:getCardById(id) ---@class Weapon
       baseValue = math.max(baseValue, weapon:getAttackRange(self) or 1)
     end
   end
 
-  local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable
+  local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable ---@type AttackRangeSkill[]
   local max_fixed, correct = nil, 0
   for _, skill in ipairs(status_skills) do
     local f = skill:getFixed(self)
@@ -571,7 +571,7 @@ function Player:distanceTo(other, mode, ignore_dead)
     ret = math.min(left, right)
   end
 
-  local status_skills = Fk:currentRoom().status_skills[DistanceSkill] or Util.DummyTable
+  local status_skills = Fk:currentRoom().status_skills[DistanceSkill] or Util.DummyTable  ---@type DistanceSkill[]
   for _, skill in ipairs(status_skills) do
     local fixed = skill:getFixed(self, other)
     local correct = skill:getCorrect(self, other)
@@ -624,7 +624,7 @@ function Player:inMyAttackRange(other, fixLimit)
 
   fixLimit = fixLimit or 0
 
-  local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable
+  local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable ---@type AttackRangeSkill[]
   for _, skill in ipairs(status_skills) do
     if skill:withoutAttackRange(self, other) then
       return false
@@ -779,7 +779,7 @@ function Player:isKongcheng()
   return #self:getCardIds(Player.Hand) == 0
 end
 
---- 获取玩家是否无手牌及装备牌。
+--- 获取玩家是否没有牌（即无手牌及装备区牌）。
 function Player:isNude()
   return #self:getCardIds{Player.Hand, Player.Equip} == 0
 end

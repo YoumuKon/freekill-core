@@ -244,6 +244,8 @@ function Damage:exec()
   end
 end
 
+---@param damageStruct DamageStruct
+---@return boolean
 function AIGameLogic:damage(damageStruct)
   return not Damage:new(self, damageStruct):getBenefit()
 end
@@ -252,6 +254,10 @@ local LoseHp = AIGameEvent:subclass("AIGameEvent.LoseHp")
 fk.ai_events.LoseHp = LoseHp
 LoseHp.exec = AIParser.parseEventFunc(GameEvent.LoseHp.main)
 
+---@param player ServerPlayer
+---@param num integer
+---@param skillName string
+---@return boolean
 function AIGameLogic:loseHp(player, num, skillName)
   return not LoseHp:new(self, player, num, skillName):getBenefit()
 end
