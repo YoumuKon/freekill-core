@@ -10,7 +10,7 @@
 ---@field public card_num integer
 ---@field public card_num_table integer[]
 ---@field public interaction any
----@field public prompt string | function?
+---@field public prompt string | function? @ 技能提示
 ---@field public handly_pile boolean?  @ 是否能够选择“如手牌使用或打出”的牌
 local ActiveSkill = UsableSkill:subclass("ActiveSkill")
 
@@ -50,8 +50,9 @@ end
 ---@param selected_cards integer[] @ 已选牌
 ---@param card? Card @ 牌
 ---@param extra_data? UseExtraData @ 额外数据
+---@param user? integer @ 使用者id
 ---@return boolean?
-function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data)
+function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data, user)
   return false
 end
 
@@ -61,9 +62,18 @@ end
 ---@param user? integer @ 使用者
 ---@param card? Card @ 牌
 ---@param distance_limited? boolean @ 是否受距离限制
+---@param extra_data? any @ 额外数据
 ---@return boolean?
-function ActiveSkill:modTargetFilter(to_select, selected, user, card, distance_limited)
+function ActiveSkill:modTargetFilter(to_select, selected, user, card, distance_limited, extra_data)
   return false
+end
+
+---@param player Player @ 使用者
+---@param card? Card @ 牌
+---@param extra_data? UseExtraData @ 额外数据
+---@return integer[]?
+function ActiveSkill:fixTargets(player, card, extra_data)
+  return nil
 end
 
 -- 获得技能的最小目标数

@@ -220,18 +220,19 @@ end
 ---@class ActiveSkillSpec: UsableSkillSpec
 ---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): any
+---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, user: integer?): any @ 判定目标能否选择
 ---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
 ---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): any
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean, extra_data: any): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
+---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 设置固定目标
 
 ---@param spec ActiveSkillSpec
 ---@return ActiveSkill
@@ -248,9 +249,7 @@ function fk.CreateActiveSkill(spec)
   if spec.card_filter then skill.cardFilter = spec.card_filter end
   if spec.target_filter then skill.targetFilter = spec.target_filter end
   if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
-  if spec.feasible then
-    skill.feasible = spec.feasible
-  end
+  if spec.feasible then skill.feasible = spec.feasible end
   if spec.on_use then skill.onUse = spec.on_use end
   if spec.on_action then skill.onAction = spec.on_action end
   if spec.about_to_effect then skill.aboutToEffect = spec.about_to_effect end
@@ -259,6 +258,7 @@ function fk.CreateActiveSkill(spec)
   if spec.prompt then skill.prompt = spec.prompt end
   if spec.target_tip then skill.targetTip = spec.target_tip end
   if spec.handly_pile then skill.handly_pile = spec.handly_pile end
+  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
@@ -553,17 +553,17 @@ local defaultCardSkill = fk.CreateActiveSkill{
   end
 }
 
+--- 装备牌的默认cardSkill
 local defaultEquipSkill = fk.CreateActiveSkill{
   name = "default_equip_skill",
   prompt = function(_, selected_cards, _)
-    return "#default_equip_skill:::" .. Fk:getCardById(selected_cards).name .. ":" .. Fk:getCardById(selected_cards):getSubtypeString()
+    if not selected_cards or #selected_cards == 0 then return " " end
+    return "#default_equip_skill:::" .. Fk:getCardById(selected_cards[1]).name
   end,
   mod_target_filter = function(self, to_select, selected, user, card, distance_limited)
     return #Fk:currentRoom():getPlayerById(to_select):getAvailableEquipSlots(card.sub_type) > 0
   end,
-  can_use = function(self, player, card)
-    return self:modTargetFilter(player.id, {}, player.id, card, true) and not player:isProhibited(player, card)
-  end,
+  can_use = Util.SelfCanUse,
   on_use = function(self, room, use)
     if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
       use.tos = { { use.from } }

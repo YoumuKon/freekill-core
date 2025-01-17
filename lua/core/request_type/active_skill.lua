@@ -69,10 +69,12 @@ function ReqActiveSkill:finish()
   self:retractAllPiles()
 end
 
-function ReqActiveSkill:setSkillPrompt(skill, cid)
+---@param skill ActiveSkill
+---@param selected_cards integer[] @ 选择的牌
+function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local prompt = skill.prompt
   if type(skill.prompt) == "function" then
-    prompt = skill:prompt(cid or self.pendings, self.selected_targets)
+    prompt = skill:prompt(selected_cards or self.pendings, self.selected_targets)
   end
   if type(prompt) == "string" then
     self:setPrompt(prompt)
@@ -221,6 +223,8 @@ function ReqActiveSkill:isCancelable()
   return self.cancelable
 end
 
+--- 判断一张牌是否能被主动技或转化技点亮（注，使用实体牌不用此函数判断
+---@param cid integer @ 待选卡牌id
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   if not skill then return false end
@@ -236,7 +240,7 @@ function ReqActiveSkill:targetValidity(pid)
     if not card then return false end
     skill = card.skill
   end
-  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data)
+  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data, self.player.id)
 end
 
 function ReqActiveSkill:updateButtons()

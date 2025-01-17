@@ -11,7 +11,7 @@ local thunderSlashSkill = fk.CreateActiveSkill{
   name = "thunder__slash_skill",
   prompt = function(self, selected_cards)
     local card = Fk:cloneCard("thunder__slash")
-    card.subcards = Card:getIdList(selected_cards)
+    card:addSubcards(selected_cards)
     local max_num = self:getMaxTargetNum(Self, card)
     if max_num > 1 then
       local num = #table.filter(Fk:currentRoom().alive_players, function (p)
@@ -19,7 +19,6 @@ local thunderSlashSkill = fk.CreateActiveSkill{
       end)
       max_num = math.min(num, max_num)
     end
-    card.subcards = {}
     return max_num > 1 and "#thunder__slash_skill_multi:::" .. max_num or "#thunder__slash_skill"
   end,
   max_phase_use_time = 1,
@@ -63,7 +62,7 @@ local fireSlashSkill = fk.CreateActiveSkill{
   name = "fire__slash_skill",
   prompt = function(self, selected_cards)
     local card = Fk:cloneCard("fire__slash")
-    card.subcards = Card:getIdList(selected_cards)
+    card:addSubcards(selected_cards)
     local max_num = self:getMaxTargetNum(Self, card)
     if max_num > 1 then
       local num = #table.filter(Fk:currentRoom().alive_players, function (p)
@@ -71,7 +70,6 @@ local fireSlashSkill = fk.CreateActiveSkill{
       end)
       max_num = math.min(num, max_num)
     end
-    card.subcards = {}
     return max_num > 1 and "#fire__slash_skill_multi:::" .. max_num or "#fire__slash_skill"
   end,
   max_phase_use_time = 1,
@@ -111,10 +109,8 @@ local analepticSkill = fk.CreateActiveSkill{
   name = "analeptic_skill",
   prompt = "#analeptic_skill",
   max_turn_use_time = 1,
-  mod_target_filter = function(self, to_select, _, _, card, _)
-    return not table.find(Fk:currentRoom().alive_players, function(p)
-      return p.dying
-    end)
+  mod_target_filter = function (self, to_select, selected, user, card, distance_limited)
+    return true
   end,
   can_use = function(self, player, card, extra_data)
     return not player:isProhibited(player, card) and ((extra_data and (extra_data.bypass_times or extra_data.analepticRecover)) or
@@ -214,10 +210,7 @@ local ironChainCardSkill = fk.CreateActiveSkill{
   min_target_num = 1,
   max_target_num = 2,
   mod_target_filter = Util.TrueFunc,
-  target_filter = function(self, to_select, selected, _, card, extra_data)
-    return Util.TargetFilter(self, to_select, selected, _, card, extra_data) and
-      self:modTargetFilter(to_select, selected, Self.id, card)
-  end,
+  target_filter = Util.TargetFilter,
   on_effect = function(_, room, cardEffectEvent)
     local to = room:getPlayerById(cardEffectEvent.to)
     to:setChainState(not to.chained)
@@ -248,10 +241,7 @@ local fireAttackSkill = fk.CreateActiveSkill{
     local to = Fk:currentRoom():getPlayerById(to_select)
     return not to:isKongcheng()
   end,
-  target_filter = function(self, to_select, selected, _, card, extra_data)
-    return Util.TargetFilter(self, to_select, selected, _, card, extra_data) and
-      self:modTargetFilter(to_select, selected, Self.id, card)
-  end,
+  target_filter = Util.TargetFilter,
   on_effect = function(self, room, cardEffectEvent)
     local from = room:getPlayerById(cardEffectEvent.from)
     local to = room:getPlayerById(cardEffectEvent.to)
@@ -296,11 +286,7 @@ local supplyShortageSkill = fk.CreateActiveSkill{
     local from = Fk:currentRoom():getPlayerById(user)
     return from ~= player and not (distance_limited and not self:withinDistanceLimit(from, false, card, player))
   end,
-  target_filter = function(self, to_select, selected, _, card, extra_data)
-    if not Util.TargetFilter(self, to_select, selected, _, card, extra_data) then return end
-    local count_distances = not (extra_data and extra_data.bypass_distances)
-    return #selected == 0 and self:modTargetFilter(to_select, selected, Self.id, card, count_distances)
-  end,
+  target_filter = Util.TargetFilter,
   target_num = 1,
   on_effect = function(self, room, effect)
     local to = room:getPlayerById(effect.to)

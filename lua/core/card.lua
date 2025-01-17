@@ -525,4 +525,56 @@ function Card:getTableMark(mark)
   return type(ret) == "table" and ret or {}
 end
 
+
+--- 获得使用此牌的固定目标，仅有不能自由选择目标的牌会有固定目标。即桃、无中、装备、AOE等
+---@param player Player @ 使用者
+---@param extra_data? any @ 额外数据
+---@return integer[]|nil @ 可能返回空
+function Card:getFixedTargets(player, extra_data)
+  local ret = extra_data and extra_data.fix_targets
+  if ret then return ret end
+  ret = self.skill:fixTargets(player, self, extra_data)
+  if ret then return ret end
+  if self.skill.target_num == 0 then
+    if self.multiple_targets then
+      return table.map(table.filter(Fk:currentRoom().alive_players, function (p)
+        return self.skill:modTargetFilter(p.id, {}, player.id, self)
+      end), Util.IdMapper)
+    else
+      return {player.id}
+    end
+  end
+  return nil
+end
+
+
+--- 获得一张牌在出牌阶段空闲时可以正常选择的目标角色表
+---@param player Player @ 使用者
+---@param extra_data? table
+---@return integer[] @ 返回目标id表
+function Card:getAvailableTargets (player, extra_data)
+  if not player:canUse(self, extra_data) or player:prohibitUse(self) then return {} end
+  extra_data = extra_data or Util.DummyTable
+  local fixed_targets = extra_data.fix_targets or self:getFixedTargets(player, extra_data)
+  local room = Fk:currentRoom()
+  local tos = fixed_targets or table.map(room.alive_players, Util.IdMapper)
+  tos = table.filter(tos, function(pid)
+    return not player:isProhibited(room:getPlayerById(pid), self)
+    and self.skill:modTargetFilter(pid, {}, player.id, self, not extra_data.bypass_distances, extra_data)
+  end)
+  if self.skill:getMinTargetNum() == 2 then  -- for collateral
+    for i = #tos, 1, -1 do
+      local fromId = tos[i]
+      if table.every(room.alive_players, function (p)
+        return p.id == fromId or not self.skill:targetFilter(p.id, {fromId}, self.subcards, self, extra_data, player.id)
+      end) then
+        table.remove(tos, i)
+      end
+    end
+  end
+  return tos
+end
+
+
+
 return Card

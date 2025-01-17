@@ -193,6 +193,24 @@ function UseCard:main()
     cardUseEvent.attachedSkillAndUser = nil
   end
 
+  -- add fix targets to usedata in place of card.skill:onUse
+  --[[
+  local targets = TargetGroup:getRealTargets(cardUseEvent.tos)
+  if #targets == 0 then
+    local fix_targets = cardUseEvent.card:getFixedTargets()
+    if fix_targets then
+      local cardSkill = cardUseEvent.card.skill---@type ActiveSkill
+      if cardSkill then
+        for _, pid in ipairs(fix_targets) do
+          if cardSkill:modTargetFilter(pid, {}, cardUseEvent.from, cardUseEvent.card, true, cardUseEvent.extra_data) then
+            TargetGroup:pushTargets(cardUseEvent.tos, pid)
+          end
+        end
+      end
+    end
+  end
+  --]]
+
   if cardUseEvent.card.skill then
     cardUseEvent.card.skill:onUse(room, cardUseEvent)
   end
