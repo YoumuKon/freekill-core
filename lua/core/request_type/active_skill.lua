@@ -189,7 +189,7 @@ function ReqActiveSkill:expandPiles()
   if not skill.expand_pile then return end
   local pile = skill.expand_pile
   if type(pile) == "function" then
-    pile = pile(skill)
+    pile = pile(skill, player)
   end
 
   local ids = pile
@@ -228,7 +228,7 @@ end
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   if not skill then return false end
-  return skill:cardFilter(cid, self.pendings)
+  return skill:cardFilter(cid, self.pendings, self.player.id)
 end
 
 function ReqActiveSkill:targetValidity(pid)
@@ -236,7 +236,7 @@ function ReqActiveSkill:targetValidity(pid)
   if not skill then return false end
   local card -- 姑且接一下(雾)
   if skill:isInstanceOf(ViewAsSkill) then
-    card = skill:viewAs(self.pendings)
+    card = skill:viewAs(self.pendings, self.player.id)
     if not card then return false end
     skill = card.skill
   end

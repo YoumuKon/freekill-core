@@ -112,7 +112,7 @@ end
 ---@class UsableSkillSpec: SkillSpec
 ---@field public main_skill? UsableSkill
 ---@field public max_use_time? integer[]
----@field public expand_pile? string | integer[] | fun(self: UsableSkill): integer[]|string?
+---@field public expand_pile? string | integer[] | fun(self: UsableSkill, player: ServerPlayer): integer[]|string? @ 额外牌堆，牌堆名称或卡牌id表
 ---@field public derived_piles? string | string[]
 ---@field public max_phase_use_time? integer
 ---@field public max_turn_use_time? integer
@@ -219,7 +219,7 @@ end
 
 ---@class ActiveSkillSpec: UsableSkillSpec
 ---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
----@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
+---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer): any @ 判断卡牌能否选择
 ---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, user: integer?): any @ 判定目标能否选择
 ---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
@@ -275,8 +275,8 @@ function fk.CreateActiveSkill(spec)
 end
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
----@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[]): any
----@field public view_as fun(self: ViewAsSkill, cards: integer[]): Card?
+---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], user: integer): any @ 判断卡牌能否选择
+---@field public view_as fun(self: ViewAsSkill, cards: integer[], user: integer): Card? @ 判断转化为什么牌
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any

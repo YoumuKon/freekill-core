@@ -230,8 +230,8 @@ local tiandu = fk.CreateTriggerSkill{
 }
 local yiji_active = fk.CreateActiveSkill{
   name = "yiji_active",
-  expand_pile = function(self)
-    return type(Self:getMark("yiji_cards")) == "table" and Self:getMark("yiji_cards") or {}
+  expand_pile = function(self, player)
+    return player:getTableMark("yiji_cards")
   end,
   min_card_num = 1,
   target_num = 1,

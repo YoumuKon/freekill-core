@@ -965,9 +965,10 @@ end
 ---@param extra_data? UseExtraData @ 额外数据
 function Player:canUseTo(card, to, extra_data)
   if self:prohibitUse(card) or self:isProhibited(to, card) then return false end
-  local distance_limited = not (extra_data and extra_data.bypass_distances)
-  local can_use = self:canUse(card, extra_data)
-  return can_use and Util.TargetFilter(card.skill, to.id, {}, card.subcards, card, distance_limited, self.id)
+  local _extra = extra_data and table.simpleClone(extra_data) or {}
+  _extra.fix_targets = {to.id}
+  local can_use = self:canUse(card, _extra) -- for judging peach canUse correctly
+  return can_use and Util.TargetFilter(card.skill, to.id, {}, card.subcards, card, _extra, self.id)
 end
 
 --- 确认玩家是否被禁止对特定玩家使用特定牌。

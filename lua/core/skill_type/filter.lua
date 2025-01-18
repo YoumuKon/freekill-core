@@ -12,7 +12,7 @@ end
 
 ---@param card Card
 ---@param player Player
----@return Card
+---@return Card?
 function FilterSkill:viewAs(card, player)
   return nil
 end

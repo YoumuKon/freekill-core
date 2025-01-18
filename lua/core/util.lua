@@ -184,7 +184,8 @@ Util.TargetFilter = function(skill, to_select, selected, selected_cards, card, e
   user = user or Self.id
   if not skill:modTargetFilter(to_select, selected, user, card, not (extra_data and extra_data.bypass_distances), extra_data) then return end
   local player = Fk:currentRoom():getPlayerById(user)
-  if #selected >= skill:getMaxTargetNum(player, card) then return end
+  local max_target_num = skill:getMaxTargetNum(player, card)
+  if max_target_num > 0 and #selected >= max_target_num then return end
   if player:isProhibited(Fk:currentRoom():getPlayerById(to_select), card) then return end
   extra_data = extra_data or {}
   if extra_data.must_targets then

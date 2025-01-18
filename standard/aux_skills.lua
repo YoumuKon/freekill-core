@@ -51,20 +51,15 @@ local discardSkill = fk.CreateActiveSkill{
 
 local chooseCardsSkill = fk.CreateActiveSkill{
   name = "choose_cards_skill",
-  card_filter = function(self, to_select, selected)
+  card_filter = function(self, to_select, selected, user)
     if #selected >= self.num then
       return false
     end
 
-    if Fk:currentRoom():getCardArea(to_select) == Card.PlayerSpecial then
-      local pile = self.expand_pile
-      if not pile then return false end
-      if type(pile) == "string" then
-        local area = string.split(self.pattern or "", "|")[4]
-        if not (area and string.find(area, pile)) then return false end
-      elseif type(pile) == "table" then
-        if not table.contains(pile, to_select) then return false end
-      end
+    local player = Fk:currentRoom():getPlayerById(user)
+    if not table.contains(player:getCardIds("he"), to_select) then
+      local pile = self:getPile(player)
+      if not table.contains(pile, to_select) then return false end
     end
 
     local checkpoint = true
@@ -108,18 +103,13 @@ local choosePlayersSkill = fk.CreateActiveSkill{
 
 local exChooseSkill = fk.CreateActiveSkill{
   name = "ex__choose_skill",
-  card_filter = function(self, to_select, selected)
+  card_filter = function(self, to_select, selected, user)
     if #selected >= self.max_c_num then return false end
 
-    if Fk:currentRoom():getCardArea(to_select) == Card.PlayerSpecial then
-      local pile = self.expand_pile
-      if not pile then return false end
-      if type(pile) == "string" then
-        local area = string.split(self.pattern or "", "|")[4]
-        if not (area and string.find(area, pile)) then return false end
-      elseif type(pile) == "table" then
-        if not table.contains(pile, to_select) then return false end
-      end
+    local player = Fk:currentRoom():getPlayerById(user)
+    if not table.contains(player:getCardIds("he"), to_select) then
+      local pile = self:getPile(player)
+      if not table.contains(pile, to_select) then return false end
     end
 
     local checkpoint = true

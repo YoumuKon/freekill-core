@@ -13,14 +13,16 @@ end
 
 ---@param to_select integer @ id of a card not selected
 ---@param selected integer[] @ ids of selected cards
+---@param user integer @ id of the user
 ---@return boolean
-function ViewAsSkill:cardFilter(to_select, selected)
+function ViewAsSkill:cardFilter(to_select, selected, user)
   return false
 end
 
 ---@param cards integer[] @ ids of cards
+---@param user integer @ id of the user
 ---@return Card?
-function ViewAsSkill:viewAs(cards)
+function ViewAsSkill:viewAs(cards, user)
   return nil
 end
 

@@ -38,9 +38,9 @@ end
 -- 判断一张牌是否可被此技能选中
 ---@param to_select integer @ 待选牌
 ---@param selected integer[] @ 已选牌
----@param selected_targets? integer[] @ 已选目标
+---@param user? integer @ 使用者id
 ---@return boolean?
-function ActiveSkill:cardFilter(to_select, selected, selected_targets)
+function ActiveSkill:cardFilter(to_select, selected, user)
   return true
 end
 
@@ -226,13 +226,13 @@ function ActiveSkill:withinDistanceLimit(player, isattack, card, to)
   -- end)))
 end
 
--- 判断一个技能是否可发动（也就是确认键是否可点击）
+-- 判断一个技能是否可发动（也就是确认键是否可点击）。默认值为选择卡牌数和选择目标数均在允许范围内
 -- 警告：没啥事别改
 ---@param selected integer[] @ 已选目标
 ---@param selected_cards integer[] @ 已选牌
 ---@param player Player @ 使用者
 ---@param card? Card @ 牌
----@return boolean?
+---@return boolean
 function ActiveSkill:feasible(selected, selected_cards, player, card)
   return #selected >= self:getMinTargetNum() and #selected <= self:getMaxTargetNum(player, card)
     and #selected_cards >= self:getMinCardNum() and #selected_cards <= self:getMaxCardNum()
@@ -268,12 +268,14 @@ function ActiveSkill:onEffect(room, cardEffectEvent) end
 ---@param cardEffectEvent CardEffectEvent | SkillEffectEvent
 function ActiveSkill:onNullified(room, cardEffectEvent) end
 
+--- 选择目标时产生的目标提示，贴在目标脸上
 ---@param to_select integer @ id of the target
 ---@param selected integer[] @ ids of selected targets
 ---@param selected_cards integer[] @ ids of selected cards
 ---@param card Card @ helper
 ---@param selectable boolean @can be selected
 ---@param extra_data? any @ extra_data
+---@return string|table?
 function ActiveSkill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data) end
 
 return ActiveSkill

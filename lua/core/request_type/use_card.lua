@@ -18,7 +18,7 @@ end
 
 function ReqUseCard:skillButtonValidity(name)
   local player = self.player
-  local skill = Fk.skills[name]
+  local skill = Fk.skills[name]---@type ViewAsSkill
   return
     skill:isInstanceOf(ViewAsSkill) and
     skill:enabledAtResponse(player, false) and
@@ -47,7 +47,7 @@ function ReqUseCard:cardFeasible(card)
   local player = self.player
   if not player:prohibitUse(card) and exp:match(card) then
     if card.is_passive then return true end
-    local extra_data = self.extra_data or {}
+    local extra_data = table.simpleClone(self.extra_data)
     extra_data.bypass_times = true
     return player:canUse(card, extra_data)
   end
