@@ -244,7 +244,7 @@ function GetPlayerSkills(id)
   local p = ClientInstance:getPlayerById(id)
   return table.map(p.player_skills, function(s)
     return s.visible and not (s.attached_equip or s.name:endsWith("&")) and {
-      name = Fk:translate(s.name) .. (p:hasSkill(s) and "" or Fk:translate("skill_invalidity")),
+      name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
       description = Fk:getDescription(s.name),
     } or nil
   end)
