@@ -159,7 +159,7 @@ function ReqPlayCard:selectCard(cid, data)
     scene:unselectOtherCards(cid)
     -- self:setSkillPrompt(self.selected_card.skill, self.selected_card:getEffectiveId())
     local sp_skills = {}
-    if self.selected_card.special_skills then
+    if self.selected_card.special_skills and table.contains(self.player:getCardIds("h"), cid) then
       sp_skills = table.simpleClone(self.selected_card.special_skills)
       if self.player:canUse(self.selected_card) then
         table.insert(sp_skills, 1, "_normal_use")
