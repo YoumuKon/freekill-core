@@ -242,12 +242,22 @@ end
 
 function GetPlayerSkills(id)
   local p = ClientInstance:getPlayerById(id)
-  return table.map(p.player_skills, function(s)
-    return s.visible and {
-      name = s.name,
-      description = Fk:getDescription(s.name),
-    } or nil
-  end)
+  --FIXME:本体更新时记得优化此处
+  if p == Self then
+    return table.map(p.player_skills, function(s)
+      return s.visible and {
+        name = s.name,
+        description = Fk:getDescription(s.name),
+      } or nil
+    end)
+  else
+    return table.map(p.player_skills, function(s)
+      return s.visible and not (s.attached_equip or s.name:endsWith("&")) and {
+        name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
+        description = Fk:getDescription(s.name),
+      } or nil
+    end)
+  end
 end
 
 -- Handle skills
