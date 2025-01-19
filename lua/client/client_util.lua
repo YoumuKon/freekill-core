@@ -247,14 +247,14 @@ function GetPlayerSkills(id)
     return table.map(p.player_skills, function(s)
       return s.visible and {
         name = s.name,
-        description = Fk:getDescription(s.name),
+        description = Fk:getDescription(s.name, nil, p),
       } or nil
     end)
   else
     return table.map(p.player_skills, function(s)
       return s.visible and not (s.attached_equip or s.name:endsWith("&")) and {
         name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
-        description = Fk:getDescription(s.name),
+        description = Fk:getDescription(s.name, nil, p),
       } or nil
     end)
   end

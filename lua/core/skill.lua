@@ -211,4 +211,20 @@ function Skill:onLose(player, is_death)
 
 end
 
+---@param player Player
+---@param lang? string
+---@return string?
+function Skill:getDynamicDescription(player, lang)
+  if self:isSwitchSkill() then
+    local switchState = player:getSwitchSkillState(self.name)
+    local descKey = ":" .. self.name .. (switchState == fk.SwitchYang and "_yang" or "_yin")
+    local translation = Fk:translate(descKey, lang)
+    if translation ~= descKey then
+      return translation
+    end
+  end
+
+  return nil
+end
+
 return Skill

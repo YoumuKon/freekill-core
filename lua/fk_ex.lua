@@ -57,6 +57,11 @@ function fk.readCommonSpecToSkill(skill, spec)
     assert(type(spec.on_lose) == "function")
     skill.onLose = spec.on_lose
   end
+
+  if spec.dynamic_desc then
+    assert(type(spec.dynamic_desc) == "function")
+    skill.getDynamicDescription = spec.dynamic_desc
+  end
 end
 
 function fk.readUsableSpecToSkill(skill, spec)
@@ -107,6 +112,7 @@ end
 ---@field public relate_to_place? string @ 主将技/副将技
 ---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
 ---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
+---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string)
 ---@field public attached_skill_name? string @ 给其他角色添加技能的名称
 
 ---@class UsableSkillSpec: SkillSpec
