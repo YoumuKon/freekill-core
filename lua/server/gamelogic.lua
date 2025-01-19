@@ -222,6 +222,7 @@ function GameLogic:prepareDrawPile()
   local seed = math.random(2 << 32 - 1)
   room:prepareDrawPile(seed)
   room:doBroadcastNotify("PrepareDrawPile", seed)
+  room:doBroadcastNotify("UpdateDrawPile", tostring(#room.draw_pile))
 end
 
 function GameLogic:attachSkillToPlayers()
@@ -234,7 +235,7 @@ function GameLogic:attachSkillToPlayers()
       fk.qCritical("Skill: "..skillName.." doesn't exist!")
       return
     end
-    if skill.lordSkill and (player.role ~= "lord") then
+    if skill.lordSkill and not (player.role == "lord" and player.role_shown and room:isGameMode("role_mode")) then
       return
     end
 

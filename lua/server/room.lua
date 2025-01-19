@@ -378,8 +378,6 @@ function Room:getNCards(num, from)
 
   local cardIds = table.slice(self.draw_pile, i, j + 1)
 
-  -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
-
   return cardIds
 end
 
@@ -568,7 +566,7 @@ end
 
 function Room:toJsonObject(player)
   local o = AbstractRoom.toJsonObject(self)
-  o.round_count = self:getTag("RoundCount") or 0
+  o.round_count = self:getBanner("RoundCount") or 0
   if player then
     o.you = player.id
   end
@@ -2700,7 +2698,6 @@ function Room:shuffleDrawPile()
   local seed = math.random(2 << 32 - 1)
   AbstractRoom.shuffleDrawPile(self, seed)
 
-  -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
   self:doBroadcastNotify("ShuffleDrawPile", seed)
   self:doBroadcastNotify("UpdateDrawPile", tostring(#self.draw_pile))
 
@@ -2710,6 +2707,7 @@ end
 -- 强制同步牌堆（用于在不因任何移动事件且不因洗牌导致的牌堆变动）
 function Room:syncDrawPile()
   self:doBroadcastNotify("SyncDrawPile", json.encode(self.draw_pile))
+  self:doBroadcastNotify("UpdateDrawPile", tostring(#self.draw_pile))
 end
 
 ---@param room Room
@@ -3087,9 +3085,7 @@ function Room:addSkill(skill)
     self.status_skills[skill.class] = self.status_skills[skill.class] or {}
     table.insertIfNeed(self.status_skills[skill.class], skill)
     -- add status_skill to cilent room
-    for _, p in ipairs(self.players) do
-      p:doNotify("AddSkill", json.encode{p.id, skill.name})
-    end
+    self:doBroadcastNotify("AddStatusSkill", json.encode{ skill.name })
   elseif skill:isInstanceOf(TriggerSkill) then
     self.logic:addTriggerSkill(skill)
   end

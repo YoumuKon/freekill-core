@@ -132,6 +132,12 @@ function ServerPlayer:reconnect()
     end
   end
 
+  for _, skills in ipairs(room.status_skills) do
+    for _, skill in ipairs(skills) do
+      self:doNotify("AddStatusSkill", json.encode{ skill.name })
+    end
+  end
+
   room:broadcastProperty(self, "state")
 end
 

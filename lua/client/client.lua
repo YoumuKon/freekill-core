@@ -920,6 +920,14 @@ fk.client_callback["AddSkill"] = function(self, data)
   updateLimitSkill(id, skill, target:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
+fk.client_callback["AddStatusSkill"] = function(self, data)
+  -- jsonData: [ string skill_name ]
+  local skill_name = data[1]
+  local skill = Fk.skills[skill_name]
+  self.status_skills[skill.class] = self.status_skills[skill.class] or {}
+  table.insertIfNeed(self.status_skills[skill.class], skill)
+end
+
 fk.client_callback["AskForSkillInvoke"] = function(self, data)
   -- jsonData: [ string name, string prompt ]
 
