@@ -538,7 +538,7 @@ function Card:getFixedTargets(player, extra_data)
   if self.skill.target_num == 0 then
     if self.multiple_targets then
       return table.map(table.filter(Fk:currentRoom().alive_players, function (p)
-        return self.skill:modTargetFilter(p.id, {}, player.id, self)
+        return self.skill:modTargetFilter(p.id, {}, player, self)
       end), Util.IdMapper)
     else
       return {player.id}
@@ -560,13 +560,13 @@ function Card:getAvailableTargets (player, extra_data)
   local tos = fixed_targets or table.map(room.alive_players, Util.IdMapper)
   tos = table.filter(tos, function(pid)
     return not player:isProhibited(room:getPlayerById(pid), self)
-    and self.skill:modTargetFilter(pid, {}, player.id, self, not extra_data.bypass_distances, extra_data)
+    and self.skill:modTargetFilter(pid, {}, player, self, not extra_data.bypass_distances, extra_data)
   end)
   if self.skill:getMinTargetNum() == 2 then  -- for collateral
     for i = #tos, 1, -1 do
       local fromId = tos[i]
       if table.every(room.alive_players, function (p)
-        return p.id == fromId or not self.skill:targetFilter(p.id, {fromId}, self.subcards, self, extra_data, player.id)
+        return p.id == fromId or not self.skill:targetFilter(p.id, {fromId}, self.subcards, self, extra_data, player)
       end) then
         table.remove(tos, i)
       end

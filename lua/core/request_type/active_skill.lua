@@ -228,7 +228,7 @@ end
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   if not skill then return false end
-  return skill:cardFilter(cid, self.pendings, self.player.id)
+  return skill:cardFilter(cid, self.pendings, self.player)
 end
 
 function ReqActiveSkill:targetValidity(pid)
@@ -240,7 +240,7 @@ function ReqActiveSkill:targetValidity(pid)
     if not card then return false end
     skill = card.skill
   end
-  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data, self.player.id)
+  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data, self.player)
 end
 
 function ReqActiveSkill:updateButtons()

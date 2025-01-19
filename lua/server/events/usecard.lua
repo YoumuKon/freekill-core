@@ -202,7 +202,7 @@ function UseCard:main()
       local cardSkill = cardUseEvent.card.skill---@type ActiveSkill
       if cardSkill then
         for _, pid in ipairs(fix_targets) do
-          if cardSkill:modTargetFilter(pid, {}, cardUseEvent.from, cardUseEvent.card, true, cardUseEvent.extra_data) then
+          if cardSkill:modTargetFilter(pid, {}, room:getPlayerById(cardUseEvent.from), cardUseEvent.card, true, cardUseEvent.extra_data) then
             TargetGroup:pushTargets(cardUseEvent.tos, pid)
           end
         end

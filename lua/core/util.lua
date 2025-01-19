@@ -179,11 +179,9 @@ end
 ---@param selected_cards integer[] @ 牌的子表
 ---@param card Card @ 使用的卡牌
 ---@param extra_data any? @ 额外数据
----@param user integer @ 使用者id
-Util.TargetFilter = function(skill, to_select, selected, selected_cards, card, extra_data, user)
-  user = user or Self.id
-  if not skill:modTargetFilter(to_select, selected, user, card, not (extra_data and extra_data.bypass_distances), extra_data) then return end
-  local player = Fk:currentRoom():getPlayerById(user)
+---@param player Player @ 使用者
+Util.TargetFilter = function(skill, to_select, selected, selected_cards, card, extra_data, player)
+  if not skill:modTargetFilter(to_select, selected, player, card, not (extra_data and extra_data.bypass_distances), extra_data) then return end
   local max_target_num = skill:getMaxTargetNum(player, card)
   if max_target_num > 0 and #selected >= max_target_num then return end
   if player:isProhibited(Fk:currentRoom():getPlayerById(to_select), card) then return end
@@ -227,7 +225,7 @@ Util.SelfCanUse = function(self, player, card, extra_data)
   local tos = (extra_data and extra_data.fix_targets) and extra_data.fix_targets or {player.id}
   return table.find(tos, function(pid)
     return not player:isProhibited(room:getPlayerById(pid), card)
-    and Util.TargetFilter(self, pid, {}, card.subcards, card, extra_data, player.id)
+    and Util.TargetFilter(self, pid, {}, card.subcards, card, extra_data, player)
   end) ~= nil
 end
 

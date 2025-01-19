@@ -38,9 +38,9 @@ end
 -- 判断一张牌是否可被此技能选中
 ---@param to_select integer @ 待选牌
 ---@param selected integer[] @ 已选牌
----@param user? integer @ 使用者id
+---@param player? Player @ 使用者
 ---@return boolean?
-function ActiveSkill:cardFilter(to_select, selected, user)
+function ActiveSkill:cardFilter(to_select, selected, player)
   return true
 end
 
@@ -50,21 +50,21 @@ end
 ---@param selected_cards integer[] @ 已选牌
 ---@param card? Card @ 牌
 ---@param extra_data? UseExtraData @ 额外数据
----@param user? integer @ 使用者id
+---@param player? Player @ 使用者
 ---@return boolean?
-function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data, user)
+function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data, player)
   return false
 end
 
 -- 判断一名角色是否可成为此技能的目标
 ---@param to_select integer @ 待选目标
 ---@param selected integer[] @ 已选目标
----@param user? integer @ 使用者
+---@param player? Player @ 使用者
 ---@param card? Card @ 牌
 ---@param distance_limited? boolean @ 是否受距离限制
 ---@param extra_data? any @ 额外数据
 ---@return boolean?
-function ActiveSkill:modTargetFilter(to_select, selected, user, card, distance_limited, extra_data)
+function ActiveSkill:modTargetFilter(to_select, selected, player, card, distance_limited, extra_data)
   return false
 end
 

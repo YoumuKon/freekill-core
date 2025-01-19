@@ -218,17 +218,17 @@ function fk.CreateTriggerSkill(spec)
 end
 
 ---@class ActiveSkillSpec: UsableSkillSpec
----@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
----@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer): any @ 判断卡牌能否选择
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, user: integer?): any @ 判定目标能否选择
----@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
+---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 判断主动技能否发动
+---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
+---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, player: Player?): any @ 判定目标能否选择
+---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[], player: Player): any @ 判断卡牌和目标是否符合技能限制
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
 ---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean, extra_data: any): any
----@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player, card?: Card, distance_limited: boolean, extra_data: any): any
+---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string @ 提示信息
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
@@ -275,8 +275,8 @@ function fk.CreateActiveSkill(spec)
 end
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
----@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], user: integer): any @ 判断卡牌能否选择
----@field public view_as fun(self: ViewAsSkill, cards: integer[], user: integer): Card? @ 判断转化为什么牌
+---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
+---@field public view_as fun(self: ViewAsSkill, cards: integer[], player: Player): Card? @ 判断转化为什么牌
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
@@ -560,7 +560,7 @@ local defaultEquipSkill = fk.CreateActiveSkill{
     if not selected_cards or #selected_cards == 0 then return " " end
     return "#default_equip_skill:::" .. Fk:getCardById(selected_cards[1]).name
   end,
-  mod_target_filter = function(self, to_select, selected, user, card, distance_limited)
+  mod_target_filter = function(self, to_select, selected, player, card, distance_limited)
     return #Fk:currentRoom():getPlayerById(to_select):getAvailableEquipSlots(card.sub_type) > 0
   end,
   can_use = Util.SelfCanUse,

@@ -37,7 +37,7 @@ end
 function ReqUseCard:targetValidity(pid)
   if self.skill_name then return ReqActiveSkill.targetValidity(self, pid) end
   local card = self.selected_card
-  local ret = card and card.skill:targetFilter(pid, self.selected_targets, { card.id }, card, self.extra_data, self.player.id)
+  local ret = card and card.skill:targetFilter(pid, self.selected_targets, { card.id }, card, self.extra_data, self.player)
   return ret
 end
 
@@ -103,7 +103,7 @@ function ReqUseCard:selectTarget(playerid, data)
       self.selected_targets = {}
       for _, pid in ipairs(previous_targets) do
         local ret
-        ret = skill and skill:targetFilter(pid, self.selected_targets, { card.id }, card, data.extra_data, player.id)
+        ret = skill and skill:targetFilter(pid, self.selected_targets, { card.id }, card, data.extra_data, player)
         -- 从头开始写目标
         if ret then
           table.insert(self.selected_targets, pid)

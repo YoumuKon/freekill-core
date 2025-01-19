@@ -13,9 +13,9 @@ end
 
 ---@param to_select integer @ id of a card not selected
 ---@param selected integer[] @ ids of selected cards
----@param user integer @ id of the user
+---@param player Player @ the user
 ---@return boolean
-function ViewAsSkill:cardFilter(to_select, selected, user)
+function ViewAsSkill:cardFilter(to_select, selected, player)
   return false
 end
 

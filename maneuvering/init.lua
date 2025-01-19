@@ -109,7 +109,7 @@ local analepticSkill = fk.CreateActiveSkill{
   name = "analeptic_skill",
   prompt = "#analeptic_skill",
   max_turn_use_time = 1,
-  mod_target_filter = function (self, to_select, selected, user, card, distance_limited)
+  mod_target_filter = function (self, to_select, selected, player, card, distance_limited)
     return true
   end,
   can_use = function(self, player, card, extra_data)
@@ -281,10 +281,9 @@ local supplyShortageSkill = fk.CreateActiveSkill{
   prompt = "#supply_shortage_skill",
   can_use = Util.CanUse,
   distance_limit = 1,
-  mod_target_filter = function(self, to_select, _, user, card, distance_limited)
-    local player = Fk:currentRoom():getPlayerById(to_select)
-    local from = Fk:currentRoom():getPlayerById(user)
-    return from ~= player and not (distance_limited and not self:withinDistanceLimit(from, false, card, player))
+  mod_target_filter = function(self, to_select, _, player, card, distance_limited)
+    local target = Fk:currentRoom():getPlayerById(to_select)
+    return target ~= player and not (distance_limited and not self:withinDistanceLimit(player, false, card, target))
   end,
   target_filter = Util.TargetFilter,
   target_num = 1,

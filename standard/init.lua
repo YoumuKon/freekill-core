@@ -239,8 +239,8 @@ local yiji_active = fk.CreateActiveSkill{
     local ids = Self:getMark("yiji_cards")
       return type(ids) == "table" and table.contains(ids, to_select)
   end,
-  target_filter = function(self, to_select, selected, selected_cards)
-    return #selected == 0 and to_select ~= Self.id
+  target_filter = function(self, to_select, selected, _, _, _, player)
+    return #selected == 0 and to_select ~= player.id
   end,
 }
 local yiji = fk.CreateTriggerSkill{
@@ -363,8 +363,8 @@ local rende = fk.CreateActiveSkill{
   card_filter = function(self, to_select, selected)
     return Fk:currentRoom():getCardArea(to_select) == Card.PlayerHand
   end,
-  target_filter = function(self, to_select, selected)
-    return #selected == 0 and to_select ~= Self.id
+  target_filter = function(self, to_select, selected, _, _, _, player)
+    return #selected == 0 and to_select ~= player.id
   end,
   target_num = 1,
   min_card_num = 1,
@@ -770,8 +770,8 @@ local fanjian = fk.CreateActiveSkill{
   --   return player:usedSkillTimes(self.name, Player.HistoryPhase) == 0
   -- end,
   card_filter = Util.FalseFunc,
-  target_filter = function(self, to_select, selected)
-    return #selected == 0 and to_select ~= Self.id
+  target_filter = function(self, to_select, selected, _, _, _, player)
+    return #selected == 0 and to_select ~= player.id
   end,
   target_num = 1,
   on_use = function(self, room, effect)
@@ -949,9 +949,9 @@ local jieyin = fk.CreateActiveSkill{
   card_filter = function(self, to_select, selected)
     return #selected < 2 and Fk:currentRoom():getCardArea(to_select) == Player.Hand and not Self:prohibitDiscard(Fk:getCardById(to_select))
   end,
-  target_filter = function(self, to_select, selected)
+  target_filter = function(self, to_select, selected, _, _, _, player)
     local target = Fk:currentRoom():getPlayerById(to_select)
-    return target:isWounded() and target:isMale() and #selected < 1 and to_select ~= Self.id
+    return target:isWounded() and target:isMale() and #selected < 1 and to_select ~= player.id
   end,
   target_num = 1,
   card_num = 2,
@@ -1079,8 +1079,8 @@ local lijian = fk.CreateActiveSkill{
   card_filter = function(self, to_select, selected)
     return #selected == 0 and not Self:prohibitDiscard(Fk:getCardById(to_select))
   end,
-  target_filter = function(self, to_select, selected)
-    if #selected < 2 and to_select ~= Self.id then
+  target_filter = function(self, to_select, selected, _, _, _, player)
+    if #selected < 2 and to_select ~= player.id then
       local target = Fk:currentRoom():getPlayerById(to_select)
       return target:isMale() and (#selected == 0 or
       target:canUseTo(Fk:cloneCard("duel"), Fk:currentRoom():getPlayerById(selected[1])))

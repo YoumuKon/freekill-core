@@ -32,7 +32,7 @@ function ReqPlayCard:cardValidity(cid)
     local min_target = card.skill:getMinTargetNum()
     if min_target > 0 then
       for pid, _ in pairs(self.scene:getAllItems("Photo")) do
-        if card.skill:targetFilter(pid, {}, {}, card, self.extra_data, player.id) then
+        if card.skill:targetFilter(pid, {}, {}, card, self.extra_data, player) then
           return true
         end
       end
