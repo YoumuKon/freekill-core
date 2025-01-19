@@ -51,12 +51,11 @@ local discardSkill = fk.CreateActiveSkill{
 
 local chooseCardsSkill = fk.CreateActiveSkill{
   name = "choose_cards_skill",
-  card_filter = function(self, to_select, selected, user)
+  card_filter = function(self, to_select, selected, player)
     if #selected >= self.num then
       return false
     end
 
-    local player = Fk:currentRoom():getPlayerById(user)
     if not table.contains(player:getCardIds("he"), to_select) then
       local pile = self:getPile(player)
       if not table.contains(pile, to_select) then return false end
@@ -103,10 +102,9 @@ local choosePlayersSkill = fk.CreateActiveSkill{
 
 local exChooseSkill = fk.CreateActiveSkill{
   name = "ex__choose_skill",
-  card_filter = function(self, to_select, selected, user)
+  card_filter = function(self, to_select, selected, player)
     if #selected >= self.max_c_num then return false end
 
-    local player = Fk:currentRoom():getPlayerById(user)
     if not table.contains(player:getCardIds("he"), to_select) then
       local pile = self:getPile(player)
       if not table.contains(pile, to_select) then return false end
@@ -184,9 +182,7 @@ local distributionSelectSkill = fk.CreateActiveSkill{
 local choosePlayersToMoveCardInBoardSkill = fk.CreateActiveSkill{
   name = "choose_players_to_move_card_in_board",
   target_num = 2,
-  card_filter = function(self, to_select)
-    return false
-  end,
+  card_filter = Util.FalseFunc,
   target_filter = function(self, to_select, selected, cards)
     local target = Fk:currentRoom():getPlayerById(to_select)
     if #selected > 0 then
