@@ -310,7 +310,7 @@ function CardFitPattern(card_name, pattern)
     local skill = Fk.skills[data.skill]
     local selected_cards = data.subcards
     if skill:isInstanceOf(ViewAsSkill) then
-      c = skill:viewAs(selected_cards)
+      c = skill:viewAs(selected_cards, Self)
       if c then
         ret = exp:match(c)
       end
@@ -514,7 +514,7 @@ function GetTargetTip(pid)
         table.insertTable(ret, tip)
       end
     elseif skill:isInstanceOf(ViewAsSkill) then
-      card = skill:viewAs(selected_cards)
+      card = skill:viewAs(selected_cards, Self)
     end
   end
 

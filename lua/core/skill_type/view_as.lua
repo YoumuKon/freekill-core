@@ -20,9 +20,9 @@ function ViewAsSkill:cardFilter(to_select, selected, player)
 end
 
 ---@param cards integer[] @ ids of cards
----@param user integer @ id of the user
+---@param player Player @ the user
 ---@return Card?
-function ViewAsSkill:viewAs(cards, user)
+function ViewAsSkill:viewAs(cards, player)
   return nil
 end
 

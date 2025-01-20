@@ -58,7 +58,7 @@ function ReqUseCard:feasible()
   local skill = Fk.skills[self.skill_name]
   local card = self.selected_card
   if skill then
-    card = skill:viewAs(self.pendings)
+    card = skill:viewAs(self.pendings, self.player)
   end
   local ret = false
   if card and self:cardFeasible(card) then

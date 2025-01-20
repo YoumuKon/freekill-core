@@ -91,7 +91,7 @@ function ReqPlayCard:feasible()
     if skill:isInstanceOf(ActiveSkill) then
       return ReqActiveSkill.feasible(self)
     else -- viewasskill
-      card = skill:viewAs(self.pendings)
+      card = skill:viewAs(self.pendings, player)
     end
   end
   if card then

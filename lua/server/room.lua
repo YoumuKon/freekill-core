@@ -1971,7 +1971,7 @@ function Room:handleUseCardReply(player, data)
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
       Self = player
-      local c = skill:viewAs(selected_cards)
+      local c = skill:viewAs(selected_cards, player)
       if c then
         local use = {}    ---@type CardUseStruct
         use.from = player.id

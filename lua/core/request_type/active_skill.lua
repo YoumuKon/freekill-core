@@ -210,7 +210,7 @@ function ReqActiveSkill:feasible()
   if skill:isInstanceOf(ActiveSkill) then
     ret = skill:feasible(self.selected_targets, self.pendings, player)
   elseif skill:isInstanceOf(ViewAsSkill) then
-    local card = skill:viewAs(self.pendings)
+    local card = skill:viewAs(self.pendings, player)
     if card then
       local card_skill = card.skill ---@type ActiveSkill
       ret = card_skill:feasible(self.selected_targets, { card.id }, player, card)
@@ -236,7 +236,7 @@ function ReqActiveSkill:targetValidity(pid)
   if not skill then return false end
   local card -- 姑且接一下(雾)
   if skill:isInstanceOf(ViewAsSkill) then
-    card = skill:viewAs(self.pendings, self.player.id)
+    card = skill:viewAs(self.pendings, self.player)
     if not card then return false end
     skill = card.skill
   end
@@ -274,7 +274,7 @@ function ReqActiveSkill:initiateTargets()
   local scene = self.scene
   local skill = Fk.skills[self.skill_name]
   if skill:isInstanceOf(ViewAsSkill) then
-    local card = skill:viewAs(self.pendings)
+    local card = skill:viewAs(self.pendings, self.player)
     if card then skill = card.skill else skill = nil end
   end
 
@@ -360,7 +360,7 @@ function ReqActiveSkill:selectTarget(playerid, data)
   scene:update("Photo", playerid, data)
   -- 发生以下Viewas判断时已经是因为选角色触发的了，说明肯定有card了，这么写不会出事吧？
   if skill:isInstanceOf(ViewAsSkill) then
-    skill = skill:viewAs(self.pendings).skill
+    skill = skill:viewAs(self.pendings, self.player).skill
   end
 
   -- 类似选卡

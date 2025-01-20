@@ -196,7 +196,7 @@ SmartAI:setSkillAI("spear_skill", {
       logic:useCard({
         from = ai.player.id,
         tos = table.map(targets, function(p) return { p.id } end),
-        card = self.skill:viewAs(ai:getSelectedCards()),
+        card = self.skill:viewAs(ai:getSelectedCards(), ai.player),
       })
       verbose(1, "目前状况下，对[%s]的预测收益为%d", table.concat(table.map(targets, function(p)return tostring(p)end), "+"), logic.benefit)
       return logic.benefit
