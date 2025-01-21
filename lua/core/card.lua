@@ -536,6 +536,7 @@ function Card:getFixedTargets(player, extra_data)
   ret = self.skill:fixTargets(player, self, extra_data)
   if ret then return ret end
   if self.skill.target_num == 0 then
+    -- 此处仅作为默认值，若与默认选择规则不一致（如火烧连营）请修改cardSkill的fix_targets参数
     if self.multiple_targets then
       return table.map(table.filter(Fk:currentRoom().alive_players, function (p)
         return self.skill:modTargetFilter(p.id, {}, player, self)
@@ -549,6 +550,7 @@ end
 
 
 --- 获得一张牌在出牌阶段空闲时可以正常选择的目标角色表
+--- 用于判断一张牌能否使用，或用于添加默认使用目标
 ---@param player Player @ 使用者
 ---@param extra_data? table
 ---@return integer[] @ 返回目标id表
@@ -576,5 +578,23 @@ function Card:getAvailableTargets (player, extra_data)
 end
 
 
+--- 返回强制使用一张牌的默认目标
+---@param player Player @ 使用者
+---@param extra_data? table
+---@return integer[] @ 目标id表。一般只返回1个值，若牌需要副目标，则返回2个。返回空表则表示无合法目标
+function Card:getDefaultTarget (player, extra_data)
+  local targets = self:getAvailableTargets(player, extra_data)
+  if #targets == 0 then return {} end
+  local to = table.random(targets)
+  local ret = {to}
+  if self.skill:getMinTargetNum() == 2 then  -- for collateral
+    local subtarget = table.find(Fk:currentRoom().alive_players, function (p)
+      return p.id ~= to and self.skill:targetFilter(p.id, {to}, self.subcards, self, extra_data, player)
+    end)
+    if subtarget == nil then return {} end
+    table.insert(ret, subtarget.id)
+  end
+  return ret
+end
 
 return Card

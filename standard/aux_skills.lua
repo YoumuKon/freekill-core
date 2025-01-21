@@ -138,6 +138,18 @@ local exChooseSkill = fk.CreateActiveSkill{
   max_card_num = function(self) return self.max_c_num end,
 }
 
+local useRealCardSkill = fk.CreateViewAsSkill{
+  name = "userealcard_skill",
+  card_filter = function (self, to_select, selected)
+    return #selected == 0 and table.contains(self.cardIds or {}, to_select)
+  end,
+  view_as = function(self, cards)
+    if #cards == 1 then
+      return Fk:getCardById(cards[1])
+    end
+  end,
+}
+
 local maxCardsSkill = fk.CreateMaxCardsSkill{
   name = "max_cards_skill",
   global = true,
@@ -347,6 +359,7 @@ AuxSkills = {
   chooseCardsSkill,
   choosePlayersSkill,
   exChooseSkill,
+  useRealCardSkill,
   distributionSelectSkill,
   maxCardsSkill,
   choosePlayersToMoveCardInBoardSkill,

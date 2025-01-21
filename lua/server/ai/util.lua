@@ -5,7 +5,7 @@ local AIUtil = {} -- mixin
 --- 判断牌的保留权重，从低到高排
 ---@param cards integer[]       @ 牌ids
 ---@param number integer        @ 需要几张
----@param filter? fun(integer)  @ 条件过滤 判断权重大于 或 小于 n
+---@param filter? fun(integer): boolean  @ 条件过滤 判断权重大于 或 小于 n
 ---@return integer[]            @ 牌ids
 function AIUtil:getChoiceCardsByKeepValue(cards, number, filter)
   assert(number > 0 and number <= #cards, "number must be between 1 and #cards")

@@ -108,6 +108,11 @@ function ReqActiveSkill:setupInteraction()
   end
 end
 
+
+--- 在手牌区展开一些牌，注可以和已有的牌重复
+---@param pile string @ 牌堆名，用于标识
+---@param extra_ids? integer[] @ 额外的牌id数组
+---@param extra_footnote? string @ 卡牌底注
 function ReqActiveSkill:expandPile(pile, extra_ids, extra_footnote)
   if self.expanded_piles[pile] ~= nil then return end
   local ids, footnote
@@ -117,13 +122,15 @@ function ReqActiveSkill:expandPile(pile, extra_ids, extra_footnote)
     ids = player:getCardIds("e")
     footnote = "$Equip"
   elseif pile == "_extra" then
+    -- expand_pile为id表的情况
     ids = extra_ids
     footnote = extra_footnote
     -- self.extra_cards = exira_ids
   else
+    -- expand_pile为私人牌堆名的情况
     -- FIXME: 可能存在的浅拷贝
     ids = extra_ids or table.simpleClone(player:getPile(pile))
-    footnote = pile
+    footnote = extra_footnote or pile
   end
   self.expanded_piles[pile] = ids
 
@@ -153,10 +160,13 @@ function ReqActiveSkill:retractAllPiles()
   end
 end
 
+-- 展开额外牌堆（即将所有不在手牌区的牌在手牌区域展开）
 function ReqActiveSkill:expandPiles()
   local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
   local player = self.player
   if not skill then return end
+
+  -- 展开自己装备区
   -- 特殊：equips至少有一张能亮着的情况下才展开 且无视是否存在skill.expand_pile
   for _, id in ipairs(player:getCardIds("e")) do
     if self:cardValidity(id) then
@@ -165,6 +175,7 @@ function ReqActiveSkill:expandPiles()
     end
   end
 
+  -- 如果可以调用如手牌般使用的牌，也展开
   if skill.handly_pile then
     for pile in pairs(player.special_cards) do
       if pile:endsWith('&') then
@@ -186,6 +197,7 @@ function ReqActiveSkill:expandPiles()
     end
   end
   
+  -- 展开该技能本身的额外牌堆
   if not skill.expand_pile then return end
   local pile = skill.expand_pile
   if type(pile) == "function" then
@@ -199,7 +211,7 @@ function ReqActiveSkill:expandPiles()
     pile = "_extra"
   end
 
-  self:expandPile(pile, ids, self.skill_name)
+  self:expandPile(pile, ids, self.extra_data and self.extra_data.skillName)
 end
 
 function ReqActiveSkill:feasible()

@@ -2022,8 +2022,8 @@ function Room:handleUseCardReply(player, data)
 end
 
 
---[[
---- 询问玩家使用一张手牌中的实体卡。无次数限制，与askForUseCard主要区别是不能调用转化技
+
+--- 询问玩家从一些实体牌忠选一个使用。默认无次数限制，与askForUseCard主要区别是不能调用转化技
 ---@param player ServerPlayer @ 要询问的玩家
 ---@param pattern string|integer[] @ 选卡规则，或可选的牌id表
 ---@param skillName? string @ 技能名，用于焦点提示
@@ -2034,13 +2034,12 @@ end
 ---@return CardUseStruct? @ 返回卡牌使用框架。取消使用则返回空
 function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, cancelable, skipUse)
   pattern = type(pattern) == "string" and pattern or tostring(Exppattern{ id = pattern })
-  skillName = skillName or "realcard_viewas"
-  prompt = prompt or ("#askForUseRealCard:::"..skillName)
+  skillName = skillName or ""
+  prompt = prompt or ("#AskForUseOneCard:::"..skillName)
   if (cancelable == nil) then cancelable = true end
-  extra_data = extra_data or {}
+  extra_data = extra_data and table.simpleClone(extra_data) or {}
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   if extra_data.extraUse == nil then extra_data.extraUse = true end
-  extra_data.expand_pile = extra_data.expand_pile or ""
 
   local pile = extra_data.expand_pile
   local cards = player:getCardIds("h")
@@ -2059,25 +2058,16 @@ function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, 
       end
     end
   end
-  extra_data.optional_cards = cardIds
   extra_data.skillName = skillName
   if #cardIds == 0 and not cancelable then return end
-  -- 记录不属于自己的牌的所有者，用于与锁视技能互动
-  local ownerMap = {}
-  for _, id in ipairs(cardIds) do
-    local ownerId = self.owner_map[id]
-    if ownerId ~= nil and ownerId ~= player.id then
-      ownerMap[tostring(id)] = ownerId
-    end
-  end
-  self:setPlayerMark(player, "realcard_vs_owners", ownerMap)
-  local _, dat = self:askForUseViewAsSkill(player, "realcard_viewas", prompt, cancelable, extra_data)
+  extra_data.cardIds = cardIds
+  local _, dat = self:askForUseViewAsSkill(player, "userealcard_skill", prompt, cancelable, extra_data)
   if (not cancelable) and (not dat) then
     for _, cid in ipairs(cardIds) do
       local card = Fk:getCardById(cid)
-      local temp = table.random(card:getAvailableTargets(player, extra_data))
-      if temp then
-        dat = {targets = {temp}, cards = {cid}}
+      local temp = card:getDefaultTarget (player, extra_data)
+      if #temp > 0 then
+        dat = {targets = temp, cards = {cid}}
         break
       end
     end
@@ -2094,7 +2084,7 @@ function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, 
   end
   return use
 end
---]]
+
 
 -- available extra_data:
 -- * must_targets: integer[]
