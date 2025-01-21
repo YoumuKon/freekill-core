@@ -559,7 +559,18 @@ function Card:getAvailableTargets (player, extra_data)
   extra_data = extra_data or Util.DummyTable
   local fixed_targets = extra_data.fix_targets or self:getFixedTargets(player, extra_data)
   local room = Fk:currentRoom()
-  local tos = fixed_targets or table.map(room.alive_players, Util.IdMapper)
+  local tos = {}
+  if fixed_targets then
+    tos = fixed_targets
+  elseif extra_data.exclusive_targets then
+    tos = extra_data.exclusive_targets
+  elseif extra_data.must_targets then
+    tos = extra_data.must_targets
+  elseif extra_data.include_targets then
+    tos = extra_data.include_targets
+  else
+    tos = table.map(room.alive_players, Util.IdMapper)
+  end
   tos = table.filter(tos, function(pid)
     return not player:isProhibited(room:getPlayerById(pid), self)
     and self.skill:modTargetFilter(pid, {}, player, self, not extra_data.bypass_distances, extra_data)
