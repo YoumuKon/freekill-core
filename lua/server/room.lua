@@ -381,8 +381,6 @@ function Room:getNCards(num, from)
 
   local cardIds = table.slice(self.draw_pile, i, j + 1)
 
-  -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
-
   return cardIds
 end
 
@@ -571,7 +569,7 @@ end
 
 function Room:toJsonObject(player)
   local o = AbstractRoom.toJsonObject(self)
-  o.round_count = self:getTag("RoundCount") or 0
+  o.round_count = self:getBanner("RoundCount") or 0
   if player then
     o.you = player.id
   end
@@ -1107,7 +1105,7 @@ function Room:askForCard(player, minNum, maxNum, includeEquip, skillName, cancel
     chosenCards = ret.cards
   else
     if cancelable then return {} end
-    local cards = player:getCardIds("he&")
+    local cards = player:getCardIds("he")
     if type(expand_pile) == "string" then
       table.insertTable(cards, player:getPile(expand_pile))
     elseif type(expand_pile) == "table" then
@@ -1694,7 +1692,7 @@ function Room:getUseExtraTargets(data, bypass_distances, use_AimGroup)
   local current_targets = use_AimGroup and AimGroup:getAllTargets(data.tos) or TargetGroup:getRealTargets(data.tos)
   for _, p in ipairs(self.alive_players) do
     if not table.contains(current_targets, p.id) and not self:getPlayerById(data.from):isProhibited(p, data.card) then
-      if data.card.skill:modTargetFilter(p.id, {}, data.from, data.card, not bypass_distances) then
+      if data.card.skill:modTargetFilter(p.id, {}, self:getPlayerById(data.from), data.card, not bypass_distances) then
         table.insert(tos, p.id)
       end
     end
@@ -1921,9 +1919,12 @@ function Room:askForExchange(player, piles, piles_name, customNotify)
     return piles
   end
 end
---- 平时写DIY用不到的函数。
+
+
+--- 将从Request获得的数据转化为CardUseStruct，或执行主动技的onUse部分
+--- 一般DIY用不到的内部函数
 ---@param player ServerPlayer
----@return CardUseStruct
+---@return CardUseStruct?
 function Room:handleUseCardReply(player, data)
   local card = data.card
   local targets = data.targets or {}
@@ -1943,7 +1944,7 @@ function Room:handleUseCardReply(player, data)
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
       Self = player
-      local c = skill:viewAs(selected_cards)
+      local c = skill:viewAs(selected_cards, player)
       if c then
         local use = {}    ---@type UseCardDataSpec
         use.from = player
@@ -1993,9 +1994,75 @@ function Room:handleUseCardReply(player, data)
   end
 end
 
+
+
+--- 询问玩家从一些实体牌忠选一个使用。默认无次数限制，与askForUseCard主要区别是不能调用转化技
+---@param player ServerPlayer @ 要询问的玩家
+---@param pattern string|integer[] @ 选卡规则，或可选的牌id表
+---@param skillName? string @ 技能名，用于焦点提示
+---@param prompt? string @ 询问提示信息。默认为：请使用一张牌
+---@param extra_data? UseExtraData|table @ 额外信息，因技能而异了
+---@param cancelable? boolean @ 是否可以取消。默认可以取消
+---@param skipUse? boolean @ 是否跳过使用。默认不跳过
+---@return CardUseStruct? @ 返回卡牌使用框架。取消使用则返回空
+function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, cancelable, skipUse)
+  pattern = type(pattern) == "string" and pattern or tostring(Exppattern{ id = pattern })
+  skillName = skillName or ""
+  prompt = prompt or ("#AskForUseOneCard:::"..skillName)
+  if (cancelable == nil) then cancelable = true end
+  extra_data = extra_data and table.simpleClone(extra_data) or {}
+  if extra_data.bypass_times == nil then extra_data.bypass_times = true end
+  if extra_data.extraUse == nil then extra_data.extraUse = true end
+
+  local pile = extra_data.expand_pile
+  local cards = player:getCardIds("h")
+  if type(pile) == "string" then
+    table.insertTable(cards, player:getPile(pile))
+  elseif type(pile) == "table" then
+    table.insertTable(cards, pile)
+  end
+
+  local cardIds = {}
+  for _, cid in ipairs(cards) do
+    local card = Fk:getCardById(cid)
+    if Exppattern:Parse(pattern):match(card) then
+      if #card:getAvailableTargets(player, extra_data) > 0 then
+        table.insert(cardIds, cid)
+      end
+    end
+  end
+  extra_data.skillName = skillName
+  if #cardIds == 0 and not cancelable then return end
+  extra_data.cardIds = cardIds
+  local _, dat = self:askForUseViewAsSkill(player, "userealcard_skill", prompt, cancelable, extra_data)
+  if (not cancelable) and (not dat) then
+    for _, cid in ipairs(cardIds) do
+      local card = Fk:getCardById(cid)
+      local temp = card:getDefaultTarget (player, extra_data)
+      if #temp > 0 then
+        dat = {targets = temp, cards = {cid}}
+        break
+      end
+    end
+  end
+  if not dat then return end
+  local use = {
+    from = player.id,
+    tos = table.map(dat.targets, function(p) return {p} end),
+    card = Fk:getCardById(dat.cards[1]),
+    extraUse = extra_data.extraUse,
+  }
+  if not skipUse then
+    self:useCard(use)
+  end
+  return use
+end
+
+
 -- available extra_data:
 -- * must_targets: integer[]
 -- * exclusive_targets: integer[]
+-- * fix_targets: integer[]
 -- * bypass_distances: boolean
 -- * bypass_times: boolean
 ---
@@ -2594,7 +2661,6 @@ function Room:shuffleDrawPile()
   local seed = math.random(2 << 32 - 1)
   AbstractRoom.shuffleDrawPile(self, seed)
 
-  -- self:doBroadcastNotify("UpdateDrawPile", #self.draw_pile)
   self:doBroadcastNotify("ShuffleDrawPile", seed)
   self:doBroadcastNotify("UpdateDrawPile", tostring(#self.draw_pile))
 
@@ -2604,6 +2670,7 @@ end
 -- 强制同步牌堆（用于在不因任何移动事件且不因洗牌导致的牌堆变动）
 function Room:syncDrawPile()
   self:doBroadcastNotify("SyncDrawPile", json.encode(self.draw_pile))
+  self:doBroadcastNotify("UpdateDrawPile", tostring(#self.draw_pile))
 end
 
 ---@param room Room
@@ -2981,9 +3048,7 @@ function Room:addSkill(skill)
     self.status_skills[skill.class] = self.status_skills[skill.class] or {}
     table.insertIfNeed(self.status_skills[skill.class], skill)
     -- add status_skill to cilent room
-    for _, p in ipairs(self.players) do
-      p:doNotify("AddSkill", json.encode{p.id, skill.name})
-    end
+    self:doBroadcastNotify("AddStatusSkill", json.encode{ skill.name })
   elseif skill:isInstanceOf(TriggerSkill) then
     self.logic:addTriggerSkill(skill)
   end

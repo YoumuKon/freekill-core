@@ -184,6 +184,8 @@ function fk.CreateActiveSkill(spec)
   end end
   if spec.prompt then skill.prompt = spec.prompt end
   if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.handly_pile then skill.handly_pile = spec.handly_pile end
+  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
@@ -247,6 +249,7 @@ function fk.CreateViewAsSkill(spec)
   if spec.after_use and type(spec.after_use) == "function" then
     skill.afterUse = spec.after_use
   end
+  skill.handly_pile = spec.handly_pile
 
   return skill
 end

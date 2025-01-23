@@ -173,10 +173,18 @@ Util.CanUse = function(self, player, card, extra_data)
 end
 
 --- 指定目标卡牌的targetFilter
-Util.TargetFilter = function(self, to_select, selected, selected_cards, card, extra_data)
-  if not self:modTargetFilter(to_select, selected, Self.id, card, not (extra_data and extra_data.bypass_distances)) then return end
-  if #selected >= self:getMaxTargetNum(Self, card) then return end
-  if Self:isProhibited(Fk:currentRoom():getPlayerById(to_select), card) then return end
+---@param skill ActiveSkill @ 使用牌的CardSkill
+---@param to_select integer @ 目标id
+---@param selected integer[] @ 已选目标id表
+---@param selected_cards integer[] @ 牌的子表
+---@param card Card @ 使用的卡牌
+---@param extra_data any? @ 额外数据
+---@param player Player @ 使用者
+Util.TargetFilter = function(skill, to_select, selected, selected_cards, card, extra_data, player)
+  if not skill:modTargetFilter(to_select, selected, player, card, not (extra_data and extra_data.bypass_distances), extra_data) then return end
+  local max_target_num = skill:getMaxTargetNum(player, card)
+  if max_target_num > 0 and #selected >= max_target_num then return end
+  if player:isProhibited(Fk:currentRoom():getPlayerById(to_select), card) then return end
   extra_data = extra_data or {}
   if extra_data.must_targets then
     -- must_targets: 必须先选择must_targets内的**所有**目标
@@ -204,6 +212,21 @@ Util.GlobalCanUse = function(self, player, card)
       return true
     end
   end
+end
+
+--- 默认对自己使用牌的canUse（如桃酒无中装备闪电）
+---@param self ActiveSkill
+---@param player Player
+---@param card Card
+---@param extra_data table?
+Util.SelfCanUse = function(self, player, card, extra_data)
+  if player:prohibitUse(card) then return end
+  local room = Fk:currentRoom()
+  local tos = (extra_data and extra_data.fix_targets) and extra_data.fix_targets or {player.id}
+  return table.find(tos, function(pid)
+    return not player:isProhibited(room:getPlayerById(pid), card)
+    and Util.TargetFilter(self, pid, {}, card.subcards, card, extra_data, player)
+  end) ~= nil
 end
 
 --- AOE卡牌(不包括自己)的canUse

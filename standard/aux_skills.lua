@@ -51,20 +51,14 @@ local discardSkill = fk.CreateActiveSkill{
 
 local chooseCardsSkill = fk.CreateActiveSkill{
   name = "choose_cards_skill",
-  card_filter = function(self, to_select, selected)
+  card_filter = function(self, to_select, selected, player)
     if #selected >= self.num then
       return false
     end
 
-    if Fk:currentRoom():getCardArea(to_select) == Card.PlayerSpecial then
-      local pile = self.expand_pile
-      if not pile then return false end
-      if type(pile) == "string" then
-        local area = string.split(self.pattern or "", "|")[4]
-        if not (area and string.find(area, pile)) then return false end
-      elseif type(pile) == "table" then
-        if not table.contains(pile, to_select) then return false end
-      end
+    if not table.contains(player:getCardIds("he"), to_select) then
+      local pile = self:getPile(player)
+      if not table.contains(pile, to_select) then return false end
     end
 
     local checkpoint = true
@@ -108,18 +102,12 @@ local choosePlayersSkill = fk.CreateActiveSkill{
 
 local exChooseSkill = fk.CreateActiveSkill{
   name = "ex__choose_skill",
-  card_filter = function(self, to_select, selected)
+  card_filter = function(self, to_select, selected, player)
     if #selected >= self.max_c_num then return false end
 
-    if Fk:currentRoom():getCardArea(to_select) == Card.PlayerSpecial then
-      local pile = self.expand_pile
-      if not pile then return false end
-      if type(pile) == "string" then
-        local area = string.split(self.pattern or "", "|")[4]
-        if not (area and string.find(area, pile)) then return false end
-      elseif type(pile) == "table" then
-        if not table.contains(pile, to_select) then return false end
-      end
+    if not table.contains(player:getCardIds("he"), to_select) then
+      local pile = self:getPile(player)
+      if not table.contains(pile, to_select) then return false end
     end
 
     local checkpoint = true
@@ -148,6 +136,18 @@ local exChooseSkill = fk.CreateActiveSkill{
   max_target_num = function(self) return self.max_t_num end,
   min_card_num = function(self) return self.min_c_num end,
   max_card_num = function(self) return self.max_c_num end,
+}
+
+local useRealCardSkill = fk.CreateViewAsSkill{
+  name = "userealcard_skill",
+  card_filter = function (self, to_select, selected)
+    return #selected == 0 and table.contains(self.cardIds or {}, to_select)
+  end,
+  view_as = function(self, cards)
+    if #cards == 1 then
+      return Fk:getCardById(cards[1])
+    end
+  end,
 }
 
 local maxCardsSkill = fk.CreateMaxCardsSkill{
@@ -194,9 +194,7 @@ local distributionSelectSkill = fk.CreateActiveSkill{
 local choosePlayersToMoveCardInBoardSkill = fk.CreateActiveSkill{
   name = "choose_players_to_move_card_in_board",
   target_num = 2,
-  card_filter = function(self, to_select)
-    return false
-  end,
+  card_filter = Util.FalseFunc,
   target_filter = function(self, to_select, selected, cards)
     local target = Fk:currentRoom():getPlayerById(to_select)
     if #selected > 0 then
@@ -361,6 +359,7 @@ AuxSkills = {
   chooseCardsSkill,
   choosePlayersSkill,
   exChooseSkill,
+  useRealCardSkill,
   distributionSelectSkill,
   maxCardsSkill,
   choosePlayersToMoveCardInBoardSkill,

@@ -2,7 +2,7 @@
 
 ---@class UsableSkill : Skill
 ---@field public max_use_time integer[]
----@field public expand_pile? string | integer[] | fun(self: UsableSkill): integer[]|string?
+---@field public expand_pile? string | integer[] | fun(self: UsableSkill, player: Player): integer[]|string? @ 额外牌堆，牌堆名称或卡牌id表
 ---@field public derived_piles? string | string[]
 local UsableSkill = Skill:subclass("UsableSkill")
 
@@ -25,6 +25,11 @@ function UsableSkill:getMaxUseTime(player, scope, card, to)
   if not ret then return nil end
   local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
   for _, skill in ipairs(status_skills) do
+    local fix = skill:getFixedNum(player, self, scope, card, to)
+    if fix ~= nil then -- 典中典之先到先得
+      ret = fix
+      break
+    end
     local correct = skill:getResidueNum(player, self, scope, card, to)
     if correct == nil then correct = 0 end
     ret = ret + correct
@@ -121,6 +126,22 @@ function UsableSkill:onLose(player, is_death)
   end
 
   Skill.onLose(self, player, is_death)
+end
+
+
+-- 获得技能的额外牌堆卡牌id表
+---@param player Player @ 使用者
+---@return integer[]
+function UsableSkill:getPile(player)
+  if player == nil or self.expand_pile == nil then return {} end
+  local pile = self.expand_pile
+  if type(pile) == "function" then
+    pile = pile(self, player)
+  end
+  if type(pile) == "string" then
+    pile = player:getPile(pile)
+  end
+  return pile
 end
 
 return UsableSkill

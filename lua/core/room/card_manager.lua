@@ -143,7 +143,7 @@ function CardManager:filterCard(id, player, data)
   end
 
   local card = Fk:getCardById(id, true)
-  local filters = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable
+  local filters = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable---@type FilterSkill[]
 
   if #filters == 0 then
     self.filtered_cards[id] = nil

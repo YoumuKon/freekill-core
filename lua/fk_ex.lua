@@ -61,6 +61,11 @@ function fk.readCommonSpecToSkill(skill, spec)
     assert(type(spec.on_lose) == "function")
     skill.onLose = spec.on_lose
   end
+
+  if spec.dynamic_desc then
+    assert(type(spec.dynamic_desc) == "function")
+    skill.getDynamicDescription = spec.dynamic_desc
+  end
 end
 
 function fk.readUsableSpecToSkill(skill, spec)
@@ -111,6 +116,7 @@ end
 ---@field public relate_to_place? string @ 主将技/副将技
 ---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
 ---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
+---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string
 ---@field public attached_skill_name? string @ 给其他角色添加技能的名称
 
 ---@class SkillSkeleton : Object, SkillSpec
@@ -349,6 +355,9 @@ function SkillSkeleton:createTargetModSkill(_skill, idx, key, attr, spec)
   if spec.residue_func then
     skill.getResidueNum = spec.residue_func
   end
+  if spec.fix_times_func then
+    skill.getFixedNum = spec.fix_times_func
+  end
   if spec.bypass_distances then
     skill.bypassDistancesCheck = spec.bypass_distances
   end
@@ -376,6 +385,7 @@ function SkillSkeleton:createFilterSkill(_skill, idx, key, attr, spec)
   skill.cardFilter = spec.card_filter
   skill.viewAs = spec.view_as
   skill.equipSkillFilter = spec.equip_skill_filter
+  skill.handlyCardsFilter = spec.handly_cards
 
   return skill
 end
@@ -422,7 +432,7 @@ end
 ---@class UsableSkillSpec: SkillSpec
 ---@field public main_skill? UsableSkill
 ---@field public max_use_time? integer[]
----@field public expand_pile? string | integer[] | fun(self: UsableSkill): integer[]|string?
+---@field public expand_pile? string | integer[] | fun(self: UsableSkill, player: ServerPlayer): integer[]|string? @ 额外牌堆，牌堆名称或卡牌id表
 ---@field public derived_piles? string | string[]
 ---@field public max_phase_use_time? integer
 ---@field public max_turn_use_time? integer
@@ -441,30 +451,33 @@ end
 ---@class StatusSkillSpec: SkillSpec
 
 ---@class ActiveSkillSpec: UsableSkillSpec
----@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any
----@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): any
----@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillEffectData): any
----@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillEffectData, finished: boolean): any
----@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
----@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
----@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): any
----@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
+---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 判断主动技能否发动
+---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
+---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, player: Player?): any @ 判定目标能否选择
+---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[], player: Player): any @ 判断卡牌和目标是否符合技能限制
+---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
+---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
+---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player, card?: Card, distance_limited: boolean, extra_data: any): any
+---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string @ 提示信息
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
+---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 设置固定目标
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
----@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[]): any
----@field public view_as fun(self: ViewAsSkill, cards: integer[]): Card?
+---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
+---@field public view_as fun(self: ViewAsSkill, cards: integer[], player: Player): Card? @ 判断转化为什么牌
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
----@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: integer[]): string
 ---@field public interaction? any
+---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
 ---@class DistanceSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: DistanceSkill, from: Player, to: Player): integer?
@@ -500,6 +513,8 @@ end
 ---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any
 ---@field public view_as? fun(self: FilterSkill, card: Card, player: Player): Card?
 ---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
+---@field public handly_cards? fun(self: FilterSkill, player: Player): integer[]? @ 视为拥有可以如手牌般使用或打出的牌
+
 
 ---@class InvaliditySpec: StatusSkillSpec
 ---@field public invalidity_func? fun(self: InvaliditySkill, from: Player, skill: Skill): any @ 判定角色的技能是否无效
@@ -528,17 +543,17 @@ local defaultCardSkill = fk.CreateActiveSkill{
   end
 }
 
+--- 装备牌的默认cardSkill
 local defaultEquipSkill = fk.CreateActiveSkill{
   name = "default_equip_skill",
   prompt = function(_, selected_cards, _)
-    return "#default_equip_skill:::" .. Fk:getCardById(selected_cards).name .. ":" .. Fk:getCardById(selected_cards):getSubtypeString()
+    if not selected_cards or #selected_cards == 0 then return " " end
+    return "#default_equip_skill:::" .. Fk:getCardById(selected_cards[1]).name
   end,
-  mod_target_filter = function(self, to_select, selected, user, card, distance_limited)
+  mod_target_filter = function(self, to_select, selected, player, card, distance_limited)
     return #Fk:currentRoom():getPlayerById(to_select):getAvailableEquipSlots(card.sub_type) > 0
   end,
-  can_use = function(self, player, card)
-    return self:modTargetFilter(player.id, {}, player.id, card, true) and not player:isProhibited(player, card)
-  end,
+  can_use = Util.SelfCanUse,
   on_use = function(self, room, use)
     if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
       use.tos = { { use.from } }
@@ -689,11 +704,11 @@ end
 ---@field public blacklist? string[] | fun(self: GameMode, pkg: Package): boolean? @ 黑名单
 ---@field public config_template? GameModeConfigEntry[] 游戏模式的配置页面，如此一个数组
 ---@field public main_mode? string @ 主模式名（用于判断此模式是否为某模式的衍生）
----@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string
+---@field public winner_getter? fun(self: GameMode, victim: ServerPlayer): string @ 在死亡流程中用于判断是否结束游戏，并输出胜利者身份
 ---@field public surrender_func? fun(self: GameMode, playedTime: number): table
----@field public is_counted? fun(self: GameMode, room: Room): boolean
----@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table
----@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer)
+---@field public is_counted? fun(self: GameMode, room: Room): boolean @ 是否计入胜率统计
+---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table @ 调整玩家初始属性
+---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer) @ 死亡奖惩
 ---@field public build_draw_pile? fun(self: GameMode): integer[], integer[]
 
 ---@param spec GameModeSpec

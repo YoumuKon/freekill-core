@@ -32,7 +32,7 @@ function ReqPlayCard:cardValidity(cid)
     local min_target = card.skill:getMinTargetNum()
     if min_target > 0 then
       for pid, _ in pairs(self.scene:getAllItems("Photo")) do
-        if card.skill:targetFilter(pid, {}, {}, card, self.extra_data) then
+        if card.skill:targetFilter(pid, {}, {}, card, self.extra_data, player) then
           return true
         end
       end
@@ -54,9 +54,9 @@ end
 
 function ReqPlayCard:skillButtonValidity(name)
   local player = self.player
-  local skill = Fk.skills[name]
+  local skill = Fk.skills[name]---@type ActiveSkill | ViewAsSkill
   if skill:isInstanceOf(ViewAsSkill) then
-    local ret = skill:enabledAtPlay(player, true)
+    local ret = skill:enabledAtPlay(player)
     if ret then -- 没有pattern，或者至少有一个满足
       local exp = Exppattern:Parse(skill.pattern)
       local cnames = {}
@@ -72,7 +72,7 @@ function ReqPlayCard:skillButtonValidity(name)
       for _, n in ipairs(cnames) do
         local c = Fk:cloneCard(n)
         c.skillName = name
-        ret = c.skill:canUse(Self, c, extra_data)
+        ret = c.skill:canUse(player, c, extra_data)
         if ret then break end
       end
     end
@@ -91,7 +91,7 @@ function ReqPlayCard:feasible()
     if skill:isInstanceOf(ActiveSkill) then
       return ReqActiveSkill.feasible(self)
     else -- viewasskill
-      card = skill:viewAs(self.pendings)
+      card = skill:viewAs(self.pendings, player)
     end
   end
   if card then
@@ -159,7 +159,7 @@ function ReqPlayCard:selectCard(cid, data)
     scene:unselectOtherCards(cid)
     -- self:setSkillPrompt(self.selected_card.skill, self.selected_card:getEffectiveId())
     local sp_skills = {}
-    if self.selected_card.special_skills then
+    if self.selected_card.special_skills and table.contains(self.player:getCardIds("h"), cid) then
       sp_skills = table.simpleClone(self.selected_card.special_skills)
       if self.player:canUse(self.selected_card) then
         table.insert(sp_skills, 1, "_normal_use")

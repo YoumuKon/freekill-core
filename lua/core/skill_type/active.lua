@@ -10,6 +10,8 @@
 ---@field public card_num integer
 ---@field public card_num_table integer[]
 ---@field public interaction any
+---@field public prompt string | function? @ 技能提示
+---@field public handly_pile boolean?  @ 是否能够选择“如手牌使用或打出”的牌
 local ActiveSkill = UsableSkill:subclass("ActiveSkill")
 
 function ActiveSkill:initialize(name, frequency)
@@ -36,9 +38,9 @@ end
 -- 判断一张牌是否可被此技能选中
 ---@param to_select integer @ 待选牌
 ---@param selected integer[] @ 已选牌
----@param selected_targets? integer[] @ 已选目标
+---@param player? Player @ 使用者
 ---@return boolean?
-function ActiveSkill:cardFilter(to_select, selected, selected_targets)
+function ActiveSkill:cardFilter(to_select, selected, player)
   return true
 end
 
@@ -48,20 +50,30 @@ end
 ---@param selected_cards integer[] @ 已选牌
 ---@param card? Card @ 牌
 ---@param extra_data? UseExtraData @ 额外数据
+---@param player? Player @ 使用者
 ---@return boolean?
-function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data)
+function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, extra_data, player)
   return false
 end
 
 -- 判断一名角色是否可成为此技能的目标
 ---@param to_select integer @ 待选目标
 ---@param selected integer[] @ 已选目标
----@param user? integer @ 使用者
+---@param player? Player @ 使用者
 ---@param card? Card @ 牌
 ---@param distance_limited? boolean @ 是否受距离限制
+---@param extra_data? any @ 额外数据
 ---@return boolean?
-function ActiveSkill:modTargetFilter(to_select, selected, user, card, distance_limited)
+function ActiveSkill:modTargetFilter(to_select, selected, player, card, distance_limited, extra_data)
   return false
+end
+
+---@param player Player @ 使用者
+---@param card? Card @ 牌
+---@param extra_data? UseExtraData @ 额外数据
+---@return integer[]?
+function ActiveSkill:fixTargets(player, card, extra_data)
+  return nil
 end
 
 -- 获得技能的最小目标数
@@ -214,13 +226,13 @@ function ActiveSkill:withinDistanceLimit(player, isattack, card, to)
   -- end)))
 end
 
--- 判断一个技能是否可发动（也就是确认键是否可点击）
+-- 判断一个技能是否可发动（也就是确认键是否可点击）。默认值为选择卡牌数和选择目标数均在允许范围内
 -- 警告：没啥事别改
 ---@param selected integer[] @ 已选目标
 ---@param selected_cards integer[] @ 已选牌
 ---@param player Player @ 使用者
 ---@param card? Card @ 牌
----@return boolean?
+---@return boolean
 function ActiveSkill:feasible(selected, selected_cards, player, card)
   return #selected >= self:getMinTargetNum() and #selected <= self:getMaxTargetNum(player, card)
     and #selected_cards >= self:getMinCardNum() and #selected_cards <= self:getMaxCardNum()
@@ -256,12 +268,14 @@ function ActiveSkill:onEffect(room, cardEffectEvent) end
 ---@param cardEffectEvent CardEffectData | SkillEffectData
 function ActiveSkill:onNullified(room, cardEffectEvent) end
 
+--- 选择目标时产生的目标提示，贴在目标脸上
 ---@param to_select integer @ id of the target
 ---@param selected integer[] @ ids of selected targets
 ---@param selected_cards integer[] @ ids of selected cards
 ---@param card Card @ helper
 ---@param selectable boolean @can be selected
 ---@param extra_data? any @ extra_data
+---@return string|table?
 function ActiveSkill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data) end
 
 return ActiveSkill

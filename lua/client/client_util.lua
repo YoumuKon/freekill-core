@@ -242,12 +242,22 @@ end
 
 function GetPlayerSkills(id)
   local p = ClientInstance:getPlayerById(id)
-  return table.map(p.player_skills, function(s)
-    return s.visible and {
-      name = s.name,
-      description = Fk:getDescription(s.name),
-    } or nil
-  end)
+  --FIXME:本体更新时记得优化此处
+  if p == Self then
+    return table.map(p.player_skills, function(s)
+      return s.visible and {
+        name = s.name,
+        description = Fk:getDescription(s.name, nil, p),
+      } or nil
+    end)
+  else
+    return table.map(p.player_skills, function(s)
+      return s.visible and not (s.attached_equip or s.name:endsWith("&")) and {
+        name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
+        description = Fk:getDescription(s.name, nil, p),
+      } or nil
+    end)
+  end
 end
 
 -- Handle skills
@@ -300,7 +310,7 @@ function CardFitPattern(card_name, pattern)
     local skill = Fk.skills[data.skill]
     local selected_cards = data.subcards
     if skill:isInstanceOf(ViewAsSkill) then
-      c = skill:viewAs(selected_cards)
+      c = skill:viewAs(selected_cards, Self)
       if c then
         ret = exp:match(c)
       end
@@ -504,7 +514,7 @@ function GetTargetTip(pid)
         table.insertTable(ret, tip)
       end
     elseif skill:isInstanceOf(ViewAsSkill) then
-      card = skill:viewAs(selected_cards)
+      card = skill:viewAs(selected_cards, Self)
     end
   end
 

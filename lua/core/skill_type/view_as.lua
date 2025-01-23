@@ -3,6 +3,7 @@
 ---@class ViewAsSkill : UsableSkill
 ---@field public pattern string @ cards that can be viewAs'ed by this skill
 ---@field public interaction any
+---@field public handly_pile boolean? @ 能否选择“如手牌般使用或打出”的牌
 local ViewAsSkill = UsableSkill:subclass("ViewAsSkill")
 
 function ViewAsSkill:initialize(name, frequency)
@@ -12,14 +13,16 @@ end
 
 ---@param to_select integer @ id of a card not selected
 ---@param selected integer[] @ ids of selected cards
+---@param player Player @ the user
 ---@return boolean
-function ViewAsSkill:cardFilter(to_select, selected)
+function ViewAsSkill:cardFilter(to_select, selected, player)
   return false
 end
 
 ---@param cards integer[] @ ids of cards
+---@param player Player @ the user
 ---@return Card?
-function ViewAsSkill:viewAs(cards)
+function ViewAsSkill:viewAs(cards, player)
   return nil
 end
 

@@ -10,7 +10,7 @@ function ReqUseCard:updatePrompt()
   end
   local card = self.selected_card
   if card and card.skill then
-    self:setSkillPrompt(card.skill, self.selected_card.id)
+    self:setSkillPrompt(card.skill, {self.selected_card.id})
   else
     self:setPrompt(self.original_prompt or "")
   end
@@ -18,7 +18,7 @@ end
 
 function ReqUseCard:skillButtonValidity(name)
   local player = self.player
-  local skill = Fk.skills[name]
+  local skill = Fk.skills[name]---@type ViewAsSkill
   return
     skill:isInstanceOf(ViewAsSkill) and
     skill:enabledAtResponse(player, false) and
@@ -37,21 +37,28 @@ end
 function ReqUseCard:targetValidity(pid)
   if self.skill_name then return ReqActiveSkill.targetValidity(self, pid) end
   local card = self.selected_card
-  local ret = card and card.skill:targetFilter(pid, self.selected_targets, { card.id }, card, self.extra_data)
+  local ret = card and card.skill:targetFilter(pid, self.selected_targets, { card.id }, card, self.extra_data, self.player)
   return ret
 end
 
+---@param card Card
 function ReqUseCard:cardFeasible(card)
   local exp = Exppattern:Parse(self.pattern)
   local player = self.player
-  return not player:prohibitUse(card) and exp:match(card)
+  if not player:prohibitUse(card) and exp:match(card) then
+    if card.is_passive then return true end
+    local extra_data = table.simpleClone(self.extra_data)
+    extra_data.bypass_times = true
+    return player:canUse(card, extra_data)
+  end
+  return false
 end
 
 function ReqUseCard:feasible()
-  local skill = Fk.skills[self.skill_name]
+  local skill = Fk.skills[self.skill_name]---@type ViewAsSkill
   local card = self.selected_card
   if skill then
-    card = skill:viewAs(self.pendings)
+    card = skill:viewAs(self.pendings, self.player)
   end
   local ret = false
   if card and self:cardFeasible(card) then
@@ -96,7 +103,7 @@ function ReqUseCard:selectTarget(playerid, data)
       self.selected_targets = {}
       for _, pid in ipairs(previous_targets) do
         local ret
-        ret = skill and skill:targetFilter(pid, self.selected_targets, { card.id }, card, data.extra_data)
+        ret = skill and skill:targetFilter(pid, self.selected_targets, { card.id }, card, data.extra_data, player)
         -- 从头开始写目标
         if ret then
           table.insert(self.selected_targets, pid)

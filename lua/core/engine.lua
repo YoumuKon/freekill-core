@@ -751,8 +751,32 @@ end
 --- 其实就是翻译了 ":" .. name 罢了
 ---@param name string @ 要获得描述的名字
 ---@param lang? string @ 要使用的语言，默认读取config
+---@param player? Player @ 绑定角色，用于获取技能的动态描述
 ---@return string @ 描述
-function Engine:getDescription(name, lang)
+function Engine:getDescription(name, lang, player)
+  local skill = Fk.skills[name]
+  if player and skill then
+    local dynamicDesc = skill:getDynamicDescription(player, lang)
+    if type(dynamicDesc) == "string" and dynamicDesc ~= "" then
+      local descFormatter = function(desc)
+        local descSplited = desc:split(":")
+        local descFormatted = self:translate(":" .. descSplited[1], lang)
+        if descFormatted ~= ":" .. descSplited[1] then
+          for i = 2, #descSplited do
+            local curDesc = self:translate(descSplited[i], lang)
+            descFormatted = descFormatted:gsub("{" .. (i - 1) .. "}", curDesc)
+          end
+
+          return descFormatted
+        end
+
+        return desc
+      end
+
+      return descFormatter(dynamicDesc)
+    end
+  end
+
   return self:translate(":" .. name, lang)
 end
 

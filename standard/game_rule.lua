@@ -51,7 +51,7 @@ GameRule = fk.CreateTriggerSkill{
           table.concat(cardNames, ","),
           prompt,
           true,
-          {analepticRecover = true, must_targets = { dyingPlayer.id }}
+          {analepticRecover = true, must_targets = { dyingPlayer.id }, fix_targets = { dyingPlayer.id }}
         )
         if not peach_use then break end
         peach_use.tos = { {dyingPlayer.id} }
