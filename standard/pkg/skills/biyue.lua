@@ -1,7 +1,11 @@
-return fk.CreateSkill({
-  name = "biyue",
+local skill_name = "biyue"
+
+local skill = fk.CreateSkill{
+  name = skill_name,
   anim_type = "drawcard",
-}):addEffect(fk.EventPhaseStart, nil, {
+}
+
+skill:addEffect(fk.EventPhaseStart, nil, {
   can_trigger = function(self, event, target, player, data)
     return player.phase == Player.Finish
   end,
@@ -9,3 +13,5 @@ return fk.CreateSkill({
     player:drawCards(1, self.name)
   end,
 })
+
+return skill

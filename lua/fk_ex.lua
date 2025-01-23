@@ -131,6 +131,8 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: 'filter', attribute: nil, data: FilterSpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', attribute: nil, data: InvaliditySpec)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', attribute: nil, data: VisibilitySpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'active', attribute: nil, data: ActiveSkillSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'viewas', attribute: nil, data: ViewAsSkillSpec)
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
@@ -144,6 +146,11 @@ end
 
 function SkillSkeleton:addEffect(key, attribute, data)
   table.insert(self.effect_list, { key, attribute, data })
+  return self
+end
+
+--- TODO
+function SkillSkeleton:addAI()
   return self
 end
 
@@ -178,8 +185,10 @@ function SkillSkeleton:createSkill()
       sk = self:createInvaliditySkill(skill, i, k, attr, data)
     elseif k == 'visibility' then
       sk = self:createVisibilitySkill(skill, i, k, attr, data)
-    elseif k == 'foo' then
-    elseif k == 'bar' then
+    elseif k == 'active' then
+      sk = self:createActiveSkill(skill, i, k, attr, data)
+    elseif k == 'viewas' then
+      sk = self:createViewAsSkill(skill, i, k, attr, data)
     else
       sk = self:createTriggerSkill(skill, i, k, attr, data)
     end
@@ -419,6 +428,173 @@ function SkillSkeleton:createVisibilitySkill(_skill, idx, key, attr, spec)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.card_visible then skill.cardVisible = spec.card_visible end
   if spec.role_visible then skill.roleVisible = spec.role_visible end
+
+  return skill
+end
+
+---@param spec ActiveSkillSpec
+---@return ActiveSkill
+function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_active", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
+
+  local skill = ActiveSkill:new(new_name, spec.frequency or Skill.NotFrequent)
+  fk.readUsableSpecToSkill(skill, spec)
+
+  if spec.can_use then
+    skill.canUse = function(curSkill, player, card, extra_data)
+      return spec.can_use(curSkill, player, card, extra_data) and curSkill:isEffectable(player)
+    end
+  end
+  if spec.card_filter then skill.cardFilter = spec.card_filter end
+  if spec.target_filter then skill.targetFilter = spec.target_filter end
+  if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
+  if spec.feasible then
+    -- print(spec.name .. ": feasible is deprecated. Use target_num and card_num instead.")
+    skill.feasible = spec.feasible
+  end
+  if spec.on_use then skill.onUse = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    elseif type(effect.from) == "table" or (((effect.tos or {})[1]).class or {}).name == "ServerPlayer" then
+      converted = true
+      new_effect = SkillEffectData:_toLegacySkillData(effect)
+    end
+    spec.on_use(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      else
+        table.assign(effect, SkillEffectData:_loadLegacySkillData(new_effect))
+      end
+    end
+  end end
+  if spec.on_action then skill.onAction = function(self, room, effect, finished)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_action(self, room, new_effect, finished)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.about_to_effect then skill.aboutToEffect = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.about_to_effect(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.on_effect then skill.onEffect = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_effect(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.on_nullified then skill.onNullified = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_nullified(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.prompt then skill.prompt = spec.prompt end
+  if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.handly_pile then skill.handly_pile = spec.handly_pile end
+  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
+
+  if spec.interaction then
+    skill.interaction = setmetatable({}, {
+      __call = function()
+        if type(spec.interaction) == "function" then
+          return spec.interaction(skill)
+        else
+          return spec.interaction
+        end
+      end,
+    })
+  end
+  return skill
+end
+
+---@param spec ViewAsSkillSpec
+---@return ViewAsSkill
+function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_active", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
+
+  local skill = ViewAsSkill:new(new_name, spec.frequency or Skill.NotFrequent)
+  fk.readUsableSpecToSkill(skill, spec)
+
+  skill.viewAs = spec.view_as
+  if spec.card_filter then
+    skill.cardFilter = spec.card_filter
+  end
+  if type(spec.pattern) == "string" then
+    skill.pattern = spec.pattern
+  end
+  if type(spec.enabled_at_play) == "function" then
+    skill.enabledAtPlay = function(curSkill, player)
+      return spec.enabled_at_play(curSkill, player) and curSkill:isEffectable(player)
+    end
+  end
+  if type(spec.enabled_at_response) == "function" then
+    skill.enabledAtResponse = function(curSkill, player, cardResponsing)
+      return spec.enabled_at_response(curSkill, player, cardResponsing) and curSkill:isEffectable(player)
+    end
+  end
+  if spec.prompt then skill.prompt = spec.prompt end
+
+  if spec.interaction then
+    skill.interaction = setmetatable({}, {
+      __call = function()
+        if type(spec.interaction) == "function" then
+          return spec.interaction(skill)
+        else
+          return spec.interaction
+        end
+      end,
+    })
+  end
+
+  if spec.before_use and type(spec.before_use) == "function" then
+    skill.beforeUse = spec.before_use
+  end
+
+  if spec.after_use and type(spec.after_use) == "function" then
+    skill.afterUse = spec.after_use
+  end
+  skill.handly_pile = spec.handly_pile
 
   return skill
 end

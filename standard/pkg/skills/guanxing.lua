@@ -1,7 +1,11 @@
-return fk.CreateSkill({
-  name = "guanxing",
+local skill_name = "guanxing"
+
+local skill = fk.CreateSkill({
+  name = skill_name,
   anim_type = "control",
-}):addEffect(fk.EventPhaseStart, nil, {
+})
+
+skill:addEffect(fk.EventPhaseStart, nil, {
   can_trigger = function(self, event, target, player, data)
     return player.phase == Player.Start
   end,
@@ -10,3 +14,5 @@ return fk.CreateSkill({
     room:askForGuanxing(player, room:getNCards(math.min(5, #room.alive_players)))
   end,
 })
+
+return skill

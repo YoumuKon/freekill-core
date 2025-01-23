@@ -1,7 +1,11 @@
-return fk.CreateSkill({
-  name = "fankui",
+local skill_name = "fankui"
+
+local skill = fk.CreateSkill({
+  name = skill_name,
   anim_type = "masochism",
-}):addEffect(fk.Damaged, nil, {
+})
+
+skill:addEffect(fk.Damaged, nil, {
   can_trigger = function(self, event, target, player, data)
     if data.from and not data.from.dead then
       if data.from == player then
@@ -19,3 +23,5 @@ return fk.CreateSkill({
     room:obtainCard(player.id, card, false, fk.ReasonPrey)
   end
 })
+
+return skill

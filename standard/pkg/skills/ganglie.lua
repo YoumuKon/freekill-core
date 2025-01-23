@@ -1,7 +1,11 @@
-return fk.CreateSkill({
-  name = "ganglie",
+local skill_name = "ganglie"
+
+local skill = fk.CreateSkill({
+  name = skill_name,
   anim_type = "masochism",
-}):addEffect(fk.Damaged, nil, {
+})
+
+skill:addEffect(fk.Damaged, nil, {
   on_use = function(self, event, target, player, data)
     local room = player.room
     local from = data.from
@@ -25,3 +29,5 @@ return fk.CreateSkill({
     end
   end,
 })
+
+return skill

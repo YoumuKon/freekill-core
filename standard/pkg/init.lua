@@ -12,23 +12,6 @@ General:new(extension, "zhangliao", "wei", 4):addSkills { "tuxi" }
 General:new(extension, "xuchu", "wei", 4):addSkills { "luoyi" }
 General:new(extension, "guojia", "wei", 3):addSkills { "tiandu", "yiji" }
 
-local yiji_active = fk.CreateActiveSkill{
-  name = "yiji_active",
-  expand_pile = function(self)
-    return type(Self:getMark("yiji_cards")) == "table" and Self:getMark("yiji_cards") or {}
-  end,
-  min_card_num = 1,
-  target_num = 1,
-  card_filter = function(self, to_select, selected, targets)
-    local ids = Self:getMark("yiji_cards")
-      return type(ids) == "table" and table.contains(ids, to_select)
-  end,
-  target_filter = function(self, to_select, selected, selected_cards)
-    return #selected == 0 and to_select ~= Self.id
-  end,
-}
-Fk:addSkill(yiji_active)
-
 local qingguo = fk.CreateViewAsSkill{
   name = "qingguo",
   anim_type = "defensive",
@@ -332,23 +315,9 @@ local qixi = fk.CreateViewAsSkill{
 local ganning = General:new(extension, "ganning", "wu", 4)
 ganning:addSkill(qixi)
 
-General:new(extension, "lvmeng", "wu", 4):addSkills { "keji" }
+General:new(extension, "lvmeng", "wu", 4):addSkill "keji"
 
-local kurou = fk.CreateActiveSkill{
-  name = "kurou",
-  prompt = "#kurou-active",
-  anim_type = "drawcard",
-  card_filter = Util.FalseFunc,
-  on_use = function(self, room, effect)
-    local from = room:getPlayerById(effect.from)
-    room:loseHp(from, 1, self.name)
-    if from:isAlive() then
-      from:drawCards(2, self.name)
-    end
-  end
-}
-local huanggai = General:new(extension, "huanggai", "wu", 4)
-huanggai:addSkill(kurou)
+General:new(extension, "huanggai", "wu", 4):addSkill "kurou"
 
 local fanjian = fk.CreateActiveSkill{
   name = "fanjian",

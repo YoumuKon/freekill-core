@@ -30,16 +30,17 @@ return {
 
 
   require(prefix .. "keji"),
-  
+  require(prefix .. "kurou"),
+
   require(prefix .. "yingzi"),
-  
+
   require(prefix .. "liuli"),
-  
+
   require(prefix .. "lianying"),
   require(prefix .. "xiaoji"),
 
   require(prefix .. "wushuang"),
 
-  
+
   require(prefix .. "biyue"),
 }

@@ -1,7 +1,9 @@
-return fk.CreateSkill({
+local main_skel = fk.CreateSkill({
   name = "yiji",
   anim_type = "masochism",
-}):addEffect(fk.Damaged, nil, {
+})
+
+main_skel:addEffect(fk.Damaged, nil, {
   on_trigger = function(self, event, target, player, data)
     self.cancel_cost = false
     for _ = 1, data.damage do
@@ -46,3 +48,23 @@ return fk.CreateSkill({
     end
   end,
 })
+
+local aux_skel = fk.CreateSkill {
+  name = 'yiji_active',
+}
+aux_skel:addEffect('active', nil, {
+  expand_pile = function(self)
+    return type(Self:getMark("yiji_cards")) == "table" and Self:getMark("yiji_cards") or {}
+  end,
+  min_card_num = 1,
+  target_num = 1,
+  card_filter = function(self, to_select, selected, targets)
+    local ids = Self:getMark("yiji_cards")
+      return type(ids) == "table" and table.contains(ids, to_select)
+  end,
+  target_filter = function(self, to_select, selected, selected_cards)
+    return #selected == 0 and to_select ~= Self.id
+  end,
+})
+
+return main_skel, aux_skel
