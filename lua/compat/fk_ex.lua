@@ -107,11 +107,81 @@ function fk.CreateActiveSkill(spec)
     -- print(spec.name .. ": feasible is deprecated. Use target_num and card_num instead.")
     skill.feasible = spec.feasible
   end
-  if spec.on_use then skill.onUse = spec.on_use end
-  if spec.on_action then skill.onAction = spec.on_action end
-  if spec.about_to_effect then skill.aboutToEffect = spec.about_to_effect end
-  if spec.on_effect then skill.onEffect = spec.on_effect end
-  if spec.on_nullified then skill.onNullified = spec.on_nullified end
+  if spec.on_use then skill.onUse = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    elseif type(effect.from) == "table" or (((effect.tos or {})[1]).class or {}).name == "ServerPlayer" then
+      converted = true
+      new_effect = SkillEffectData:_toLegacySkillData(effect)
+    end
+    spec.on_use(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      else
+        table.assign(effect, SkillEffectData:_loadLegacySkillData(new_effect))
+      end
+    end
+  end end
+  if spec.on_action then skill.onAction = function(self, room, effect, finished)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_action(self, room, new_effect, finished)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.about_to_effect then skill.aboutToEffect = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.about_to_effect(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.on_effect then skill.onEffect = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_effect(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
+  if spec.on_nullified then skill.onNullified = function(self, room, effect)
+    local new_effect = effect
+    local converted = false
+    if effect.toLegacy then
+      converted = true
+      new_effect = effect:toLegacy()
+    end
+    spec.on_nullified(self, room, new_effect)
+    if converted then
+      if effect.loadLegacy then
+        effect:loadLegacy(new_effect)
+      end
+    end
+  end end
   if spec.prompt then skill.prompt = spec.prompt end
   if spec.target_tip then skill.targetTip = spec.target_tip end
 

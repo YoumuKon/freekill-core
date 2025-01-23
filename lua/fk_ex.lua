@@ -12,7 +12,7 @@ dofile "lua/server/event.lua"
 dofile "lua/server/system_enum.lua"
 dofile "lua/server/mark_enum.lua"
 TriggerSkill = require "core.skill_type.trigger"
-LegacyTriggerSkill = require "core.skill_type.trigger_legacy"
+LegacyTriggerSkill = require "compat.trigger_legacy"
 ActiveSkill = require "core.skill_type.active"
 ViewAsSkill = require "core.skill_type.view_as"
 DistanceSkill = require "core.skill_type.distance"
@@ -445,11 +445,11 @@ end
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_targets: integer[]): any
 ---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any): any
 ---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[]): any
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
----@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
----@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillEffectData): any
+---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillEffectData, finished: boolean): any
+---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
+---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
+---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData | SkillEffectData): any
 ---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], user: integer, card?: Card, distance_limited: boolean): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string
 ---@field public interaction? any

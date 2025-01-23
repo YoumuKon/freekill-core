@@ -46,12 +46,12 @@ function MoveCards:main()
           realFromArea == Player.Equip and
           beforeCard.type == Card.TypeEquip and
           data.from ~= nil and
-          #beforeCard:getEquipSkills(room:getPlayerById(data.from)) > 0
+          #beforeCard:getEquipSkills(data.from) > 0
         then
-          beforeCard:onUninstall(room, room:getPlayerById(data.from))
+          beforeCard:onUninstall(room, data.from)
         end
 
-        Fk:filterCard(info.cardId, room:getPlayerById(data.to))
+        Fk:filterCard(info.cardId, data.to)
 
         local currentCard = Fk:getCardById(info.cardId)
         for name, value in pairs(currentCard.mark) do
@@ -80,10 +80,10 @@ function MoveCards:main()
           data.toArea == Player.Equip and
           currentCard.type == Card.TypeEquip and
           data.to ~= nil and
-          room:getPlayerById(data.to):isAlive() and
-          #currentCard:getEquipSkills(room:getPlayerById(data.to)) > 0
+          data.to:isAlive() and
+          #currentCard:getEquipSkills(data.to) > 0
         then
-          currentCard:onInstall(room, room:getPlayerById(data.to))
+          currentCard:onInstall(room, data.to)
         end
       end
     end
@@ -148,8 +148,9 @@ local function moveInfoTranslate(room, ...)
           moveMark = cardsMoveInfo.moveMark,
           visiblePlayers = cardsMoveInfo.visiblePlayers,
         }
-
-        table.insert(moveCardsSpecs, MoveCardsData:new(moveCardsSpec))
+        local new_data = MoveCardsData:new({})
+        new_data:loadLegacy(moveCardsSpec)
+        table.insert(moveCardsSpecs, new_data)
       end
 
       if #abortMoveInfos > 0 then
@@ -165,8 +166,10 @@ local function moveInfoTranslate(room, ...)
           --drawPilePosition = cardsMoveInfo.drawPilePosition,
           --moveMark = cardsMoveInfo.moveMark,
         }
+        local new_data = MoveCardsData:new({})
+        new_data:loadLegacy(moveCardsSpec)
 
-        table.insert(moveCardsSpecs, MoveCardsData:new(moveCardsSpec))
+        table.insert(moveCardsSpecs, new_data)
       end
     end
   end
@@ -182,6 +185,42 @@ function MoveEventWrappers:moveCards(...)
     return false
   end
   return exec(MoveCards, table.unpack(datas))
+end
+
+--- 向多名玩家告知一次移牌行为。
+---@param players? ServerPlayer[] @ 要被告知的玩家列表，默认为全员
+---@param moveDatas MoveCardsData[] @ 要告知的移牌信息列表
+function MoveEventWrappers:notifyMoveCards(players, moveDatas)
+  if players == nil or players == {} then players = self.players end
+  local card_moves = {}
+  for _, move in ipairs(moveDatas) do
+    local ret = move
+    if move.toLegacy then
+      ret = move:toLegacy()
+    end
+    table.insert(card_moves, ret)
+  end
+  for _, p in ipairs(players) do
+    local arg = table.simpleClone(card_moves)
+    for _, move in ipairs(arg) do
+      -- local to = self:getPlayerById(move.to)
+
+      for _, info in ipairs(move.moveInfo) do
+        local realFromArea = self:getCardArea(info.cardId)
+        local playerAreas = { Player.Hand, Player.Equip, Player.Judge, Player.Special }
+        local virtualEquip
+
+        if table.contains(playerAreas, realFromArea) and move.from then
+          virtualEquip = self:getPlayerById(move.from):getVirualEquip(info.cardId)
+        end
+
+        if table.contains(playerAreas, move.toArea) and move.to and virtualEquip then
+          self:getPlayerById(move.to):addVirtualEquip(virtualEquip)
+        end
+      end
+    end
+    p:doNotify("MoveCards", json.encode(arg))
+  end
 end
 
 --- 让一名玩家获得一张牌

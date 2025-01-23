@@ -162,7 +162,7 @@ function Damage:main()
     if cardEffectData then
       local cardEffectEvent = cardEffectData.data[1]
       damageData.damage = damageData.damage + (cardEffectEvent.additionalDamage or 0)
-      if damageData.from and cardEffectEvent.from == damageData.from.id then
+      if damageData.from and cardEffectEvent.from == damageData.from then
         damageData.by_user = true
       end
     end
@@ -210,7 +210,7 @@ function Damage:main()
     if parentUseData then
       local cardUseEvent = parentUseData.data[1]
       cardUseEvent.damageDealt = cardUseEvent.damageDealt or {}
-      cardUseEvent.damageDealt[damageData.to.id] = (cardUseEvent.damageDealt[damageData.to.id] or 0) + damageData.damage
+      cardUseEvent.damageDealt[damageData.to] = (cardUseEvent.damageDealt[damageData.to] or 0) + damageData.damage
     end
   end
 

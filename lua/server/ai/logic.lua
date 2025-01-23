@@ -41,12 +41,12 @@ function AIGameLogic:trigger(event, target, data)
   if logic.skill_table then
     skills = logic.skill_table[event]
   end
-  table.insertTableIfNeed(skills, logic.legacy_skill_table[event])
+  table.insertTableIfNeed(skills, logic.legacy_skill_table[event] or {})
 
   if logic.refresh_skill_table then
     refresh_skills = logic.refresh_skill_table[event]
   end
-  table.insertTableIfNeed(refresh_skills, logic.legacy_refresh_skill_table[event])
+  table.insertTableIfNeed(refresh_skills, logic.legacy_refresh_skill_table[event] or {})
 
   local _target = ai.room.current -- for iteration
   local player = _target
@@ -401,7 +401,7 @@ function UseCard:exec()
     if skill_ai then skill_ai:onUse(logic, cardUseEvent) end
   end
 
-  if logic:trigger(fk.PreCardUse, room:getPlayerById(cardUseEvent.from), cardUseEvent) then
+  if logic:trigger(fk.PreCardUse, cardUseEvent.from, cardUseEvent) then
     return true
   end
   logic:moveCardTo(cardUseEvent.card, Card.Processing, nil, fk.ReasonUse)
@@ -411,13 +411,13 @@ function UseCard:exec()
       break
     end
 
-    logic:trigger(event, room:getPlayerById(cardUseEvent.from), cardUseEvent)
+    logic:trigger(event, cardUseEvent.from, cardUseEvent)
     if event == fk.CardUsing then
       logic:doCardUseEffect(cardUseEvent)
     end
   end
 
-  logic:trigger(fk.CardUseFinished, room:getPlayerById(cardUseEvent.from), cardUseEvent)
+  logic:trigger(fk.CardUseFinished, cardUseEvent.from, cardUseEvent)
   logic:moveCards{
     fromArea = Card.Processing,
     toArea = Card.DiscardPile,

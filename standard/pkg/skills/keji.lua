@@ -20,11 +20,30 @@ return fk.CreateSkill({
             break
           end
         end
-        return in_play and e.data[1].from == player.id and e.data[1].card.trueName == "slash"
+        return in_play and e.data[1].from == player and e.data[1].card.trueName == "slash"
       end
       return #player.room.logic:getEventsOfScope(GameEvent.UseCard, 1, PlayCheck, Player.HistoryTurn) == 0
       and #player.room.logic:getEventsOfScope(GameEvent.RespondCard, 1, PlayCheck, Player.HistoryTurn) == 0
     end
   end,
   on_use = Util.TrueFunc,
-})
+}):addTest(function()
+  local room = FkTest.room ---@type Room
+  local me = room.players[1]
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "keji")
+  end)
+
+  FkTest.setNextReplies(me, { "1" })
+  FkTest.runInRoom(function()
+    me:drawCards(10)
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Discard }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+
+  lu.assertEquals(#me:getCardIds("h"), 10)
+end)

@@ -692,49 +692,6 @@ function Room:animDelay(sec)
   req:ask()
 end
 
---- 向多名玩家告知一次移牌行为。
----@param players? ServerPlayer[] @ 要被告知的玩家列表，默认为全员
----@param moveDatas MoveCardsData[] @ 要告知的移牌信息列表
-function Room:notifyMoveCards(players, moveDatas)
-  if players == nil or players == {} then players = self.players end
-  local card_moves = {}
-  for _, move in ipairs(moveDatas) do
-    local ret = {}
-    for k, v in pairs(move._data) do
-      if k ~= "_data" then
-        if type(v) == "table" then
-          ret[k] = table.simpleClone(v)
-        else
-          ret[k] = v
-        end
-      end
-    end
-    table.insert(card_moves, ret)
-  end
-  for _, p in ipairs(players) do
-    local arg = table.simpleClone(card_moves)
-    for _, move in ipairs(arg) do
-      -- local to = self:getPlayerById(move.to)
-
-      for _, info in ipairs(move.moveInfo) do
-        local realFromArea = self:getCardArea(info.cardId)
-        local playerAreas = { Player.Hand, Player.Equip, Player.Judge, Player.Special }
-        local virtualEquip
-
-        if table.contains(playerAreas, realFromArea) and move.from then
-          virtualEquip = self:getPlayerById(move.from):getVirualEquip(info.cardId)
-        end
-
-        if table.contains(playerAreas, move.toArea) and move.to and virtualEquip then
-          self:getPlayerById(move.to):addVirtualEquip(virtualEquip)
-        end
-      end
-
-    end
-    p:doNotify("MoveCards", json.encode(arg))
-  end
-end
-
 --- 将焦点转移给一名或者多名角色，并广而告之。
 ---
 --- 形象点说，就是在那些玩家下面显示一个“弃牌 思考中...”之类的烧条提示。
@@ -977,9 +934,9 @@ function Room:askForUseActiveSkill(player, skill_name, prompt, cancelable, extra
 
   if skill:isInstanceOf(ActiveSkill) and not extra_data.skipUse then
     skill:onUse(self, {
-      from = player.id,
+      from = player,
       cards = selected_cards,
-      tos = targets,
+      tos = table.map(targets, Util.Id2PlayerMapper),
     })
   end
 
@@ -1978,18 +1935,18 @@ function Room:handleUseCardReply(player, data)
     if skill:isInstanceOf(ActiveSkill) then
       self:useSkill(player, skill, function()
         skill:onUse(self, {
-          from = player.id,
+          from = player,
           cards = selected_cards,
-          tos = targets,
+          tos = table.map(targets, Util.Id2PlayerMapper),
         })
-      end, {tos = targets, cards = selected_cards, cost_data = {}})
+      end, {tos = table.map(targets, Util.Id2PlayerMapper), cards = selected_cards, cost_data = {}})
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
       Self = player
       local c = skill:viewAs(selected_cards)
       if c then
-        local use = {}    ---@type CardUseStruct
-        use.from = player.id
+        local use = {}    ---@type UseCardDataSpec
+        use.from = player
         use.tos = {}
         for _, target in ipairs(targets) do
           table.insert(use.tos, { target })
@@ -2015,14 +1972,14 @@ function Room:handleUseCardReply(player, data)
       local skill = Fk.skills[data.special_skill]
       assert(skill:isInstanceOf(ActiveSkill))
       skill:onUse(self, {
-        from = player.id,
+        from = player,
         cards = { card },
-        tos = targets,
+        tos = table.map(targets, Util.Id2PlayerMapper),
       })
       return nil
     end
-    local use = {}    ---@type CardUseStruct
-    use.from = player.id
+    local use = {}    ---@type UseCardDataSpec
+    use.from = player
     use.tos = {}
     for _, target in ipairs(targets or Util.DummyTable) do
       table.insert(use.tos, { target })

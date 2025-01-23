@@ -82,9 +82,16 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
 
   local orig_data = data
   local data_converted = false
-  if data and type(data) == "table" and data.toLegacy then
-    data_converted = true
-    data = data:toLegacy()
+  if data and type(data) == "table" then
+    if data.toLegacy then
+      data_converted = true
+      data = data:toLegacy()
+    elseif data[1] and data[1].toLegacy then
+      data_converted = true
+      for _, single_data in ipairs(data) do
+        single_data:toLegacy()
+      end
+    end
   end
 
   if #skills_to_refresh > 0 then repeat do
@@ -92,7 +99,15 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
     for _, skill in ipairs(skills_to_refresh) do
       if skill:canRefresh(event, target, player, data) then
         skill:refresh(event, target, player, data)
-        if data_converted then orig_data:loadLegacy(data) end
+        if data_converted then
+          if orig_data.loadLegacy then
+            orig_data:loadLegacy(data)
+          elseif orig_data[1] and orig_data[1].loadLegacy then
+            for i, single_data in ipairs(data) do
+              orig_data[i]:loadLegacy(single_data)
+            end
+          end
+        end
       end
     end
     player = player.next
@@ -129,7 +144,15 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
 
         table.insert(invoked_skills, skill)
         broken = skill:trigger(event, target, player, data)
-        if data_converted then orig_data:loadLegacy(data) end
+        if data_converted then
+          if orig_data.loadLegacy then
+            orig_data:loadLegacy(data)
+          elseif orig_data[1] and orig_data[1].loadLegacy then
+            for i, single_data in ipairs(data) do
+              orig_data[i]:loadLegacy(single_data)
+            end
+          end
+        end
         skill_names = table.map(table.filter(legacy_skills, filter_func), Util.NameMapper)
 
         broken = broken or (event == fk.AskForPeaches
