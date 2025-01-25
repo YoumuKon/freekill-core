@@ -46,10 +46,7 @@ function ReqUseCard:cardFeasible(card)
   local exp = Exppattern:Parse(self.pattern)
   local player = self.player
   if not player:prohibitUse(card) and exp:match(card) then
-    if card.is_passive then return true end
-    local extra_data = table.simpleClone(self.extra_data)
-    extra_data.bypass_times = true
-    return player:canUse(card, extra_data)
+    return card.is_passive or player:canUse(card, self.extra_data)
   end
   return false
 end

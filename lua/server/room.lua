@@ -2121,7 +2121,8 @@ function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extr
 
   local command = "AskForUseCard"
   cancelable = (cancelable == nil) and true or cancelable
-  extra_data = extra_data or Util.DummyTable
+  extra_data = extra_data or {}
+  if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   prompt = prompt or ""
 
   local askForUseCardData = {
