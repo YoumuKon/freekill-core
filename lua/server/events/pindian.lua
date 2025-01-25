@@ -11,10 +11,10 @@ local function exec(tp, ...)
 end
 
 ---@class GameEvent.Pindian : GameEvent
----@field public data [PindianData]
+---@field public data PindianData
 local Pindian = GameEvent:subclass("GameEvent.Pindian")
 function Pindian:main()
-  local pindianData = table.unpack(self.data)
+  local pindianData = self.data
   local room = self.room
   local logic = room.logic
   logic:trigger(fk.StartPindian, pindianData.from, pindianData)
@@ -183,7 +183,7 @@ function Pindian:main()
 end
 
 function Pindian:clear()
-  local pindianData = table.unpack(self.data)
+  local pindianData = self.data
   local room = self.room
 
   local toProcessingArea = {}

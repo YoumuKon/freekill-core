@@ -855,12 +855,12 @@ local armorInvalidity = fk.CreateInvaliditySkill {
               break
             end
           elseif event.event == GameEvent.Damage then
-            local damage = event.data[1]
+            local damage = event.data
             if damage.to.id ~= player.id then return false end
             from = damage.from
             break
           elseif event.event == GameEvent.UseCard then
-            local use = event.data[1]
+            local use = event.data
             if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
             from = RoomInstance:getPlayerById(use.from)
             break
@@ -943,11 +943,11 @@ local qingGangEffect = fk.CreateTriggerSkill{
       game_event = game_event.parent
     end
     if game_event.event ~= GameEvent.CardEffect then return false end
-    local effect = game_event.data[1]
+    local effect = game_event.data
     if player.id ~= effect.to or effect.qinggang_clean then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.UseCard then return false end
-    local use = game_event.data[1]
+    local use = game_event.data
 
     return use.additionalEffect == 0 and
       use.extra_data and use.extra_data.qinggang_tag and table.contains(use.extra_data.qinggang_tag, player.id)
@@ -961,7 +961,7 @@ local qingGangEffect = fk.CreateTriggerSkill{
     else
       local logic = room.logic
       local cardEffectEvent = logic:getCurrentEvent():findParent(GameEvent.CardEffect, true)
-      local effect = cardEffectEvent.data[1]
+      local effect = cardEffectEvent.data
       effect.qinggang_clean = true
       table.removeOne(effect.extra_data.qinggang_tag, player.id)
       room:removePlayerMark(player, fk.MarkArmorNullified)

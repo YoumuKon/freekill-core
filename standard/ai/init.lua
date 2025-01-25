@@ -7,7 +7,7 @@ end
 SmartAI:setSkillAI("jianxiong", {
   think_skill_invoke = function(self, ai, skill_name, prompt)
     ---@type DamageData
-    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local dmg = ai.room.logic:getCurrentEvent().data
     local player = ai.player
     local card = dmg.card
     if not card or player.room:getCardArea(card) ~= Card.Processing then return false end
@@ -48,7 +48,7 @@ SmartAI:setSkillAI("ganglie", {
 
   think_skill_invoke = function(self, ai, skill_name, prompt)
     ---@type DamageData
-    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local dmg = ai.room.logic:getCurrentEvent().data
     local from = dmg.from
     if not from then return false end
     local dmg_val = ai:getBenefitOfEvents(function(logic)
@@ -77,7 +77,7 @@ SmartAI:setSkillAI("ganglie", {
 SmartAI:setSkillAI("fankui", {
   think_skill_invoke = function(self, ai, skill_name, prompt)
     ---@type DamageData
-    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local dmg = ai.room.logic:getCurrentEvent().data
     local player = ai.player
     local from = dmg.from
     if not from then return false end
@@ -99,8 +99,8 @@ SmartAI:setSkillAI("fankui", {
 
 SmartAI:setSkillAI("guicai", {
   think = function(self, ai)
-    ---@type JudgeStruct
-    local judge = ai.room.logic:getCurrentEvent().data[1]
+    ---@type JudgeData
+    local judge = ai.room.logic:getCurrentEvent().data
     local target = judge.who
     local isFriend = ai:isFriend(target)
 
@@ -287,7 +287,7 @@ SmartAI:setSkillAI("xiaoji", {
 SmartAI:setSkillAI("tieqi", {
   think_skill_invoke = function(self, ai, skill_name, prompt)
     ---@type CardUseStruct
-    local dmg = ai.room.logic:getCurrentEvent().data[1]
+    local dmg = ai.room.logic:getCurrentEvent().data
     local targets = dmg.tos
     if not targets then return false end
 

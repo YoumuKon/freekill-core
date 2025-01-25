@@ -47,7 +47,7 @@ function ViewAsSkill:beforeUse(player, cardUseStruct) end
 function ViewAsSkill:afterUse(player, cardUseStruct) end
 
 ---@param selected_cards integer[] @ ids of selected cards
----@param selected_targets integer[] @ ids of selected players
+---@param selected_targets Player[] @ ids of selected players
 function ViewAsSkill:prompt(selected_cards, selected_targets) return "" end
 
 return ViewAsSkill

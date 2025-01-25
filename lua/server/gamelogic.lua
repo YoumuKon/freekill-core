@@ -520,7 +520,7 @@ function GameLogic:getCurrentSkillName()
   local skillEvent = self:getCurrentEvent()
   local ret = nil
   if skillEvent.event == GameEvent.SkillEffect then
-    local _skill = skillEvent.data[1].skill
+    local _skill = skillEvent.data.skill
     local skill = _skill.main_skill and _skill.main_skill or _skill
     ret = skill.name
   end
@@ -596,9 +596,9 @@ function GameLogic:getActualDamageEvents(n, func, scope, end_id)
     if #tempEvents > 0 and #ret < n then
       table.sort(tempEvents, function(a, b)
         if reverse then
-          return a.data[1].dealtRecorderId > b.data[1].dealtRecorderId
+          return a.data.dealtRecorderId > b.data.dealtRecorderId
         else
-          return a.data[1].dealtRecorderId < b.data[1].dealtRecorderId
+          return a.data.dealtRecorderId < b.data.dealtRecorderId
         end
       end)
 
@@ -635,7 +635,7 @@ function GameLogic:getActualDamageEvents(n, func, scope, end_id)
     if math.abs(to) == 1 then to = #self.all_game_events end
 
     for _, v in ipairs(events) do
-      local damageData = v.data[1]
+      local damageData = v.data
       if damageData.dealtRecorderId then
         if endIdRecorded and v.id > endIdRecorded then
           local result = addTempEvents()
@@ -669,7 +669,7 @@ function GameLogic:getActualDamageEvents(n, func, scope, end_id)
       local e = events[i]
       if e.id <= end_id then break end
 
-      local damageData = e.data[1]
+      local damageData = e.data
       if damageData.dealtRecorderId then
         if e.end_id == -1 or (endIdRecorded and endIdRecorded > e.end_id) then
           local result = addTempEvents(true)
@@ -704,12 +704,13 @@ function GameLogic:damageByCardEffect(is_exact)
   is_exact = (is_exact == nil) and true or is_exact
   local d_event = self:getCurrentEvent():findParent(GameEvent.Damage, true)
   if d_event == nil then return false end
-  local damage = d_event.data[1]
+  local damage = d_event.data
   if damage.chain or damage.card == nil then return false end
   local c_event = d_event:findParent(GameEvent.CardEffect, false, 2)
+  local effect = c_event.data
   if c_event == nil then return false end
-  return damage.card == c_event.data[1].card and
-  (not is_exact or (damage.from or {}).id == c_event.data[1].from)
+  return damage.card == effect.card and
+  (not is_exact or (damage.from or {}).id == effect.from)
 end
 
 function GameLogic:dumpEventStack(detailed)

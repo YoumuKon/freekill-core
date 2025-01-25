@@ -43,10 +43,10 @@ local function sendDamageLog(room, damageData)
 end
 
 ---@class GameEvent.ChangeHp : GameEvent
----@field public data [HpChangedData]
+---@field public data HpChangedData
 local ChangeHp = GameEvent:subclass("GameEvent.ChangeHp")
 function ChangeHp:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   local logic = room.logic
   local num = data.num
@@ -150,17 +150,17 @@ function HpEventWrappers:changeHp(player, num, reason, skillName, damageData)
 end
 
 ---@class GameEvent.Damage : GameEvent
----@field public data [DamageData]
+---@field public data DamageData
 local Damage = GameEvent:subclass("GameEvent.Damage")
 function Damage:main()
-  local damageData = table.unpack(self.data)
+  local damageData = self.data
   local room = self.room
   local logic = room.logic
 
   if not damageData.chain and logic:damageByCardEffect(false) then
     local cardEffectData = logic:getCurrentEvent():findParent(GameEvent.CardEffect)
     if cardEffectData then
-      local cardEffectEvent = cardEffectData.data[1]
+      local cardEffectEvent = cardEffectData.data
       damageData.damage = damageData.damage + (cardEffectEvent.additionalDamage or 0)
       if damageData.from and cardEffectEvent.from == damageData.from then
         damageData.by_user = true
@@ -208,7 +208,7 @@ function Damage:main()
   if damageData.card and damageData.damage > 0 then
     local parentUseData = logic:getCurrentEvent():findParent(GameEvent.UseCard)
     if parentUseData then
-      local cardUseEvent = parentUseData.data[1]
+      local cardUseEvent = parentUseData.data
       cardUseEvent.damageDealt = cardUseEvent.damageDealt or {}
       cardUseEvent.damageDealt[damageData.to] = (cardUseEvent.damageDealt[damageData.to] or 0) + damageData.damage
     end
@@ -240,7 +240,7 @@ end
 function Damage:exit()
   local room = self.room
   local logic = room.logic
-  local damageData = self.data[1]
+  local damageData = self.data
 
   logic:trigger(fk.DamageFinished, damageData.to, damageData)
 
@@ -278,10 +278,10 @@ function HpEventWrappers:damage(damageData)
 end
 
 ---@class GameEvent.LoseHp : GameEvent
----@field public data [HpLostData]
+---@field public data HpLostData
 local LoseHp = GameEvent:subclass("GameEvent.LoseHp")
 function LoseHp:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   local logic = room.logic
 
@@ -318,10 +318,10 @@ function HpEventWrappers:loseHp(player, num, skillName)
 end
 
 ---@class GameEvent.Recover : GameEvent
----@field public data [RecoverData]
+---@field public data RecoverData
 local Recover = GameEvent:subclass("GameEvent.Recover")
 function Recover:prepare()
-  local recoverData = table.unpack(self.data)
+  local recoverData = self.data
   -- local room = self.room
   -- local logic = room.logic
 
@@ -334,14 +334,14 @@ function Recover:prepare()
 end
 
 function Recover:main()
-  local recoverData = table.unpack(self.data)
+  local recoverData = self.data
   local room = self.room
   local logic = room.logic
 
   if recoverData.card then
     local cardEffectData = logic:getCurrentEvent():findParent(GameEvent.CardEffect)
     if cardEffectData then
-      local cardEffectEvent = cardEffectData.data[1]
+      local cardEffectEvent = cardEffectData.data
       recoverData.num = recoverData.num + (cardEffectEvent.additionalRecover or 0)
     end
   end
@@ -375,10 +375,10 @@ function HpEventWrappers:recover(recoverDataSpec)
 end
 
 ---@class GameEvent.ChangeMaxHp : GameEvent
----@field public data [MaxHpChangedData]
+---@field public data MaxHpChangedData
 local ChangeMaxHp = GameEvent:subclass("GameEvent.ChangeMaxHp")
 function ChangeMaxHp:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
 
   if room.logic:trigger(fk.BeforeMaxHpChanged, data.who, data) or data.num == 0 then

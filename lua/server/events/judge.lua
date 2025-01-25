@@ -11,10 +11,10 @@ local function exec(tp, ...)
 end
 
 ---@class GameEvent.Judge : GameEvent
----@field public data [JudgeData]
+---@field public data JudgeData
 local Judge = GameEvent:subclass("GameEvent.Judge")
 function Judge:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   local logic = room.logic
   local who = data.who
@@ -67,7 +67,7 @@ function Judge:main()
 end
 
 function Judge:clear()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   if (self.interrupted or not data.skipDrop) and data.card and room:getCardArea(data.card.id) == Card.Processing then
     room:moveCardTo(data.card, Card.DiscardPile, nil, fk.ReasonJudge)

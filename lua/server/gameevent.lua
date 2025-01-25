@@ -38,6 +38,7 @@ function GameEvent:initialize(event, ...)
   ---@diagnostic disable-next-line
   -- self.event = self.class
   self.data = { ... }
+  if #self.data == 1 then self.data = self.data[1] end
   self.status = "ready"
   self.interrupted = false
 

@@ -184,7 +184,7 @@ function MoveEventWrappers:moveCards(...)
   if #datas < 1 then
     return false
   end
-  return exec(MoveCards, table.unpack(datas))
+  return exec(MoveCards, datas)
 end
 
 --- 向多名玩家告知一次移牌行为。

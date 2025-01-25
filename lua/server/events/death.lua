@@ -11,10 +11,10 @@ local function exec(tp, ...)
 end
 
 ---@class GameEvent.Dying : GameEvent
----@field data [DyingData]
+---@field data DyingData
 local Dying = GameEvent:subclass("GameEvent.Dying")
 function Dying:main()
-  local dyingData = table.unpack(self.data)
+  local dyingData = self.data
   local room = self.room
   local logic = room.logic
   local dyingPlayer = room:getPlayerById(dyingData.who)
@@ -43,7 +43,7 @@ end
 function Dying:exit()
   local room = self.room
   local logic = room.logic
-  local dyingData = self.data[1]
+  local dyingData = self.data
 
   local dyingPlayer = room:getPlayerById(dyingData.who)
 
@@ -62,10 +62,10 @@ function DeathEventWrappers:enterDying(dyingDataSpec)
 end
 
 ---@class GameEvent.Death : GameEvent
----@field data [DeathData]
+---@field data DeathData
 local Death = GameEvent:subclass("GameEvent.Death")
 function Death:prepare()
-  local deathData = table.unpack(self.data)
+  local deathData = self.data
   local room = self.room
   local victim = room:getPlayerById(deathData.who)
   if victim.dead then
@@ -74,7 +74,7 @@ function Death:prepare()
 end
 
 function Death:main()
-  local deathData = table.unpack(self.data)
+  local deathData = self.data
   local room = self.room
   local victim = room:getPlayerById(deathData.who)
   victim.dead = true
@@ -131,11 +131,11 @@ function DeathEventWrappers:killPlayer(deathDataSpec)
 end
 
 ---@class GameEvent.Revive : GameEvent
----@field data [ReviveData]
+---@field data ReviveData
 local Revive = GameEvent:subclass("GameEvent.Revive")
 function Revive:main()
   local room = self.room
-  local data = table.unpack(self.data)
+  local data = self.data
 
   if not data.who.dead then return end
   room:setPlayerProperty(data.who, "dead", false)

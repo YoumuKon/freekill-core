@@ -111,7 +111,7 @@ local sendCardEmotionAndLog = function(room, useCardData)
 
     for _, t in ipairs(useCardData.tos) do
       if t[2] then
-        local temp = {table.unpack(t)}
+        local temp = table.simpleClone(t)
         table.remove(temp, 1)
         room:sendLog{
           type = "#CardUseCollaborator",
@@ -176,10 +176,10 @@ local sendCardEmotionAndLog = function(room, useCardData)
 end
 
 ---@class GameEvent.UseCard : GameEvent
----@field public data [UseCardData]
+---@field public data UseCardData
 local UseCard = GameEvent:subclass("GameEvent.UseCard")
 function UseCard:main()
-  local useCardData = table.unpack(self.data)
+  local useCardData = self.data
   local room = self.room
   local logic = room.logic
 
@@ -294,7 +294,7 @@ function UseCard:main()
 end
 
 function UseCard:clear()
-  local useCardData = table.unpack(self.data)
+  local useCardData = self.data
   local room = self.room
 
   room.logic:trigger(fk.CardUseFinished, useCardData.from, useCardData)
@@ -310,10 +310,10 @@ function UseCard:clear()
 end
 
 ---@class GameEvent.RespondCard : GameEvent
----@field public data [RespondCardData]
+---@field public data RespondCardData
 local RespondCard = GameEvent:subclass("GameEvent.RespondCard")
 function RespondCard:main()
-  local respondCardData = table.unpack(self.data)
+  local respondCardData = self.data
   local room = self.room
   local logic = room.logic
 
@@ -365,7 +365,7 @@ function RespondCard:main()
 end
 
 function RespondCard:clear()
-  local respondCardData = table.unpack(self.data)
+  local respondCardData = self.data
   local room = self.room
 
   room.logic:trigger(fk.CardRespondFinished, respondCardData.from, respondCardData)
@@ -381,10 +381,10 @@ function RespondCard:clear()
 end
 
 ---@class GameEvent.CardEffect : GameEvent
----@field public data [CardEffectData]
+---@field public data CardEffectData
 local CardEffect = GameEvent:subclass("GameEvent.CardEffect")
 function CardEffect:main()
-  local cardEffectData = table.unpack(self.data)
+  local cardEffectData = self.data
   local room = self.room
   local logic = room.logic
 
@@ -435,7 +435,7 @@ function CardEffect:main()
 end
 
 function CardEffect:clear()
-  local cardEffectData = table.unpack(self.data)
+  local cardEffectData = self.data
   if cardEffectData.to then
     local room = self.room
     room.logic:trigger(fk.CardEffectFinished, cardEffectData.to, cardEffectData)

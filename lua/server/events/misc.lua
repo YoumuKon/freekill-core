@@ -10,10 +10,10 @@ function Game:main()
 end
 
 ---@class GameEvent.ChangeProperty : GameEvent
----@field public data [PropertyChangeData]
+---@field public data PropertyChangeData
 local ChangeProperty = GameEvent:subclass("GameEvent.Game")
 function ChangeProperty:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   local player = data.from
   local logic = room.logic
@@ -207,9 +207,10 @@ function MiscEventWrappers:changeKingdom(player, kingdom, sendLog)
 end
 
 ---@class GameEvent.ClearEvent : GameEvent
+---@field data GameEvent
 local ClearEvent = GameEvent:subclass("GameEvent.ClearEvent")
 function ClearEvent:main()
-  local event = self.data[1]
+  local event = self.data
   local logic = self.room.logic
   -- 不可中断
   Pcall(event.clear, event)

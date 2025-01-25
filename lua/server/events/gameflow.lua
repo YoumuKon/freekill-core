@@ -101,11 +101,11 @@ function DrawInitial:main()
 end
 
 ---@class GameEvent.Round : GameEvent
----@field public data [RoundData]
+---@field public data RoundData
 local Round = GameEvent:subclass("GameEvent.Round")
 
 function Round:action()
-  -- local data = table.unpack(self.data)
+  -- local data = self.data
   local room = self.room
   -- local currentPlayer
 
@@ -131,7 +131,7 @@ function Round:action()
   --   local current_player = table.find(room.alive_players, function(p) return p.seat == seat end)
   --   if current_player then
   --     GameEvent.Turn:create(current_player):exec()
-  
+
   --     local changingData = { from = room.current, to = room.current.next, skipRoundPlus = false }
   --     room.logic:trigger(fk.EventTurnChanging, current_player, changingData, true)
 
@@ -143,7 +143,7 @@ end
 function Round:main()
   local room = self.room
   local logic = room.logic
-  local data = table.unpack(self.data)
+  local data = self.data
 
   local isFirstRound = room:getTag("FirstRound")
   if isFirstRound then
@@ -202,12 +202,12 @@ function Round:clear()
 end
 
 ---@class GameEvent.Turn : GameEvent
----@field public data [TurnData]
+---@field public data TurnData
 local Turn = GameEvent:subclass("GameEvent.Turn")
 function Turn:prepare()
   local room = self.room
   local logic = room.logic
-  local data = table.unpack(self.data)
+  local data = self.data
   local player = data.who
   data.reason = data.reason or "game_rule"
   data.phase_table = data.phase_table or {
@@ -243,7 +243,7 @@ end
 
 function Turn:main()
   local room = self.room
-  local data = table.unpack(self.data)
+  local data = self.data
   local player = data.who
   player.phase = Player.PhaseNone
   room.logic:trigger(fk.TurnStart, player, data)
@@ -253,7 +253,7 @@ end
 
 function Turn:clear()
   local room = self.room
-  local data = table.unpack(self.data)
+  local data = self.data
   local current = data.who
 
   local logic = room.logic
@@ -303,12 +303,12 @@ function Turn:clear()
 end
 
 ---@class GameEvent.Phase : GameEvent
----@field public data [PhaseData]
+---@field public data PhaseData
 local Phase = GameEvent:subclass("GameEvent.Phase")
 function Phase:main()
   local room = self.room
   local logic = room.logic
-  local data = table.unpack(self.data)
+  local data = self.data
   local player = data.who
 
   if not logic:trigger(fk.EventPhaseStart, player) then
@@ -405,7 +405,7 @@ end
 function Phase:clear()
   local room = self.room
   local logic = room.logic
-  local data = table.unpack(self.data)
+  local data = self.data
   local player = data.who
 
   if player.phase ~= Player.NotActive then
