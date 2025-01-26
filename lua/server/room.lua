@@ -1286,6 +1286,7 @@ function Room:askForYiji(player, cards, targets, skillName, minNum, maxNum, prom
     residue_sum = residue_sum + residueMap[toStr(pid)]
   end
   minNum = math.min(minNum, #_cards, residue_sum)
+  maxNum = math.min(maxNum, #_cards, residue_sum)
   local data = {
     cards = _cards,
     max_num = maxNum,

@@ -181,7 +181,11 @@ local distributionSelectSkill = fk.CreateActiveSkill{
   mute = true,
   min_card_num = 1,
   card_filter = function(self, to_select, selected)
-    return #selected < self.max_num and table.contains(self.cards, to_select)
+    local maxNum = 0
+    for _, v in pairs(self.residued_list) do
+      maxNum = math.max(maxNum, v)
+    end
+    return #selected < self.max_num and #selected < maxNum and table.contains(self.cards, to_select)
   end,
   target_num = 1,
   target_filter = function(self, to_select, selected, selected_cards)
