@@ -74,7 +74,8 @@ end
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local prompt = skill.prompt
   if type(skill.prompt) == "function" then
-    prompt = skill:prompt(selected_cards or self.pendings, self.selected_targets)
+    prompt = skill:prompt(selected_cards or self.pendings,
+      table.map(self.selected_targets, Util.Id2PlayerMapper))
   end
   if type(prompt) == "string" then
     self:setPrompt(prompt)
@@ -219,13 +220,16 @@ function ReqActiveSkill:feasible()
   local skill = Fk.skills[self.skill_name]
   if not skill then return false end
   local ret
+  local targets = table.map(self.selected_targets, Util.Id2PlayerMapper)
   if skill:isInstanceOf(ActiveSkill) then
-    ret = skill:feasible(self.selected_targets, self.pendings, player)
+    ---@cast skill ActiveSkill
+    ret = skill:feasible(targets, self.pendings, player)
   elseif skill:isInstanceOf(ViewAsSkill) then
+    ---@cast skill ViewAsSkill
     local card = skill:viewAs(self.pendings, player)
     if card then
-      local card_skill = card.skill ---@type ActiveSkill
-      ret = card_skill:feasible(self.selected_targets, { card.id }, player, card)
+      local card_skill = card.skill
+      ret = card_skill:feasible(targets, { card.id }, player, card)
     end
   end
   return ret
@@ -252,7 +256,10 @@ function ReqActiveSkill:targetValidity(pid)
     if not card then return false end
     skill = card.skill
   end
-  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data, self.player)
+  local room = Fk:currentRoom()
+  local p = room:getPlayerById(pid)
+  local selected = table.map(self.selected_targets, Util.Id2PlayerMapper)
+  return skill:targetFilter(p, selected, self.pendings, card, self.extra_data, self.player)
 end
 
 function ReqActiveSkill:updateButtons()

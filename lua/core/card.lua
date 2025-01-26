@@ -534,12 +534,12 @@ function Card:getFixedTargets(player, extra_data)
   local ret = extra_data and extra_data.fix_targets
   if ret then return ret end
   ret = self.skill:fixTargets(player, self, extra_data)
-  if ret then return ret end
+  if ret then return table.map(ret, Util.IdMapper) end
   if self.skill.target_num == 0 then
     -- 此处仅作为默认值，若与默认选择规则不一致（如火烧连营）请修改cardSkill的fix_targets参数
     if self.multiple_targets then
       return table.map(table.filter(Fk:currentRoom().alive_players, function (p)
-        return self.skill:modTargetFilter(p.id, {}, player, self)
+        return self.skill:modTargetFilter(p, {}, player, self)
       end), Util.IdMapper)
     else
       return {player.id}
@@ -579,7 +579,9 @@ function Card:getAvailableTargets (player, extra_data)
     for i = #tos, 1, -1 do
       local fromId = tos[i]
       if table.every(room.alive_players, function (p)
-        return p.id == fromId or not self.skill:targetFilter(p.id, {fromId}, self.subcards, self, extra_data, player)
+        return p.id == fromId or not self.skill:targetFilter(p,
+          { Fk:currentRoom():getPlayerById(fromId) },
+          self.subcards, self, extra_data, player)
       end) then
         table.remove(tos, i)
       end
@@ -600,7 +602,8 @@ function Card:getDefaultTarget (player, extra_data)
   local ret = {to}
   if self.skill:getMinTargetNum() == 2 then  -- for collateral
     local subtarget = table.find(Fk:currentRoom().alive_players, function (p)
-      return p.id ~= to and self.skill:targetFilter(p.id, {to}, self.subcards, self, extra_data, player)
+      return p.id ~= to and self.skill:targetFilter(p,
+        { Fk:currentRoom():getPlayerById(to) }, self.subcards, self, extra_data, player)
     end)
     if subtarget == nil then return {} end
     table.insert(ret, subtarget.id)

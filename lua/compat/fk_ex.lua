@@ -91,7 +91,7 @@ end
 ---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 判断主动技能否发动
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
 ---@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, player: Player?): any @ 判定目标能否选择
----@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[], player: Player): any @ 判断卡牌和目标是否符合技能限制
+---@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[], player: Player, card: Card): any @ 判断卡牌和目标是否符合技能限制
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
 ---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
@@ -102,7 +102,7 @@ end
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
----@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 设置固定目标
+---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): integer[]? @ 设置固定目标
 
 ---@param spec LegacyActiveSkillSpec
 ---@return ActiveSkill
@@ -118,11 +118,22 @@ function fk.CreateActiveSkill(spec)
     end
   end
   if spec.card_filter then skill.cardFilter = spec.card_filter end
-  if spec.target_filter then skill.targetFilter = spec.target_filter end
-  if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
+  if spec.target_filter then
+    skill.targetFilter = function(self, to_select, selected, selected_cards, card, extra_data, player)
+      if type(to_select) == "number" then dbg() end
+      local ret = spec.target_filter(self, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, extra_data, player)
+      return ret
+    end
+  end
+  if spec.mod_target_filter then
+    skill.modTargetFilter = function(self, to_select, selected, player, card, distance_limited, extra_data)
+      return spec.mod_target_filter(self, to_select.id, table.map(selected, Util.IdMapper), player, card, distance_limited, extra_data)
+    end
+  end
   if spec.feasible then
-    -- print(spec.name .. ": feasible is deprecated. Use target_num and card_num instead.")
-    skill.feasible = spec.feasible
+    skill.feasible = function(self, selected, selected_cards, player, card)
+      return spec.feasible(self, table.map(selected, Util.IdMapper), selected_cards, player, card)
+    end
   end
   if spec.on_use then skill.onUse = function(self, room, effect)
     local new_effect = effect
@@ -199,10 +210,25 @@ function fk.CreateActiveSkill(spec)
       end
     end
   end end
-  if spec.prompt then skill.prompt = spec.prompt end
-  if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.prompt then
+    skill.prompt = function(self, selected_cards, selected_targets)
+      if type(spec.prompt) == "string" then return spec.prompt end
+      return spec.prompt(self, selected_cards, table.map(selected_targets, Util.IdMapper))
+    end
+  end
+  if spec.target_tip then
+    skill.targetTip = function(self, to_select, selected, selected_cards, card, selectable, extra_data)
+      return spec.target_tip(self, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, selectable, extra_data)
+    end
+  end
   if spec.handly_pile then skill.handly_pile = spec.handly_pile end
-  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
+  if spec.fix_targets then
+    skill.fixTargets = function(self, player, card, extra_data)
+      local ret = spec.fix_targets(self, player, card, extra_data)
+      if not ret then return nil end
+      return table.map(ret, Util.Id2PlayerMapper)
+    end
+  end
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
@@ -218,7 +244,19 @@ function fk.CreateActiveSkill(spec)
   return skill
 end
 
----@param spec ViewAsSkillSpec
+---@class LegacyViewAsSkillSpec: UsableSkillSpec
+---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
+---@field public view_as fun(self: ViewAsSkill, cards: integer[], player: Player): Card? @ 判断转化为什么牌
+---@field public pattern? string
+---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
+---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
+---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
+---@field public prompt? string|fun(self: ViewAsSkill, selected_cards: integer[], selected: integer[]): string
+---@field public interaction? any
+---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
+
+---@param spec LegacyViewAsSkillSpec
 ---@return ViewAsSkill
 ---@deprecated
 function fk.CreateViewAsSkill(spec)
@@ -245,7 +283,15 @@ function fk.CreateViewAsSkill(spec)
       return spec.enabled_at_response(curSkill, player, cardResponsing) and curSkill:isEffectable(player)
     end
   end
-  if spec.prompt then skill.prompt = spec.prompt end
+  if spec.prompt then
+    if type(spec.prompt) == "string" then
+      skill.prompt = function() return spec.prompt end
+    else
+      skill.prompt = function(self, selected_cards, selected_targets)
+        return spec.prompt(self, selected_cards, table.map(selected_targets, Util.IdMapper))
+      end
+    end
+  end
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
@@ -349,7 +395,16 @@ function fk.CreateMaxCardsSkill(spec)
   return skill
 end
 
----@param spec TargetModSpec
+---@class LegacyTargetModSpec: StatusSkillSpec
+---@field public bypass_times? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): any
+---@field public residue_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, scope: integer, card?: Card, to?: Player): number?
+---@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): any
+---@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): number?
+---@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card): number?
+---@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+
+
+---@param spec LegacyTargetModSpec
 ---@return TargetModSkill
 ---@deprecated
 function fk.CreateTargetModSkill(spec)
@@ -373,7 +428,9 @@ function fk.CreateTargetModSkill(spec)
     skill.getExtraTargetNum = spec.extra_target_func
   end
   if spec.target_tip_func then
-    skill.getTargetTip = spec.target_tip_func
+    skill.getTargetTip = function(self, player, to_select, selected, selected_cards, card, selectable, extra_data)
+      return spec.target_tip_func(self, player, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, selectable, extra_data)
+    end
   end
 
   return skill

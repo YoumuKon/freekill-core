@@ -37,7 +37,9 @@ end
 function ReqUseCard:targetValidity(pid)
   if self.skill_name then return ReqActiveSkill.targetValidity(self, pid) end
   local card = self.selected_card
-  local ret = card and card.skill:targetFilter(pid, self.selected_targets, { card.id }, card, self.extra_data, self.player)
+  local p = Fk:currentRoom():getPlayerById(pid)
+  local selected = table.map(self.selected_targets, Util.Id2PlayerMapper)
+  local ret = card and card.skill:targetFilter(p, selected, { card.id }, card, self.extra_data, self.player)
   return ret
 end
 
@@ -62,7 +64,7 @@ function ReqUseCard:feasible()
   end
   local ret = false
   if card and self:cardFeasible(card) then
-    ret = card.skill:feasible(self.selected_targets,
+    ret = card.skill:feasible(table.map(self.selected_targets, Util.Id2PlayerMapper),
       skill and self.pendings or { card.id }, self.player, card)
   end
   return ret
@@ -103,7 +105,9 @@ function ReqUseCard:selectTarget(playerid, data)
       self.selected_targets = {}
       for _, pid in ipairs(previous_targets) do
         local ret
-        ret = skill and skill:targetFilter(pid, self.selected_targets, { card.id }, card, data.extra_data, player)
+        local p = Fk:currentRoom():getPlayerById(pid)
+        local selected_targets = table.map(self.selected_targets, Util.Id2PlayerMapper)
+        ret = skill and skill:targetFilter(p, selected_targets, { card.id }, card, data.extra_data, player)
         -- 从头开始写目标
         if ret then
           table.insert(self.selected_targets, pid)

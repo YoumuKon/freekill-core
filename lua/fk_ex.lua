@@ -557,19 +557,19 @@ end
 ---@class ActiveSkillSpec: UsableSkillSpec
 ---@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 判断主动技能否发动
 ---@field public card_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
----@field public target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, extra_data: any, player: Player?): any @ 判定目标能否选择
----@field public feasible? fun(self: ActiveSkill, selected: integer[], selected_cards: integer[], player: Player): any @ 判断卡牌和目标是否符合技能限制
+---@field public target_filter? fun(self: ActiveSkill, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, extra_data: any, player: Player?): any @ 判定目标能否选择
+---@field public feasible? fun(self: ActiveSkill, selected: Player[], selected_cards: integer[], player: Player): any @ 判断卡牌和目标是否符合技能限制
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
 ---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
 ---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player, card?: Card, distance_limited: boolean, extra_data: any): any
+---@field public mod_target_filter? fun(self: ActiveSkill, to_select: Player, selected: Player[], player: Player, card?: Card, distance_limited: boolean, extra_data: any): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
 ---@field public interaction? any
----@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public target_tip? fun(self: ActiveSkill, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
----@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 设置固定目标
+---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): Player[]? @ 设置固定目标
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
 ---@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
@@ -611,7 +611,7 @@ end
 ---@field public bypass_distances? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): any
 ---@field public distance_limit_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card, to?: Player): number?
 ---@field public extra_target_func? fun(self: TargetModSkill, player: Player, skill: ActiveSkill, card?: Card): number?
----@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@class FilterSpec: StatusSkillSpec
 ---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any

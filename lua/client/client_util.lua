@@ -507,13 +507,16 @@ function GetTargetTip(pid)
 
   if skill then
     if skill:isInstanceOf(ActiveSkill) then
-      local tip = skill:targetTip(to_select, selected, selected_cards, nil, selectable, extra_data)
+      ---@cast skill ActiveSkill
+      local tip = skill:targetTip(ClientInstance:getPlayerById(to_select),
+        table.map(selected, Util.Id2PlayerMapper), selected_cards, nil, selectable, extra_data)
       if type(tip) == "string" then
         table.insert(ret, { content = tip, type = "normal" })
       elseif type(tip) == "table" then
         table.insertTable(ret, tip)
       end
     elseif skill:isInstanceOf(ViewAsSkill) then
+      ---@cast skill ViewAsSkill
       card = skill:viewAs(selected_cards, Self)
     end
   end
@@ -526,7 +529,8 @@ function GetTargetTip(pid)
         return ret
       end
 
-      local tip = sk:getTargetTip(Self, to_select, selected, selected_cards, card, selectable, extra_data)
+      local tip = sk:getTargetTip(Self, ClientInstance:getPlayerById(to_select),
+        table.map(selected, Util.Id2PlayerMapper), selected_cards, card, selectable, extra_data)
       if type(tip) == "string" then
         table.insert(ret, { content = tip, type = "normal" })
       elseif type(tip) == "table" then
@@ -535,7 +539,8 @@ function GetTargetTip(pid)
     end
 
     ret = ret or {}
-    local tip = card.skill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data)
+    local tip = card.skill:targetTip(ClientInstance:getPlayerById(to_select),
+      table.map(selected, Util.Id2PlayerMapper), selected_cards, card, selectable, extra_data)
     if type(tip) == "string" then
       table.insert(ret, { content = tip, type = "normal" })
     elseif type(tip) == "table" then

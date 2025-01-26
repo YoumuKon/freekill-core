@@ -45,8 +45,8 @@ function ActiveSkill:cardFilter(to_select, selected, player)
 end
 
 -- 判断一名角色是否可被此技能选中
----@param to_select integer @ 待选目标
----@param selected integer[] @ 已选目标
+---@param to_select Player @ 待选目标
+---@param selected Player[] @ 已选目标
 ---@param selected_cards integer[] @ 已选牌
 ---@param card? Card @ 牌
 ---@param extra_data? UseExtraData @ 额外数据
@@ -57,8 +57,8 @@ function ActiveSkill:targetFilter(to_select, selected, selected_cards, card, ext
 end
 
 -- 判断一名角色是否可成为此技能的目标
----@param to_select integer @ 待选目标
----@param selected integer[] @ 已选目标
+---@param to_select Player @ 待选目标
+---@param selected Player[] @ 已选目标
 ---@param player? Player @ 使用者
 ---@param card? Card @ 牌
 ---@param distance_limited? boolean @ 是否受距离限制
@@ -71,7 +71,7 @@ end
 ---@param player Player @ 使用者
 ---@param card? Card @ 牌
 ---@param extra_data? UseExtraData @ 额外数据
----@return integer[]?
+---@return Player[]?
 function ActiveSkill:fixTargets(player, card, extra_data)
   return nil
 end
@@ -228,7 +228,7 @@ end
 
 -- 判断一个技能是否可发动（也就是确认键是否可点击）。默认值为选择卡牌数和选择目标数均在允许范围内
 -- 警告：没啥事别改
----@param selected integer[] @ 已选目标
+---@param selected Player[] @ 已选目标
 ---@param selected_cards integer[] @ 已选牌
 ---@param player Player @ 使用者
 ---@param card? Card @ 牌
@@ -240,7 +240,7 @@ end
 
 -- 使用技能时默认的烧条提示（一般会在主动使用时出现）
 ---@param selected_cards integer[] @ 已选牌
----@param selected_targets integer[] @ 已选目标
+---@param selected_targets Player[] @ 已选目标
 ---@return string?
 function ActiveSkill:prompt(selected_cards, selected_targets) return "" end
 
@@ -269,11 +269,11 @@ function ActiveSkill:onEffect(room, cardEffectEvent) end
 function ActiveSkill:onNullified(room, cardEffectEvent) end
 
 --- 选择目标时产生的目标提示，贴在目标脸上
----@param to_select integer @ id of the target
----@param selected integer[] @ ids of selected targets
+---@param to_select Player @ id of the target
+---@param selected Player[] @ ids of selected targets
 ---@param selected_cards integer[] @ ids of selected cards
----@param card Card @ helper
----@param selectable boolean @can be selected
+---@param card Card? @ helper
+---@param selectable boolean? @can be selected
 ---@param extra_data? any @ extra_data
 ---@return string|table?
 function ActiveSkill:targetTip(to_select, selected, selected_cards, card, selectable, extra_data) end

@@ -25,14 +25,15 @@ end
 function ReqPlayCard:cardValidity(cid)
   if self.skill_name and not self.selected_card then return ReqActiveSkill.cardValidity(self, cid) end
   local player = self.player
-  local card = cid
+  local card = cid --[[ @as Card ]]
   if type(cid) == "number" then card = Fk:getCardById(cid) end
   local ret = player:canUse(card)
   if ret then
     local min_target = card.skill:getMinTargetNum()
     if min_target > 0 then
       for pid, _ in pairs(self.scene:getAllItems("Photo")) do
-        if card.skill:targetFilter(pid, {}, {}, card, self.extra_data, player) then
+        ---@cast pid integer
+        if card.skill:targetFilter(Fk:currentRoom():getPlayerById(pid), {}, {}, card, self.extra_data, player) then
           return true
         end
       end
@@ -85,20 +86,24 @@ end
 function ReqPlayCard:feasible()
   local player = self.player
   local ret = false
-  local card = self.selected_card
+  local card
   if self.skill_name then
     local skill = Fk.skills[self.skill_name]
     if skill:isInstanceOf(ActiveSkill) then
+      ---@cast skill ActiveSkill
       return ReqActiveSkill.feasible(self)
     else -- viewasskill
+      ---@cast skill ViewAsSkill
       card = skill:viewAs(self.pendings, player)
     end
+  else
+    card = self.selected_card
   end
   if card then
-    local skill = card.skill ---@type ActiveSkill
-    ret = skill:feasible(self.selected_targets, { card.id }, player, card)
+    local skill = card.skill
+    ret = skill:feasible(table.map(self.selected_targets, Util.Id2PlayerMapper), { card.id }, player, card)
     if ret then
-      ret = skill:canUse(player, card, self.extra_data)
+      ret = not not skill:canUse(player, card, self.extra_data)
     end
   end
   return ret
