@@ -131,7 +131,19 @@ end
 function ReqPlayCard:doOKButton()
   self.scene:update("SpecialSkills", "1", { skills = {} })
   self.scene:notifyUI()
-  return ReqUseCard.doOKButton(self)
+  if not(self.skill_name and self.selected_card) then
+    return ReqUseCard.doOKButton(self)
+  end
+  local reply = {
+    card = self.selected_card:getEffectiveId(),
+    targets = self.selected_targets,
+    special_skill = self.skill_name
+  }
+  if ClientInstance then
+    ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
+  else
+    return reply
+  end
 end
 
 function ReqPlayCard:doCancelButton()

@@ -186,6 +186,12 @@ local function parseMsg(msg, nocolor, visible_data)
     if p.deputyGeneral and p.deputyGeneral ~= "" then
       ret = ret .. "/" .. Fk:translate(p.deputyGeneral)
     end
+    for _, p2 in ipairs(Fk:currentRoom().players) do
+      if p2 ~= p and p2.general == p.general and p2.deputyGeneral == p.deputyGeneral then
+        ret = ret .. ("[%d]"):format(p.seat)
+        break
+      end
+    end
     ret = string.format(str, color, ret)
     return ret
   end
