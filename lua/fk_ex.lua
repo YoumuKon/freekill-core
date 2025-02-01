@@ -235,7 +235,7 @@ end
 ---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
 ---@field public mod_target_filter? fun(self: ActiveSkill, to_select: integer, selected: integer[], player: Player, card?: Card, distance_limited: boolean, extra_data: any): any
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected_targets: integer[]): string @ 提示信息
----@field public interaction? any
+---@field public interaction? fun(self: ActiveSkill, player: Player): any
 ---@field public target_tip? fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 ---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 设置固定目标
@@ -268,9 +268,9 @@ function fk.CreateActiveSkill(spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(_, _, _player)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(skill, _player)
         else
           return spec.interaction
         end
@@ -289,7 +289,7 @@ end
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: integer[]): string
----@field public interaction? any
+---@field public interaction? fun(self: ActiveSkill, player: Player): any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
 ---@param spec ViewAsSkillSpec
@@ -322,9 +322,9 @@ function fk.CreateViewAsSkill(spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(_, _, _player)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(skill, _player)
         else
           return spec.interaction
         end
