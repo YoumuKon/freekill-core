@@ -463,9 +463,9 @@ function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(_, _, _player)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(skill, _player)
         else
           return spec.interaction
         end
@@ -505,9 +505,9 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(_, _, _player)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(skill, _player)
         else
           return spec.interaction
         end

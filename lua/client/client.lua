@@ -487,7 +487,7 @@ fk.client_callback["AskForCardChosen"] = function(self, data)
       judge = {}
     end
     local visible_data = {}
-    for _, cid in ipairs(hand) do
+    for _, cid in ipairs(table.connect(hand, judge)) do
       if not Self:cardVisible(cid) then
         visible_data[tostring(cid)] = false
       end
@@ -533,7 +533,7 @@ fk.client_callback["AskForCardsChosen"] = function(self, data)
       judge = {}
     end
     local visible_data = {}
-    for _, cid in ipairs(hand) do
+    for _, cid in ipairs(table.connect(hand, judge)) do
       if not Self:cardVisible(cid) then
         visible_data[tostring(cid)] = false
       end
