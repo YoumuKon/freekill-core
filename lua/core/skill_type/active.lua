@@ -251,7 +251,7 @@ function ActiveSkill:prompt(player, selected_cards, selected_targets) return "" 
 ------- }
 
 ---@param room Room
----@param cardUseEvent UseCardData | SkillEffectEvent
+---@param cardUseEvent UseCardData | SkillUseData
 function ActiveSkill:onUse(room, cardUseEvent) end
 
 ---@param room Room
@@ -264,7 +264,7 @@ function ActiveSkill:onAction(room, cardUseEvent, finished) end
 function ActiveSkill:aboutToEffect(room, cardEffectEvent) end
 
 ---@param room Room
----@param cardEffectEvent CardEffectData | SkillEffectData
+---@param cardEffectEvent CardEffectData
 function ActiveSkill:onEffect(room, cardEffectEvent) end
 
 -- Delayed Trick Only

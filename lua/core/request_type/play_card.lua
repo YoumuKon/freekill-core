@@ -29,11 +29,12 @@ function ReqPlayCard:cardValidity(cid)
   if type(cid) == "number" then card = Fk:getCardById(cid) end
   local ret = player:canUse(card)
   if ret then
-    local min_target = card.skill:getMinTargetNum()
+    local min_target = card.skill:getMinTargetNum(player)
     if min_target > 0 then
       for pid, _ in pairs(self.scene:getAllItems("Photo")) do
         ---@cast pid integer
-        if card.skill:targetFilter(player, Fk:currentRoom():getPlayerById(pid), {}, {}, card, self.extra_data) then
+        local to_select = Fk:currentRoom():getPlayerById(pid)
+        if card.skill:targetFilter(player, to_select, {}, {}, card, self.extra_data) then
           return true
         end
       end

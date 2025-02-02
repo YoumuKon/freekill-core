@@ -931,7 +931,7 @@ function Room:askForUseActiveSkill(player, skill_name, prompt, cancelable, extra
   end
 
   if skill:isInstanceOf(ActiveSkill) and not extra_data.skipUse then
-    skill:onUse(self, {
+    skill:onUse(self, SkillUseData:new {
       from = player,
       cards = selected_cards,
       tos = table.map(targets, Util.Id2PlayerMapper),
@@ -1936,7 +1936,7 @@ function Room:handleUseCardReply(player, data)
     if skill.interaction then skill.interaction.data = data.interaction_data end
     if skill:isInstanceOf(ActiveSkill) then
       self:useSkill(player, skill, function()
-        skill:onUse(self, {
+        skill:onUse(self, SkillUseData:new {
           from = player,
           cards = selected_cards,
           tos = table.map(targets, Util.Id2PlayerMapper),
@@ -1973,7 +1973,7 @@ function Room:handleUseCardReply(player, data)
     if data.special_skill then
       local skill = Fk.skills[data.special_skill]
       assert(skill:isInstanceOf(ActiveSkill))
-      skill:onUse(self, {
+      skill:onUse(self, SkillUseData:new {
         from = player,
         cards = { card },
         tos = table.map(targets, Util.Id2PlayerMapper),

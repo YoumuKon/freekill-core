@@ -23,9 +23,6 @@ local thunderSlashSkill = fk.CreateActiveSkill{
   end,
   max_phase_use_time = 1,
   target_num = 1,
-  can_use = slash.skill.canUse,
-  mod_target_filter = slash.skill.modTargetFilter,
-  target_filter = slash.skill.targetFilter,
   on_effect = function(self, room, effect)
     local to = effect.to
     local from = effect.from
@@ -40,6 +37,9 @@ local thunderSlashSkill = fk.CreateActiveSkill{
     })
   end
 }
+thunderSlashSkill.canUse = slash.skill.canUse
+thunderSlashSkill.modTargetFilter = slash.skill.modTargetFilter
+thunderSlashSkill.targetFilter = slash.skill.targetFilter
 local thunderSlash = fk.CreateBasicCard{
   name = "thunder__slash",
   skill = thunderSlashSkill,
@@ -74,9 +74,6 @@ local fireSlashSkill = fk.CreateActiveSkill{
   end,
   max_phase_use_time = 1,
   target_num = 1,
-  can_use = slash.skill.canUse,
-  mod_target_filter = slash.skill.modTargetFilter,
-  target_filter = slash.skill.targetFilter,
   on_effect = function(self, room, effect)
     local to = effect.to
     local from = effect.from
@@ -91,6 +88,9 @@ local fireSlashSkill = fk.CreateActiveSkill{
     })
   end
 }
+fireSlashSkill.canUse = slash.skill.canUse
+fireSlashSkill.modTargetFilter = slash.skill.modTargetFilter
+fireSlashSkill.targetFilter = slash.skill.targetFilter
 local fireSlash = fk.CreateBasicCard{
   name = "fire__slash",
   skill = fireSlashSkill,

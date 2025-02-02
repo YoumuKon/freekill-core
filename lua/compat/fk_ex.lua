@@ -117,10 +117,13 @@ function fk.CreateActiveSkill(spec)
       return spec.can_use(curSkill, player, card, extra_data) and curSkill:isEffectable(player)
     end
   end
-  if spec.card_filter then skill.cardFilter = spec.card_filter end
+  if spec.card_filter then
+    skill.cardFilter = function(self, player, to_select, selected)
+      return spec.card_filter(self, to_select, selected, player)
+    end
+  end
   if spec.target_filter then
     skill.targetFilter = function(self, player, to_select, selected, selected_cards, card, extra_data)
-      if type(to_select) == "number" then dbg() end
       local ret = spec.target_filter(self, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, extra_data, player)
       return ret
     end
@@ -141,17 +144,10 @@ function fk.CreateActiveSkill(spec)
     if effect.toLegacy then
       converted = true
       new_effect = effect:toLegacy()
-    elseif type(effect.from) == "table" or (((effect.tos or {})[1]).class or {}).name == "ServerPlayer" then
-      converted = true
-      new_effect = SkillEffectData:_toLegacySkillData(effect)
     end
     spec.on_use(self, room, new_effect)
     if converted then
-      if effect.loadLegacy then
-        effect:loadLegacy(new_effect)
-      else
-        table.assign(effect, SkillEffectData:_loadLegacySkillData(new_effect))
-      end
+      effect:loadLegacy(new_effect)
     end
   end end
   if spec.on_action then skill.onAction = function(self, room, effect, finished)
@@ -163,9 +159,7 @@ function fk.CreateActiveSkill(spec)
     end
     spec.on_action(self, room, new_effect, finished)
     if converted then
-      if effect.loadLegacy then
-        effect:loadLegacy(new_effect)
-      end
+      effect:loadLegacy(new_effect)
     end
   end end
   if spec.about_to_effect then skill.aboutToEffect = function(self, room, effect)
@@ -191,9 +185,7 @@ function fk.CreateActiveSkill(spec)
     end
     spec.on_effect(self, room, new_effect)
     if converted then
-      if effect.loadLegacy then
-        effect:loadLegacy(new_effect)
-      end
+      effect:loadLegacy(new_effect)
     end
   end end
   if spec.on_nullified then skill.onNullified = function(self, room, effect)
@@ -205,9 +197,7 @@ function fk.CreateActiveSkill(spec)
     end
     spec.on_nullified(self, room, new_effect)
     if converted then
-      if effect.loadLegacy then
-        effect:loadLegacy(new_effect)
-      end
+      effect:loadLegacy(new_effect)
     end
   end end
   if spec.prompt then
