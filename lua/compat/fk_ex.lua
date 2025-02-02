@@ -119,19 +119,19 @@ function fk.CreateActiveSkill(spec)
   end
   if spec.card_filter then skill.cardFilter = spec.card_filter end
   if spec.target_filter then
-    skill.targetFilter = function(self, to_select, selected, selected_cards, card, extra_data, player)
+    skill.targetFilter = function(self, player, to_select, selected, selected_cards, card, extra_data)
       if type(to_select) == "number" then dbg() end
       local ret = spec.target_filter(self, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, extra_data, player)
       return ret
     end
   end
   if spec.mod_target_filter then
-    skill.modTargetFilter = function(self, to_select, selected, player, card, distance_limited, extra_data)
+    skill.modTargetFilter = function(self, player, to_select, selected, card, distance_limited, extra_data)
       return spec.mod_target_filter(self, to_select.id, table.map(selected, Util.IdMapper), player, card, distance_limited, extra_data)
     end
   end
   if spec.feasible then
-    skill.feasible = function(self, selected, selected_cards, player, card)
+    skill.feasible = function(self, player, selected, selected_cards, card)
       return spec.feasible(self, table.map(selected, Util.IdMapper), selected_cards, player, card)
     end
   end
@@ -211,13 +211,13 @@ function fk.CreateActiveSkill(spec)
     end
   end end
   if spec.prompt then
-    skill.prompt = function(self, selected_cards, selected_targets)
+    skill.prompt = function(self, player, selected_cards, selected_targets)
       if type(spec.prompt) == "string" then return spec.prompt end
       return spec.prompt(self, selected_cards, table.map(selected_targets, Util.IdMapper))
     end
   end
   if spec.target_tip then
-    skill.targetTip = function(self, to_select, selected, selected_cards, card, selectable, extra_data)
+    skill.targetTip = function(self, player, to_select, selected, selected_cards, card, selectable, extra_data)
       return spec.target_tip(self, to_select.id, table.map(selected, Util.IdMapper), selected_cards, card, selectable, extra_data)
     end
   end
@@ -268,7 +268,9 @@ function fk.CreateViewAsSkill(spec)
 
   skill.viewAs = spec.view_as
   if spec.card_filter then
-    skill.cardFilter = spec.card_filter
+    skill.cardFilter = function(self, player, to_select, selected)
+      return spec.card_filter(self, to_select, selected, player)
+    end
   end
   if type(spec.pattern) == "string" then
     skill.pattern = spec.pattern
@@ -287,7 +289,7 @@ function fk.CreateViewAsSkill(spec)
     if type(spec.prompt) == "string" then
       skill.prompt = function() return spec.prompt end
     else
-      skill.prompt = function(self, selected_cards, selected_targets)
+      skill.prompt = function(self, player, selected_cards, selected_targets)
         return spec.prompt(self, selected_cards, table.map(selected_targets, Util.IdMapper))
       end
     end
@@ -295,7 +297,7 @@ function fk.CreateViewAsSkill(spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function(...)
+      __call = function(_, ...)
         if type(spec.interaction) == "function" then
           return spec.interaction(...)
         else
