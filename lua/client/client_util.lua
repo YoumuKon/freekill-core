@@ -310,7 +310,7 @@ function CardFitPattern(card_name, pattern)
     local skill = Fk.skills[data.skill]
     local selected_cards = data.subcards
     if skill:isInstanceOf(ViewAsSkill) then
-      c = skill:viewAs(selected_cards, Self)
+      c = skill:viewAs(Self, selected_cards)
       if c then
         ret = exp:match(c)
       end
@@ -508,7 +508,7 @@ function GetTargetTip(pid)
   if skill then
     if skill:isInstanceOf(ActiveSkill) then
       ---@cast skill ActiveSkill
-      local tip = skill:targetTip(ClientInstance:getPlayerById(to_select),
+      local tip = skill:targetTip(Self, ClientInstance:getPlayerById(to_select),
         table.map(selected, Util.Id2PlayerMapper), selected_cards, nil, selectable, extra_data)
       if type(tip) == "string" then
         table.insert(ret, { content = tip, type = "normal" })
@@ -517,7 +517,7 @@ function GetTargetTip(pid)
       end
     elseif skill:isInstanceOf(ViewAsSkill) then
       ---@cast skill ViewAsSkill
-      card = skill:viewAs(selected_cards, Self)
+      card = skill:viewAs(Self, selected_cards)
     end
   end
 
@@ -539,7 +539,7 @@ function GetTargetTip(pid)
     end
 
     ret = ret or {}
-    local tip = card.skill:targetTip(ClientInstance:getPlayerById(to_select),
+    local tip = card.skill:targetTip(Self, ClientInstance:getPlayerById(to_select),
       table.map(selected, Util.Id2PlayerMapper), selected_cards, card, selectable, extra_data)
     if type(tip) == "string" then
       table.insert(ret, { content = tip, type = "normal" })

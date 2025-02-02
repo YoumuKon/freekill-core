@@ -94,14 +94,14 @@ function ReqPlayCard:feasible()
       return ReqActiveSkill.feasible(self)
     else -- viewasskill
       ---@cast skill ViewAsSkill
-      card = skill:viewAs(self.pendings, player)
+      card = skill:viewAs(player, self.pendings)
     end
   else
     card = self.selected_card
   end
   if card then
     local skill = card.skill
-    ret = skill:feasible(table.map(self.selected_targets, Util.Id2PlayerMapper), { card.id }, player, card)
+    ret = skill:feasible(player, table.map(self.selected_targets, Util.Id2PlayerMapper), { card.id }, card)
     if ret then
       ret = not not skill:canUse(player, card, self.extra_data)
     end

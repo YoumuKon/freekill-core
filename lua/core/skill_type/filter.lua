@@ -10,10 +10,10 @@ function FilterSkill:cardFilter(card, player, isJudgeEvent)
   return false
 end
 
----@param card Card
 ---@param player Player
+---@param card Card
 ---@return Card?
-function FilterSkill:viewAs(card, player)
+function FilterSkill:viewAs(player, card)
   return nil
 end
 

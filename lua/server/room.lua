@@ -1693,7 +1693,7 @@ function Room:getUseExtraTargets(data, bypass_distances, use_AimGroup)
   local current_targets = use_AimGroup and AimGroup:getAllTargets(data.tos) or TargetGroup:getRealTargets(data.tos)
   for _, p in ipairs(self.alive_players) do
     if not table.contains(current_targets, p.id) and not self:getPlayerById(data.from):isProhibited(p, data.card) then
-      if data.card.skill:modTargetFilter(p, {}, self:getPlayerById(data.from), data.card, not bypass_distances) then
+      if data.card.skill:modTargetFilter(self:getPlayerById(data.from), p, {}, data.card, not bypass_distances) then
         table.insert(tos, p.id)
       end
     end
@@ -1945,7 +1945,7 @@ function Room:handleUseCardReply(player, data)
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
       Self = player
-      local c = skill:viewAs(selected_cards, player)
+      local c = skill:viewAs(player, selected_cards)
       if c then
         local use = {}    ---@type UseCardDataSpec
         use.from = player

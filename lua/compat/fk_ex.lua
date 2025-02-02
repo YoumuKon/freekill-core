@@ -436,7 +436,10 @@ function fk.CreateTargetModSkill(spec)
   return skill
 end
 
----@param spec FilterSpec
+---@class LegacyFilterSpec : FilterSpec
+---@field public view_as fun(self: FilterSkill, card: Card, player: Player): Card?
+
+---@param spec LegacyFilterSpec
 ---@return FilterSkill
 ---@deprecated
 function fk.CreateFilterSkill(spec)
@@ -445,7 +448,9 @@ function fk.CreateFilterSkill(spec)
   local skill = FilterSkill:new(spec.name)
   fk.readStatusSpecToSkill(skill, spec)
   skill.cardFilter = spec.card_filter
-  skill.viewAs = spec.view_as
+  skill.viewAs = function(self, player, card)
+    return spec.view_as(self, card, player)
+  end
   skill.equipSkillFilter = spec.equip_skill_filter
 
   return skill

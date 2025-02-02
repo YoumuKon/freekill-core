@@ -615,7 +615,7 @@ end
 
 ---@class FilterSpec: StatusSkillSpec
 ---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any
----@field public view_as? fun(self: FilterSkill, card: Card, player: Player): Card?
+---@field public view_as? fun(self: FilterSkill, player: Player, card: Card): Card?
 ---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
 ---@field public handly_cards? fun(self: FilterSkill, player: Player): integer[]? @ 视为拥有可以如手牌般使用或打出的牌
 

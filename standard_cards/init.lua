@@ -34,7 +34,7 @@ local slashSkill = fk.CreateActiveSkill{
     if not Util.TargetFilter(self, to_select, selected, _, card, extra_data, player) then return end
     local count_distances = not (extra_data and extra_data.bypass_distances)
     local target = Fk:currentRoom():getPlayerById(to_select)
-    return self:modTargetFilter(target, table.map(selected, function(id) return Fk:currentRoom():getPlayerById(id) end), player, card, count_distances) and
+    return self:modTargetFilter(player, target, table.map(selected, function(id) return Fk:currentRoom():getPlayerById(id) end), card, count_distances) and
     (
       #selected > 0 or
       Self.phase ~= Player.Play or

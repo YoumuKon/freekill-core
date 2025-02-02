@@ -158,7 +158,7 @@ function CardManager:filterCard(id, player, data)
 
   for _, f in ipairs(filters) do
     if f:cardFilter(card, player, type(data) == "table" and data.isJudgeEvent) then
-      local _card = f:viewAs(card, player)
+      local _card = f:viewAs(player, card)
       _card.id = id
       _card.skillName = f.name
       if modify and RoomInstance then
