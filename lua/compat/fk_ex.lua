@@ -232,9 +232,9 @@ function fk.CreateActiveSkill(spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(...)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(...)
         else
           return spec.interaction
         end
@@ -295,9 +295,9 @@ function fk.CreateViewAsSkill(spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function()
+      __call = function(...)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill)
+          return spec.interaction(...)
         else
           return spec.interaction
         end

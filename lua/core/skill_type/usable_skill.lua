@@ -4,6 +4,7 @@
 ---@field public max_use_time integer[]
 ---@field public expand_pile? string | integer[] | fun(self: UsableSkill, player: Player): integer[]|string? @ 额外牌堆，牌堆名称或卡牌id表
 ---@field public derived_piles? string | string[]
+---@field public times? fun(self: UsableSkill, player: Player): integer
 local UsableSkill = Skill:subclass("UsableSkill")
 
 function UsableSkill:initialize(name, frequency)

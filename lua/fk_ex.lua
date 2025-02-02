@@ -463,9 +463,9 @@ function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function(_, _, _player)
+      __call = function(_, ...)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill, _player)
+          return spec.interaction(...)
         else
           return spec.interaction
         end
@@ -505,9 +505,9 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
 
   if spec.interaction then
     skill.interaction = setmetatable({}, {
-      __call = function(_, _, _player)
+      __call = function(_, ...)
         if type(spec.interaction) == "function" then
-          return spec.interaction(skill, _player)
+          return spec.interaction(...)
         else
           return spec.interaction
         end
@@ -542,7 +542,7 @@ end
 ---@field public max_turn_use_time? integer
 ---@field public max_round_use_time? integer
 ---@field public max_game_use_time? integer
----@field public times? integer | fun(self: UsableSkill): integer
+---@field public times? integer | fun(self: UsableSkill, player: Player): integer
 ---@field public min_target_num? integer
 ---@field public max_target_num? integer
 ---@field public target_num? integer
@@ -572,14 +572,14 @@ end
 ---@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): Player[]? @ 设置固定目标
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
----@field public card_filter? fun(self: ViewAsSkill, to_select: integer, selected: integer[], player: Player): any @ 判断卡牌能否选择
----@field public view_as fun(self: ViewAsSkill, cards: integer[], player: Player): Card? @ 判断转化为什么牌
+---@field public card_filter? fun(self: ViewAsSkill, player: Player, to_select: integer, selected: integer[]): any @ 判断卡牌能否选择
+---@field public view_as fun(self: ViewAsSkill, player: Player, cards: integer[]): Card? @ 判断转化为什么牌
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
----@field public prompt? string|fun(self: ActiveSkill, selected_cards: integer[], selected: Player[]): string
+---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
