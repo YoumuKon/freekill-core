@@ -304,6 +304,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["#StartPindianReason"] = "%from 由于 %arg 而发起拼点",
   ["#ShowPindianCard"] = "%from 的拼点牌是 %arg",
   ["#ShowPindianResult"] = "%from 在 %from 和 %to 之间的拼点中 %arg",
+  ["#ChangePindianNumber"] = "由于 %arg，%to 的拼点牌点数从 %arg2 变为 %arg3",
   ["pindianwin"] = "赢",
   ["pindiannotwin"] = "没赢",
 

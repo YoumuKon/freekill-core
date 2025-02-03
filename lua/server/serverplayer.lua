@@ -837,7 +837,7 @@ function ServerPlayer:hideGeneral(isDeputy)
   local general = Fk.generals[generalName]
   local place = isDeputy and "m" or "d"
   for _, sname in ipairs(general:getSkillNameList()) do
-    room:handleAddLoseSkills(self, "-" .. sname, nil, false, true)
+    room:handleAddLoseSkills(self, "-" .. sname, nil, false, false)
     local s = Fk.skills[sname]
     if s.relate_to_place ~= place then
       if s.frequency == Skill.Compulsory then

@@ -378,7 +378,7 @@ end
 ---@class GameEvent.CardEffect : GameEvent
 local CardEffect = GameEvent:subclass("GameEvent.CardEffect")
 function CardEffect:main()
-  local cardEffectEvent = table.unpack(self.data)
+  local cardEffectEvent = table.unpack(self.data) ---@class CardEffectEvent
   local room = self.room
   local logic = room.logic
 
