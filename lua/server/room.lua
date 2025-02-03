@@ -232,6 +232,7 @@ end
 
 --- 将房间中的角色按照行动顺序重新排序。
 ---@param playerIds integer[] @ 玩家id列表，这个数组会被这个函数排序
+---@deprecated
 function Room:sortPlayersByAction(playerIds, isTargetGroup)
   table.sort(playerIds, function(prev, next)
     local prevSeat = self:getPlayerById(isTargetGroup and prev[1] or prev).seat
@@ -249,6 +250,22 @@ function Room:sortPlayersByAction(playerIds, isTargetGroup)
     while self:getPlayerById(isTargetGroup and playerIds[1][1] or playerIds[1]).seat < self.current.seat do
       local toPlayerId = table.remove(playerIds, 1)
       table.insert(playerIds, toPlayerId)
+    end
+  end
+end
+
+---@param players ServerPlayer[]
+function Room:sortByAction(players)
+  table.sort(players, function(prev, next)
+    return prev.seat < next.seat
+  end)
+
+  if self.current and table.find(players, function(p)
+    return p.seat >= self.current.seat
+  end) then
+    while players[1].seat < self.current.seat do
+      local toPlayerId = table.remove(players, 1)
+      table.insert(players, toPlayerId)
     end
   end
 end

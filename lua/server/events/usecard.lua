@@ -454,6 +454,7 @@ end
 ---@return boolean
 function UseCardEventWrappers:useCard(useCardData)
   local new_data = UseCardData:new(useCardData)
+  new_data.subTos = new_data.subTos or (new_data.tos and table.map(new_data.tos, function() return {} end) or {})
   if (useCardData.from) == "number" then
     new_data:loadLegacy(useCardData)
   end
@@ -462,7 +463,7 @@ end
 
 ---@param room Room
 ---@param useCardData UseCardData
----@param aimEventCollaborators table<string, AimData[]>
+---@param aimEventCollaborators table<ServerPlayer, AimData[]>
 ---@return boolean
 local onAim = function(room, useCardData, aimEventCollaborators)
   local eventStages = { fk.TargetSpecifying, fk.TargetConfirming, fk.TargetSpecified, fk.TargetConfirmed }
@@ -471,24 +472,25 @@ local onAim = function(room, useCardData, aimEventCollaborators)
       return false
     end
 
-    room:sortPlayersByAction(useCardData.tos, true)
-    local aimGroup = AimGroup:initAimGroup(TargetGroup:getRealTargets(useCardData.tos))
+    room:sortByAction(useCardData.tos)
+    local aimGroup = AimData:initAimGroup(useCardData.tos)
 
     local collaboratorsIndex = {}
     local firstTarget = true
     repeat
-      local toId = AimGroup:getUndoneOrDoneTargets(aimGroup)[1]
+      local to = aimGroup[AimData.Undone][1]
       ---@type AimData
       local aimStruct
       local initialEvent = false
-      collaboratorsIndex[toId] = collaboratorsIndex[toId] or 1
+      collaboratorsIndex[to] = collaboratorsIndex[to] or 1
 
-      if not aimEventCollaborators[toId] or collaboratorsIndex[toId] > #aimEventCollaborators[toId] then
-        aimStruct = {
-          from = useCardData.from.id,
+      if not aimEventCollaborators[to] or collaboratorsIndex[to] > #aimEventCollaborators[to] then
+        aimStruct = AimData:new {
+          from = useCardData.from,
           card = useCardData.card,
-          to = toId,
-          targetGroup = useCardData.tos,
+          to = to,
+          useTos = useCardData.tos,
+          useSubTos = useCardData.subTos,
           nullifiedTargets = useCardData.nullifiedTargets or {},
           tos = aimGroup,
           firstTarget = firstTarget,
@@ -499,27 +501,27 @@ local onAim = function(room, useCardData, aimEventCollaborators)
         }
 
         local index = 1
-        for _, targets in ipairs(useCardData.tos) do
-          if index > collaboratorsIndex[toId] then
+        for i1, targets in ipairs(useCardData.tos) do
+          if index > collaboratorsIndex[to] then
             break
           end
 
-          if #targets > 1 then
-            for i = 2, #targets do
-              aimStruct.subTargets = {}
-              table.insert(aimStruct.subTargets, targets[i])
-            end
+          if #useCardData.subTos[i1] > 0 then
+            aimStruct.subTargets = table.simpleClone(useCardData.subTos[i1])
+          else
+            aimStruct.subTargets = {}
           end
         end
 
-        collaboratorsIndex[toId] = 1
+        collaboratorsIndex[to] = 1
         initialEvent = true
       else
-        aimStruct = aimEventCollaborators[toId][collaboratorsIndex[toId]]
-        aimStruct.from = useCardData.from.id
+        aimStruct = aimEventCollaborators[to][collaboratorsIndex[to]]
+        aimStruct.from = useCardData.from
         aimStruct.card = useCardData.card
         aimStruct.tos = aimGroup
-        aimStruct.targetGroup = useCardData.tos
+        aimStruct.useTos = useCardData.tos
+        aimStruct.useSubTos = useCardData.subTos
         aimStruct.nullifiedTargets = useCardData.nullifiedTargets or {}
         aimStruct.firstTarget = firstTarget
         aimStruct.additionalEffect = useCardData.additionalEffect
@@ -528,26 +530,27 @@ local onAim = function(room, useCardData, aimEventCollaborators)
 
       firstTarget = false
 
-      room.logic:trigger(stage, (stage == fk.TargetSpecifying or stage == fk.TargetSpecified) and room:getPlayerById(aimStruct.from) or room:getPlayerById(aimStruct.to), aimStruct)
+      room.logic:trigger(stage, (stage == fk.TargetSpecifying or stage == fk.TargetSpecified) and aimStruct.from or aimStruct.to, aimStruct)
 
-      AimGroup:removeDeadTargets(room, aimStruct)
+      aimStruct:removeDeadTargets()
 
-      local aimEventTargetGroup = aimStruct.targetGroup
-      if aimEventTargetGroup then
-        room:sortPlayersByAction(aimEventTargetGroup, true)
-      end
+      -- FIXME: 这段不该注释 我只是实在懒得改了
+      -- local aimEventTargetGroup = aimStruct.targetGroup
+      -- if aimEventTargetGroup then
+      --   room:sortByAction(aimEventTargetGroup, true)
+      -- end
 
-      useCardData.from = room:getPlayerById(aimStruct.from)
-      useCardData.tos = aimEventTargetGroup
+      useCardData.from = aimStruct.from
+      useCardData.tos = aimStruct.useTos
       useCardData.nullifiedTargets = aimStruct.nullifiedTargets
       useCardData.additionalEffect = aimStruct.additionalEffect
       useCardData.extra_data = aimStruct.extra_data
 
-      if #AimGroup:getAllTargets(aimStruct.tos) == 0 then
+      if #aimStruct:getAllTargets() == 0 then
         return false
       end
 
-      local cancelledTargets = AimGroup:getCancelledTargets(aimStruct.tos)
+      local cancelledTargets = aimStruct:getCancelledTargets()
       if #cancelledTargets > 0 then
         for _, target in ipairs(cancelledTargets) do
           aimEventCollaborators[target] = {}
@@ -556,20 +559,20 @@ local onAim = function(room, useCardData, aimEventCollaborators)
       end
       aimStruct.tos[AimGroup.Cancelled] = {}
 
-      aimEventCollaborators[toId] = aimEventCollaborators[toId] or {}
-      if room:getPlayerById(toId):isAlive() then
+      aimEventCollaborators[to] = aimEventCollaborators[to] or {}
+      if to:isAlive() then
         if initialEvent then
-          table.insert(aimEventCollaborators[toId], aimStruct)
+          table.insert(aimEventCollaborators[to], aimStruct)
         else
-          aimEventCollaborators[toId][collaboratorsIndex[toId]] = aimStruct
+          aimEventCollaborators[to][collaboratorsIndex[to]] = aimStruct
         end
 
-        collaboratorsIndex[toId] = collaboratorsIndex[toId] + 1
+        collaboratorsIndex[to] = collaboratorsIndex[to] + 1
       end
 
-      AimGroup:setTargetDone(aimStruct.tos, toId)
+      aimStruct:setTargetDone(to)
       aimGroup = aimStruct.tos
-    until #AimGroup:getUndoneOrDoneTargets(aimGroup) == 0
+    until #aimGroup[AimData.Undone] == 0
   end
 
   return true
@@ -578,7 +581,7 @@ end
 --- 对卡牌使用数据进行生效
 ---@param useCardData UseCardData
 function UseCardEventWrappers:doCardUseEffect(useCardData)
-  ---@type table<string, AimStruct>
+  ---@type table<ServerPlayer, AimData>
   local aimEventCollaborators = {}
   if useCardData.tos and not onAim(self, useCardData, aimEventCollaborators) then
     return

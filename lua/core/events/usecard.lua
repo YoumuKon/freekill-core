@@ -90,13 +90,14 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 
 --- AimStruct 处理使用牌目标的数据
 ---@class AimDataSpec
----@field public from integer @ 使用者
+---@field public from ServerPlayer @ 使用者
 ---@field public card Card @ 卡牌本牌
 ---@field public tos AimGroup @ 总角色目标
----@field public to integer @ 当前角色目标
----@field public subTargets? integer[] @ 子目标（借刀！）
----@field public targetGroup? TargetGroup @ 目标组
----@field public nullifiedTargets? integer[] @ 对这些角色无效
+---@field public to ServerPlayer @ 当前角色目标
+---@field public subTargets? ServerPlayer[] @ 子目标（借刀！）
+---@field public useTos? ServerPlayer[] @ 目标组
+---@field public useSubTos? ServerPlayer[][] @ 目标组
+---@field public nullifiedTargets? ServerPlayer[] @ 对这些角色无效
 ---@field public firstTarget boolean @ 是否是第一个目标
 ---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
 ---@field public additionalRecover? integer @ 额外回复值
@@ -111,9 +112,130 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@class AimData: AimDataSpec, TriggerData
 AimData = TriggerData:subclass("AimData")
 
----@param use UseCardData
-function AimData.static:createFromUseData(use)
-  local ret = AimData:new {}
+AimData.Undone = 1
+AimData.Done = 2
+AimData.Cancelled = 3
+
+---@class AimGroup
+---@field public [1] ServerPlayer[] 未完成的目标
+---@field public [2] ServerPlayer[] 已完成的目标
+---@field public [3] ServerPlayer[] 取消的目标
+
+---@param players ServerPlayer[]
+---@return AimGroup
+function AimData.static:initAimGroup(players)
+  return { [AimGroup.Undone] = players, [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
+end
+
+---@param players ServerPlayer[]
+---@return AimGroup
+function AimData:initAimGroup(players)
+  error("Please use AimData:initAimGroup.")
+end
+
+---@return ServerPlayer[]
+function AimData:getAllTargets()
+  local targets = {}
+  table.insertTable(targets, self.tos[AimData.Undone])
+  table.insertTable(targets, self.tos[AimData.Done])
+  return targets
+end
+
+function AimData:getUndoneTargets()
+  return self.tos[AimData.Undone]
+end
+
+function AimData:getDoneTargets()
+  return self.tos[AimData.Done]
+end
+
+function AimData:getCancelledTargets()
+  return self.tos[AimData.Cancelled]
+end
+
+---@param player ServerPlayer
+function AimData:setTargetDone(player)
+  local aimGroup = self.tos
+  local index = table.indexOf(aimGroup[AimData.Undone], player)
+  if index ~= -1 then
+    table.remove(aimGroup[AimData.Undone], index)
+    table.insert(aimGroup[AimData.Done], player)
+  end
+end
+
+---@param player ServerPlayer
+---@param sub? ServerPlayer[]
+function AimData:addTargets(player, sub)
+  table.insert(self.tos[AimData.Undone], player)
+
+  if sub then
+    self.subTargets = self.subTargets or {}
+    table.insertTable(self.subTargets, sub)
+  end
+
+  RoomInstance:sortByAction(self.tos[AimData.Undone])
+  if self.useTos then
+    table.insert(self.useTos, player)
+    table.insert(self.useSubTos, sub or {})
+  end
+end
+
+---@param player ServerPlayer
+function AimData:cancelTarget(player)
+  local cancelled = false
+  for status = AimData.Undone, AimData.Done do
+    local indexList = {}
+    for index, p in ipairs(self.tos[status]) do
+      if p == player then
+        table.insert(indexList, index)
+      end
+    end
+
+    if #indexList > 0 then
+      cancelled = true
+      for i = 1, #indexList do
+        table.remove(self.tos[status], indexList[i])
+      end
+    end
+  end
+
+  if cancelled then
+    table.insert(self.tos[AimData.Cancelled], player)
+    if self.useTos then
+      for i, p in ipairs(self.useTos) do
+        if p == player then
+          table.remove(self.useTos, i)
+          table.remove(self.useSubTos, i)
+          break
+        end
+      end
+    end
+  end
+end
+
+function AimData:removeDeadTargets()
+  for index = AimData.Undone, AimData.Done do
+    self.tos[index] = RoomInstance:deadPlayerFilter(self.tos[index])
+  end
+
+  if self.useTos then
+    for i, target in ipairs(self.useTos) do
+      if not target:isAlive() then
+        table.remove(self.useTos, i)
+        table.remove(self.useSubTos, i)
+      end
+    end
+  end
+end
+
+---@param target ServerPlayer
+---@return boolean
+function AimData:isOnlyTarget(target)
+  if self.tos == nil then return false end
+  local tos = self:getAllTargets()
+  return table.contains(tos, target) and not table.find(target.room.alive_players, function (p)
+    return p ~= target and table.contains(tos, p)
+  end)
 end
 
 ---@class AimEvent: TriggerEvent

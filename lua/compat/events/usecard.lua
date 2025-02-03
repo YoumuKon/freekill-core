@@ -85,9 +85,57 @@ end
 function AimData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))
   ret.from = ret.from or ret.from.id
+  ret.to = ret.to or ret.to.id
+
+  local tos = {}
+  for i, p in ipairs(self.useTos) do
+    local t = { p.id }
+    local sub = self.useSubTos[i]
+    if sub then
+      table.insertTable(sub, table.map(sub, Util.IdMapper))
+    end
+    table.insert(tos, t)
+  end
+  ret.targetGroup = tos
+
+  ret.tos = {}
+  for _, d in ipairs(self.tos) do
+    table.insert(ret.tos, table.map(d, Util.IdMapper))
+  end
+
+  for _, k in ipairs({"nullifiedTargets", "disresponsiveList", "subTargets"}) do
+    ret[k] = ret[k] and table.map(ret[k], Util.IdMapper)
+  end
+
+  return ret
 end
 
 function AimData:loadLegacy(data)
+  for k, v in pairs(data) do
+    if table.contains({"from", "to"}, k) then
+      self[k] = Fk:currentRoom():getPlayerById(v)
+    elseif table.contains({"nullifiedTargets", "disresponsiveList", "subTargets"}, k) then
+      self[k] = table.map(v, Util.Id2PlayerMapper)
+    elseif k == "targetGroup" then
+      local targets = {}
+      local subTargets = {}
+      for _, grp in ipairs(v) do
+        local sub = table.map(grp, Util.Id2PlayerMapper)
+        local p = table.remove(sub, 1)
+        table.insert(targets, p)
+        table.insert(subTargets, sub)
+      end
+      self.useTos = targets
+      self.useSubTos = subTargets
+    elseif k == "tos" then
+      self.tos = {}
+      for _, d in ipairs(v) do
+        table.insert(self.tos, table.map(d, Util.Id2PlayerMapper))
+      end
+    else
+      self[k] = v
+    end
+  end
 end
 
 --- 将新数据改为牢数据
@@ -98,6 +146,17 @@ function CardEffectData:toLegacy()
   if ret.to then
     ret.to = ret.to.id
   end
+
+  local tos = {}
+  for i, p in ipairs(self.tos) do
+    local t = { p.id }
+    local sub = self.subTos[i]
+    if sub then
+      table.insertTable(sub, table.map(sub, Util.IdMapper))
+    end
+    table.insert(tos, t)
+  end
+  ret.tos = tos
 
   for _, k in ipairs({"nullifiedTargets", "disresponsiveList", "unoffsetableList"}) do
     local v = ret[k]
@@ -124,6 +183,17 @@ function CardEffectData:loadLegacy(data)
         table.insert(new_v, Fk:currentRoom():getPlayerById(pid))
       end
       self[k] = new_v
+    elseif k == "tos" then
+      local targets = {}
+      local subTargets = {}
+      for _, grp in ipairs(v) do
+        local sub = table.map(grp, Util.Id2PlayerMapper)
+        local p = table.remove(sub, 1)
+        table.insert(targets, p)
+        table.insert(subTargets, sub)
+      end
+      self.tos = targets
+      self.subTos = subTargets
     else
       self[k] = v
     end
