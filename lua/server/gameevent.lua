@@ -230,6 +230,7 @@ function GameEvent:exec()
   self.status = "running"
 
   coroutine.yield(self, "__newEvent")
+  -- 事件的处理流程请看GameLogic:resumeEvent
 
   Pcall(self.exit, self)
   for _, f in ipairs(self.extra_exit) do

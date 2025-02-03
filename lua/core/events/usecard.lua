@@ -23,8 +23,11 @@ fk.CardResponding = RespondCardEvent:subclass("fk.CardResponding")
 fk.CardRespondFinished = RespondCardEvent:subclass("fk.CardRespondFinished")
 
 --- UseCardData 使用牌的数据
----@class UseCardDataSpec: RespondCardDataSpec
----@field public tos TargetGroup @ 角色目标组
+---@class UseCardDataSpec
+---@field public from ServerPlayer @ 使用/打出者
+---@field public card Card @ 卡牌本牌
+---@field public tos ServerPlayer[] 目标列表
+---@field public subTos? ServerPlayer[][] 子目标列表，借刀最爱的一集
 ---@field public toCard? Card @ 卡牌目标
 ---@field public toPutSlot? string @ 使用的装备牌所置入的装备栏
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
@@ -59,16 +62,49 @@ fk.AfterCardTargetDeclared = UseCardEvent:subclass("fk.AfterCardTargetDeclared")
 fk.CardUsing = UseCardEvent:subclass("fk.CardUsing")
 ---@class fk.BeforeCardUseEffect: UseCardEvent
 fk.BeforeCardUseEffect = UseCardEvent:subclass("fk.BeforeCardUseEffect")
----@class fk.TargetSpecifying: UseCardEvent
-fk.TargetSpecifying = UseCardEvent:subclass("fk.TargetSpecifying")
----@class fk.TargetConfirming: UseCardEvent
-fk.TargetConfirming = UseCardEvent:subclass("fk.TargetConfirming")
----@class fk.TargetSpecified: UseCardEvent
-fk.TargetSpecified = UseCardEvent:subclass("fk.TargetSpecified")
----@class fk.TargetConfirmed: UseCardEvent
-fk.TargetConfirmed = UseCardEvent:subclass("fk.TargetConfirmed")
 ---@class fk.CardUseFinished: UseCardEvent
 fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
+
+--- AimStruct 处理使用牌目标的数据
+---@class AimDataSpec
+---@field public from integer @ 使用者
+---@field public card Card @ 卡牌本牌
+---@field public tos AimGroup @ 总角色目标
+---@field public to integer @ 当前角色目标
+---@field public subTargets? integer[] @ 子目标（借刀！）
+---@field public targetGroup? TargetGroup @ 目标组
+---@field public nullifiedTargets? integer[] @ 对这些角色无效
+---@field public firstTarget boolean @ 是否是第一个目标
+---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
+---@field public additionalRecover? integer @ 额外回复值
+---@field public disresponsive? boolean @ 是否不可响应
+---@field public unoffsetable? boolean @ 是否不可抵消
+---@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
+---@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
+---@field public additionalEffect? integer @额外结算次数
+---@field public extraData? UseExtraData | any @ 额外数据
+
+--- 使用牌的数据
+---@class AimData: AimDataSpec, TriggerData
+AimData = TriggerData:subclass("AimData")
+
+---@param use UseCardData
+function AimData.static:createFromUseData(use)
+  local ret = AimData:new {}
+end
+
+---@class AimEvent: TriggerEvent
+---@field data AimData
+local AimEvent = TriggerEvent:subclass("AimData")
+
+---@class fk.TargetSpecifying: AimEvent
+fk.TargetSpecifying = AimEvent:subclass("fk.TargetSpecifying")
+---@class fk.TargetConfirming: AimEvent
+fk.TargetConfirming = AimEvent:subclass("fk.TargetConfirming")
+---@class fk.TargetSpecified: AimEvent
+fk.TargetSpecified = AimEvent:subclass("fk.TargetSpecified")
+---@class fk.TargetConfirmed: AimEvent
+fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 
 --- CardEffectData 卡牌效果的数据
 ---@class CardEffectDataSpec: RespondCardDataSpec
@@ -119,6 +155,9 @@ fk.CardEffectCancelledOut = CardEffectEvent:subclass("fk.CardEffectCancelledOut"
 ---@alias UseCardFunc fun(self: TriggerSkill, event: UseCardEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: UseCardData): any
 
+---@alias AimFunc fun(self: TriggerSkill, event: AimEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: AimData): any
+
 ---@alias CardEffectFunc fun(self: TriggerSkill, event: CardEffectEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: CardEffectData): any
 
@@ -127,5 +166,7 @@ fk.CardEffectCancelledOut = CardEffectEvent:subclass("fk.CardEffectCancelledOut"
 ---  attr: TrigSkelAttribute?, data: TrigSkelSpec<RespondCardFunc>): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: UseCardEvent,
 ---  attr: TrigSkelAttribute?, data: TrigSkelSpec<UseCardFunc>): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: AimEvent,
+---  attr: TrigSkelAttribute?, data: TrigSkelSpec<AimFunc>): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: CardEffectEvent,
 ---  attr: TrigSkelAttribute?, data: TrigSkelSpec<CardEffectFunc>): SkillSkeleton

@@ -448,7 +448,7 @@ end
 ---@return boolean
 function UseCardEventWrappers:useCard(useCardData)
   local new_data = UseCardData:new(useCardData)
-  if type(useCardData.from) == "number" then
+  if (useCardData.from) == "number" then
     new_data:loadLegacy(useCardData)
   end
   return exec(UseCard, new_data)
@@ -456,7 +456,7 @@ end
 
 ---@param room Room
 ---@param useCardData UseCardData
----@param aimEventCollaborators table<string, AimStruct[]>
+---@param aimEventCollaborators table<string, AimData[]>
 ---@return boolean
 local onAim = function(room, useCardData, aimEventCollaborators)
   local eventStages = { fk.TargetSpecifying, fk.TargetConfirming, fk.TargetSpecified, fk.TargetConfirmed }
@@ -472,7 +472,7 @@ local onAim = function(room, useCardData, aimEventCollaborators)
     local firstTarget = true
     repeat
       local toId = AimGroup:getUndoneOrDoneTargets(aimGroup)[1]
-      ---@type AimStruct
+      ---@type AimData
       local aimStruct
       local initialEvent = false
       collaboratorsIndex[toId] = collaboratorsIndex[toId] or 1
