@@ -28,7 +28,7 @@ function MoveCards:main()
     room.logic:breakEvent(false)
   end
 
-  room:notifyMoveCards(nil, moveCardsData) --- FIXME: 小心table.clone
+  room:notifyMoveCards(nil, moveCardsData)
 
   for _, data in ipairs(moveCardsData) do
     if #data.moveInfo > 0 then
@@ -93,95 +93,106 @@ function MoveCards:main()
   return true
 end
 
---- 将一系列移牌信息转化为实际移动牌的数据
+local function convertOldMoveInfo(info)
+  local room = Fk:currentRoom()
+  if type(info.from) == "number" then
+    info.from = room:getPlayerById(info.from)
+  end
+  if type(info.to) == "number" then
+    info.to = room:getPlayerById(info.to)
+  end
+  if type(info.proposer) == "number" then
+    info.proposer = room:getPlayerById(info.proposer)
+  end
+  if info.visiblePlayers then
+    if type(info.visiblePlayers) == "table" then
+      info.visiblePlayers = table.map(info.visiblePlayers, Util.Id2PlayerMapper)
+    elseif type(info.visiblePlayers) == "number" then
+      info.visiblePlayers = room:getPlayerById(info.visiblePlayers)
+    end
+  end
+end
+
+--- 将填入room:moveCards的参数，根据情况转为正确的data（防止非法移动）
 ---@param room Room
 ---@param ... CardsMoveInfo
 ---@return MoveCardsData[]
 local function moveInfoTranslate(room, ...)
   ---@type MoveCardsData[]
-  local moveCardsSpecs = {}
-  for _, cardsMoveInfo in ipairs({...}) do
-    if #cardsMoveInfo.ids > 0 then
-      infoCheck(cardsMoveInfo)
+  local ret = {}
+  for _, cardsMoveInfo in ipairs{ ... } do
+    convertOldMoveInfo(cardsMoveInfo)
+    if #cardsMoveInfo.ids == 0 then goto continue end
+    infoCheck(cardsMoveInfo)
 
-      ---@type MoveInfo[]
-      local infos = {}
-      local abortMoveInfos = {}
-      for _, id in ipairs(cardsMoveInfo.ids) do
-        local toAbortDrop = false
-        if cardsMoveInfo.toArea == Card.PlayerEquip and cardsMoveInfo.to then
-          local moveToPlayer = room:getPlayerById(cardsMoveInfo.to)
-          local card = moveToPlayer:getVirualEquip(id) or Fk:getCardById(id)
-          if card.type == Card.TypeEquip and #moveToPlayer:getAvailableEquipSlots(card.sub_type) == 0 then
-            table.insert(abortMoveInfos, {
-              cardId = id,
-              fromArea = room:getCardArea(id),
-              fromSpecialName = cardsMoveInfo.from and room:getPlayerById(cardsMoveInfo.from):getPileNameOfId(id),
-            })
-            toAbortDrop = true
-          end
-        end
-
-        if not toAbortDrop then
-          table.insert(infos, {
+    -- 若移动到被废除的装备栏，则修改，否则原样
+    local infos = {} ---@type MoveInfo[]
+    local abortMoveInfos = {} ---@type MoveInfo[]
+    for _, id in ipairs(cardsMoveInfo.ids) do
+      local toAbortDrop = false
+      if cardsMoveInfo.toArea == Card.PlayerEquip and cardsMoveInfo.to then
+        local moveToPlayer = cardsMoveInfo.to
+        ---@cast moveToPlayer -nil 防止判空波浪线
+        local card = moveToPlayer:getVirualEquip(id) or Fk:getCardById(id)
+        if card.type == Card.TypeEquip and #moveToPlayer:getAvailableEquipSlots(card.sub_type) == 0 then
+          table.insert(abortMoveInfos, {
             cardId = id,
             fromArea = room:getCardArea(id),
-            fromSpecialName = cardsMoveInfo.from and room:getPlayerById(cardsMoveInfo.from):getPileNameOfId(id),
+            fromSpecialName = cardsMoveInfo.from and cardsMoveInfo.from:getPileNameOfId(id),
           })
+          toAbortDrop = true
         end
       end
 
-      if #infos > 0 then
-        ---@type MoveCardsDataSpec
-        local moveCardsSpec = {
-          moveInfo = infos,
-          from = cardsMoveInfo.from,
-          to = cardsMoveInfo.to,
-          toArea = cardsMoveInfo.toArea,
-          moveReason = cardsMoveInfo.moveReason,
-          proposer = cardsMoveInfo.proposer,
-          skillName = cardsMoveInfo.skillName,
-          moveVisible = cardsMoveInfo.moveVisible,
-          specialName = cardsMoveInfo.specialName,
-          specialVisible = cardsMoveInfo.specialVisible,
-          drawPilePosition = cardsMoveInfo.drawPilePosition,
-          moveMark = cardsMoveInfo.moveMark,
-          visiblePlayers = cardsMoveInfo.visiblePlayers,
-        }
-        local new_data = MoveCardsData:new({})
-        new_data:loadLegacy(moveCardsSpec)
-        table.insert(moveCardsSpecs, new_data)
-      end
-
-      if #abortMoveInfos > 0 then
-        ---@type MoveCardsDataSpec
-        local moveCardsSpec = {
-          moveInfo = abortMoveInfos,
-          from = cardsMoveInfo.from,
-          toArea = Card.DiscardPile,
-          moveReason = fk.ReasonPutIntoDiscardPile,
-          moveVisible = true,
-          --specialName = cardsMoveInfo.specialName,
-          --specialVisible = cardsMoveInfo.specialVisible,
-          --drawPilePosition = cardsMoveInfo.drawPilePosition,
-          --moveMark = cardsMoveInfo.moveMark,
-        }
-        local new_data = MoveCardsData:new({})
-        new_data:loadLegacy(moveCardsSpec)
-
-        table.insert(moveCardsSpecs, new_data)
+      if not toAbortDrop then
+        table.insert(infos, {
+          cardId = id,
+          fromArea = room:getCardArea(id),
+          fromSpecialName = cardsMoveInfo.from and cardsMoveInfo.from:getPileNameOfId(id),
+        })
       end
     end
+
+    -- 为普通移动设置正确数据
+    if #infos > 0 then
+      table.insert(ret, MoveCardsData:new {
+        moveInfo = infos,
+        from = cardsMoveInfo.from,
+        to = cardsMoveInfo.to,
+        toArea = cardsMoveInfo.toArea,
+        moveReason = cardsMoveInfo.moveReason,
+        proposer = cardsMoveInfo.proposer,
+        skillName = cardsMoveInfo.skillName,
+        moveVisible = cardsMoveInfo.moveVisible,
+        specialName = cardsMoveInfo.specialName,
+        specialVisible = cardsMoveInfo.specialVisible,
+        drawPilePosition = cardsMoveInfo.drawPilePosition,
+        moveMark = cardsMoveInfo.moveMark,
+        visiblePlayers = cardsMoveInfo.visiblePlayers,
+      })
+    end
+
+    -- 为因为移动到废除区域而改为丢掉的设置正确数据
+    if #abortMoveInfos > 0 then
+      table.insert(ret, MoveCardsData:new {
+        moveInfo = abortMoveInfos,
+        from = cardsMoveInfo.from,
+        toArea = Card.DiscardPile,
+        moveReason = fk.ReasonPutIntoDiscardPile,
+        moveVisible = true,
+      })
+    end
+    ::continue::
   end
-  return moveCardsSpecs
+  return ret
 end
 
 --- 传入一系列移牌信息，去实际移动这些牌
----@vararg CardsMoveInfo
+---@param ... CardsMoveInfo
 ---@return boolean?
 function MoveEventWrappers:moveCards(...)
   local datas = moveInfoTranslate(self, ...)
-  if #datas < 1 then
+  if #datas == 0 then
     return false
   end
   return exec(MoveCards, datas)
@@ -191,33 +202,34 @@ end
 ---@param players? ServerPlayer[] @ 要被告知的玩家列表，默认为全员
 ---@param moveDatas MoveCardsData[] @ 要告知的移牌信息列表
 function MoveEventWrappers:notifyMoveCards(players, moveDatas)
-  if players == nil or players == {} then players = self.players end
-  local card_moves = {}
-  for _, move in ipairs(moveDatas) do
-    local ret = move
-    if move.toLegacy then
-      ret = move:toLegacy()
-    end
-    table.insert(card_moves, ret)
-  end
+  if players == nil or #players == 0 then players = self.players end
   for _, p in ipairs(players) do
-    local arg = table.simpleClone(card_moves)
-    for _, move in ipairs(arg) do
-      -- local to = self:getPlayerById(move.to)
-
+    local arg = {}
+    for _, move in ipairs(moveDatas) do
       for _, info in ipairs(move.moveInfo) do
         local realFromArea = self:getCardArea(info.cardId)
         local playerAreas = { Player.Hand, Player.Equip, Player.Judge, Player.Special }
         local virtualEquip
 
         if table.contains(playerAreas, realFromArea) and move.from then
-          virtualEquip = self:getPlayerById(move.from):getVirualEquip(info.cardId)
+          virtualEquip = move.from:getVirualEquip(info.cardId)
         end
 
         if table.contains(playerAreas, move.toArea) and move.to and virtualEquip then
-          self:getPlayerById(move.to):addVirtualEquip(virtualEquip)
+          move.to:addVirtualEquip(virtualEquip)
         end
       end
+
+      -- 在转成json传输之前先变一下
+      local _data = rawget(move, "_data")
+      local v = table.simpleClone(_data and _data or move)
+      v.from = v.from and v.from.id
+      v.to = v.to and v.to.id
+      v.proposer = v.proposer and v.proposer.id
+      if v.visiblePlayers then
+        v.visiblePlayers = table.map(v.visiblePlayers, Util.IdMapper)
+      end
+      table.insert(arg, v)
     end
     p:doNotify("MoveCards", json.encode(arg))
   end

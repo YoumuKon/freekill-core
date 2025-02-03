@@ -87,10 +87,9 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
       data_converted = true
       data = data:toLegacy()
     elseif data[1] and data[1].toLegacy then
+      -- 唉，移牌data 喜欢搞特殊
       data_converted = true
-      for _, single_data in ipairs(data) do
-        single_data:toLegacy()
-      end
+      data = table.map(data, function(v) return v:toLegacy() end)
     end
   end
 

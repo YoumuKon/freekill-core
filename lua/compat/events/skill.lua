@@ -1,3 +1,17 @@
+function SkillUseData:toLegacy()
+  return {
+    from = self.from.id,
+    tos = table.map(self.tos, Util.IdMapper),
+    cards = self.cards
+  }
+end
+
+function SkillUseData:loadLegacy(spec)
+  self.card = spec.cards
+  self.from = Fk:currentRoom():getPlayerById(spec.from)
+  self.tos = table.map(spec.tos, Util.Id2PlayerMapper)
+end
+
 --- 将新数据改为牢数据
 function SkillEffectData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))

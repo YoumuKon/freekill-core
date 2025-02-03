@@ -10,20 +10,6 @@
 ---@class SkillUseData: SkillUseDataSpec, TriggerData
 SkillUseData = TriggerData:subclass("SkillUseData")
 
-function SkillUseData:toLegacy()
-  return {
-    from = self.from.id,
-    tos = table.map(self.tos, Util.IdMapper),
-    cards = self.cards
-  }
-end
-
-function SkillUseData:loadLegacy(spec)
-  self.card = spec.cards
-  self.from = Fk:currentRoom():getPlayerById(spec.from)
-  self.tos = table.map(spec.tos, Util.Id2PlayerMapper)
-end
-
 ---@class SkillEffectDataSpec
 ---@field public skill_cb fun():any @ 实际技能函数
 ---@field public who ServerPlayer @ 技能发动者

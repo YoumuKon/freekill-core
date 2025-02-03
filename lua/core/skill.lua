@@ -168,12 +168,12 @@ function Skill:isPlayerSkill(player)
 end
 
 ---@return integer
-function Skill:getTimes()
+function Skill:getTimes(player)
   local ret = self.times
   if not ret then
     return -1
   elseif type(ret) == "function" then
-    ret = ret(self)
+    ret = ret(self, player)
   end
   return ret
 end

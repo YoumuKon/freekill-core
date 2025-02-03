@@ -844,37 +844,36 @@ local armorInvalidity = fk.CreateInvaliditySkill {
       if player:getMark(fk.MarkArmorNullified) > 0 then return true end
 
       --无视防具（规则集版）！
-      if RoomInstance then
-        local logic = RoomInstance.logic
-        local event = logic:getCurrentEvent()
-        local from = nil
-        repeat
-          if event.event == GameEvent.SkillEffect then
-            if not event.data[3].cardSkill then
-              from = event.data[2]
-              break
-            end
-          elseif event.event == GameEvent.Damage then
-            local damage = event.data
-            if damage.to.id ~= player.id then return false end
-            from = damage.from
-            break
-          elseif event.event == GameEvent.UseCard then
-            local use = event.data
-            if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
-            from = RoomInstance:getPlayerById(use.from)
+      if not RoomInstance then return end
+      local logic = RoomInstance.logic
+      local event = logic:getCurrentEvent()
+      local from = nil
+      repeat
+        if event.event == GameEvent.SkillEffect then
+          if not event.data[3].cardSkill then
+            from = event.data[2]
             break
           end
-          event = event.parent
-        until event == nil
-        if from then
-          local suffixes = {""}
-          table.insertTable(suffixes, MarkEnum.TempMarkSuffix)
-          for _, suffix in ipairs(suffixes) do
-            if table.contains(from:getTableMark(fk.MarkArmorInvalidTo .. suffix), player.id) or
+        elseif event.event == GameEvent.Damage then
+          local damage = event.data
+          if damage.to ~= player then return false end
+          from = damage.from
+          break
+        elseif event.event == GameEvent.UseCard then
+          local use = event.data
+          if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
+          from = use.from
+          break
+        end
+        event = event.parent
+      until event == nil
+      if from then
+        local suffixes = {""}
+        table.insertTable(suffixes, MarkEnum.TempMarkSuffix)
+        for _, suffix in ipairs(suffixes) do
+          if table.contains(from:getTableMark(fk.MarkArmorInvalidTo .. suffix), player.id) or
             table.contains(player:getTableMark(fk.MarkArmorInvalidFrom .. suffix), from.id) then
-              return true
-            end
+            return true
           end
         end
       end

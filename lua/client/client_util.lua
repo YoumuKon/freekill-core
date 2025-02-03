@@ -293,7 +293,7 @@ function GetSkillStatus(skill_name)
   local skill = Fk.skills[skill_name]
   return {
     locked = not skill:isEffectable(player),
-    times = skill:getTimes()
+    times = skill:getTimes(Self)
   }
 end
 

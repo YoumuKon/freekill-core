@@ -10,7 +10,7 @@ local function drawInit(room, player, n)
 
   local move_to_notify = {   ---@type MoveCardsDataSpec
     moveInfo = {},
-    to = player.id,
+    to = player,
     toArea = Card.PlayerHand,
     moveReason = fk.ReasonDraw
   }
@@ -36,7 +36,7 @@ local function discardInit(room, player)
 
   local move_to_notify = { ---@type MoveCardsDataSpec
     moveInfo = {},
-    from = player.id,
+    from = player,
     toArea = Card.DrawPile,
     moveReason = fk.ReasonJustMove
   }

@@ -1,19 +1,12 @@
 --- 将新数据改为牢数据
 function MoveCardsData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))
-  for _, k in ipairs({"from", "to", "proposer"}) do
-    local v = ret[k]
-    if v then
-      ret[k] = v.id
-    end
-  end
+  ret.from = ret.from and ret.from.id
+  ret.to = ret.to and ret.to.id
+  ret.proposer = ret.proposer and ret.proposer.id
 
   if ret.visiblePlayers then
-    local new_v = {}
-    for _, p in ipairs(ret.visiblePlayers) do
-      table.insert(new_v, p.id)
-    end
-    ret.visiblePlayers = new_v
+    ret.visiblePlayers = table.map(ret.visiblePlayers, Util.IdMapper)
   end
 
   return ret
@@ -28,11 +21,7 @@ function MoveCardsData:loadLegacy(data)
       if type(v) == "number" then
         v = {v}
       end
-      local new_v = {}
-      for _, pid in ipairs(v) do
-        table.insert(new_v, Fk:currentRoom():getPlayerById(pid))
-      end
-      self[k] = new_v
+      self[k] = table.map(v, Util.Id2PlayerMapper)
     else
       self[k] = v
     end
