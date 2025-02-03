@@ -253,11 +253,13 @@ function Room:sortPlayersByAction(playerIds, isTargetGroup)
   end
 end
 
-function Room:deadPlayerFilter(playerIds)
+---@param players ServerPlayer[]
+---@return ServerPlayer[]
+function Room:deadPlayerFilter(players)
   local newPlayerIds = {}
-  for _, playerId in ipairs(playerIds) do
-    if self:getPlayerById(playerId):isAlive() then
-      table.insert(newPlayerIds, playerId)
+  for _, player in ipairs(players) do
+    if player:isAlive() then
+      table.insert(newPlayerIds, player)
     end
   end
 

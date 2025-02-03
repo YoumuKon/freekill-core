@@ -82,9 +82,18 @@ function UseCardData:loadLegacy(data)
   end
 end
 
+function AimData:toLegacy()
+  local ret = table.simpleClone(rawget(self, "_data"))
+  ret.from = ret.from or ret.from.id
+end
+
+function AimData:loadLegacy(data)
+end
+
 --- 将新数据改为牢数据
 function CardEffectData:toLegacy()
-  local ret = RespondCardData.toLegacy(self)
+  local ret = table.simpleClone(rawget(self, "_data"))
+  ret.from = ret.from or ret.from.id
 
   if ret.to then
     ret.to = ret.to.id

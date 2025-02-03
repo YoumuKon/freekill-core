@@ -70,17 +70,25 @@ local sendCardEmotionAndLog = function(room, useCardData)
   playCardEmotionAndSound(room, from, card)
 
   if not useCardData.noIndicate then
+    local tosData
+    if useCardData.tos then
+      tosData = {}
+      for i, p in ipairs(useCardData.tos) do
+        local sub = table.map(useCardData.subTos[i], Util.IdMapper)
+        table.insert(tosData, { p.id, table.unpack(sub) })
+      end
+    end
     room:doAnimate("Indicate", {
       from = from.id,
-      to = useCardData.tos or Util.DummyTable,
+      to = tosData or Util.DummyTable,
     })
   end
 
   local useCardIds = card:isVirtual() and card.subcards or { card.id }
   if useCardData.tos and #useCardData.tos > 0 and not useCardData.noIndicate then
     local to = {}
-    for _, t in ipairs(useCardData.tos) do
-      table.insert(to, t[1])
+    for _, p in ipairs(useCardData.tos) do
+      table.insert(to, p.id)
     end
 
     if card:isVirtual() or (card ~= _card) then
@@ -109,14 +117,12 @@ local sendCardEmotionAndLog = function(room, useCardData)
       }
     end
 
-    for _, t in ipairs(useCardData.tos) do
-      if t[2] then
-        local temp = table.simpleClone(t)
-        table.remove(temp, 1)
+    for i, p in ipairs(useCardData.tos) do
+      if useCardData.subTos[i] then
         room:sendLog{
           type = "#CardUseCollaborator",
-          from = t[1],
-          to = temp,
+          from = p.id,
+          to = table.map(useCardData.subTos[i], Util.IdMapper),
           arg = card.name,
         }
       end
@@ -220,9 +226,9 @@ function UseCard:main()
   end
 
   if useCardData.card.type == Card.TypeEquip then
-    local targets = TargetGroup:getRealTargets(useCardData.tos)
+    local targets = useCardData.tos
     if #targets == 1 then
-      local target = room:getPlayerById(targets[1])
+      local target = targets[1]
       local subType = useCardData.card.sub_type
       local equipsExist = target:getEquipments(subType)
 
@@ -282,7 +288,7 @@ function UseCard:main()
   end
 
   for _, event in ipairs({ fk.AfterCardUseDeclared, fk.AfterCardTargetDeclared, fk.CardUsing }) do
-    if not useCardData.toCard and #TargetGroup:getRealTargets(useCardData.tos) == 0 then
+    if not useCardData.toCard and #useCardData.tos == 0 then
       break
     end
 
@@ -404,7 +410,7 @@ function CardEffect:main()
       not cardEffectData.toCard and
       (
         not (cardEffectData.to and cardEffectData.to:isAlive())
-        or #room:deadPlayerFilter(TargetGroup:getRealTargets(cardEffectData.tos)) == 0
+        or #room:deadPlayerFilter(cardEffectData.tos) == 0
       )
     then
       logic:breakEvent()
@@ -587,14 +593,14 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
       return
     end
 
-    local target = TargetGroup:getRealTargets(useCardData.tos)[1]
-    if not (self:getPlayerById(target).dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
+    local target = useCardData.tos[1]
+    if not (target.dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
       local existingEquipId
       if useCardData.toPutSlot and useCardData.toPutSlot:startsWith("#EquipmentChoice") then
         local index = useCardData.toPutSlot:split(":")[2]
-        existingEquipId = self:getPlayerById(target):getEquipments(useCardData.card.sub_type)[tonumber(index)]
-      elseif not self:getPlayerById(target):hasEmptyEquipSlot(useCardData.card.sub_type) then
-        existingEquipId = self:getPlayerById(target):getEquipment(useCardData.card.sub_type)
+        existingEquipId = target:getEquipments(useCardData.card.sub_type)[tonumber(index)]
+      elseif not target:hasEmptyEquipSlot(useCardData.card.sub_type) then
+        existingEquipId = target:getEquipment(useCardData.card.sub_type)
       end
 
       if existingEquipId then
@@ -628,10 +634,10 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
       return
     end
 
-    local target = TargetGroup:getRealTargets(useCardData.tos)[1]
-    if not (self:getPlayerById(target).dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
+    local target = useCardData.tos[1]
+    if not (target.dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
       local findSameCard = false
-      for _, cardId in ipairs(self:getPlayerById(target):getCardIds(Player.Judge)) do
+      for _, cardId in ipairs(target:getCardIds(Player.Judge)) do
         if Fk:getCardById(cardId).trueName == useCardData.card.trueName then
           findSameCard = true
         end
@@ -639,14 +645,14 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
 
       if not findSameCard then
         if useCardData.card:isVirtual() then
-          self:getPlayerById(target):addVirtualEquip(useCardData.card)
+          target:addVirtualEquip(useCardData.card)
         elseif useCardData.card.name ~= Fk:getCardById(useCardData.card.id, true).name then
           local card = Fk:cloneCard(useCardData.card.name)
           card.skillNames = useCardData.card.skillNames
           card:addSubcard(useCardData.card.id)
-          self:getPlayerById(target):addVirtualEquip(card)
+          target:addVirtualEquip(card)
         else
-          self:getPlayerById(target):removeVirtualEquip(useCardData.card.id)
+          target:removeVirtualEquip(useCardData.card.id)
         end
 
         self:moveCards({
@@ -672,6 +678,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
     local cardEffectData = CardEffectData:new{
       from = useCardData.from,
       tos = useCardData.tos,
+      subTos = useCardData.subTos,
       card = useCardData.card,
       toCard = useCardData.toCard,
       responseToEvent = useCardData.responseToEvent,
@@ -697,18 +704,19 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
 
   useCardData.additionalEffect = useCardData.additionalEffect or 0
   while true do
-    if #TargetGroup:getRealTargets(useCardData.tos) > 0 and useCardData.card.skill.onAction then
+    if #useCardData.tos > 0 and useCardData.card.skill.onAction then
       useCardData.card.skill:onAction(self, useCardData)
     end
 
     -- Else: do effect to all targets
     local collaboratorsIndex = {}
-    for _, toId in ipairs(TargetGroup:getRealTargets(useCardData.tos)) do
-      if self:getPlayerById(toId):isAlive() then
+    for _, to in ipairs(useCardData.tos) do
+      if to:isAlive() then
         ---@class CardEffectDataSpec
         local cardEffectData = {
           from = useCardData.from,
           tos = useCardData.tos,
+          subTos = useCardData.subTos,
           card = useCardData.card,
           toCard = useCardData.toCard,
           responseToEvent = useCardData.responseToEvent,
@@ -722,10 +730,10 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           extra_data = useCardData.extra_data,
         }
 
-        if aimEventCollaborators[toId] then
-          cardEffectData.to = self:getPlayerById(toId)
-          collaboratorsIndex[toId] = collaboratorsIndex[toId] or 1
-          local curAimEvent = aimEventCollaborators[toId][collaboratorsIndex[toId]]
+        if aimEventCollaborators[to] then
+          cardEffectData.to = to
+          collaboratorsIndex[to] = collaboratorsIndex[to] or 1
+          local curAimEvent = aimEventCollaborators[to][collaboratorsIndex[to]]
 
           cardEffectData.subTargets = curAimEvent.subTargets
           cardEffectData.additionalDamage = curAimEvent.additionalDamage
@@ -756,7 +764,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           cardEffectData.fixedResponseTimes = curAimEvent.fixedResponseTimes
           cardEffectData.fixedAddTimesResponsors = curAimEvent.fixedAddTimesResponsors
 
-          collaboratorsIndex[toId] = collaboratorsIndex[toId] + 1
+          collaboratorsIndex[to] = collaboratorsIndex[to] + 1
 
           local curCardEffectEvent = CardEffectData:new(table.simpleClone(cardEffectData))
           self:doCardEffect(curCardEffectEvent)
@@ -775,7 +783,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
       end
     end
 
-    if #TargetGroup:getRealTargets(useCardData.tos) > 0 and useCardData.card.skill.onAction then
+    if #useCardData.tos > 0 and useCardData.card.skill.onAction then
       useCardData.card.skill:onAction(self, useCardData, true)
     end
 
@@ -894,7 +902,7 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
       end
 
       local extra_data
-      if #TargetGroup:getRealTargets(cardEffectData.tos) > 1 then
+      if #cardEffectData.tos > 1 then
         local parentUseEvent = self.logic:getCurrentEvent():findParent(GameEvent.UseCard)
         if parentUseEvent then
           extra_data = { useEventId = parentUseEvent.id, effectTo = cardEffectData.to }
@@ -950,7 +958,7 @@ function UseCardEventWrappers:useVirtualCard(card_name, subcards, from, tos, ski
 
   if from:prohibitUse(card) then return nil end
 
-  if tos.class then tos = { tos } end
+  if not tos[1] then tos = { tos } end
   for i = #tos, 1, -1 do
     local p = tos[i]
     if from:isProhibited(p, card) then
@@ -964,7 +972,7 @@ function UseCardEventWrappers:useVirtualCard(card_name, subcards, from, tos, ski
 
   local use = { ---@type UseCardDataSpec
     from = from,
-    tos = table.map(tos, function(p) return { p.id } end),
+    tos = tos,
     card = card,
     extraUse = extra
   }

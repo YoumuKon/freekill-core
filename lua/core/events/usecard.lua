@@ -48,6 +48,29 @@ fk.CardRespondFinished = RespondCardEvent:subclass("fk.CardRespondFinished")
 ---@class UseCardData: UseCardDataSpec, TriggerData
 UseCardData = TriggerData:subclass("UseCardData")
 
+---@param player ServerPlayer
+function UseCardData:hasTarget(player)
+  return table.contains(self.tos, player)
+end
+
+---@param player ServerPlayer
+function UseCardData:removeTarget(player)
+  for index, target in ipairs(self.tos) do
+    if (target == player) then
+      table.remove(self.tos, index)
+      table.remove(self.subTos, index)
+      return
+    end
+  end
+end
+
+---@param player ServerPlayer
+---@param sub? ServerPlayer[]
+function UseCardData:addTarget(player, sub)
+  table.insert(self.tos, player)
+  table.insert(self.subTos, sub or {})
+end
+
 ---@class UseCardEvent: TriggerEvent
 ---@field data UseCardData
 local UseCardEvent = TriggerEvent:subclass("UseCardEvent")
@@ -110,7 +133,8 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@class CardEffectDataSpec: RespondCardDataSpec
 ---@field public to ServerPlayer @ 角色目标
 ---@field public subTargets? ServerPlayer[] @ 子目标（借刀！）
----@field public tos TargetGroup @ 目标组
+---@field public tos ServerPlayer[] 目标列表
+---@field public subTos? ServerPlayer[][] 子目标列表，借刀最爱的一集
 ---@field public toCard? Card @ 卡牌目标
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
 ---@field public nullifiedTargets? ServerPlayer[] @ 对这些角色无效

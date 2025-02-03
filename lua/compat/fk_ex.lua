@@ -480,3 +480,163 @@ function fk.CreateVisibilitySkill(spec)
 
   return skill
 end
+
+-- 牢东西
+
+---@class TargetGroup : Object
+TargetGroup = {}
+
+function TargetGroup:getRealTargets(targetGroup)
+  if not targetGroup then
+    return {}
+  end
+
+  local realTargets = {}
+  for _, targets in ipairs(targetGroup) do
+    table.insert(realTargets, targets[1])
+  end
+
+  return realTargets
+end
+
+function TargetGroup:includeRealTargets(targetGroup, playerId)
+  if not targetGroup then
+    return false
+  end
+
+  for _, targets in ipairs(targetGroup) do
+    if targets[1] == playerId then
+      return true
+    end
+  end
+
+  return false
+end
+
+function TargetGroup:removeTarget(targetGroup, playerId)
+  if not targetGroup then
+    return
+  end
+
+  for index, targets in ipairs(targetGroup) do
+    if (targets[1] == playerId) then
+      table.remove(targetGroup, index)
+      return
+    end
+  end
+end
+
+function TargetGroup:pushTargets(targetGroup, playerIds)
+  if not targetGroup then
+    return
+  end
+
+  if type(playerIds) == "table" then
+    table.insert(targetGroup, playerIds)
+  elseif type(playerIds) == "number" then
+    table.insert(targetGroup, { playerIds })
+  end
+end
+
+---@class AimGroup : Object
+AimGroup = {}
+
+AimGroup.Undone = 1
+AimGroup.Done = 2
+AimGroup.Cancelled = 3
+
+function AimGroup:initAimGroup(playerIds)
+  return { [AimGroup.Undone] = playerIds, [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
+end
+
+function AimGroup:getAllTargets(aimGroup)
+  local targets = {}
+  table.insertTable(targets, aimGroup[AimGroup.Undone])
+  table.insertTable(targets, aimGroup[AimGroup.Done])
+  return targets
+end
+
+function AimGroup:getUndoneOrDoneTargets(aimGroup, done)
+  return done and aimGroup[AimGroup.Done] or aimGroup[AimGroup.Undone]
+end
+
+function AimGroup:setTargetDone(aimGroup, playerId)
+  local index = table.indexOf(aimGroup[AimGroup.Undone], playerId)
+  if index ~= -1 then
+    table.remove(aimGroup[AimGroup.Undone], index)
+    table.insert(aimGroup[AimGroup.Done], playerId)
+  end
+end
+
+function AimGroup:addTargets(room, aimEvent, playerIds)
+  local playerId = type(playerIds) == "table" and playerIds[1] or playerIds
+  table.insert(aimEvent.tos[AimGroup.Undone], playerId)
+
+  if type(playerIds) == "table" then
+    for i = 2, #playerIds do
+      aimEvent.subTargets = aimEvent.subTargets or {}
+      table.insert(aimEvent.subTargets, playerIds[i])
+    end
+  end
+
+  room:sortPlayersByAction(aimEvent.tos[AimGroup.Undone])
+  if aimEvent.targetGroup then
+    TargetGroup:pushTargets(aimEvent.targetGroup, playerIds)
+  end
+end
+
+function AimGroup:cancelTarget(aimEvent, playerId)
+  local cancelled = false
+  for status = AimGroup.Undone, AimGroup.Done do
+    local indexList = {}
+    for index, pId in ipairs(aimEvent.tos[status]) do
+      if pId == playerId then
+        table.insert(indexList, index)
+      end
+    end
+
+    if #indexList > 0 then
+      cancelled = true
+      for i = 1, #indexList do
+        table.remove(aimEvent.tos[status], indexList[i])
+      end
+    end
+  end
+
+  if cancelled then
+    table.insert(aimEvent.tos[AimGroup.Cancelled], playerId)
+    if aimEvent.targetGroup then
+      TargetGroup:removeTarget(aimEvent.targetGroup, playerId)
+    end
+  end
+end
+
+function AimGroup:removeDeadTargets(room, aimEvent)
+  for index = AimGroup.Undone, AimGroup.Done do
+    aimEvent.tos[index] = room:deadPlayerFilter(aimEvent.tos[index])
+  end
+
+  if aimEvent.targetGroup then
+    local targets = TargetGroup:getRealTargets(aimEvent.targetGroup)
+    for _, target in ipairs(targets) do
+      if not room:getPlayerById(target):isAlive() then
+        TargetGroup:removeTarget(aimEvent.targetGroup, target)
+      end
+    end
+  end
+end
+
+function AimGroup:getCancelledTargets(aimGroup)
+  return aimGroup[AimGroup.Cancelled]
+end
+
+---@param target ServerPlayer
+---@param data AimStruct
+---@return boolean
+function AimGroup:isOnlyTarget(target, data)
+  if data.tos == nil then return false end
+  local tos = AimGroup:getAllTargets(data.tos)
+  return table.contains(tos, target.id) and not table.find(target.room.alive_players, function (p)
+    return p ~= target and table.contains(tos, p.id)
+  end)
+end
