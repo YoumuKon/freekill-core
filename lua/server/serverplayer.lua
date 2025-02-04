@@ -328,6 +328,9 @@ function ServerPlayer:play(phase_table)
     local skip = phase_state[i].skipped
     if not skip then
       skip = logic:trigger(fk.EventPhaseChanging, self, phase_change)
+      if self.skipped_phases[phases[i]] then
+        skip = true
+      end
     end
     phases[i] = phase_change.to
     phase_state[i].phase = phases[i]
