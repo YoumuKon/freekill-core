@@ -453,11 +453,15 @@ end
 ---@param useCardData UseCardDataSpec @ 使用数据
 ---@return boolean
 function UseCardEventWrappers:useCard(useCardData)
-  local new_data = UseCardData:new(useCardData)
-  new_data.subTos = new_data.subTos or (new_data.tos and table.map(new_data.tos, function() return {} end) or {})
-  if (useCardData.from) == "number" then
+  local new_data
+  if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
+    and type(useCardData.tos[1][1]) == "number") then
+    new_data = UseCardData:new({})
     new_data:loadLegacy(useCardData)
+  else
+    new_data = UseCardData:new(useCardData)
   end
+  new_data.subTos = new_data.subTos or (new_data.tos and table.map(new_data.tos, function() return {} end) or {})
   return exec(UseCard, new_data)
 end
 

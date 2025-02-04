@@ -24,18 +24,21 @@ end
 --- 将新数据改为牢数据
 function UseCardData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))
-  ret.from = ret.from or ret.from.id
+  ret.from = ret.from and ret.from.id
 
-  local tos = {}
-  for i, p in ipairs(self.tos) do
-    local t = { p.id }
-    local sub = self.subTos[i]
-    if sub then
-      table.insertTable(sub, table.map(sub, Util.IdMapper))
+  -- 傻逼tos可能nil
+  if self.tos then
+    local tos = {}
+    for i, p in ipairs(self.tos) do
+      local t = { p.id }
+      local sub = self.subTos[i]
+      if sub then
+        table.insertTable(sub, table.map(sub, Util.IdMapper))
+      end
+      table.insert(tos, t)
     end
-    table.insert(tos, t)
+    ret.tos = tos
   end
-  ret.tos = tos
 
   for _, k in ipairs({"nullifiedTargets", "disresponsiveList"}) do
     ret[k] = ret[k] and table.map(ret[k], Util.IdMapper)
@@ -84,19 +87,22 @@ end
 
 function AimData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))
-  ret.from = ret.from or ret.from.id
-  ret.to = ret.to or ret.to.id
+  ret.from = ret.from and ret.from.id
+  ret.to = ret.to and ret.to.id
 
-  local tos = {}
-  for i, p in ipairs(self.useTos) do
-    local t = { p.id }
-    local sub = self.useSubTos[i]
-    if sub then
-      table.insertTable(sub, table.map(sub, Util.IdMapper))
+  -- 傻逼tos可能nil
+  if self.useTos then
+    local tos = {}
+    for i, p in ipairs(self.useTos) do
+      local t = { p.id }
+      local sub = self.useSubTos[i]
+      if sub then
+        table.insertTable(sub, table.map(sub, Util.IdMapper))
+      end
+      table.insert(tos, t)
     end
-    table.insert(tos, t)
+    ret.targetGroup = tos
   end
-  ret.targetGroup = tos
 
   ret.tos = {}
   for _, d in ipairs(self.tos) do
@@ -141,22 +147,22 @@ end
 --- 将新数据改为牢数据
 function CardEffectData:toLegacy()
   local ret = table.simpleClone(rawget(self, "_data"))
-  ret.from = ret.from or ret.from.id
+  ret.from = ret.from and ret.from.id
+  ret.to = ret.to and ret.to.id
 
-  if ret.to then
-    ret.to = ret.to.id
-  end
-
-  local tos = {}
-  for i, p in ipairs(self.tos) do
-    local t = { p.id }
-    local sub = self.subTos[i]
-    if sub then
-      table.insertTable(sub, table.map(sub, Util.IdMapper))
+  -- 傻逼tos可能nil
+  if self.tos then
+    local tos = {}
+    for i, p in ipairs(self.tos) do
+      local t = { p.id }
+      local sub = self.subTos[i]
+      if sub then
+        table.insertTable(sub, table.map(sub, Util.IdMapper))
+      end
+      table.insert(tos, t)
     end
-    table.insert(tos, t)
+    ret.tos = tos
   end
-  ret.tos = tos
 
   for _, k in ipairs({"nullifiedTargets", "disresponsiveList", "unoffsetableList"}) do
     local v = ret[k]

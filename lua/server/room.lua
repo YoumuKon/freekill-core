@@ -1969,8 +1969,10 @@ function Room:handleUseCardReply(player, data)
         local use = {}    ---@type UseCardDataSpec
         use.from = player
         use.tos = {}
-        for _, target in ipairs(targets) do
-          table.insert(use.tos, { target })
+        use.subTos = {}
+        for _, targetId in ipairs(targets) do
+          table.insert(use.tos, self:getPlayerById(targetId))
+          table.insert(use.subTos, {})
         end
         if #use.tos == 0 then
           use.tos = nil
@@ -2002,8 +2004,10 @@ function Room:handleUseCardReply(player, data)
     local use = {}    ---@type UseCardDataSpec
     use.from = player
     use.tos = {}
-    for _, target in ipairs(targets or Util.DummyTable) do
-      table.insert(use.tos, { target })
+    use.subTos = {}
+    for _, targetId in ipairs(targets or Util.DummyTable) do
+      table.insert(use.tos, self:getPlayerById(targetId))
+      table.insert(use.subTos, {})
     end
     if #use.tos == 0 then
       use.tos = nil
@@ -2067,8 +2071,8 @@ function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, 
   end
   if not dat then return end
   local use = {
-    from = player.id,
-    tos = table.map(dat.targets, function(p) return {p} end),
+    from = player,
+    tos = table.map(dat.targets, Util.Id2PlayerMapper),
     card = Fk:getCardById(dat.cards[1]),
     extraUse = extra_data.extraUse,
   }

@@ -338,10 +338,10 @@ function Phase:main()
           if table.contains(player:getCardIds(Player.Judge), cid) then
             room:moveCardTo(card, Card.Processing, nil, fk.ReasonPut, self.name)
 
-            local effect_data = CardEffectData:new{
+            local effect_data = CardEffectData:new {
               card = card,
-              to = player.id,
-              tos = { {player.id} },
+              to = player,
+              tos = { player },
             }
             room:doCardEffect(effect_data)
             if effect_data.isCancellOut and card.skill then
