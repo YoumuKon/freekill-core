@@ -59,7 +59,11 @@ end
 function UseCardData:loadLegacy(data)
   for k, v in pairs(data) do
     if table.contains({"from"}, k) then
-      self[k] = Fk:currentRoom():getPlayerById(v)
+      if type(v) == "number" then
+        self[k] = Fk:currentRoom():getPlayerById(v)
+      else
+        self[k] = v
+      end
     elseif table.contains({"nullifiedTargets", "disresponsiveList"}, k) then
       self[k] = table.map(v, Util.Id2PlayerMapper)
     elseif table.contains({"damageDealt"}, k) then

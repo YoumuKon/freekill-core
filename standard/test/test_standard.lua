@@ -22,7 +22,7 @@ function TestStandard:testFanKui()
   FkTest.runInRoom(function()
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
@@ -34,7 +34,7 @@ function TestStandard:testFanKui()
     room:obtainCard(comp2, { 3 })
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
@@ -59,7 +59,7 @@ function TestStandard:testGangLie()
     room:moveCardTo(2, Card.DrawPile) -- 控顶
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
@@ -77,7 +77,7 @@ function TestStandard:testGangLie()
     room:moveCardTo(2, Card.DrawPile) -- 再控顶
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
@@ -94,7 +94,7 @@ function TestStandard:testGangLie()
     room:moveCardTo(24, Card.DrawPile) -- 控顶
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
@@ -205,7 +205,7 @@ function TestStandard:testJiZhi()
     room:moveCardTo({2, 3, 4, 5}, Card.DrawPile) -- 都是杀……吧？
     room:useCard{
       from = me,
-      tos = { { comp2.id } },
+      tos = { comp2 },
       card = slash,
     }
   end)
@@ -213,7 +213,7 @@ function TestStandard:testJiZhi()
   FkTest.runInRoom(function()
     room:useCard{
       from = me,
-      tos = { { comp2.id } },
+      tos = { comp2 },
       card = god_salvation,
     }
   end)
