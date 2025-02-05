@@ -73,6 +73,17 @@ function AbstractRoom:setCurrent(player)
   self.current = player
 end
 
+--- 获得当前房间中的当前回合角色。
+---
+--- 游戏开始时及每轮开始时当前回合还未正式开始，该函数可能返回nil。
+---@return Player? @ 当前回合角色
+function AbstractRoom:getCurrent()
+  if self.current and self.current.phase ~= Player.NotActive then
+    return self.current
+  end
+  return nil
+end
+
 function AbstractRoom:toJsonObject()
   local card_manager = CardManager.toJsonObject(self)
 
