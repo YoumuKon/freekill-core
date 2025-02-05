@@ -731,6 +731,7 @@ function RefreshStatusSkills()
   for _, cid in ipairs(Self:getCardIds("h")) do
     self:notifyUI("UpdateCard", cid)
   end
+  Self:filterHandcards()
   -- 刷技能状态
   self:notifyUI("UpdateSkill", nil)
 end
