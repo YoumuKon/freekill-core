@@ -8,8 +8,8 @@ end
 
 function SkillUseData:loadLegacy(spec)
   self.card = spec.cards
-  self.from = Fk:currentRoom():getPlayerById(spec.from)
-  self.tos = table.map(spec.tos, Util.Id2PlayerMapper)
+  self.from = Fk:currentRoom():getPlayerById(spec.from) --[[@as ServerPlayer]]
+  self.tos = table.map(spec.tos, Util.Id2PlayerMapper)  --[[@as ServerPlayer[] ]]
 end
 
 --- 将新数据改为牢数据

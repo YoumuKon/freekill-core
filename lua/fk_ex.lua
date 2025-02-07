@@ -145,8 +145,42 @@ function SkillSkeleton:initialize(spec)
 end
 
 function SkillSkeleton:addEffect(key, attribute, data)
+  -- 需要按照顺序插入，active和viewas最先，trigger其次，剩下的随意
+  -- 其实决定要不要插在第一个就行了
   -- 'active' 和 'viewas' 必须唯一
-  table.insert(self.effect_list, { key, attribute, data })
+
+  local function getTypePriority(k)
+    if k == 'active' or k == 'viewas' then
+      return 5
+    elseif type(k) == 'table' then
+      return 3
+    else
+      return 1
+    end
+  end
+  local main_effect = self.effect_list[1]
+  local first
+  if not main_effect then
+    first = true
+  else
+    local main_prio = getTypePriority(main_effect[1])
+    local param_prio = getTypePriority(key)
+    if main_prio == 5 then
+      if param_prio == 5 then
+        fk.qCritical("You can only add 1 'active'/'viewas' effect in one skill.")
+        return
+      end
+      first = false
+    else
+      first = param_prio > main_prio
+    end
+  end
+
+  if first then
+    table.insert(self.effect_list, 1, { key, attribute, data })
+  else
+    table.insert(self.effect_list, { key, attribute, data })
+  end
   return self
 end
 
@@ -164,43 +198,52 @@ end
 ---@return Skill
 function SkillSkeleton:createSkill()
   local frequency = self.frequency
-  local skill = Skill:new(self.name, frequency)
-  fk.readCommonSpecToSkill(skill, self)
+  local main_skill
   for i, effect in ipairs(self.effect_list) do
     local k, attr, data = table.unpack(effect)
     attr = attr or Util.DummyTable
     local sk
     if k == 'distance' then
-      sk = self:createDistanceSkill(skill, i, k, attr, data)
+      sk = self:createDistanceSkill(self, i, k, attr, data)
     elseif k == 'prohibit' then
-      sk = self:createProhibitSkill(skill, i, k, attr, data)
+      sk = self:createProhibitSkill(self, i, k, attr, data)
     elseif k == 'atkrange' then
-      sk = self:createAttackRangeSkill(skill, i, k, attr, data)
+      sk = self:createAttackRangeSkill(self, i, k, attr, data)
     elseif k == 'maxcards' then
-      sk = self:createMaxCardsSkill(skill, i, k, attr, data)
+      sk = self:createMaxCardsSkill(self, i, k, attr, data)
     elseif k == 'targetmod' then
-      sk = self:createTargetModSkill(skill, i, k, attr, data)
+      sk = self:createTargetModSkill(self, i, k, attr, data)
     elseif k == 'filter' then
-      sk = self:createFilterSkill(skill, i, k, attr, data)
+      sk = self:createFilterSkill(self, i, k, attr, data)
     elseif k == 'invalidity' then
-      sk = self:createInvaliditySkill(skill, i, k, attr, data)
+      sk = self:createInvaliditySkill(self, i, k, attr, data)
     elseif k == 'visibility' then
-      sk = self:createVisibilitySkill(skill, i, k, attr, data)
+      sk = self:createVisibilitySkill(self, i, k, attr, data)
     elseif k == 'active' then
-      sk = self:createActiveSkill(skill, i, k, attr, data)
+      sk = self:createActiveSkill(self, i, k, attr, data)
     elseif k == 'viewas' then
-      sk = self:createViewAsSkill(skill, i, k, attr, data)
+      sk = self:createViewAsSkill(self, i, k, attr, data)
     else
-      sk = self:createTriggerSkill(skill, i, k, attr, data)
+      sk = self:createTriggerSkill(self, i, k, attr, data)
     end
     if sk then
-      if not attr.is_delay_effect then
-        sk.main_skill = skill
+      if not main_skill then
+        main_skill = sk
+        main_skill.name = self.name
+        main_skill.visible = self.name[1] ~= "#"
+      else
+        if not attr.is_delay_effect then
+          sk.main_skill = main_skill
+        end
+        main_skill:addRelatedSkill(sk)
       end
-      skill:addRelatedSkill(sk)
     end
   end
-  return skill
+  if not main_skill then
+    main_skill = Skill:new(self.name, frequency)
+    fk.readCommonSpecToSkill(main_skill, self)
+  end
+  return main_skill
 end
 
 ---@class TrigSkelAttribute
@@ -222,27 +265,27 @@ end
 --- can_wake?: T,
 --- }
 
----@param skill Skill
+---@param _skill SkillSkeleton
 ---@param idx integer
 ---@param key TriggerEvent
 ---@param attr TrigSkelAttribute
 ---@param spec TrigSkelSpec<TrigFunc>
 ---@return TriggerSkill
-function SkillSkeleton:createTriggerSkill(skill, idx, key, attr, spec)
-  local new_name = string.format("#%s_%d_trig", skill.name, idx)
-  local sk = TriggerSkill:new(new_name, skill.frequency)
+function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_trig", _skill.name, idx)
+  local sk = TriggerSkill:new(new_name, _skill.frequency)
   fk.readCommonSpecToSkill(sk, self)
-  Fk:loadTranslationTable({ [new_name] = Fk:translate(skill.name) }, Config.language)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
   sk.event = key
   if spec.can_trigger then
     local can_trigger = function(_self, event, target, player, data)
       if (not attr.not_has_skill) and not
-        player:hasSkill(attr.is_delay_effect and sk or skill) then return end
+        player:hasSkill(attr.is_delay_effect and sk or _skill.name) then return end
       if (not attr.player_not_target) and
         not (target == nil or target == player) then return end
       return spec.can_trigger(_self, event, target, player, data)
     end
-    if skill.frequency == Skill.Wake then
+    if _skill.frequency == Skill.Wake then
       sk.triggerable = function(_self, event, target, player, data)
         return can_trigger(_self, event, target, player, data) and
           sk:enableToWake(event, target, player, data)
@@ -250,7 +293,7 @@ function SkillSkeleton:createTriggerSkill(skill, idx, key, attr, spec)
     else
       sk.triggerable = can_trigger
     end
-    if skill.frequency == Skill.Wake and spec.can_wake then
+    if _skill.frequency == Skill.Wake and spec.can_wake then
       sk.canWake = spec.can_wake
     end
   end
@@ -275,10 +318,10 @@ end
 ---@param key 'distance'
 ---@param spec DistanceSpec
 ---@return DistanceSkill
-function SkillSkeleton:createDistanceSkill(skill, idx, key, attr, spec)
+function SkillSkeleton:createDistanceSkill(_skill, idx, key, attr, spec)
   assert(type(spec.correct_func) == "function" or type(spec.fixed_func) == "function")
-  local new_name = string.format("#%s_%d_distance", skill.name, idx)
-  Fk:loadTranslationTable({ [new_name] = Fk:translate(skill.name) }, Config.language)
+  local new_name = string.format("#%s_%d_distance", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
   local sk = DistanceSkill:new(new_name)
   fk.readStatusSpecToSkill(sk, spec)
@@ -290,9 +333,9 @@ end
 
 ---@param spec ProhibitSpec
 ---@return ProhibitSkill
-function SkillSkeleton:createProhibitSkill(skill, idx, key, attr, spec)
-  local new_name = string.format("#%s_%d_prohibit", skill.name, idx)
-  Fk:loadTranslationTable({ [new_name] = Fk:translate(skill.name) }, Config.language)
+function SkillSkeleton:createProhibitSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_prohibit", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
   local sk = ProhibitSkill:new(new_name)
   fk.readStatusSpecToSkill(sk, spec)
@@ -559,11 +602,11 @@ end
 ---@field public card_filter? fun(self: ActiveSkill, player: Player, to_select: integer, selected: integer[]): any @ 判断卡牌能否选择
 ---@field public target_filter? fun(self: ActiveSkill, player: Player?, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, extra_data: any): any @ 判定目标能否选择
 ---@field public feasible? fun(self: ActiveSkill, player: Player, selected: Player[], selected_cards: integer[]): any @ 判断卡牌和目标是否符合技能限制
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent): any
----@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: CardUseStruct | SkillEffectEvent, finished: boolean): any
----@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
----@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectEvent | SkillEffectEvent): any
+---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillUseData): any
+---@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillUseData, finished: boolean): any
+---@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: UseCardData | SkillUseData): any
+---@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: UseCardData | SkillUseData): any
+---@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: UseCardData | SkillUseData): any
 ---@field public mod_target_filter? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], card?: Card, distance_limited: boolean, extra_data: any): any
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
 ---@field public interaction? any
@@ -577,8 +620,8 @@ end
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
----@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
----@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
+---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string?
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌

@@ -4,7 +4,6 @@
 ---@field public from ServerPlayer @ 使用者
 ---@field public tos ServerPlayer[] @ 角色目标
 ---@field public cards integer[] @ 选择卡牌
----@field public cost_data any @ 技能的消耗信息
 
 --- 技能使用的数据
 ---@class SkillUseData: SkillUseDataSpec, TriggerData

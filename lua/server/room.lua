@@ -1701,7 +1701,7 @@ function Room:askForSkillInvoke(player, skill_name, data, prompt)
 end
 
 -- 获取使用牌的合法额外目标（【借刀杀人】等带副目标的卡牌除外）
----@param data CardUseStruct @ 使用事件的data
+---@param data UseCardDataSpec @ 使用事件的data
 ---@param bypass_distances boolean? @ 是否无距离关系的限制
 ---@param use_AimGroup boolean? @ 某些场合需要使用AimGroup，by smart Ho-spair
 ---@return integer[] @ 返回满足条件的player的id列表
@@ -1941,10 +1941,10 @@ function Room:askForExchange(player, piles, piles_name, customNotify)
 end
 
 
---- 将从Request获得的数据转化为CardUseStruct，或执行主动技的onUse部分
+--- 将从Request获得的数据转化为UseCardData，或执行主动技的onUse部分
 --- 一般DIY用不到的内部函数
 ---@param player ServerPlayer
----@return CardUseStruct?
+---@return UseCardDataSpec?
 function Room:handleUseCardReply(player, data)
   local card = data.card
   local targets = data.targets or {}
@@ -2028,7 +2028,7 @@ end
 ---@param extra_data? UseExtraData|table @ 额外信息，因技能而异了
 ---@param cancelable? boolean @ 是否可以取消。默认可以取消
 ---@param skipUse? boolean @ 是否跳过使用。默认不跳过
----@return CardUseStruct? @ 返回卡牌使用框架。取消使用则返回空
+---@return UseCardDataSpec? @ 返回卡牌使用框架。取消使用则返回空
 function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, cancelable, skipUse)
   pattern = type(pattern) == "string" and pattern or tostring(Exppattern{ id = pattern })
   skillName = skillName or ""
@@ -2098,7 +2098,7 @@ end
 ---@param cancelable? boolean @ 能否点取消
 ---@param extra_data? UseExtraData @ 额外信息
 ---@param event_data? CardEffectEvent @ 事件信息
----@return CardUseStruct? @ 返回关于本次使用牌的数据，以便后续处理
+---@return UseCardDataSpec? @ 返回关于本次使用牌的数据，以便后续处理
 function Room:askForUseCard(player, card_name, pattern, prompt, cancelable, extra_data, event_data)
   pattern = pattern or card_name
   if event_data and (event_data.disresponsive or table.contains(event_data.disresponsiveList or Util.DummyTable, player.id)) then
@@ -2259,7 +2259,7 @@ end
 ---@param cancelable? boolean @ 能否点取消
 ---@param extra_data? any @ 额外信息
 ---@param effectData? CardEffectEvent @ 关联的卡牌生效流程
----@return CardUseStruct? @ 最终决胜出的卡牌使用信息
+---@return UseCardDataSpec? @ 最终决胜出的卡牌使用信息
 function Room:askForNullification(players, card_name, pattern, prompt, cancelable, extra_data, effectData)
   if #players == 0 then
     self.logic:trigger(fk.AfterAskForNullification, nil, { eventData = effectData })

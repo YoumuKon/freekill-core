@@ -461,7 +461,12 @@ function UseCardEventWrappers:useCard(useCardData)
   else
     new_data = UseCardData:new(useCardData)
   end
-  new_data.subTos = new_data.subTos or (new_data.tos and table.map(new_data.tos, function() return {} end) or {})
+  new_data.subTos = new_data.subTos or {}
+  for i in ipairs(new_data.tos) do
+    if not new_data.subTos[i] then
+      new_data.subTos[i] = {}
+    end
+  end
   return exec(UseCard, new_data)
 end
 
