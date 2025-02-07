@@ -1,6 +1,11 @@
+local skill = fk.CreateSkill {
+  name = "hujia$",
+}
+
 local hujia_spec = {
+  anim_type = "defensive",
   can_trigger = function(self, event, target, player, data)
-    return
+    return target == player and player:hasSkill(skill.name) and
       (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
       (data.extraData == nil or data.extraData.hujia_ask == nil) and
       not table.every(player.room.alive_players, function(p)
@@ -25,7 +30,7 @@ local hujia_spec = {
               card = Fk:cloneCard('jink'),
             }
             data.result.card:addSubcards(room:getSubcardsByRule(cardResponded, { Card.Processing }))
-            data.result.card.skillName = self.name
+            data.result.card.skillName = skill.name
 
             if data.eventData then
               data.result.toCard = data.eventData.toCard
@@ -34,7 +39,7 @@ local hujia_spec = {
           else
             data.result = Fk:cloneCard('jink')
             data.result:addSubcards(room:getSubcardsByRule(cardResponded, { Card.Processing }))
-            data.result.skillName = self.name
+            data.result.skillName = skill.name
           end
           return true
         end
@@ -43,8 +48,7 @@ local hujia_spec = {
   end,
 }
 
-return fk.CreateSkill({
-  name = "hujia$",
-  anim_type = "defensive",
-}):addEffect(fk.AskForCardUse, nil, hujia_spec)
-  :addEffect(fk.AskForCardResponse, nil, hujia_spec)
+skill:addEffect(fk.AskForCardUse, nil, hujia_spec)
+skill:addEffect(fk.AskForCardResponse, nil, hujia_spec)
+
+return skill

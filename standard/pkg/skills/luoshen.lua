@@ -1,32 +1,35 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill{
   name = "luoshen",
-  anim_type = "drawcard",
-}):addEffect(fk.EventPhaseStart, nil, {
+}
+
+skill:addEffect(fk.EventPhaseStart, nil, {
   can_trigger = function(self, event, target, player, data)
-    return player.phase == Player.Start
+    return target == player and player:hasSkill(skill.name) and player.phase == Player.Start
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
     while true do
       local judge = {
         who = player,
-        reason = "luoshen",
+        reason = skill.name,
         pattern = ".|.|spade,club",
       }
       room:judge(judge)
-      if judge.card.color ~= Card.Black or player.dead or not room:askForSkillInvoke(player, self.name) then
+      if judge.card.color ~= Card.Black or player.dead or not room:askForSkillInvoke(player, skill.name) then
         break
       end
     end
   end,
 })
-  :addEffect(fk.FinishJudge, nil, {
+skill:addEffect(fk.FinishJudge, nil, {
   can_trigger = function(self, event, target, player, data)
-    return not player.dead and data.reason == "luoshen" and data.card.color == Card.Black and
-    player.room:getCardArea(data.card) == Card.Processing
+    return target == player and not player.dead and data.reason == skill.name and data.card.color == Card.Black and
+      player.room:getCardArea(data.card) == Card.Processing
   end,
   on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card)
+    player.room:obtainCard(player.id, data.card, false, skill.name)
   end,
 })
+
+return skill

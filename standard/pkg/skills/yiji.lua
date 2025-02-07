@@ -1,9 +1,8 @@
-local main_skel = fk.CreateSkill({
+local skill = fk.CreateSkill {
   name = "yiji",
-  anim_type = "masochism",
-})
+}
 
-main_skel:addEffect(fk.Damaged, nil, {
+skill:addEffect(fk.Damaged, nil, {
   on_trigger = function(self, event, target, player, data)
     self.cancel_cost = false
     for _ = 1, data.damage do
@@ -13,7 +12,7 @@ main_skel:addEffect(fk.Damaged, nil, {
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    if room:askForSkillInvoke(player, self.name, data) then
+    if room:askForSkillInvoke(player, skill.name, data) then
       return true
     end
     self.cancel_cost = true
@@ -21,7 +20,7 @@ main_skel:addEffect(fk.Damaged, nil, {
   on_use = function(self, event, target, player, data)
     local room = player.room
     local ids = room:getNCards(2)
-    while true do
+    while not player.dead do
       room:setPlayerMark(player, "yiji_cards", ids)
       local _, ret = room:askForUseActiveSkill(player, "yiji_active", "#yiji-give", true, nil, true)
       room:setPlayerMark(player, "yiji_cards", 0)
@@ -30,41 +29,40 @@ main_skel:addEffect(fk.Damaged, nil, {
           table.removeOne(ids, id)
         end
         room:moveCardTo(ret.cards, Card.PlayerHand, room:getPlayerById(ret.targets[1]), fk.ReasonGive,
-        self.name, nil, false, player.id, nil, player.id)
+        skill.name, nil, false, player.id, nil, player.id)
         if #ids == 0 then break end
         if player.dead then
           room:moveCards({
             ids = ids,
             toArea = Card.DiscardPile,
             moveReason = fk.ReasonJustMove,
-            skillName = self.name,
+            skillName = skill.name,
           })
           break
         end
       else
-        room:moveCardTo(ids, Player.Hand, player, fk.ReasonGive, self.name, nil, false, player.id)
+        room:moveCardTo(ids, Player.Hand, player, fk.ReasonGive, skill.name, nil, false, player.id)
         break
       end
     end
   end,
 })
 
-local aux_skel = fk.CreateSkill {
-  name = 'yiji_active',
+local yiji_active = fk.CreateSkill {
+  name = "yiji_active",
 }
-aux_skel:addEffect('active', nil, {
-  expand_pile = function(self)
-    return type(Self:getMark("yiji_cards")) == "table" and Self:getMark("yiji_cards") or {}
+yiji_active:addEffect("active", nil, {
+  expand_pile = function(self, player)
+    return player:getTableMark("yiji_cards")
   end,
   min_card_num = 1,
   target_num = 1,
-  card_filter = function(self, to_select, selected, targets)
-    local ids = Self:getMark("yiji_cards")
-      return type(ids) == "table" and table.contains(ids, to_select)
+  card_filter = function(self, player, to_select, selected)
+      return table.contains(player:getTableMark("yiji_cards"), to_select)
   end,
-  target_filter = function(self, to_select, selected, selected_cards)
-    return #selected == 0 and to_select ~= Self.id
+  target_filter = function(self, player, to_select, selected)
+    return #selected == 0 and to_select ~= player
   end,
 })
 
-return main_skel, aux_skel
+return skill, yiji_active

@@ -1,7 +1,8 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill {
   name = "xiaoji",
-  anim_type = "drawcard",
-}):addEffect(fk.AfterCardsMove, nil, {
+}
+
+skill:addEffect(fk.AfterCardsMove, nil, {
   can_trigger = function(self, event, target, player, data)
     for _, move in ipairs(data) do
       if move.from == player then
@@ -31,20 +32,22 @@ return fk.CreateSkill({
     end
   end,
   on_cost = function(self, event, target, player, data)
-    if player.room:askForSkillInvoke(player, self.name) then
+    if player.room:askForSkillInvoke(player, skill.name) then
       return true
     end
     self.cancel_cost = true
   end,
   on_use = function(self, event, target, player, data)
-    player:drawCards(2, self.name)
+    player:drawCards(2, skill.name)
   end,
-}):addTest(function()
+})
+
+skill:addTest(function()
   local room = FkTest.room ---@type Room
   local me = room.players[1]
 
   FkTest.runInRoom(function()
-    room:handleAddLoseSkills(me, "xiaoji")
+    room:handleAddLoseSkills(me, skill.name)
   end)
   FkTest.setNextReplies(me, { "1", "1", "1", "1", "1", "1", "1", "1" })
 
@@ -71,3 +74,5 @@ return fk.CreateSkill({
   end)
   lu.assertEquals(#me:getCardIds("h"), 4)
 end)
+
+return skill

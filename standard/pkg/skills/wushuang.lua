@@ -1,3 +1,8 @@
+local skill = fk.CreateSkill {
+  name = "wushuang",
+  frequency = Skill.Compulsory,
+}
+
 local wushuang_spec = {
   on_use = function(self, event, target, player, data)
     data.fixedResponseTimes = data.fixedResponseTimes or {}
@@ -11,18 +16,18 @@ local wushuang_spec = {
   end,
 }
 
-return fk.CreateSkill({
-  name = "wushuang",
-  anim_type = "offensive",
-}):addEffect(fk.TargetSpecified, nil, {
+skill:addEffect(fk.TargetSpecified, nil, {
   can_trigger = function(self, event, target, player, data)
-    return table.contains({ "slash", "duel" }, data.card.trueName)
+    return target == player and player:hasSkill(skill.name) and
+      table.contains({ "slash", "duel" }, data.card.trueName)
   end,
   on_use = wushuang_spec.on_use
 })
-  :addEffect(fk.TargetConfirmed, nil, {
+skill:addEffect(fk.TargetConfirmed, nil, {
   can_trigger = function(self, event, target, player, data)
-    return data.card.trueName == "duel"
+    return target == player and player:hasSkill(skill.name) and data.card.trueName == "duel"
   end,
   on_use = wushuang_spec.on_use
 })
+
+return skill

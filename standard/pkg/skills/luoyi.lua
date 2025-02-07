@@ -1,17 +1,18 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill {
   name = "luoyi",
-  anim_type = "offensive",
-}):addEffect(fk.DrawNCards, nil, {
+}
+
+skill:addEffect(fk.DrawNCards, nil, {
   can_trigger = function(self, event, target, player, data)
-    return data.n > 0
+    return target == player and player:hasSkill(skill.name) and data.n > 0
   end,
   on_use = function(self, event, target, player, data)
     data.n = data.n - 1
   end,
 })
-  :addEffect(fk.DamageCaused, nil, {
+skill:addEffect(fk.DamageCaused, nil, {
   can_trigger = function(self, event, target, player, data)
-    return player:usedSkillTimes("luoyi", Player.HistoryTurn) > 0 and
+    return player:usedSkillTimes(skill.name, Player.HistoryTurn) > 0 and
       data.card and (data.card.trueName == "slash" or data.card.name == "duel") and data.by_user
   end,
   on_cost = Util.TrueFunc,
@@ -21,11 +22,13 @@ return fk.CreateSkill({
     room:notifySkillInvoked(player, "luoyi")
     data.damage = data.damage + 1
   end,
-}):addTest(function()
+})
+
+skill:addTest(function()
   local room = FkTest.room ---@type Room
   local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
   FkTest.runInRoom(function()
-    room:handleAddLoseSkills(me, "luoyi")
+    room:handleAddLoseSkills(me, skill.name)
   end)
   local slash = Fk:getCardById(1)
   FkTest.setNextReplies(me, { "1", json.encode {
@@ -58,3 +61,5 @@ return fk.CreateSkill({
   end)
   lu.assertEquals(comp2.hp, origin_hp - 1)
 end)
+
+return skill

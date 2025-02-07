@@ -1,15 +1,13 @@
-local skill_name = "fankui"
-
 local skill = fk.CreateSkill({
-  name = skill_name,
-  anim_type = "masochism",
+  name = "fankui",
 })
 
 skill:addEffect(fk.Damaged, nil, {
+  anim_type = "masochism",
   can_trigger = function(self, event, target, player, data)
     if data.from and not data.from.dead then
       if data.from == player then
-        return #player.player_cards[Player.Equip] > 0
+        return #player:getCardIds("e") > 0
       else
         return not data.from:isNude()
       end
@@ -19,7 +17,7 @@ skill:addEffect(fk.Damaged, nil, {
     local room = player.room
     local from = data.from
     local flag =  from == player and "e" or "he"
-    local card = room:askForCardChosen(player, from, flag, self.name)
+    local card = room:askForCardChosen(player, from, flag, skill.name)
     room:obtainCard(player.id, card, false, fk.ReasonPrey)
   end
 })

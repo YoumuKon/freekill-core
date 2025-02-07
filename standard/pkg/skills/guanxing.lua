@@ -1,13 +1,11 @@
-local skill_name = "guanxing"
-
 local skill = fk.CreateSkill({
-  name = skill_name,
-  anim_type = "control",
+  name = "guanxing",
 })
 
 skill:addEffect(fk.EventPhaseStart, nil, {
+  anim_type = "control",
   can_trigger = function(self, event, target, player, data)
-    return player.phase == Player.Start
+    return target == player and player:hasSkill(skill.name) and player.phase == Player.Start
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room

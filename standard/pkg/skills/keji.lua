@@ -1,9 +1,10 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill{
   name = "keji",
-  anim_type = "defensive",
-}):addEffect(fk.EventPhaseChanging, nil, {
+}
+
+skill:addEffect(fk.EventPhaseChanging, nil, {
   can_trigger = function(self, event, target, player, data)
-    if data.to == Player.Discard then
+    if target == player and player:hasSkill(skill.name) and data.to == Player.Discard then
       local play_ids = {}
       player.room.logic:getEventsOfScope(GameEvent.Phase, 1, function (e)
         if e.data[2] == Player.Play and e.end_id then
@@ -26,12 +27,16 @@ return fk.CreateSkill({
       and #player.room.logic:getEventsOfScope(GameEvent.RespondCard, 1, PlayCheck, Player.HistoryTurn) == 0
     end
   end,
-  on_use = Util.TrueFunc,
-}):addTest(function()
+  on_use = function(self, event, target, player, data)
+    player:skip(Player.Discard)
+  end,
+})
+
+skill:addTest(function()
   local room = FkTest.room ---@type Room
   local me = room.players[1]
   FkTest.runInRoom(function()
-    room:handleAddLoseSkills(me, "keji")
+    room:handleAddLoseSkills(me, skill.name)
   end)
 
   FkTest.setNextReplies(me, { "1" })
@@ -47,3 +52,5 @@ return fk.CreateSkill({
 
   lu.assertEquals(#me:getCardIds("h"), 10)
 end)
+
+return skill

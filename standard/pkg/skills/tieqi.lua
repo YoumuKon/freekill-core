@@ -1,15 +1,16 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill {
   name = "tieqi",
-  anim_type = "offensive",
-}):addEffect(fk.TargetSpecified, nil, {
+}
+
+skill:addEffect(fk.TargetSpecified, nil, {
   can_trigger = function(self, event, target, player, data)
-    return data.card.trueName == "slash"
+    return target == player and player:hasSkill(skill.name) and data.card.trueName == "slash"
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
     local judge = {
       who = player,
-      reason = self.name,
+      reason = skill.name,
       pattern = ".|.|heart,diamond",
     }
     room:judge(judge)
@@ -18,3 +19,5 @@ return fk.CreateSkill({
     end
   end,
 })
+
+return skill

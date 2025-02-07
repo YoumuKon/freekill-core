@@ -1,20 +1,24 @@
-return fk.CreateSkill({
+local skill = fk.CreateSkill {
   name = "guicai",
+}
+
+skill:addEffect(fk.AskForRetrial, nil, {
   anim_type = "control",
-}):addEffect(fk.AskForRetrial, { playerNotTarget = true }, {
   can_trigger = function(self, event, target, player, data)
-    return not player:isKongcheng()
+    return target == player and player:hasSkill(skill.name) and not player:isKongcheng()
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
     local prompt = "#guicai-ask::" .. target.id
-    local card = room:askForCard(player, 1, 1, false, self.name, true, ".|.|.|hand", prompt)
+    local card = room:askForCard(player, 1, 1, false, skill.name, true, ".|.|.|hand", prompt)
     if #card > 0 then
-      self.cost_data = card[1]
+      event:setCostData({cards = card})
       return true
     end
   end,
   on_use = function(self, event, target, player, data)
-    player.room:retrial(Fk:getCardById(self.cost_data), player, data, self.name)
+    player.room:retrial(Fk:getCardById(event:getCostData(self).cards[1]), player, data, skill.name)
   end,
 })
+
+return skill
