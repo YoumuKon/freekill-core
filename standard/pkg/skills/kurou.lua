@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "kurou",
 }
 
-skill:addEffect("active", nil, {
+skill:addEffect("active", {
   anim_type = "drawcard",
   prompt = "#kurou-active",
   card_filter = Util.FalseFunc,

@@ -5,7 +5,7 @@ local skill = fk.CreateSkill{
   frequency = Skill.Compulsory,
 }
 
-skill:addEffect("targetmod", nil, {
+skill:addEffect("targetmod", {
   bypass_distances = function(self, player, skill, card)
     return player:hasSkill(skill_name) and card and card.type == Card.TypeTrick
   end,

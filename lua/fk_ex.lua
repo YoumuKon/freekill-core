@@ -123,16 +123,16 @@ end
 ---@field public effect_list ([any, any, any])[]
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun()[]
----@field public addEffect fun(self: SkillSkeleton, key: 'distance', attribute: nil, data: DistanceSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', attribute: nil, data: ProhibitSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', attribute: nil, data: AttackRangeSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'maxcards', attribute: nil, data: MaxCardsSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'targetmod', attribute: nil, data: TargetModSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'filter', attribute: nil, data: FilterSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', attribute: nil, data: InvaliditySpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'visibility', attribute: nil, data: VisibilitySpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'active', attribute: nil, data: ActiveSkillSpec)
----@field public addEffect fun(self: SkillSkeleton, key: 'viewas', attribute: nil, data: ViewAsSkillSpec)
+---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', data: ProhibitSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', data: AttackRangeSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'maxcards', data: MaxCardsSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'targetmod', data: TargetModSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'filter', data: FilterSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', data: InvaliditySpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', data: VisibilitySpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'active', data: ActiveSkillSpec, attribute: nil)
+---@field public addEffect fun(self: SkillSkeleton, key: 'viewas', data: ViewAsSkillSpec, attribute: nil)
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
@@ -144,7 +144,7 @@ function SkillSkeleton:initialize(spec)
   self.tests = {}
 end
 
-function SkillSkeleton:addEffect(key, attribute, data)
+function SkillSkeleton:addEffect(key, data, attribute)
   -- 需要按照顺序插入，active和viewas最先，trigger其次，剩下的随意
   -- 其实决定要不要插在第一个就行了
   -- 'active' 和 'viewas' 必须唯一

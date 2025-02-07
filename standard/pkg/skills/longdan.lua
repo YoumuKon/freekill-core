@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "longdan",
 }
 
-skill:addEffect("viewas", nil, {
+skill:addEffect("viewas", {
   pattern = "slash,jink",
   prompt = "#longdan",
   handly_pile = true,

@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "qingnang",
 }
 
-skill:addEffect("active", nil, {
+skill:addEffect("active", {
   anim_type = "support",
   prompt = "#qingnang-active",
   max_phase_use_time = 1,
@@ -15,8 +15,8 @@ skill:addEffect("active", nil, {
   target_num = 1,
   card_num = 1,
   on_use = function(self, room, effect)
-    local from = room:getPlayerById(effect.from)
-    local to = room:getPlayerById(effect.tos[1])
+    local from = effect.from
+    local to = effect.tos[1]
     room:throwCard(effect.cards, skill.name, from, from)
     if to:isAlive() and to:isWounded() then
       room:recover({

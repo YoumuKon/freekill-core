@@ -71,18 +71,13 @@ fk.AfterCardsMove = MoveCardsEvent:subclass("fk.AfterCardsMove")
 ---@class fk.BeforeDrawCard: DrawEvent
 fk.BeforeDrawCard = DrawEvent:subclass("fk.BeforeDrawCard")
 
--- 注释
-
 ---@alias MoveCardsFunc fun(self: TriggerSkill, event: MoveCardsEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: MoveCardsData[]): any
-
----@class SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: MoveCardsEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<MoveCardsFunc>): SkillSkeleton
-
 ---@alias DrawFunc fun(self: TriggerSkill, event: DrawEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DrawData): any
 
 ---@class SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: MoveCardsEvent,
+---  data: TrigSkelSpec<MoveCardsFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DrawEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<DrawFunc>): SkillSkeleton
+---  data: TrigSkelSpec<DrawFunc>, attr: TrigSkelAttribute?): SkillSkeleton

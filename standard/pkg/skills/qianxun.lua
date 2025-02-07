@@ -5,7 +5,7 @@ local skill = fk.CreateSkill{
   frequency = Skill.Compulsory,
 }
 
-skill:addEffect("prohibit", nil, {
+skill:addEffect("prohibit", {
   is_prohibited = function(self, from, to, card)
     if to:hasSkill(skill.name) and card then
       return table.contains({"indulgence", "snatch"}, card.trueName)

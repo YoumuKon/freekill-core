@@ -16,14 +16,14 @@ local wushuang_spec = {
   end,
 }
 
-skill:addEffect(fk.TargetSpecified, nil, {
+skill:addEffect(fk.TargetSpecified, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       table.contains({ "slash", "duel" }, data.card.trueName)
   end,
   on_use = wushuang_spec.on_use
 })
-skill:addEffect(fk.TargetConfirmed, nil, {
+skill:addEffect(fk.TargetConfirmed, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card.trueName == "duel"
   end,

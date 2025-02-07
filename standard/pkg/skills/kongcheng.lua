@@ -3,7 +3,7 @@ local skill = fk.CreateSkill{
   frequency = Skill.Compulsory,
 }
 
-skill:addEffect("prohibit", nil, {
+skill:addEffect("prohibit", {
   is_prohibited = function(self, from, to, card)
     if to:hasSkill(skill.name) and to:isKongcheng() and card then
       return table.contains({"slash", "duel"}, card.trueName)
@@ -11,7 +11,7 @@ skill:addEffect("prohibit", nil, {
   end,
 })
 
-skill:addEffect(fk.AfterCardsMove, nil, {
+skill:addEffect(fk.AfterCardsMove, {
   can_refresh = function(self, event, target, player, data)
     if not (player:hasSkill(skill.name) and player:isKongcheng()) then return end
     for _, move in ipairs(data) do

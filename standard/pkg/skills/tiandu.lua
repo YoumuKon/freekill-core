@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "tiandu",
 }
 
-skill:addEffect(fk.FinishJudge, nil, {
+skill:addEffect(fk.FinishJudge, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       data.card and player.room:getCardArea(data.card) == Card.Processing

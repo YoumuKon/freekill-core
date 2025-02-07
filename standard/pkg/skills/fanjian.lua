@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "fanjian",
 }
 
-skill:addEffect("active", nil, {
+skill:addEffect("active", {
   anim_type = "offensive",
   prompt = "#fanjian-active",
   max_phase_use_time = 1,
@@ -12,8 +12,8 @@ skill:addEffect("active", nil, {
   end,
   target_num = 1,
   on_use = function(self, room, effect)
-    local player = room:getPlayerById(effect.from)
-    local target = room:getPlayerById(effect.tos[1])
+    local player = effect.from
+    local target = effect.tos[1]
     local choice = room:askForChoice(target, {"spade", "heart", "club", "diamond"}, skill.name)
     local card = room:askForCardChosen(target, player, 'h', skill.name)
     room:obtainCard(target.id, card, true, fk.ReasonPrey)

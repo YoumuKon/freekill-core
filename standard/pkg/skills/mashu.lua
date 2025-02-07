@@ -3,7 +3,7 @@ local skill = fk.CreateSkill{
   frequency = Skill.Compulsory,
 }
 
-skill:addEffect("distance", nil, {
+skill:addEffect("distance", {
   correct_func = function(self, from, to)
     if from:hasSkill(skill.name) then
       return -1

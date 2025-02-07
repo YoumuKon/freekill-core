@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "tieqi",
 }
 
-skill:addEffect(fk.TargetSpecified, nil, {
+skill:addEffect(fk.TargetSpecified, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card.trueName == "slash"
   end,

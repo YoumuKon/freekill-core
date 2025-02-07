@@ -2,7 +2,7 @@ local skill = fk.CreateSkill({
   name = "ganglie",
 })
 
-skill:addEffect(fk.Damaged, nil, {
+skill:addEffect(fk.Damaged, {
   anim_type = "masochism",
   on_use = function(self, event, target, player, data)
     local room = player.room

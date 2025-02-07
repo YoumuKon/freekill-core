@@ -2,7 +2,7 @@ local skill = fk.CreateSkill({
   name = "lianying",
 })
 
-skill:addEffect(fk.AfterCardsMove, nil, {
+skill:addEffect(fk.AfterCardsMove, {
   anim_type = "drawcard",
   can_trigger = function(self, event, target, player, data)
     if not (player:hasSkill(skill.name) and player:isKongcheng()) then return end

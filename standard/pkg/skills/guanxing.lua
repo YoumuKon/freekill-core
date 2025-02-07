@@ -2,7 +2,7 @@ local skill = fk.CreateSkill({
   name = "guanxing",
 })
 
-skill:addEffect(fk.EventPhaseStart, nil, {
+skill:addEffect(fk.EventPhaseStart, {
   anim_type = "control",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and player.phase == Player.Start

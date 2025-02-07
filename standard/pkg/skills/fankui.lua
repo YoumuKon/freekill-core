@@ -2,7 +2,7 @@ local skill = fk.CreateSkill({
   name = "fankui",
 })
 
-skill:addEffect(fk.Damaged, nil, {
+skill:addEffect(fk.Damaged, {
   anim_type = "masochism",
   can_trigger = function(self, event, target, player, data)
     if data.from and not data.from.dead then

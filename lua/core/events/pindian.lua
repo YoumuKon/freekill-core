@@ -32,11 +32,9 @@ fk.PindianResultConfirmed = PindianEvent:subclass("fk.PindianResultConfirmed")
 ---@class fk.PindianFinished: PindianEvent
 fk.PindianFinished = PindianEvent:subclass("fk.PindianFinished")
 
--- 注释
-
 ---@alias PindianTrigFunc fun(self: TriggerSkill, event: PindianEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: PindianData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: PindianEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<PindianTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<PindianTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton

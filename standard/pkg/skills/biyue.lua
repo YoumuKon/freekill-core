@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "biyue",
 }
 
-skill:addEffect(fk.EventPhaseStart, nil, {
+skill:addEffect(fk.EventPhaseStart, {
   anim_type = "drawcard",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and player.phase == Player.Finish

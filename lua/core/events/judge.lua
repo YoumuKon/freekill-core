@@ -24,11 +24,9 @@ fk.FinishRetrial = JudgeEvent:subclass("fk.FinishRetrial")
 ---@class fk.FinishJudge: JudgeEvent
 fk.FinishJudge = JudgeEvent:subclass("fk.FinishJudge")
 
--- 注释
-
 ---@alias JudgeTrigFunc fun(self: TriggerSkill, event: JudgeEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: JudgeData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: JudgeEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<JudgeTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<JudgeTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton

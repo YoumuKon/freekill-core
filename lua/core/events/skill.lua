@@ -48,18 +48,13 @@ fk.EventLoseSkill = TriggerEvent:subclass("fk.EventLoseSkill")
 ---@class fk.EventAcquireSkill: SkillModifyEvent
 fk.EventAcquireSkill = TriggerEvent:subclass("fk.EventAcquireSkill")
 
--- 注释
-
 ---@alias SkillEffectTrigFunc fun(self: TriggerSkill, event: SkillEffectEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: SkillEffectData): any
-
 ---@alias SkillModifyTrigFunc fun(self: TriggerSkill, event: SkillModifyEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: SkillModifyData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: SkillEffectEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<SkillEffectTrigFunc>): SkillSkeleton
-
----@class SkillSkeleton
+---  data: TrigSkelSpec<SkillEffectTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: SkillModifyEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<SkillModifyTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<SkillModifyTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton

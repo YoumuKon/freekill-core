@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "yiji",
 }
 
-skill:addEffect(fk.Damaged, nil, {
+skill:addEffect(fk.Damaged, {
   on_trigger = function(self, event, target, player, data)
     self.cancel_cost = false
     for _ = 1, data.damage do
@@ -51,7 +51,7 @@ skill:addEffect(fk.Damaged, nil, {
 local yiji_active = fk.CreateSkill {
   name = "yiji_active",
 }
-yiji_active:addEffect("active", nil, {
+yiji_active:addEffect("active", {
   expand_pile = function(self, player)
     return player:getTableMark("yiji_cards")
   end,

@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "luoshen",
 }
 
-skill:addEffect(fk.EventPhaseStart, nil, {
+skill:addEffect(fk.EventPhaseStart, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and player.phase == Player.Start
   end,
@@ -21,7 +21,7 @@ skill:addEffect(fk.EventPhaseStart, nil, {
     end
   end,
 })
-skill:addEffect(fk.FinishJudge, nil, {
+skill:addEffect(fk.FinishJudge, {
   can_trigger = function(self, event, target, player, data)
     return target == player and not player.dead and data.reason == skill.name and data.card.color == Card.Black and
       player.room:getCardArea(data.card) == Card.Processing

@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "tuxi",
 }
 
-skill:addEffect(fk.EventPhaseStart, nil, {
+skill:addEffect(fk.EventPhaseStart, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and player.phase == Player.Draw and
       table.find(player.room:getOtherPlayers(player), function(p)

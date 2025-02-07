@@ -141,12 +141,12 @@ fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: HpChangedEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<HpChangedTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<HpChangedTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: HpLostEvent,
----  attr: DamageSkelAttr?, data: TrigSkelSpec<HpLostTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<HpLostTrigFunc>, attr: DamageSkelAttr?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DamageEvent,
----  attr: DamageSkelAttr?, data: TrigSkelSpec<DamageTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<DamageTrigFunc>, attr: DamageSkelAttr?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: RecoverEvent,
----  attr: DamageSkelAttr?, data: TrigSkelSpec<RecoverTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<RecoverTrigFunc>, attr: DamageSkelAttr?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: MaxHpChangedEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<MaxHpChangedTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<MaxHpChangedTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton

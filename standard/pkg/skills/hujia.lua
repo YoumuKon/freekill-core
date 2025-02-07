@@ -48,7 +48,7 @@ local hujia_spec = {
   end,
 }
 
-skill:addEffect(fk.AskForCardUse, nil, hujia_spec)
-skill:addEffect(fk.AskForCardResponse, nil, hujia_spec)
+skill:addEffect(fk.AskForCardUse, hujia_spec)
+skill:addEffect(fk.AskForCardResponse, hujia_spec)
 
 return skill

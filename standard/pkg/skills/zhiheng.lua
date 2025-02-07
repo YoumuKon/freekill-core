@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "zhiheng",
 }
 
-skill:addEffect("active", nil, {
+skill:addEffect("active", {
   anim_type = "drawcard",
   prompt = "#zhiheng-active",
   max_phase_use_time = 1,
@@ -12,7 +12,7 @@ skill:addEffect("active", nil, {
     return not player:prohibitDiscard(to_select)
   end,
   on_use = function(self, room, effect)
-    local from = room:getPlayerById(effect.from)
+    local from = effect.from
     room:throwCard(effect.cards, skill.name, from, from)
     if from:isAlive() then
       from:drawCards(#effect.cards, skill.name)

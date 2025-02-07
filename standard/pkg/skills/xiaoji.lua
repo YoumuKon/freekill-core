@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "xiaoji",
 }
 
-skill:addEffect(fk.AfterCardsMove, nil, {
+skill:addEffect(fk.AfterCardsMove, {
   can_trigger = function(self, event, target, player, data)
     for _, move in ipairs(data) do
       if move.from == player then

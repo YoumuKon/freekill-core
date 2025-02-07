@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "rende",
 }
 
-skill:addEffect("rende", nil, {
+skill:addEffect("active", {
   anim_type = "support",
   prompt = "#rende-active",
   min_card_num = 1,
@@ -14,8 +14,8 @@ skill:addEffect("rende", nil, {
     return #selected == 0 and to_select ~= player
   end,
   on_use = function(self, room, effect)
-    local target = room:getPlayerById(effect.tos[1])
-    local player = room:getPlayerById(effect.from)
+    local target = effect.tos[1]
+    local player = effect.from
     local cards = effect.cards
     local marks = player:getMark("_rende_cards-phase")
     room:moveCardTo(cards, Player.Hand, target, fk.ReasonGive, skill.name, nil, false, player.id)

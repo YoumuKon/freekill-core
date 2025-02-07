@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "jijiang$",
 }
 
-skill:addEffect("viewas", nil, {
+skill:addEffect("viewas", {
   anim_type = "offensive",
   pattern = "slash",
   card_filter = Util.FalseFunc,

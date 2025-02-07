@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "luoyi",
 }
 
-skill:addEffect(fk.DrawNCards, nil, {
+skill:addEffect(fk.DrawNCards, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.n > 0
   end,
@@ -10,7 +10,7 @@ skill:addEffect(fk.DrawNCards, nil, {
     data.n = data.n - 1
   end,
 })
-skill:addEffect(fk.DamageCaused, nil, {
+skill:addEffect(fk.DamageCaused, {
   can_trigger = function(self, event, target, player, data)
     return player:usedSkillTimes(skill.name, Player.HistoryTurn) > 0 and
       data.card and (data.card.trueName == "slash" or data.card.name == "duel") and data.by_user

@@ -293,26 +293,21 @@ fk.CardEffectFinished = CardEffectEvent:subclass("fk.CardEffectFinished")
 ---@class fk.CardEffectCancelledOut: CardEffectEvent
 fk.CardEffectCancelledOut = CardEffectEvent:subclass("fk.CardEffectCancelledOut")
 
--- 注释
-
 ---@alias RespondCardFunc fun(self: TriggerSkill, event: RespondCardEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: RespondCardData): any
-
 ---@alias UseCardFunc fun(self: TriggerSkill, event: UseCardEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: UseCardData): any
-
 ---@alias AimFunc fun(self: TriggerSkill, event: AimEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: AimData): any
-
 ---@alias CardEffectFunc fun(self: TriggerSkill, event: CardEffectEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: CardEffectData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: RespondCardEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<RespondCardFunc>): SkillSkeleton
+---  data: TrigSkelSpec<RespondCardFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: UseCardEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<UseCardFunc>): SkillSkeleton
+---  data: TrigSkelSpec<UseCardFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: AimEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<AimFunc>): SkillSkeleton
+---  data: TrigSkelSpec<AimFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: CardEffectEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<CardEffectFunc>): SkillSkeleton
+---  data: TrigSkelSpec<CardEffectFunc>, attr: TrigSkelAttribute?): SkillSkeleton

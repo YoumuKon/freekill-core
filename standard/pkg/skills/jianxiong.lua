@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "jianxiong",
 }
 
-skill:addEffect(fk.Damaged, nil, {
+skill:addEffect(fk.Damaged, {
   anim_type = "masochism",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and

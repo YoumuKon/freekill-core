@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "jijiu",
 }
 
-skill:addEffect("viewas", nil, {
+skill:addEffect("viewas", {
   anim_type = "support",
   pattern = "peach",
   prompt = "#jijiu",

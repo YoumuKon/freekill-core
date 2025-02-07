@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "keji",
 }
 
-skill:addEffect(fk.EventPhaseChanging, nil, {
+skill:addEffect(fk.EventPhaseChanging, {
   can_trigger = function(self, event, target, player, data)
     if target == player and player:hasSkill(skill.name) and data.to == Player.Discard then
       local room = player.room

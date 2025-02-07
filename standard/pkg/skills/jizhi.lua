@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "jizhi",
 }
 
-skill:addEffect(fk.CardUsing, nil, {
+skill:addEffect(fk.CardUsing, {
   anim_type = "drawcard",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and

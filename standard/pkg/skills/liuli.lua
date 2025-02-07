@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "liuli",
 }
 
-skill:addEffect(fk.TargetConfirming, nil, {
+skill:addEffect(fk.TargetConfirming, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card.trueName == "slash" and
       table.find(player.room.alive_players, function (p)

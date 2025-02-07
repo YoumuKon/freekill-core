@@ -109,17 +109,15 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 
 ---@alias RoundFunc fun(self: TriggerSkill, event: RoundEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: RoundData): any
-
 ---@alias TurnFunc fun(self: TriggerSkill, event: TurnEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: TurnData): any
-
 ---@alias PhaseFunc fun(self: TriggerSkill, event: PhaseEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: PhaseData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: RoundEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<RoundFunc>): SkillSkeleton
+---  data: TrigSkelSpec<RoundFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: TurnEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<TurnFunc>): SkillSkeleton
+---  data: TrigSkelSpec<TurnFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: PhaseEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<PhaseFunc>): SkillSkeleton
+---  data: TrigSkelSpec<PhaseFunc>, attr: TrigSkelAttribute?): SkillSkeleton

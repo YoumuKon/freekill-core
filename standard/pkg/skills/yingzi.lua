@@ -4,7 +4,7 @@ local skill = fk.CreateSkill {
   name = skill_name,
 }
 
-skill:addEffect(fk.DrawNCards, nil, {
+skill:addEffect(fk.DrawNCards, {
   on_use = function(self, event, target, player, data)
     data.n = data.n + 1
   end,

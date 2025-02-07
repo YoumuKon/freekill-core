@@ -3,7 +3,7 @@ local skill = fk.CreateSkill{
   frequency = Skill.Compulsory,
 }
 
-skill:addEffect(fk.PreHpRecover, nil, {
+skill:addEffect(fk.PreHpRecover, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       data.card and data.card.trueName == "peach" and

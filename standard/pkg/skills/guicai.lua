@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "guicai",
 }
 
-skill:addEffect(fk.AskForRetrial, nil, {
+skill:addEffect(fk.AskForRetrial, {
   anim_type = "control",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and not player:isKongcheng()

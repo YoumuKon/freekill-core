@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "lijian",
 }
 
-skill:addEffect("active", nil, {
+skill:addEffect("active", {
   anim_type = "offensive",
   prompt = "#lijian-active",
   max_phase_use_time = 1,

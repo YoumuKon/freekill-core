@@ -72,18 +72,18 @@ fk.AfterPlayerRevived = ReviveEvent:subclass("fk.AfterPlayerRevived")
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DyingEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<DyingTrigFunc>): SkillSkeleton
+---  data: TrigSkelSpec<DyingTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 
 ---@alias DeathTrigFunc fun(self: TriggerSkill, event: DeathEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DeathData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DeathEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<DeathDataSpec>): SkillSkeleton
+---  data: TrigSkelSpec<DeathDataSpec>, attr: TrigSkelAttribute?): SkillSkeleton
 
 ---@alias ReviveTrigFunc fun(self: TriggerSkill, event: ReviveEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: ReviveData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: ReviveEvent,
----  attr: TrigSkelAttribute?, data: TrigSkelSpec<ReviveDataSpec>): SkillSkeleton
+---  data: TrigSkelSpec<ReviveDataSpec>, attr: TrigSkelAttribute?): SkillSkeleton
