@@ -280,7 +280,7 @@ function ServerPlayer:gainAnExtraPhase(phase, delay)
       from = self.id,
       arg = Util.PhaseStrMapper(phase),
     }
-    logic:trigger(fk.EventPhaseSkipped, self, phase)
+    logic:trigger(fk.EventPhaseSkipped, self, {phase = phase})
   end
 
   self.phase = current
@@ -338,6 +338,12 @@ function ServerPlayer:play(phase_table)
     local skip = phase_state[i].skipped
     if not skip then
       skip = logic:trigger(fk.EventPhaseChanging, self, phase_change)
+      if skip then
+        fk.qWarning("Return true at fk.EventPhaseChanging is deprecated! Use Player:skip() instead")
+      end
+      if self.skipped_phases[phases[i]] then
+        skip = true
+      end
     end
     phases[i] = phase_change.to
     phase_state[i].phase = phases[i]
@@ -363,7 +369,7 @@ function ServerPlayer:play(phase_table)
         from = self.id,
         arg = Util.PhaseStrMapper(self.phase),
       }
-      logic:trigger(fk.EventPhaseSkipped, self, self.phase)
+      logic:trigger(fk.EventPhaseSkipped, self, {phase = self.phase})
     end
   end
 end
@@ -853,7 +859,7 @@ function ServerPlayer:hideGeneral(isDeputy)
   local general = Fk.generals[generalName]
   local place = isDeputy and "m" or "d"
   for _, sname in ipairs(general:getSkillNameList()) do
-    room:handleAddLoseSkills(self, "-" .. sname, nil, false, true)
+    room:handleAddLoseSkills(self, "-" .. sname, nil, false, false)
     local s = Fk.skills[sname]
     if s.relate_to_place ~= place then
       if s.frequency == Skill.Compulsory then

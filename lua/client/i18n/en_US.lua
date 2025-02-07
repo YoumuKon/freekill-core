@@ -239,6 +239,7 @@ Fk:loadTranslationTable({
   ["#StartPindianReason"] = "%from started point fight (%arg)",
   ["#ShowPindianCard"] = "The point fight card of %from is %arg",
   ["#ShowPindianResult"] = "%from %arg the point fight between %from and %to",
+  ["#ChangePindianNumber"] = "Due to %arg, the point of %to changes from %arg2 to %arg3",
   ["pindianwin"] = "won",
   ["pindiannotwin"] = "lost",
 

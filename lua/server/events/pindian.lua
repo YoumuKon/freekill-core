@@ -216,4 +216,30 @@ function PindianEventWrappers:pindian(pindianData)
   return exec(Pindian, PindianData:new(pindianData))
 end
 
+--- 加减拼点牌点数（最小为1，最大为13）。
+---@param pindianData PindianStruct
+---@param player ServerPlayer @ 拼点角色
+---@param number integer @ 加减的点数
+---@param skill_name string @ 技能名
+function PindianEventWrappers:changePindianNumber(pindianData, player, number, skill_name)
+  local orig_num, new_num
+  if player == pindianData.from then
+    orig_num = pindianData.fromCard.number
+    new_num = math.max(1, math.min(13, orig_num + number))
+    pindianData.fromCard.number = new_num
+  elseif pindianData.results[player.id] then
+    orig_num = pindianData.results[player.id].toCard.number
+    new_num = math.max(1, math.min(13, orig_num + number))
+    pindianData.results[player.id].toCard.number = new_num
+  end
+  self:sendLog{
+    type = "#ChangePindianNumber",
+    to = { player.id },
+    arg = skill_name,
+    arg2 = orig_num,
+    arg3 = new_num,
+    toast = true,
+  }
+end
+
 return { Pindian, PindianEventWrappers }
