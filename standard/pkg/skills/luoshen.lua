@@ -28,8 +28,40 @@ skill:addEffect(fk.FinishJudge, nil, {
   end,
   on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card, false, skill.name)
+    player.room:obtainCard(player.id, data.card, false, fk.ReasonJustMove, nil, skill.name)
   end,
 })
+
+skill:addTest(function()
+  local room = FkTest.room ---@type Room
+  local me = room.players[1]
+
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "luoshen")
+  end)
+  local red = table.find(room.draw_pile, function(cid)
+    return Fk:getCardById(cid).color == Card.Red
+  end)
+  local blacks = table.filter(room.draw_pile, function(cid)
+    return Fk:getCardById(cid).color == Card.Black
+  end)
+  local rnd = 5
+  FkTest.setNextReplies(me, { "1", "1", "1", "1", "1", "1" }) -- 除了第一个1以外后面全是潜在的“重复流程”
+  -- 每次往红牌顶上塞若干个黑牌
+  FkTest.runInRoom(function()
+    room:throwCard(me:getCardIds("h"), nil, me, me)
+    -- 控顶
+    room:moveCardTo(red, Card.DrawPile)
+    if rnd > 0 then room:moveCardTo(table.slice(blacks, 1, rnd + 1), Card.DrawPile) end
+
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Start }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+  lu.assertEquals(#me:getCardIds("h"), rnd)
+end)
 
 return skill

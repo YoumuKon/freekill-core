@@ -11,4 +11,19 @@ skill:addEffect("distance", nil, {
   end,
 })
 
+skill:addTest(function()
+  local room = FkTest.room ---@type Room
+  local me = room.players[1] ---@type ServerPlayer
+
+  local origin = table.map(room:getOtherPlayers(me), function(other) return me:distanceTo(other) end)
+
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "mashu")
+  end)
+
+  for i, other in ipairs(room:getOtherPlayers(me)) do
+    lu.assertEquals(me:distanceTo(other), math.max(origin[i] - 1, 1))
+  end
+end)
+
 return skill

@@ -12,4 +12,24 @@ skill:addEffect(fk.EventPhaseStart, nil, {
   end,
 })
 
+skill:addTest(function()
+  local room = FkTest.room ---@type Room
+  local me = room.players[1]
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "biyue")
+  end)
+
+  FkTest.setNextReplies(me, { "1" })
+  FkTest.runInRoom(function()
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Finish }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+
+  lu.assertEquals(#me:getCardIds("h"), 1)
+end)
+
 return skill

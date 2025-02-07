@@ -12,4 +12,24 @@ skill:addEffect(fk.FinishJudge, nil, {
   end,
 })
 
+skill:addTest(function()
+  local room = FkTest.room ---@type Room
+  local me = room.players[1]
+
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "tiandu")
+  end)
+  FkTest.setNextReplies(me, { "1", "1", "1", "1", "1", "1", "1", "1" }) -- 试图领取所有人的判定牌
+  FkTest.runInRoom(function()
+    for _, p in ipairs(room.players) do
+      room:judge{
+        who = p,
+        pattern = ".",
+        reason = "test"
+      }
+    end
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 1)
+end)
+
 return skill

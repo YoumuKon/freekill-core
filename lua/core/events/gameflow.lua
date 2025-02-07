@@ -71,6 +71,7 @@ fk.AfterTurnEnd = TurnEvent:subclass("fk.AfterTurnEnd")
 ---@class PhaseDataSpec -- TODO: 发挥想象力，填写这个Spec吧
 ---@field who ServerPlayer @ 本阶段的执行者
 ---@field reason string @ 当前额外阶段的原因，不为额外阶段则为game_rule
+---@field phase Phase
 ---@field phase_end? boolean @ 该阶段是否即将结束
 
 --- 阶段的数据

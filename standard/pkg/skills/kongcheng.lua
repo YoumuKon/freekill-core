@@ -6,10 +6,11 @@ local skill = fk.CreateSkill{
 skill:addEffect("prohibit", nil, {
   is_prohibited = function(self, from, to, card)
     if to:hasSkill(skill.name) and to:isKongcheng() and card then
-      return table.contains(card.trueName, {"slash", "duel"})
+      return table.contains({"slash", "duel"}, card.trueName)
     end
   end,
 })
+
 skill:addEffect(fk.AfterCardsMove, nil, {
   can_refresh = function(self, event, target, player, data)
     if not (player:hasSkill(skill.name) and player:isKongcheng()) then return end
@@ -28,5 +29,23 @@ skill:addEffect(fk.AfterCardsMove, nil, {
     player.room:notifySkillInvoked(player, "kongcheng", "defensive")
   end,
 })
+
+skill:addTest(function()
+  local room = FkTest.room ---@type Room
+  local me, comp2 = room.players[1], room.players[2]
+
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "kongcheng")
+  end)
+  local slash = Fk:cloneCard("slash")
+  local duel = Fk:cloneCard("duel")
+  lu.assertFalse(comp2:canUseTo(slash, me))
+  lu.assertFalse(comp2:canUseTo(duel, me))
+  FkTest.runInRoom(function()
+    me:drawCards(1)
+  end)
+  lu.assertTrue(comp2:canUseTo(slash, me))
+  lu.assertTrue(comp2:canUseTo(duel, me))
+end)
 
 return skill

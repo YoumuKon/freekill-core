@@ -22,4 +22,34 @@ skill:addEffect(fk.Damaged, nil, {
   end
 })
 
+skill:addTest(function()
+  local room = FkTest.room
+  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
+  FkTest.runInRoom(function() room:handleAddLoseSkills(me, "fankui") end)
+
+  -- 空牌的情况
+  local slash = Fk:getCardById(1)
+  FkTest.setNextReplies(me, { "__cancel" })
+  FkTest.runInRoom(function()
+    room:useCard{
+      from = comp2,
+      tos = { me },
+      card = slash,
+    }
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 0)
+
+  -- 有牌的情况
+  FkTest.setNextReplies(me, { "__cancel", "1", "3" })
+  FkTest.runInRoom(function()
+    room:obtainCard(comp2, { 3 })
+    room:useCard{
+      from = comp2,
+      tos = { me },
+      card = slash,
+    }
+  end)
+  lu.assertEquals(me:getCardIds("h")[1], 3)
+end)
+
 return skill
