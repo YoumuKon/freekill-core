@@ -270,7 +270,7 @@ function ServerPlayer:gainAnExtraPhase(phase, delay)
       from = self.id,
       arg = Util.PhaseStrMapper(phase),
     }
-    logic:trigger(fk.EventPhaseSkipped, self, phase)
+    logic:trigger(fk.EventPhaseSkipped, self, {phase = phase})
   end
 
   self.phase = current
@@ -328,6 +328,9 @@ function ServerPlayer:play(phase_table)
     local skip = phase_state[i].skipped
     if not skip then
       skip = logic:trigger(fk.EventPhaseChanging, self, phase_change)
+      if skip then
+        fk.qWarning("Return true at fk.EventPhaseChanging is deprecated! Use Player:skip() instead")
+      end
       if self.skipped_phases[phases[i]] then
         skip = true
       end
@@ -351,7 +354,7 @@ function ServerPlayer:play(phase_table)
         from = self.id,
         arg = Util.PhaseStrMapper(self.phase),
       }
-      logic:trigger(fk.EventPhaseSkipped, self, self.phase)
+      logic:trigger(fk.EventPhaseSkipped, self, {phase = self.phase})
     end
   end
 end
