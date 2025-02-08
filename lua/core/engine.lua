@@ -89,7 +89,6 @@ function Engine:initialize()
   self:loadCardNames()
   self:loadDisabled()
   self:loadRequestHandlers()
-  self:addSkills(AuxSkills)
 end
 
 local _foreign_keys = {
