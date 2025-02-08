@@ -12,15 +12,21 @@ DrawInitialData = TriggerData:subclass("DrawInitialData")
 local DrawInitialEvent = TriggerEvent:subclass("DrawInitialEvent")
 
 ---@class fk.DrawInitialCards: DrawInitialEvent
-fk.DrawInitialCards = TriggerEvent:subclass("fk.DrawInitialCards")
+fk.DrawInitialCards = DrawInitialEvent:subclass("fk.DrawInitialCards")
 ---@class fk.AfterDrawInitialCards: DrawInitialEvent
-fk.AfterDrawInitialCards = TriggerEvent:subclass("fk.AfterDrawInitialCards")
+fk.AfterDrawInitialCards = DrawInitialEvent:subclass("fk.AfterDrawInitialCards")
+
+---@class EventTurnChangingDataSpec
+---@field public from ServerPlayer
+---@field public to ServerPlayer
+---@field public skipRoundPlus boolean?
+
+---@class EventTurnChangingData: EventTurnChangingDataSpec, TriggerData
+EventTurnChangingData = TriggerData:subclass("EventTurnChangingData")
 
 ---@class fk.EventTurnChanging: TriggerEvent
+---@field data EventTurnChangingData
 fk.EventTurnChanging = TriggerEvent:subclass("fk.EventTurnChanging")
-
----@class fk.GameStart: TriggerEvent
-fk.GameStart = TriggerEvent:subclass("fk.GameStart")
 
 --- RoundData 轮次的数据
 ---@class RoundDataSpec -- TODO: 发挥想象力，填写这个Spec吧
@@ -41,6 +47,8 @@ fk.RoundStart = RoundEvent:subclass("fk.RoundStart")
 fk.RoundEnd = RoundEvent:subclass("fk.RoundEnd")
 ---@class fk.AfterRoundEnd: RoundEvent
 fk.AfterRoundEnd = RoundEvent:subclass("fk.AfterRoundEnd")
+---@class fk.GameStart: RoundEvent
+fk.GameStart = RoundEvent:subclass("fk.GameStart")
 
 --- TurnData 回合的数据
 ---@class TurnDataSpec -- TODO: 发挥想象力，填写这个Spec吧
@@ -97,15 +105,25 @@ fk.EventPhaseSkipping = PhaseEvent:subclass("fk.EventPhaseSkipping")
 ---@class fk.EventPhaseSkipped: PhaseEvent
 fk.EventPhaseSkipped = PhaseEvent:subclass("fk.EventPhaseSkipped")
 
----@class fk.DrawNCards: TriggerEvent
-fk.DrawNCards = TriggerEvent:subclass("fk.DrawNCards")
----@class fk.AfterDrawNCards: TriggerEvent
-fk.AfterDrawNCards = TriggerEvent:subclass("fk.AfterDrawNCards")
+---@class DrawNCardsData: PhaseData
+---@field public n integer 摸牌数量
+DrawNCardsData = PhaseData:subclass("DrawNCardsData")
+
+---@class DrawNCardsEvent: TriggerEvent
+---@field data DrawNCardsData
+local DrawNCardsEvent = TriggerEvent:subclass("DrawNCardsEvent")
+
+---@class fk.DrawNCards: DrawNCardsEvent
+fk.DrawNCards = DrawNCardsEvent:subclass("fk.DrawNCards")
+---@class fk.AfterDrawNCards: DrawNCardsEvent
+fk.AfterDrawNCards = DrawNCardsEvent:subclass("fk.AfterDrawNCards")
+
+---@class StartPlayCardData
+---@field timeout integer
 
 ---@class fk.StartPlayCard: TriggerEvent
+---@field data StartPlayCardData
 fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
-
--- 注释
 
 ---@alias RoundFunc fun(self: TriggerSkill, event: RoundEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: RoundData): any
@@ -113,6 +131,14 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 ---  target: ServerPlayer, player: ServerPlayer, data: TurnData): any
 ---@alias PhaseFunc fun(self: TriggerSkill, event: PhaseEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: PhaseData): any
+---@alias DrawInitFunc fun(self: TriggerSkill, event: DrawInitialEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: DrawInitialData): any
+---@alias EventTurnChangingFunc fun(self: TriggerSkill, event: fk.EventTurnChanging,
+---  target: ServerPlayer, player: ServerPlayer, data: EventTurnChangingData): any
+---@alias DrawNCardsFunc fun(self: TriggerSkill, event: DrawNCardsEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: DrawNCardsData): any
+---@alias StartPlayCardFunc fun(self: TriggerSkill, event: fk.StartPlayCard,
+---  target: ServerPlayer, player: ServerPlayer, data: StartPlayCardData): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: RoundEvent,
@@ -121,3 +147,11 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 ---  data: TrigSkelSpec<TurnFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: PhaseEvent,
 ---  data: TrigSkelSpec<PhaseFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: DrawInitialEvent,
+---  data: TrigSkelSpec<DrawInitFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: fk.EventTurnChanging,
+---  data: TrigSkelSpec<EventTurnChangingFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: DrawNCardsEvent,
+---  data: TrigSkelSpec<DrawNCardsFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: fk.StartPlayCard,
+---  data: TrigSkelSpec<StartPlayCardFunc>, attr: TrigSkelAttribute?): SkillSkeleton

@@ -24,15 +24,18 @@ fk.PropertyChange = PropertyChangeEvent:subclass("fk.PropertyChange")
 ---@class fk.AfterPropertyChange: PropertyChangeEvent
 fk.AfterPropertyChange = PropertyChangeEvent:subclass("fk.AfterPropertyChange")
 
----@class fk.BeforeTurnOver: TriggerEvent
-fk.BeforeTurnOver = TriggerEvent:subclass("fk.BeforeTurnOver")
----@class fk.TurnedOver: TriggerEvent
-fk.TurnedOver = TriggerEvent:subclass("fk.TurnedOver")
+---@class NilEvent: TriggerEvent
+---@field data nil
+local NilEvent = TriggerEvent:subclass("NilEvent")
 
----@class fk.BeforeChainStateChange: TriggerEvent
-fk.BeforeChainStateChange = TriggerEvent:subclass("fk.BeforeChainStateChange")
----@class fk.ChainStateChanged: TriggerEvent
-fk.ChainStateChanged = TriggerEvent:subclass("fk.ChainStateChanged")
+---@class fk.BeforeTurnOver: NilEvent
+fk.BeforeTurnOver = NilEvent:subclass("fk.BeforeTurnOver")
+---@class fk.TurnedOver: NilEvent
+fk.TurnedOver = NilEvent:subclass("fk.TurnedOver")
+---@class fk.BeforeChainStateChange: NilEvent
+fk.BeforeChainStateChange = NilEvent:subclass("fk.BeforeChainStateChange")
+---@class fk.ChainStateChanged: NilEvent
+fk.ChainStateChanged = NilEvent:subclass("fk.ChainStateChanged")
 
 ---@class fk.AfterDrawPileShuffle: TriggerEvent
 fk.AfterDrawPileShuffle = TriggerEvent:subclass("fk.AfterDrawPileShuffle")
@@ -55,9 +58,30 @@ fk.GeneralRevealed = TriggerEvent:subclass("fk.GeneralRevealed")
 ---@class fk.GeneralHidden: TriggerEvent
 fk.GeneralHidden = TriggerEvent:subclass("fk.GeneralHidden")
 
+---@class fk.GamePrepared: TriggerEvent
+fk.GamePrepared = TriggerEvent:subclass("fk.GamePrepared")
+---@class fk.GameFinished : TriggerEvent
+fk.GameFinished = TriggerEvent:subclass("fk.GameFinished")
+---@class fk.AskForCardUse : TriggerEvent
+fk.AskForCardUse = TriggerEvent:subclass("fk.AskForCardUse")
+---@class fk.AskForCardResponse : TriggerEvent
+fk.AskForCardResponse = TriggerEvent:subclass("fk.AskForCardResponse")
+---@class fk.HandleAskForPlayCard : TriggerEvent
+fk.HandleAskForPlayCard = TriggerEvent:subclass("fk.HandleAskForPlayCard")
+---@class fk.AfterAskForCardUse : TriggerEvent
+fk.AfterAskForCardUse = TriggerEvent:subclass("fk.AfterAskForCardUse")
+---@class fk.AfterAskForCardResponse : TriggerEvent
+fk.AfterAskForCardResponse = TriggerEvent:subclass("fk.AfterAskForCardResponse")
+---@class fk.AfterAskForNullification : TriggerEvent
+fk.AfterAskForNullification = TriggerEvent:subclass("fk.AfterAskForNullification")
+
 ---@alias PropertyChangeFunc fun(self: TriggerSkill, event: PropertyChangeEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: PropertyChangeData): any
+---@alias NilEventFunc fun(self: TriggerSkill, event: NilEvent,
+---  target: ServerPlayer, player: ServerPlayer, data: nil): any
 
 ---@class SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: PropertyChangeEvent,
 ---  data: TrigSkelSpec<PropertyChangeFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: NilEvent,
+---  data: TrigSkelSpec<NilEventFunc>, attr: TrigSkelAttribute?): SkillSkeleton
