@@ -230,7 +230,13 @@ function SkillSkeleton:createSkill()
       if not main_skill then
         main_skill = sk
         main_skill.name = self.name
+        local name_splited = self.name:split("__")
+        main_skill.trueName = name_splited[#name_splited]
         main_skill.visible = self.name[1] ~= "#"
+        if string.sub(main_skill.name, #main_skill.name) == "$" then
+          main_skill.name = string.sub(main_skill.name, 1, #main_skill.name - 1)
+          main_skill.lordSkill = true
+        end
       else
         if not attr.is_delay_effect then
           sk.main_skill = main_skill
