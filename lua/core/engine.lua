@@ -124,15 +124,12 @@ function Engine:loadPackage(pack)
   self.packages[pack.name] = pack
   table.insert(self.package_names, pack.name)
 
-  -- create skills for skel
+  -- create skills from skel
   for _, skel in ipairs(pack.skill_skels) do
     table.insert(pack.related_skills, skel:createSkill())
   end
 
-  -- add cards, generals and skills to Engine
-  if pack.type == Package.CardPack then
-    self:addCards(pack.cards)
-  elseif pack.type == Package.GeneralPack then
+  if pack.type == Package.GeneralPack then
     self:addGenerals(pack.generals)
   end
   self:addSkills(pack:getSkills())
@@ -266,6 +263,30 @@ function Engine:loadPackages()
           self:loadPackage(pack)
         end
       end
+    end
+  end
+
+  -- 把card放在后面加载吧
+  for _, pkname in ipairs(self.package_names) do
+    local pack = self.packages[pkname]
+
+    for _, skel in ipairs(pack.card_skels) do
+      local card = skel:createCardPrototype()
+      if card then
+        card.package = pack
+        self.skills[card.skill.name] = self.skills[card.skill.name] or card.skill
+        self.all_card_types[card.name] = card
+        table.insert(self.all_card_names, card.name)
+      end
+    end
+
+    for _, tab in ipairs(pack.card_specs) do
+      pack:addCard(self:cloneCard(tab[1], tab[2], tab[3]))
+    end
+
+    -- add cards, generals and skills to Engine
+    if pack.type == Package.CardPack then
+      self:addCards(pack.cards)
     end
   end
 
@@ -557,7 +578,7 @@ end
 ---@return Card
 function Engine:cloneCard(name, suit, number)
   local cd = self.all_card_types[name]
-  assert(cd, "Attempt to clone a card that not added to engine")
+  assert(cd, string.format("Attempt to clone a card that not added to engine: name=%s", name))
   local ret = cd:clone(suit, number)
   ret.package = cd.package
   return ret

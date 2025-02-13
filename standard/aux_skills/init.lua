@@ -5,12 +5,12 @@ end
 
 return {
   require(prefix .. "discard_skill"),
-  require(prefix .. "jijiu"),
-  require(prefix .. "wushuang"),
-  require(prefix .. "qingnang"),
-  require(prefix .. "jijiu"),
-  require(prefix .. "wushuang"),
-  require(prefix .. "lijian"),
-  require(prefix .. "biyue"),
+  require(prefix .. "choose_cards_skill"),
+  -- require(prefix .. "wushuang"),
+  -- require(prefix .. "qingnang"),
+  -- require(prefix .. "jijiu"),
+  -- require(prefix .. "wushuang"),
+  -- require(prefix .. "lijian"),
+  -- require(prefix .. "biyue"),
 }
 

@@ -576,6 +576,75 @@ function fk.CreateSkill(spec)
   return SkillSkeleton:new(spec)
 end
 
+---@class CardSkelSpec: CardSpec
+---@field public skill? string
+---@field public type? integer
+---@field public sub_type? integer
+
+---@class CardSkeleton : Object
+---@field public spec CardSkelSpec
+local CardSkeleton = class("CardSkeleton")
+
+---@param spec CardSkelSpec
+function CardSkeleton:initialize(spec)
+  self.spec = spec
+end
+
+function CardSkeleton:createCardPrototype()
+  local spec = self.spec
+  fk.preprocessCardSpec(spec)
+  local klass
+  local basetype, subtype = spec.type, spec.sub_type
+  if basetype == Card.TypeBasic then
+    klass = BasicCard
+  elseif basetype == Card.TypeTrick then
+    if subtype == Card.SubtypeDelayedTrick then
+      klass = DelayedTrickCard
+    else
+      klass = TrickCard
+    end
+  else
+    if subtype == Card.SubtypeWeapon then
+      klass = Weapon
+    elseif subtype == Card.SubtypeArmor then
+      klass = Armor
+    elseif subtype == Card.SubtypeDefensiveRide then
+      klass = DefensiveRide
+    elseif subtype == Card.SubtypeOffensiveRide then
+      klass = OffensiveRide
+    elseif subtype == Card.SubtypeTreasure then
+      klass = Treasure
+    end
+  end
+
+  if not klass then
+    fk.qCritical("unknown card type or sub_type!")
+    return nil
+  end
+
+  local card = klass:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+
+  if card.type == Card.TypeEquip then
+    fk.readCardSpecToEquip(card, spec)
+    if klass == Weapon then
+      ---@cast spec +WeaponSpec
+      if spec.dynamic_attack_range then
+        assert(type(spec.dynamic_attack_range) == "function")
+        card.dynamicAttackRange = spec.dynamic_attack_range
+      end
+    end
+  end
+
+  return card
+end
+
+---@param spec CardSkelSpec
+---@return CardSkeleton
+function fk.CreateCard(spec)
+  return CardSkeleton:new(spec)
+end
+
 ---@class UsableSkillSpec: SkillSpec
 ---@field public main_skill? UsableSkill
 ---@field public max_use_time? integer[]
@@ -708,7 +777,7 @@ local defaultEquipSkill = fk.CreateActiveSkill{
   end
 }
 
-local function preprocessCardSpec(spec)
+function fk.preprocessCardSpec(spec)
   assert(type(spec.name) == "string" or type(spec.class_name) == "string")
   if not spec.name then spec.name = spec.class_name
   elseif not spec.class_name then spec.class_name = spec.name end
@@ -716,7 +785,10 @@ local function preprocessCardSpec(spec)
   if spec.number then assert(type(spec.number) == "number") end
 end
 
-local function readCardSpecToCard(card, spec)
+function fk.readCardSpecToCard(card, spec)
+  if type(spec.skill) == "string" then
+    spec.skill = Fk.skills[spec.skill]
+  end
   card.skill = spec.skill or (card.type == Card.TypeEquip and defaultEquipSkill or defaultCardSkill)
   card.skill.cardSkill = true
   card.special_skills = spec.special_skills
@@ -725,40 +797,13 @@ local function readCardSpecToCard(card, spec)
   card.is_passive = spec.is_passive
 end
 
----@param spec CardSpec
----@return BasicCard
-function fk.CreateBasicCard(spec)
-  preprocessCardSpec(spec)
-  local card = BasicCard:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  return card
-end
-
----@param spec CardSpec
----@return TrickCard
-function fk.CreateTrickCard(spec)
-  preprocessCardSpec(spec)
-  local card = TrickCard:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  return card
-end
-
----@param spec CardSpec
----@return DelayedTrickCard
-function fk.CreateDelayedTrickCard(spec)
-  preprocessCardSpec(spec)
-  local card = DelayedTrickCard:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  return card
-end
-
 ---@class EquipCardSpec: CardSpec
 ---@field public equip_skill? Skill
 ---@field public dynamic_equip_skills? fun(player: Player): Skill[]
 ---@field public on_install? fun(self: EquipCard, room: Room, player: ServerPlayer)
 ---@field public on_uninstall? fun(self: EquipCard, room: Room, player: ServerPlayer)
 
-local function readCardSpecToEquip(card, spec)
+function fk.readCardSpecToEquip(card, spec)
   if spec.equip_skill then
     if spec.equip_skill.class and spec.equip_skill:isInstanceOf(Skill) then
       card.equip_skill = spec.equip_skill
@@ -781,65 +826,6 @@ end
 ---@class WeaponSpec: EquipCardSpec
 ---@field public attack_range? integer
 ---@field public dynamic_attack_range? fun(player: Player): integer
-
----@param spec WeaponSpec
----@return Weapon
-function fk.CreateWeapon(spec)
-  preprocessCardSpec(spec)
-  if spec.attack_range then
-    assert(type(spec.attack_range) == "number" and spec.attack_range >= 0)
-  end
-
-  local card = Weapon:new(spec.name, spec.suit, spec.number, spec.attack_range)
-  readCardSpecToCard(card, spec)
-  readCardSpecToEquip(card, spec)
-  if spec.dynamic_attack_range then
-    assert(type(spec.dynamic_attack_range) == "function")
-    card.dynamicAttackRange = spec.dynamic_attack_range
-  end
-
-  return card
-end
-
----@param spec EquipCardSpec
----@return Armor
-function fk.CreateArmor(spec)
-  preprocessCardSpec(spec)
-  local card = Armor:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  readCardSpecToEquip(card, spec)
-  return card
-end
-
----@param spec EquipCardSpec
----@return DefensiveRide
-function fk.CreateDefensiveRide(spec)
-  preprocessCardSpec(spec)
-  local card = DefensiveRide:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  readCardSpecToEquip(card, spec)
-  return card
-end
-
----@param spec EquipCardSpec
----@return OffensiveRide
-function fk.CreateOffensiveRide(spec)
-  preprocessCardSpec(spec)
-  local card = OffensiveRide:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  readCardSpecToEquip(card, spec)
-  return card
-end
-
----@param spec EquipCardSpec
----@return Treasure
-function fk.CreateTreasure(spec)
-  preprocessCardSpec(spec)
-  local card = Treasure:new(spec.name, spec.suit, spec.number)
-  readCardSpecToCard(card, spec)
-  readCardSpecToEquip(card, spec)
-  return card
-end
 
 ---@class GameModeSpec
 ---@field public name string @ 游戏模式名

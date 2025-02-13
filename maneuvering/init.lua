@@ -2,7 +2,7 @@
 
 local extension = Package:new("maneuvering", Package.CardPack)
 
-local slash = Fk:cloneCard("slash")
+local slash_skill = Fk.skills["slash_skill"] --[[ @as ActiveSkill ]]
 
 Fk:addDamageNature(fk.FireDamage, "fire_damage")
 Fk:addDamageNature(fk.ThunderDamage, "thunder_damage")
@@ -37,9 +37,9 @@ local thunderSlashSkill = fk.CreateActiveSkill{
     })
   end
 }
-thunderSlashSkill.canUse = slash.skill.canUse
-thunderSlashSkill.modTargetFilter = slash.skill.modTargetFilter
-thunderSlashSkill.targetFilter = slash.skill.targetFilter
+thunderSlashSkill.canUse = slash_skill.canUse
+thunderSlashSkill.modTargetFilter = slash_skill.modTargetFilter
+thunderSlashSkill.targetFilter = slash_skill.targetFilter
 local thunderSlash = fk.CreateBasicCard{
   name = "thunder__slash",
   skill = thunderSlashSkill,
@@ -88,9 +88,9 @@ local fireSlashSkill = fk.CreateActiveSkill{
     })
   end
 }
-fireSlashSkill.canUse = slash.skill.canUse
-fireSlashSkill.modTargetFilter = slash.skill.modTargetFilter
-fireSlashSkill.targetFilter = slash.skill.targetFilter
+fireSlashSkill.canUse = slash_skill.canUse
+fireSlashSkill.modTargetFilter = slash_skill.modTargetFilter
+fireSlashSkill.targetFilter = slash_skill.targetFilter
 local fireSlash = fk.CreateBasicCard{
   name = "fire__slash",
   skill = fireSlashSkill,
@@ -490,26 +490,24 @@ extension:addCards({
   huaLiu,
 })
 
-extension:addCards{
-  Fk:cloneCard("jink", Card.Heart, 8),
-  Fk:cloneCard("jink", Card.Heart, 9),
-  Fk:cloneCard("jink", Card.Heart, 11),
-  Fk:cloneCard("jink", Card.Heart, 12),
-  Fk:cloneCard("jink", Card.Diamond, 6),
-  Fk:cloneCard("jink", Card.Diamond, 7),
-  Fk:cloneCard("jink", Card.Diamond, 8),
-  Fk:cloneCard("jink", Card.Diamond, 10),
-  Fk:cloneCard("jink", Card.Diamond, 11),
+extension:addCardSpec("jink", Card.Heart, 8)
+extension:addCardSpec("jink", Card.Heart, 9)
+extension:addCardSpec("jink", Card.Heart, 11)
+extension:addCardSpec("jink", Card.Heart, 12)
+extension:addCardSpec("jink", Card.Diamond, 6)
+extension:addCardSpec("jink", Card.Diamond, 7)
+extension:addCardSpec("jink", Card.Diamond, 8)
+extension:addCardSpec("jink", Card.Diamond, 10)
+extension:addCardSpec("jink", Card.Diamond, 11)
 
-  Fk:cloneCard("peach", Card.Heart, 5),
-  Fk:cloneCard("peach", Card.Heart, 6),
-  Fk:cloneCard("peach", Card.Diamond, 2),
-  Fk:cloneCard("peach", Card.Diamond, 3),
+extension:addCardSpec("peach", Card.Heart, 5)
+extension:addCardSpec("peach", Card.Heart, 6)
+extension:addCardSpec("peach", Card.Diamond, 2)
+extension:addCardSpec("peach", Card.Diamond, 3)
 
-  Fk:cloneCard("nullification", Card.Heart, 1),
-  Fk:cloneCard("nullification", Card.Heart, 13),
-  Fk:cloneCard("nullification", Card.Spade, 13),
-}
+extension:addCardSpec("nullification", Card.Heart, 1)
+extension:addCardSpec("nullification", Card.Heart, 13)
+extension:addCardSpec("nullification", Card.Spade, 13)
 
 Fk:loadTranslationTable{
   ["maneuvering"] = "军争",

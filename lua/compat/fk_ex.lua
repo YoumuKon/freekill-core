@@ -481,11 +481,106 @@ function fk.CreateVisibilitySkill(spec)
   return skill
 end
 
+---@param spec CardSpec
+---@return BasicCard
+---@deprecated
+function fk.CreateBasicCard(spec)
+  fk.preprocessCardSpec(spec)
+  local card = BasicCard:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  return card
+end
+
+---@param spec CardSpec
+---@return TrickCard
+---@deprecated
+function fk.CreateTrickCard(spec)
+  fk.preprocessCardSpec(spec)
+  local card = TrickCard:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  return card
+end
+
+---@param spec CardSpec
+---@return DelayedTrickCard
+---@deprecated
+function fk.CreateDelayedTrickCard(spec)
+  fk.preprocessCardSpec(spec)
+  local card = DelayedTrickCard:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  return card
+end
+
+---@param spec WeaponSpec
+---@return Weapon
+---@deprecated
+function fk.CreateWeapon(spec)
+  fk.preprocessCardSpec(spec)
+  if spec.attack_range then
+    assert(type(spec.attack_range) == "number" and spec.attack_range >= 0)
+  end
+
+  local card = Weapon:new(spec.name, spec.suit, spec.number, spec.attack_range)
+  fk.readCardSpecToCard(card, spec)
+  fk.readCardSpecToEquip(card, spec)
+  if spec.dynamic_attack_range then
+    assert(type(spec.dynamic_attack_range) == "function")
+    card.dynamicAttackRange = spec.dynamic_attack_range
+  end
+
+  return card
+end
+
+---@param spec EquipCardSpec
+---@return Armor
+---@deprecated
+function fk.CreateArmor(spec)
+  fk.preprocessCardSpec(spec)
+  local card = Armor:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  fk.readCardSpecToEquip(card, spec)
+  return card
+end
+
+---@param spec EquipCardSpec
+---@return DefensiveRide
+---@deprecated
+function fk.CreateDefensiveRide(spec)
+  fk.preprocessCardSpec(spec)
+  local card = DefensiveRide:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  fk.readCardSpecToEquip(card, spec)
+  return card
+end
+
+---@param spec EquipCardSpec
+---@return OffensiveRide
+---@deprecated
+function fk.CreateOffensiveRide(spec)
+  fk.preprocessCardSpec(spec)
+  local card = OffensiveRide:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  fk.readCardSpecToEquip(card, spec)
+  return card
+end
+
+---@param spec EquipCardSpec
+---@return Treasure
+---@deprecated
+function fk.CreateTreasure(spec)
+  fk.preprocessCardSpec(spec)
+  local card = Treasure:new(spec.name, spec.suit, spec.number)
+  fk.readCardSpecToCard(card, spec)
+  fk.readCardSpecToEquip(card, spec)
+  return card
+end
+
 -- 牢东西
 
 ---@class TargetGroup : Object
 TargetGroup = {}
 
+---@deprecated
 function TargetGroup:getRealTargets(targetGroup)
   if not targetGroup then
     return {}
@@ -499,6 +594,7 @@ function TargetGroup:getRealTargets(targetGroup)
   return realTargets
 end
 
+---@deprecated
 function TargetGroup:includeRealTargets(targetGroup, playerId)
   if not targetGroup then
     return false
@@ -513,6 +609,7 @@ function TargetGroup:includeRealTargets(targetGroup, playerId)
   return false
 end
 
+---@deprecated
 function TargetGroup:removeTarget(targetGroup, playerId)
   if not targetGroup then
     return
@@ -526,6 +623,7 @@ function TargetGroup:removeTarget(targetGroup, playerId)
   end
 end
 
+---@deprecated
 function TargetGroup:pushTargets(targetGroup, playerIds)
   if not targetGroup then
     return
@@ -545,10 +643,12 @@ AimGroup.Undone = 1
 AimGroup.Done = 2
 AimGroup.Cancelled = 3
 
+---@deprecated
 function AimGroup:initAimGroup(playerIds)
   return { [AimGroup.Undone] = playerIds, [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
 end
 
+---@deprecated
 function AimGroup:getAllTargets(aimGroup)
   local targets = {}
   table.insertTable(targets, aimGroup[AimGroup.Undone])
@@ -556,10 +656,12 @@ function AimGroup:getAllTargets(aimGroup)
   return targets
 end
 
+---@deprecated
 function AimGroup:getUndoneOrDoneTargets(aimGroup, done)
   return done and aimGroup[AimGroup.Done] or aimGroup[AimGroup.Undone]
 end
 
+---@deprecated
 function AimGroup:setTargetDone(aimGroup, playerId)
   local index = table.indexOf(aimGroup[AimGroup.Undone], playerId)
   if index ~= -1 then
@@ -568,6 +670,7 @@ function AimGroup:setTargetDone(aimGroup, playerId)
   end
 end
 
+---@deprecated
 function AimGroup:addTargets(room, aimEvent, playerIds)
   local playerId = type(playerIds) == "table" and playerIds[1] or playerIds
   table.insert(aimEvent.tos[AimGroup.Undone], playerId)
@@ -585,6 +688,7 @@ function AimGroup:addTargets(room, aimEvent, playerIds)
   end
 end
 
+---@deprecated
 function AimGroup:cancelTarget(aimEvent, playerId)
   local cancelled = false
   for status = AimGroup.Undone, AimGroup.Done do
@@ -611,6 +715,7 @@ function AimGroup:cancelTarget(aimEvent, playerId)
   end
 end
 
+---@deprecated
 function AimGroup:removeDeadTargets(room, aimEvent)
   for index = AimGroup.Undone, AimGroup.Done do
     aimEvent.tos[index] = room:deadPlayerFilter(aimEvent.tos[index])
@@ -626,6 +731,7 @@ function AimGroup:removeDeadTargets(room, aimEvent)
   end
 end
 
+---@deprecated
 function AimGroup:getCancelledTargets(aimGroup)
   return aimGroup[AimGroup.Cancelled]
 end
@@ -633,6 +739,7 @@ end
 ---@param target ServerPlayer
 ---@param data AimStruct
 ---@return boolean
+---@deprecated
 function AimGroup:isOnlyTarget(target, data)
   if data.tos == nil then return false end
   local tos = AimGroup:getAllTargets(data.tos)
