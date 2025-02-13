@@ -970,7 +970,7 @@ function Player:canUseTo(card, to, extra_data)
   local _extra = extra_data and table.simpleClone(extra_data) or {}
   _extra.fix_targets = {to.id}
   local can_use = self:canUse(card, _extra) -- for judging peach canUse correctly
-  return can_use and Util.TargetFilter(card.skill, to.id, {}, card.subcards, card, _extra, self)
+  return can_use and Util.CardTargetFilter(card.skill, self, to, {}, card.subcards, card, _extra)
 end
 
 --- 确认玩家是否被禁止对特定玩家使用特定牌。

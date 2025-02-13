@@ -23,7 +23,7 @@ skill:addTest(function()
   FkTest.runInRoom(function()
     room:useCard{
       from = comp2,
-      tos = { { me.id } },
+      tos = { me },
       card = slash,
     }
   end)
