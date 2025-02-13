@@ -11,10 +11,7 @@ skill:addEffect("targetmod", {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room ---@type Room
-  local me = room.players[1]
-
+skill:addTest(function(room, me)
   local faraway = table.filter(room:getOtherPlayers(me), function(other) return me:distanceTo(other) > 1 end)
 
   FkTest.runInRoom(function()

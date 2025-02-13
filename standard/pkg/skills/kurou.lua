@@ -15,4 +15,24 @@ skill:addEffect("active", {
   end
 })
 
+skill:addTest(function(room, me)
+  FkTest.setNextReplies(me, {
+    json.encode {
+      card = { skill = "kurou", subcards = {} },
+    },
+    "",
+  })
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, "kurou")
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Play }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 2)
+  lu.assertEquals(me.hp, 3)
+end)
+
 return skill

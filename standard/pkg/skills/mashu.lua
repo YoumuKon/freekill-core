@@ -11,10 +11,7 @@ skill:addEffect("distance", {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room ---@type Room
-  local me = room.players[1] ---@type ServerPlayer
-
+skill:addTest(function(room, me)
   local origin = table.map(room:getOtherPlayers(me), function(other) return me:distanceTo(other) end)
 
   FkTest.runInRoom(function()

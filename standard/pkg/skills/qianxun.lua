@@ -13,9 +13,8 @@ skill:addEffect("prohibit", {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room ---@type Room
-  local me, comp2 = room.players[1], room.players[2]
+skill:addTest(function(room, me)
+  local comp2 = room.players[2]
 
   local snatch = Fk:getCardById(table.find(room.draw_pile, function(cid)
     return Fk:getCardById(cid).trueName == "snatch"

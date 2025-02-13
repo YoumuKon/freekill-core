@@ -13,9 +13,8 @@ skill:addEffect(fk.Damaged, {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room
-  local me, comp2 = room.players[1], room.players[2] ---@type ServerPlayer, ServerPlayer
+skill:addTest(function(room, me)
+  local comp2 = room.players[2] ---@type ServerPlayer, ServerPlayer
   FkTest.runInRoom(function() room:handleAddLoseSkills(me, skill.name) end)
 
   local slash = Fk:getCardById(1)

@@ -122,7 +122,7 @@ end
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effect_list ([any, any, any])[]
 ---@field public ai_list ([string, string, any])[]
----@field public tests fun()[]
+---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', data: ProhibitSpec, attribute: nil)
 ---@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', data: AttackRangeSpec, attribute: nil)
@@ -189,7 +189,7 @@ function SkillSkeleton:addAI()
   return self
 end
 
----@param fn fun()
+---@param fn fun(room: Room, me: ServerPlayer)
 function SkillSkeleton:addTest(fn)
   table.insert(self.tests, fn)
   return self

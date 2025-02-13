@@ -32,10 +32,7 @@ skill:addEffect(fk.FinishJudge, {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room ---@type Room
-  local me = room.players[1]
-
+skill:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "luoshen")
   end)

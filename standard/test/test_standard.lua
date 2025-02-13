@@ -6,7 +6,10 @@ for _, pname in ipairs(Fk.package_names) do
   local pack = Fk.packages[pname]
   for _, skel in ipairs(pack.skill_skels) do
     for i, fn in ipairs(skel.tests) do
-      TestStandard[string.format('test%s%d', skel.name, i)] = fn
+      TestStandard[string.format('test%s%d', skel.name, i)] = function()
+        local room = FkTest.room
+        fn(room, room.players[1])
+      end
     end
   end
 end

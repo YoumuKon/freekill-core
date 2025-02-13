@@ -13,9 +13,8 @@ skill:addEffect(fk.CardUsing, {
   end,
 })
 
-skill:addTest(function()
-  local room = FkTest.room ---@type Room
-  local me, comp2 = room.players[1], room.players[2]
+skill:addTest(function(room, me)
+  local comp2 = room.players[2]
 
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "jizhi")
