@@ -36,4 +36,8 @@ return {
   require(prefix .. "chitu"),
   require(prefix .. "dayuan"),
   require(prefix .. "zixing"),
+
+  require(prefix .. "default_card_skill"),
+  require(prefix .. "default_equip_skill"),
+  require(prefix .. "armor_invalidity"),
 }

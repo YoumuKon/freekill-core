@@ -750,33 +750,6 @@ end
 ---@field public multiple_targets? boolean
 ---@field public is_passive? boolean
 
-local defaultCardSkill = fk.CreateActiveSkill{
-  name = "default_card_skill",
-  on_use = function(self, room, use)
-    if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
-      use.tos = { { use.from } }
-    end
-  end
-}
-
---- 装备牌的默认cardSkill
-local defaultEquipSkill = fk.CreateActiveSkill{
-  name = "default_equip_skill",
-  prompt = function(_, selected_cards, _)
-    if not selected_cards or #selected_cards == 0 then return " " end
-    return "#default_equip_skill:::" .. Fk:getCardById(selected_cards[1]).name
-  end,
-  mod_target_filter = function(self, to_select, selected, player, card, distance_limited)
-    return #Fk:currentRoom():getPlayerById(to_select):getAvailableEquipSlots(card.sub_type) > 0
-  end,
-  can_use = Util.SelfCanUse,
-  on_use = function(self, room, use)
-    if not use.tos or #TargetGroup:getRealTargets(use.tos) == 0 then
-      use.tos = { { use.from } }
-    end
-  end
-}
-
 function fk.preprocessCardSpec(spec)
   assert(type(spec.name) == "string" or type(spec.class_name) == "string")
   if not spec.name then spec.name = spec.class_name
@@ -789,7 +762,8 @@ function fk.readCardSpecToCard(card, spec)
   if type(spec.skill) == "string" then
     spec.skill = Fk.skills[spec.skill]
   end
-  card.skill = spec.skill or (card.type == Card.TypeEquip and defaultEquipSkill or defaultCardSkill)
+  card.skill = spec.skill or (card.type == Card.TypeEquip and
+    Fk.skills["default_equip_skill"] or Fk.skills["default_card_skill"])
   card.skill.cardSkill = true
   card.special_skills = spec.special_skills
   card.is_damage_card = spec.is_damage_card
@@ -798,12 +772,20 @@ function fk.readCardSpecToCard(card, spec)
 end
 
 ---@class EquipCardSpec: CardSpec
----@field public equip_skill? Skill
+---@field public equip_skill? Skill|string
 ---@field public dynamic_equip_skills? fun(player: Player): Skill[]
 ---@field public on_install? fun(self: EquipCard, room: Room, player: ServerPlayer)
 ---@field public on_uninstall? fun(self: EquipCard, room: Room, player: ServerPlayer)
 
 function fk.readCardSpecToEquip(card, spec)
+  if type(spec.equip_skill) == "string" then
+    local skill = Fk.skills[spec.equip_skill]
+    if not skill then
+      fk.qCritical(string.format("Equip %s does not exist!", spec.equip_skill))
+    end
+    spec.equip_skill = skill
+  end
+
   if spec.equip_skill then
     if spec.equip_skill.class and spec.equip_skill:isInstanceOf(Skill) then
       card.equip_skill = spec.equip_skill

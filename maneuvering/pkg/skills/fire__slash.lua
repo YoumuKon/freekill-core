@@ -2,6 +2,8 @@ local skill = fk.CreateSkill {
   name = "fire__slash_skill",
 }
 
+local slash_skill = Fk.skills["slash_skill"] --[[ @as ActiveSkill ]]
+
 skill:addEffect("active", {
   prompt = function(self, player, selected_cards)
     local card = Fk:cloneCard("fire__slash")
@@ -17,27 +19,9 @@ skill:addEffect("active", {
   end,
   max_phase_use_time = 1,
   target_num = 1,
-  can_use = function(self, player, card, extra_data)
-    if player:prohibitUse(card) then return end
-    return (extra_data and extra_data.bypass_times) or player.phase ~= Player.Play or
-      table.find(Fk:currentRoom().alive_players, function(p)
-        return self:withinTimesLimit(player, Player.HistoryPhase, card, "slash", p)
-      end)
-  end,
-  mod_target_filter = function(self, to_select, selected, player, card, extra_data)
-    return to_select ~= player and
-      not (not (extra_data and extra_data.bypass_distances) and not self:withinDistanceLimit(player, true, card, selected))
-  end,
-  target_filter = function(self, player, to_select, selected, _, card, extra_data)
-    if not Util.CardTargetFilter(self, player, to_select, selected, _, card, extra_data) then return end
-    return self:modTargetFilter(player, to_select, selected, card, extra_data) and
-      (
-        #selected > 0 or
-        player.phase ~= Player.Play or
-        (extra_data and extra_data.bypass_times) or
-        self:withinTimesLimit(player, Player.HistoryPhase, card, "slash", to_select)
-      )
-  end,
+  can_use = slash_skill.canUse,
+  mod_target_filter = slash_skill.modTargetFilter,
+  target_filter = slash_skill.targetFilter,
   on_effect = function(self, room, effect)
     room:damage({
       from = effect.from,

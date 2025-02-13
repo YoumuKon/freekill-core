@@ -24,9 +24,9 @@ skill:addEffect("active", {
         return self:withinTimesLimit(player, Player.HistoryPhase, card, "slash", p)
       end)
   end,
-  mod_target_filter = function(self, to_select, selected, player, card, extra_data)
+  mod_target_filter = function(self, player, to_select, selected, card, extra_data)
     return to_select ~= player and
-      not (not (extra_data and extra_data.bypass_distances) and not self:withinDistanceLimit(player, true, card, selected))
+      not (not (extra_data and extra_data.bypass_distances) and not self:withinDistanceLimit(player, true, card, to_select))
   end,
   target_filter = function(self, player, to_select, selected, _, card, extra_data)
     if not Util.CardTargetFilter(self, player, to_select, selected, _, card, extra_data) then return end

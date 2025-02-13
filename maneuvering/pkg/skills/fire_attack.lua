@@ -6,7 +6,7 @@ skill:addEffect("active", {
   prompt = "#fire_attack_skill",
   can_use = Util.CanUse,
   target_num = 1,
-  mod_target_filter = function(self, to_select, _, _, _, _)
+  mod_target_filter = function(self, _, to_select, _, _, _)
     return not to_select:isKongcheng()
   end,
   target_filter = Util.CardTargetFilter,

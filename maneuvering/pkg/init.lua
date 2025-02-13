@@ -6,7 +6,6 @@ if UsingNewCore then prefix = "packages.freekill-core." end
 
 extension:loadSkillSkels(require(prefix .. "maneuvering.pkg.skills"))
 
-
 Fk:addDamageNature(fk.FireDamage, "fire_damage")
 Fk:addDamageNature(fk.ThunderDamage, "thunder_damage")
 
@@ -16,9 +15,85 @@ local thunder__slash = fk.CreateCard{
   is_damage_card = true,
   skill = "thunder__slash_skill",
 }
-extension:loadCardSkels {
-  thunder__slash,
+
+local fire__slash = fk.CreateCard{
+  name = "fire__slash",
+  type = Card.TypeBasic,
+  is_damage_card = true,
+  skill = "fire__slash_skill",
 }
+
+local analeptic = fk.CreateCard{
+  name = "analeptic",
+  type = Card.TypeBasic,
+  skill = "analeptic_skill",
+}
+
+local iron_chain = fk.CreateCard{
+  name = "iron_chain",
+  type = Card.TypeTrick,
+  skill = "iron_chain_skill",
+  special_skills = { "recast" },
+  multiple_targets = true,
+}
+
+local fire_attack = fk.CreateCard{
+  name = "fire_attack",
+  type = Card.TypeTrick,
+  skill = "fire_attack_skill",
+  is_damage_card = true,
+}
+
+local supply_shortage = fk.CreateCard{
+  name = "supply_shortage",
+  type = Card.TypeTrick,
+  sub_type = Card.SubtypeDelayedTrick,
+  skill = "supply_shortage_skill",
+}
+
+local guding_blade = fk.CreateCard{
+  name = "guding_blade",
+  type = Card.TypeEquip,
+  sub_type = Card.SubtypeWeapon,
+  attack_range = 2,
+  equip_skill = "#guding_blade_skill",
+}
+
+local fan = fk.CreateCard{
+  name = "fan",
+  type = Card.TypeEquip,
+  sub_type = Card.SubtypeWeapon,
+  attack_range = 4,
+  equip_skill = "#fan_skill",
+}
+
+local vine = fk.CreateCard{
+  name = "vine",
+  type = Card.TypeEquip,
+  sub_type = Card.SubtypeArmor,
+  equip_skill = "#vine_skill",
+}
+
+local silver_lion = fk.CreateCard{
+  name = "silver_lion",
+  type = Card.TypeEquip,
+  sub_type = Card.SubtypeArmor,
+  equip_skill = "#silver_lion_skill",
+}
+
+local hualiu = fk.CreateCard{
+  name = "hualiu",
+  type = Card.TypeEquip,
+  sub_type = Card.SubtypeDefensiveRide,
+  equip_skill = "#hualiu_skill",
+}
+
+extension:loadCardSkels {
+  thunder__slash, fire__slash, analeptic,
+  iron_chain, fire_attack, supply_shortage,
+  guding_blade, fan, vine, silver_lion, hualiu,
+}
+
 extension:addCardSpec("thunder__slash", Card.Club, 5)
 extension:addCardSpec("thunder__slash", Card.Club, 6)
 extension:addCardSpec("thunder__slash", Card.Club, 7)
@@ -29,45 +104,18 @@ extension:addCardSpec("thunder__slash", Card.Spade, 6)
 extension:addCardSpec("thunder__slash", Card.Spade, 7)
 extension:addCardSpec("thunder__slash", Card.Spade, 8)
 
-local fire__slash = fk.CreateCard{
-  name = "fire__slash",
-  type = Card.TypeBasic,
-  is_damage_card = true,
-  skill = "fire__slash_skill",
-}
-extension:loadCardSkels {
-  fire__slash,
-}
 extension:addCardSpec("fire__slash", Card.Heart, 4)
 extension:addCardSpec("fire__slash", Card.Heart, 7)
 extension:addCardSpec("fire__slash", Card.Heart, 10)
 extension:addCardSpec("fire__slash", Card.Diamond, 4)
 extension:addCardSpec("fire__slash", Card.Diamond, 5)
 
-local analeptic = fk.CreateCard{
-  name = "analeptic",
-  type = Card.TypeBasic,
-  skill = "analeptic_skill",
-}
-extension:loadCardSkels {
-  analeptic,
-}
 extension:addCardSpec("analeptic", Card.Spade, 3)
 extension:addCardSpec("analeptic", Card.Spade, 9)
 extension:addCardSpec("analeptic", Card.Club, 3)
 extension:addCardSpec("analeptic", Card.Club, 9)
 extension:addCardSpec("analeptic", Card.Diamond, 9)
 
-local iron_chain = fk.CreateCard{
-  name = "iron_chain",
-  type = Card.TypeTrick,
-  skill = "iron_chain_skill",
-  special_skills = { "recast" },
-  multiple_targets = true,
-}
-extension:loadCardSkels {
-  iron_chain,
-}
 extension:addCardSpec("iron_chain", Card.Spade, 11)
 extension:addCardSpec("iron_chain", Card.Spade, 12)
 extension:addCardSpec("iron_chain", Card.Club, 10)
@@ -75,87 +123,20 @@ extension:addCardSpec("iron_chain", Card.Club, 11)
 extension:addCardSpec("iron_chain", Card.Club, 12)
 extension:addCardSpec("iron_chain", Card.Club, 13)
 
-local fire_attack = fk.CreateCard{
-  name = "fire_attack",
-  type = Card.TypeTrick,
-  skill = "fire_attack_skill",
-  is_damage_card = true,
-}
-extension:loadCardSkels {
-  fire_attack,
-}
 extension:addCardSpec("fire_attack", Card.Heart, 2)
 extension:addCardSpec("fire_attack", Card.Heart, 3)
 extension:addCardSpec("fire_attack", Card.Diamond, 12)
 
-local supply_shortage = fk.CreateCard{
-  name = "supply_shortage",
-  type = Card.TypeTrick,
-  sub_type = Card.SubtypeDelayedTrick,
-  skill = "supply_shortage_skill",
-}
-extension:loadCardSkels {
-  supply_shortage,
-}
 extension:addCardSpec("supply_shortage", Card.Spade, 10)
 extension:addCardSpec("supply_shortage", Card.Club, 4)
 
-local guding_blade = fk.CreateCard{
-  name = "guding_blade",
-  type = Card.TypeEquip,
-  sub_type = Card.SubtypeWeapon,
-  attack_range = 2,
-  skill = "#guding_blade_skill",
-}
-extension:loadCardSkels {
-  guding_blade,
-}
 extension:addCardSpec("guding_blade", Card.Spade, 1)
-
-local fan = fk.CreateCard{
-  name = "fan",
-  type = Card.TypeEquip,
-  sub_type = Card.SubtypeWeapon,
-  attack_range = 4,
-  skill = "#fan_skill",
-}
-extension:loadCardSkels {
-  fan,
-}
 extension:addCardSpec("fan", Card.Diamond, 1)
 
-local vine = fk.CreateCard{
-  name = "vine",
-  type = Card.TypeEquip,
-  sub_type = Card.SubtypeArmor,
-  skill = "#vine_skill",
-}
-extension:loadCardSkels {
-  vine,
-}
 extension:addCardSpec("vine", Card.Spade, 2)
 extension:addCardSpec("vine", Card.Club, 2)
-
-local silver_lion = fk.CreateCard{
-  name = "silver_lion",
-  type = Card.TypeEquip,
-  sub_type = Card.SubtypeArmor,
-  skill = "#silver_lion_skill",
-}
-extension:loadCardSkels {
-  silver_lion,
-}
 extension:addCardSpec("silver_lion", Card.Club, 1)
 
-local hualiu = fk.CreateCard{
-  name = "hualiu",
-  type = Card.TypeEquip,
-  sub_type = Card.SubtypeDefensiveRide,
-  skill = "#hualiu_skill",
-}
-extension:loadCardSkels {
-  hualiu,
-}
 extension:addCardSpec("hualiu", Card.Diamond, 13)
 
 extension:addCardSpec("jink", Card.Heart, 8)

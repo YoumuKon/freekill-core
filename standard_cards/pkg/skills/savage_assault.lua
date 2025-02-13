@@ -8,7 +8,7 @@ skill:addEffect("active", {
   on_use = function (self, room, cardUseEvent)
     return Util.AoeCardOnUse(self, cardUseEvent.from, cardUseEvent, false)
   end,
-  mod_target_filter = function(self, to_select, selected, player, card, distance_limited)
+  mod_target_filter = function(self, player, to_select, selected, card, distance_limited)
     return to_select ~= player
   end,
   on_effect = function(self, room, effect)

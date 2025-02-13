@@ -462,7 +462,7 @@ function UseCardEventWrappers:useCard(useCardData)
     new_data = UseCardData:new(useCardData)
   end
   new_data.subTos = new_data.subTos or {}
-  for i in ipairs(new_data.tos) do
+  for i in ipairs(new_data.tos or {}) do
     if not new_data.subTos[i] then
       new_data.subTos[i] = {}
     end
