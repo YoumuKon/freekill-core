@@ -34,6 +34,10 @@ function AIGameLogic:getSubcardsByRule(card, fromAreas)
   return Card:getIdList(card)
 end
 
+function AIGameLogic:getCardOwner(id)
+  return self.ai.room:getCardOwner(id)
+end
+
 function AIGameLogic:trigger(event, target, data)
   local ai = self.ai
   local logic = ai.room.logic
@@ -106,7 +110,7 @@ function AIGameLogic:applyMoveInfo(data, info)
       benefit = -60
     end
 
-    local from = data.from and self:getPlayerById(data.from)
+    local from = data.from
     if from and self.ai:isEnemy(from) then benefit = -benefit end
     self.benefit = self.benefit + benefit
     benefit = 0
@@ -379,7 +383,7 @@ local function moveInfoTranslate(self, ...)
         table.insert(infos, {
           cardId = id,
           fromArea = self.ai.room:getCardArea(id),
-          fromSpecialName = cardsMoveInfo.from and logic:getPlayerById(cardsMoveInfo.from):getPileNameOfId(id),
+          fromSpecialName = cardsMoveInfo.from and cardsMoveInfo.from:getPileNameOfId(id),
         })
       end
       if #infos > 0 then
@@ -411,6 +415,7 @@ function AIGameLogic:moveCards(...)
   end
   return not MoveCards:new(self, datas):getBenefit()
 end
+
 AIGameLogic.moveCardTo = GameEventWrappers.moveCardTo
 AIGameLogic.obtainCard = GameEventWrappers.obtainCard
 AIGameLogic.drawCards = GameEventWrappers.drawCards
@@ -422,11 +427,11 @@ function AIGameLogic:recastCard(card_ids, who, skillName)
   skillName = skillName or "recast"
   self:moveCards({
     ids = card_ids,
-    from = who.id,
+    from = who,
     toArea = Card.DiscardPile,
     skillName = skillName,
     moveReason = fk.ReasonRecast,
-    proposer = who.id
+    proposer = who,
   })
   return self:drawCards(who, #card_ids, skillName)
 end

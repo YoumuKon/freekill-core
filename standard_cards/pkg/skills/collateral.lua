@@ -25,7 +25,7 @@ skill:addEffect("active", {
       if i % 2 == 1 then
         table.insert(use.tos, p)
       else
-        table.insert(use.subTos, p)
+        table.insert(use.subTos, { p })
       end
     end
     cardUseEvent.tos, cardUseEvent.subTos = use.tos, use.subTos

@@ -105,7 +105,7 @@ function JudgeEventWrappers:retrial(card, player, judge, skillName, exchange)
 
   local move1 = {} ---@type CardsMoveInfo
   move1.ids = { card:getEffectiveId() }
-  move1.from = self.owner_map[card:getEffectiveId()]
+  move1.from = self:getCardOwner(card:getEffectiveId())
   move1.toArea = Card.Processing
   move1.moveReason = fk.ReasonJustMove
   move1.skillName = skillName
@@ -131,7 +131,7 @@ function JudgeEventWrappers:retrial(card, player, judge, skillName, exchange)
     move2.ids = { oldJudge:getEffectiveId() }
     move2.toArea = exchange and Card.PlayerHand or Card.DiscardPile
     move2.moveReason = exchange and fk.ReasonJustMove or fk.ReasonJudge
-    move2.to = exchange and player.id or nil
+    move2.to = exchange and player or nil
     move2.skillName = skillName
     self:moveCards(move2)
   end

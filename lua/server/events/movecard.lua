@@ -274,10 +274,10 @@ function MoveEventWrappers:drawCards(player, num, skillName, fromPlace, moveMark
   local topCards = self:getNCards(num, fromPlace)
   self:moveCards({
     ids = topCards,
-    to = player.id,
+    to = player,
     toArea = Card.PlayerHand,
     moveReason = fk.ReasonDraw,
-    proposer = player.id,
+    proposer = player,
     skillName = skillName,
     moveMark = moveMark,
   })
@@ -288,7 +288,7 @@ end
 --- 将一张或多张牌移动到某处
 ---@param card integer | integer[] | Card | Card[] @ 要移动的牌
 ---@param to_place integer @ 移动的目标位置
----@param target? ServerPlayer|integer @ 移动的目标角色
+---@param target? ServerPlayer @ 移动的目标角色
 ---@param reason? integer @ 移动时使用的移牌原因
 ---@param skill_name? string @ 技能名
 ---@param special_name? string @ 私人牌堆名
@@ -308,9 +308,9 @@ function MoveEventWrappers:moveCardTo(card, to_place, target, reason, skill_name
       Card.PlayerJudge, Card.PlayerSpecial}, to_place) then
     assert(target)
     if type(target) == "number" then
-      to = target
+      to = self:getPlayerById(target)
     else
-      to = target.id
+      to = target
     end
   end
 
@@ -325,7 +325,7 @@ function MoveEventWrappers:moveCardTo(card, to_place, target, reason, skill_name
     else
       table.insert(movesSplitedByOwner, {
         ids = { cardId },
-        from = self.owner_map[cardId],
+        from = self:getCardOwner(cardId),
         to = to,
         toArea = to_place,
         moveReason = reason,
@@ -352,7 +352,7 @@ function MoveEventWrappers:throwCard(card_ids, skillName, who, thrower)
   thrower = thrower or who
   self:moveCards({
     ids = Card:getIdList(card_ids),
-    from = who.id,
+    from = who,
     toArea = Card.DiscardPile,
     moveReason = fk.ReasonDiscard,
     proposer = thrower.id,
@@ -372,7 +372,7 @@ function MoveEventWrappers:recastCard(card_ids, who, skillName)
   skillName = skillName or "recast"
   self:moveCards({
     ids = card_ids,
-    from = who.id,
+    from = who,
     toArea = Card.DiscardPile,
     skillName = skillName,
     moveReason = fk.ReasonRecast,
@@ -460,24 +460,24 @@ function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, 
   convert = (convert == nil) and true or convert
   skillName = skillName or ""
   cards = type(cards) == "table" and cards or {cards}
+  ---@cast cards integer[]
   proposer = type(proposer) == "number" and self:getPlayerById(proposer) or proposer
-  local proposerId = proposer and proposer.id or nil
   local moves = {}
   for _, cardId in ipairs(cards) do
     local card = Fk:getCardById(cardId)
-    local fromId = self.owner_map[cardId]
+    local from = self:getCardOwner(cardId)
     if target:canMoveCardIntoEquip(cardId, convert) then
       if target:hasEmptyEquipSlot(card.sub_type) then
-        table.insert(moves,{ids = {cardId}, from = fromId, to = target.id, toArea = Card.PlayerEquip, moveReason = fk.ReasonPut,skillName = skillName,proposer = proposerId})
+        table.insert(moves,{ids = {cardId}, from = from, to = target, toArea = Card.PlayerEquip, moveReason = fk.ReasonPut,skillName = skillName,proposer = proposer})
       else
         local existingEquip = target:getEquipments(card.sub_type)
         local throw = #existingEquip == 1 and existingEquip[1] or
         self:askForCardChosen(proposer or target, target, {card_data = { {Util.convertSubtypeAndEquipSlot(card.sub_type),existingEquip} } }, "replaceEquip","#replaceEquip")
-        table.insert(moves,{ids = {throw}, from = target.id, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile, skillName = skillName,proposer = proposerId})
-        table.insert(moves,{ids = {cardId}, from = fromId, to = target.id, toArea = Card.PlayerEquip, moveReason = fk.ReasonPut,skillName = skillName,proposer = proposerId})
+        table.insert(moves,{ids = {throw}, from = target, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile, skillName = skillName,proposer = proposer})
+        table.insert(moves,{ids = {cardId}, from = from, to = target, toArea = Card.PlayerEquip, moveReason = fk.ReasonPut,skillName = skillName,proposer = proposer})
       end
     else
-      table.insert(moves,{ids = {cardId}, from = fromId, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile,skillName = skillName})
+      table.insert(moves,{ids = {cardId}, from = from, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile,skillName = skillName})
     end
   end
   self:moveCards(table.unpack(moves))

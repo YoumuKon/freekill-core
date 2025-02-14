@@ -7,8 +7,9 @@ skill:addEffect("active", {
   mod_target_filter = Util.TrueFunc,
   can_use = Util.CanUseToSelf,
   on_use = function(self, room, use)
-    if not use.tos or #use.tos == 0 then
-      use.tos = { { use.from } }
+    ---@cast use -SkillUseData
+    if #use.tos == 0 then
+      use:addTarget(use.from)
     end
   end,
   on_effect = function(self, room, effect)

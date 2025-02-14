@@ -6,6 +6,7 @@ skill:addEffect("active", {
   prompt = "#savage_assault_skill",
   can_use = Util.AoeCanUse,
   on_use = function (self, room, cardUseEvent)
+    ---@cast cardUseEvent -SkillUseData
     return Util.AoeCardOnUse(self, cardUseEvent.from, cardUseEvent, false)
   end,
   mod_target_filter = function(self, player, to_select, selected, card, distance_limited)

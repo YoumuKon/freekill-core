@@ -120,7 +120,7 @@ function UsableSkill:onLose(player, is_death)
   if #lost_piles > 0 then
     player.room:moveCards({
       ids = lost_piles,
-      from = player.id,
+      from = player,
       toArea = Card.DiscardPile,
       moveReason = fk.ReasonPutIntoDiscardPile,
     })

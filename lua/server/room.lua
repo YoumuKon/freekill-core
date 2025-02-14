@@ -1974,9 +1974,6 @@ function Room:handleUseCardReply(player, data)
           table.insert(use.tos, self:getPlayerById(targetId))
           table.insert(use.subTos, {})
         end
-        if #use.tos == 0 then
-          use.tos = nil
-        end
         use.card = c
 
         self:useSkill(player, skill, Util.DummyFunc)
@@ -2008,9 +2005,6 @@ function Room:handleUseCardReply(player, data)
     for _, targetId in ipairs(targets or Util.DummyTable) do
       table.insert(use.tos, self:getPlayerById(targetId))
       table.insert(use.subTos, {})
-    end
-    if #use.tos == 0 then
-      use.tos = nil
     end
     Fk:filterCard(card, player)
     use.card = Fk:getCardById(card)
@@ -2910,7 +2904,7 @@ function Room:abortPlayerArea(player, playerSlots)
 
   self:moveCards({
     ids = cardsToDrop,
-    from = player.id,
+    from = player,
     toArea = Card.DiscardPile,
     moveReason = fk.ReasonPutIntoDiscardPile,
     skillName = "gamerule_aborted"

@@ -117,7 +117,7 @@ function Pindian:main()
 
       table.insert(moveInfos, {
         ids = { _pindianCard.id },
-        from = p.id,
+        from = p,
         toArea = Card.Processing,
         moveReason = fk.ReasonPut,
         skillName = pindianData.reason,

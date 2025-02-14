@@ -9,8 +9,9 @@ skill:addEffect("active", {
     return not player:isProhibited(player, card)
   end,
   on_use = function(self, room, cardUseEvent)
-    if not cardUseEvent.tos or #cardUseEvent.tos == 0 then
-      cardUseEvent.tos = { { cardUseEvent.from } }
+    ---@cast cardUseEvent -SkillUseData
+    if #cardUseEvent.tos == 0 then
+      cardUseEvent:addTarget(cardUseEvent.from)
     end
   end,
   on_effect = function(self, room, effect)

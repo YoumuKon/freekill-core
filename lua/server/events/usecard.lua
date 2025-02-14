@@ -258,7 +258,7 @@ function UseCard:main()
   local useCardIds = card:isVirtual() and card.subcards or { card.id }
   if #useCardIds > 0 then
     if useCardData.tos and #useCardData.tos > 0 and #useCardData.tos <= 2 and not useCardData.noIndicate then
-      local tos = table.map(useCardData.tos, function(e) return e[1] end)
+      local tos = table.map(useCardData.tos, Util.IdMapper)
       room:sendFootnote(useCardIds, {
         type = "##UseCardTo",
         from = useCardData.from.id,
@@ -592,7 +592,7 @@ end
 function UseCardEventWrappers:doCardUseEffect(useCardData)
   ---@type table<ServerPlayer, AimData>
   local aimEventCollaborators = {}
-  if useCardData.tos and not onAim(self, useCardData, aimEventCollaborators) then
+  if #useCardData.tos > 0 and not onAim(self, useCardData, aimEventCollaborators) then
     return
   end
 
@@ -917,7 +917,7 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
       if #cardEffectData.tos > 1 then
         local parentUseEvent = self.logic:getCurrentEvent():findParent(GameEvent.UseCard)
         if parentUseEvent then
-          extra_data = { useEventId = parentUseEvent.id, effectTo = cardEffectData.to }
+          extra_data = { useEventId = parentUseEvent.id, effectTo = cardEffectData.to.id }
         end
       end
       if #players > 0 and cardEffectData.card.trueName == "nullification" then

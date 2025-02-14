@@ -12,8 +12,8 @@ skill:addEffect("active", {
       self:withinTimesLimit(player, Player.HistoryTurn, card, "analeptic", player))
   end,
   on_use = function(self, room, use)
-    if not use.tos or #use.tos == 0 then
-      use.tos = { { use.from } }
+    if #use.tos == 0 then
+      use:addTarget(use.from)
     end
 
     if use.extra_data and use.extra_data.analepticRecover then

@@ -72,7 +72,7 @@ SmartAI:setCardSkillAI("ex_nihilo_skill", {
     self.skill:onUse(logic, effect)
   end,
   on_effect = function(self, logic, effect)
-    local target = logic:getPlayerById(effect.to)
+    local target = effect.to
     logic:drawCards(target, 2, "ex_nihilo")
   end,
 })

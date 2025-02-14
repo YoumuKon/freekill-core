@@ -289,16 +289,17 @@ Util.AoeCanUse = function(self, player, card)
 end
 
 --- 全局卡牌的onUse
+---@param cardUseEvent UseCardData
 Util.AoeCardOnUse = function(self, player, cardUseEvent, include_self)
   if not cardUseEvent.tos or #cardUseEvent.tos == 0 then
     cardUseEvent.tos = {}
-    local players = Fk:currentRoom().alive_players
+    local players = table.simpleClone(Fk:currentRoom().alive_players) --[[ @as ServerPlayer[] ]]
     if not include_self then
       table.removeOne(players, player)
     end
     for _, p in ipairs(players) do
       if not player:isProhibited(p, cardUseEvent.card) then
-        cardUseEvent:addTargets(p)
+        cardUseEvent:addTarget(p)
       end
     end
   end
