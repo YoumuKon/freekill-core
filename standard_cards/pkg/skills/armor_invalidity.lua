@@ -28,7 +28,7 @@ sk:addEffect('invalidity', {
           break
         elseif event.event == GameEvent.UseCard then
           ---@cast data UseCardData
-          if not table.contains(use.tos, player) then return false end
+          if not table.contains(data.tos, player) then return false end
           from = data.from
           break
         end
