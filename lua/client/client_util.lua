@@ -448,28 +448,28 @@ function FindMosts() -- 从所有的玩家结算数据中找出最佳/差玩家
   local leastDamagePlayers, leastDamagedPlayers, leastRecoverPlayers, leastKillPlayers = {}, {}, {}, {}
 
   for s, p in ipairs(data) do
-    if p.damage >= max_damage then
+    if p.damage >= max_damage and p.damage > 0 then
       if p.damage > max_damage then
         max_damage = p.damage
         maxDamagePlayers = {}
       end
       table.insert(maxDamagePlayers, s)
     end
-    if p.damaged >= max_damaged then
+    if p.damaged >= max_damaged and p.damaged > 0 then
       if p.damaged > max_damaged then
         max_damaged = p.damaged
         maxDamagedPlayers = {}
       end
       table.insert(maxDamagedPlayers, s)
     end
-    if p.recover >= max_recover then
+    if p.recover >= max_recover and p.recover > 0 then
       if p.recover > max_recover then
         max_recover = p.recover
         maxRecoverPlayers = {}
       end
       table.insert(maxRecoverPlayers, s)
     end
-    if p.kill >= max_kill then
+    if p.kill >= max_kill and p.kill > 0 then
       if p.kill > max_kill then
         max_kill = p.kill
         maxKillPlayers = {}

@@ -222,16 +222,16 @@ Util.CardTargetFilter = function(skill, player, to_select, selected, selected_ca
   if extra_data.must_targets then
     -- must_targets: 必须先选择must_targets内的**所有**目标
     if not (#extra_data.must_targets <= #selected or
-      table.contains(extra_data.must_targets, to_select)) then return false end
+      table.contains(extra_data.must_targets, to_select.id)) then return false end
   end
   if extra_data.include_targets then
     -- include_targets: 必须先选择include_targets内的**其中一个**目标
     if not (table.hasIntersection(extra_data.include_targets, selected) or
-      table.contains(extra_data.include_targets, to_select)) then return false end
+      table.contains(extra_data.include_targets, to_select.id)) then return false end
   end
   if extra_data.exclusive_targets then
     -- exclusive_targets: **只能选择**exclusive_targets内的目标
-    if not table.contains(extra_data.exclusive_targets, to_select) then return false end
+    if not table.contains(extra_data.exclusive_targets, to_select.id) then return false end
   end
   return true
 end
@@ -270,8 +270,9 @@ end
 ---@param extra_data table?
 Util.CanUseToSelf = function(self, player, card, extra_data)
   if player:prohibitUse(card) then return end
-  local tos = (extra_data and extra_data.fix_targets) and extra_data.fix_targets or {player}
-  return table.find(tos, function(p)
+  local tos = (extra_data and extra_data.fix_targets) and extra_data.fix_targets or {player.id}
+  return table.find(tos, function(pid)
+    local p = Fk:currentRoom():getPlayerById(pid)
     return not player:isProhibited(p, card)
     and Util.CardTargetFilter(self, player, p, {}, card.subcards, card, extra_data)
   end) ~= nil

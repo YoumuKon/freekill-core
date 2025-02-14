@@ -756,12 +756,12 @@ function GameLogic:dumpAllEvents(from, to)
   local tab = "  "
   for i = from, to, 1 do
     local v = self.all_game_events[i]
-    if type(v) ~= "table" then
+    if type(v) ~= "table" or not v:isInstanceOf(GameEvent) then
       indent = math.max(indent - 1, 0)
       -- v = "End"
       -- print(tab:rep(indent) .. string.format("#%d: %s", i, v))
     else
-      print(tab:rep(indent) .. string.format("%s", tostring(v)))
+      print(tab:rep(indent) .. tostring(v))
       if v.id ~= v.end_id then
         indent = indent + 1
       end

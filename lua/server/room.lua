@@ -2786,25 +2786,25 @@ function Room:getGameSummary()
   end
 
   self.logic:getEventsOfScope(GameEvent.Turn, 1, function (e)
-    if e.data[1] then
-      summary[e.data[1].seat].turn = summary[e.data[1].seat].turn + 1 -- 回合
+    if e.data.who then
+      summary[e.data.who.seat].turn = summary[e.data.who.seat].turn + 1 -- 回合
     end
     return false
   end, Player.HistoryGame)
   self.logic:getEventsOfScope(GameEvent.Recover, 1, function (e)
-    local recover = e.data[1].who
-    summary[recover.seat].recover = summary[recover.seat].recover + e.data[1].num -- 回血
+    local recover = e.data.who
+    summary[recover.seat].recover = summary[recover.seat].recover + e.data.num -- 回血
     return false
   end, Player.HistoryGame)
   self.logic:getEventsOfScope(GameEvent.Death, 1, function (e)
-    local damage = e.data[1].damage
+    local damage = e.data.damage
     if damage and damage.from then
       summary[damage.from.seat].kill = summary[damage.from.seat].kill + 1 -- 击杀
     end
     return false
   end, Player.HistoryGame)
   self.logic:getActualDamageEvents(1, function (e)
-    local damage = e.data[1]
+    local damage = e.data
     local from, to = damage.from, damage.to
     if from then summary[from.seat].damage = summary[from.seat].damage + damage.damage end -- 伤害
     summary[to.seat].damaged = summary[to.seat].damaged + damage.damage -- 受伤

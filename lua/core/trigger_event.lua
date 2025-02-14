@@ -14,8 +14,8 @@ function TriggerEvent:initialize(room, target, data)
   self.target = target
   self.data = data
   local logic = room.logic
-  logic.current_event_id = logic.current_event_id + 1
-  self.id = logic.current_event_id
+  logic.current_trigger_event_id = logic.current_trigger_event_id + 1
+  self.id = logic.current_trigger_event_id
 
   self.skill_data = {}
   self.finished_skills = {}
