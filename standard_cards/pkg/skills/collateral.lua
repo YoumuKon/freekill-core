@@ -19,16 +19,11 @@ skill:addEffect("active", {
   end,
   target_num = 2,
   on_use = function(self, room, cardUseEvent)
-    local use = {}
-    use.tos, use.subTos = {}, {}
-    for i, p in ipairs(cardUseEvent.tos) do
-      if i % 2 == 1 then
-        table.insert(use.tos, p)
-      else
-        table.insert(use.subTos, { p })
-      end
+    local tos = table.simpleClone(cardUseEvent.tos)
+    cardUseEvent:removeAllTargets()
+    for i = 1, #tos, 2 do
+      cardUseEvent:addTarget(tos[i], { tos[i + 1] })
     end
-    cardUseEvent.tos, cardUseEvent.subTos = use.tos, use.subTos
   end,
   on_effect = function(self, room, effect)
     local to = effect.to

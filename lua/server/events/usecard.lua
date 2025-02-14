@@ -73,8 +73,8 @@ local sendCardEmotionAndLog = function(room, useCardData)
     local tosData
     if useCardData.tos then
       tosData = {}
-      for i, p in ipairs(useCardData.tos) do
-        local sub = table.map(useCardData.subTos[i] or {}, Util.IdMapper)
+      for _, p in ipairs(useCardData.tos) do
+        local sub = table.map(useCardData:getSubTos(p), Util.IdMapper)
         table.insert(tosData, { p.id, table.unpack(sub) })
       end
     end
@@ -117,12 +117,13 @@ local sendCardEmotionAndLog = function(room, useCardData)
       }
     end
 
-    for i, p in ipairs(useCardData.tos) do
-      if useCardData.subTos[i] then
+    for _, p in ipairs(useCardData.tos) do
+      local subt = useCardData:getSubTos(p)
+      if #subt > 0 then
         room:sendLog{
           type = "#CardUseCollaborator",
           from = p.id,
-          to = table.map(useCardData.subTos[i], Util.IdMapper),
+          to = table.map(subt, Util.IdMapper),
           arg = card.name,
         }
       end
@@ -461,12 +462,6 @@ function UseCardEventWrappers:useCard(useCardData)
   else
     new_data = UseCardData:new(useCardData)
   end
-  new_data.subTos = new_data.subTos or {}
-  for i in ipairs(new_data.tos or {}) do
-    if not new_data.subTos[i] then
-      new_data.subTos[i] = {}
-    end
-  end
   return exec(UseCard, new_data)
 end
 
@@ -510,13 +505,13 @@ local onAim = function(room, useCardData, aimEventCollaborators)
         }
 
         local index = 1
-        for i1, targets in ipairs(useCardData.tos) do
+        for i1, target in ipairs(useCardData.tos) do
           if index > collaboratorsIndex[to] then
             break
           end
 
-          if #(useCardData.subTos[i1] or {}) > 0 then
-            aimStruct.subTargets = table.simpleClone(useCardData.subTos[i1])
+          if #useCardData:getSubTos(target) > 0 then
+            aimStruct.subTargets = table.simpleClone(useCardData:getSubTos(target))
           else
             aimStruct.subTargets = {}
           end

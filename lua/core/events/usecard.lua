@@ -55,6 +55,7 @@ end
 
 ---@param player ServerPlayer
 function UseCardData:removeTarget(player)
+  self.subTos = self.subTos or {}
   for index, target in ipairs(self.tos) do
     if (target == player) then
       table.remove(self.tos, index)
@@ -64,11 +65,29 @@ function UseCardData:removeTarget(player)
   end
 end
 
+function UseCardData:removeAllTargets()
+  self.tos = {}
+end
+
 ---@param player ServerPlayer
 ---@param sub? ServerPlayer[]
 function UseCardData:addTarget(player, sub)
   table.insert(self.tos, player)
+  self.subTos = self.subTos or {}
   table.insert(self.subTos, sub or {})
+end
+
+---@param player ServerPlayer
+---@return ServerPlayer[]
+function UseCardData:getSubTos(player)
+  self.subTos = self.subTos or {}
+  for i, p in ipairs(self.tos) do
+    if p == player then
+      self.subTos[i] = self.subTos[i] or {}
+      return self.subTos[i]
+    end
+  end
+  return {}
 end
 
 ---@class UseCardEvent: TriggerEvent
@@ -165,7 +184,7 @@ end
 
 ---@param player ServerPlayer
 ---@param sub? ServerPlayer[]
-function AimData:addTargets(player, sub)
+function AimData:addTarget(player, sub)
   table.insert(self.tos[AimData.Undone], player)
 
   if sub then
@@ -277,6 +296,19 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 --- 卡牌效果的数据
 ---@class CardEffectData: CardEffectDataSpec, TriggerData
 CardEffectData = TriggerData:subclass("CardEffectData")
+
+---@param player ServerPlayer
+---@return ServerPlayer[]
+function CardEffectData:getSubTos(player)
+  self.subTos = self.subTos or {}
+  for i, p in ipairs(self.tos) do
+    if p == player then
+      self.subTos[i] = self.subTos[i] or {}
+      return self.subTos[i]
+    end
+  end
+  return {}
+end
 
 ---@class CardEffectEvent: TriggerEvent
 ---@field data CardEffectData

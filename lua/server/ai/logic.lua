@@ -483,7 +483,6 @@ function AIGameLogic:useCard(useCardData)
   else
     new_data = UseCardData:new(useCardData)
   end
-  new_data.subTos = new_data.subTos or (new_data.tos and table.map(new_data.tos, function() return {} end) or {})
   return not UseCard:new(self, new_data):getBenefit()
 end
 

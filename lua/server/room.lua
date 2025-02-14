@@ -1969,10 +1969,8 @@ function Room:handleUseCardReply(player, data)
         local use = {}    ---@type UseCardDataSpec
         use.from = player
         use.tos = {}
-        use.subTos = {}
         for _, targetId in ipairs(targets) do
           table.insert(use.tos, self:getPlayerById(targetId))
-          table.insert(use.subTos, {})
         end
         use.card = c
 
@@ -2001,10 +1999,8 @@ function Room:handleUseCardReply(player, data)
     local use = {}    ---@type UseCardDataSpec
     use.from = player
     use.tos = {}
-    use.subTos = {}
     for _, targetId in ipairs(targets or Util.DummyTable) do
       table.insert(use.tos, self:getPlayerById(targetId))
-      table.insert(use.subTos, {})
     end
     Fk:filterCard(card, player)
     use.card = Fk:getCardById(card)

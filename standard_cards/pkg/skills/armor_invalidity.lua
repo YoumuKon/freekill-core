@@ -14,20 +14,22 @@ sk:addEffect('invalidity', {
       local event = logic:getCurrentEvent()
       local from = nil
       repeat
+        local data = event.data
         if event.event == GameEvent.SkillEffect then
-          if not event.data[3].cardSkill then
-            from = event.data[2]
+          ---@cast data SkillEffectData
+          if not data.skill.cardSkill then
+            from = data.who
             break
           end
         elseif event.event == GameEvent.Damage then
-          local damage = event.data
-          if damage.to ~= player then return false end
-          from = damage.from
+          ---@cast data DamageData
+          if data.to ~= player then return false end
+          from = data.from
           break
         elseif event.event == GameEvent.UseCard then
-          local use = event.data
-          if not table.contains(TargetGroup:getRealTargets(use.tos), player.id) then return false end
-          from = use.from
+          ---@cast data UseCardData
+          if not table.contains(use.tos, player) then return false end
+          from = data.from
           break
         end
         event = event.parent

@@ -31,7 +31,7 @@ function UseCardData:toLegacy()
     local tos = {}
     for i, p in ipairs(self.tos) do
       local t = { p.id }
-      local sub = self.subTos[i]
+      local sub = self:getSubTos(p)
       if sub then
         table.insertTable(sub, table.map(sub, Util.IdMapper))
       end
@@ -159,7 +159,7 @@ function CardEffectData:toLegacy()
     local tos = {}
     for i, p in ipairs(self.tos) do
       local t = { p.id }
-      local sub = self.subTos[i]
+      local sub = self:getSubTos(p)
       if sub then
         table.insertTable(sub, table.map(sub, Util.IdMapper))
       end
