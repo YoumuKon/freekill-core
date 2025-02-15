@@ -79,7 +79,8 @@ gameRule:addEffect(fk.AskForPeachesDone, {
     if player.hp < 1 and not data.ignoreDeath then
       ---@type DeathDataSpec
       local deathData = {
-        who = player.id,
+        who = player,
+        killer = data.damage and data.damage.from,
         damage = data.damage,
       }
       room:killPlayer(deathData)

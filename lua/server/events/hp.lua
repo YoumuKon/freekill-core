@@ -118,8 +118,9 @@ function ChangeHp:main()
   if data.who.hp < 1 then
     if num < 0 and not data.preventDying then
       local dyingDataSpec = {
-        who = data.who.id,
+        who = data.who,
         damage = damageData,
+        killer = damageData and damageData.from,
       }
       room:enterDying(dyingDataSpec)
     end

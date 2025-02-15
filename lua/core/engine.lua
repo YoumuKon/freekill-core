@@ -247,7 +247,7 @@ function Engine:loadPackages()
     if (not string.find(dir, ".disabled")) and not table.contains(_disable_packs, dir)
       and FileIO.isDir("packages/" .. dir)
       and FileIO.exists("packages/" .. dir .. "/init.lua") then
-      local pack = require(string.format("packages.%s", dir))
+      local pack = Pcall(require, string.format("packages.%s", dir))
       -- Note that instance of Package is a table too
       -- so dont use type(pack) == "table" here
       if type(pack) == "table" then
