@@ -13,10 +13,11 @@ local eight_diagram_on_use = function (self, event, target, player, data)
     room:judge(judgeData)
 
     if judgeData.card.color == Card.Red then
-      if event == fk.AskForCardUse then
+      if event:isInstanceOf(fk.AskForCardUse) then
         data.result = {
           from = player,
           card = Fk:cloneCard("jink"),
+          tos = {},
         }
         data.result.card.skillName = "eight_diagram"
 
@@ -49,31 +50,43 @@ skill:addEffect(fk.AskForCardResponse, {
   on_use = eight_diagram_on_use,
 })
 
---[[skill:addTest(function(room, me)
+---[[
+skill:addTest(function(room, me)
   local eight_diagram = room:printCard("eight_diagram")
   local comp2 = room.players[2]
 
-  FkTest.setNextReplies(me, { "1", "1" })
+  FkTest.setNextReplies(me, { "1" })
   FkTest.runInRoom(function()
     room:useCard {
       from = me,
       tos = { me },
       card = eight_diagram,
     }
-    room:moveCardTo({room:printCard("slash", Card.Heart), room:printCard("slash", Card.Spade)}, Card.DrawPile)
+    room:moveCardTo(room:printCard("slash", Card.Heart), Card.DrawPile)
     room:useCard {
       from = comp2,
       tos = { me },
       card = Fk:cloneCard("slash"),
     }
-    lu.assertEquals(me.hp, 4)
+  end)
+  lu.assertEquals(me.hp, 4)
+  FkTest.setNextReplies(me, { "1", "1", "" })
+  FkTest.runInRoom(function()
+    room:moveCardTo(room:printCard("slash", Card.Diamond), Card.DrawPile)
     room:useCard {
       from = comp2,
       tos = { me },
       card = Fk:cloneCard("archery_attack"),
     }
-    lu.assertEquals(me.hp, 3)
+    room:moveCardTo(room:printCard("slash", Card.Spade), Card.DrawPile)
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash"),
+    }
   end)
-end)]]--
+  lu.assertEquals(me.hp, 3)
+end)
+--]]
 
 return skill

@@ -55,7 +55,7 @@ luoyi:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:useCard{
       from = me,
-      tos = { { comp2.id } },
+      tos = { comp2 },
       card = slash,
     }
   end)

@@ -12,13 +12,9 @@ qicai:addEffect("targetmod", {
 qicai:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "qicai")
-    -- 让顺手牵羊可以用一下
-    for _, other in ipairs(room:getOtherPlayers(me, false)) do
-      other:drawCards(1)
-    end
   end)
 
-  local snatch = Fk:cloneCard("snatch")
+  local snatch = Fk:cloneCard("supply_shortage")
   lu.assertIsTrue(table.every(room:getOtherPlayers(me, false), function (other)
     return me:canUseTo(snatch, other)
   end))
