@@ -221,8 +221,10 @@ function Turn:main()
   local player = self.data[1]---@type ServerPlayer
   local data = self.data[2]---@type TurnStruct
   player.phase = Player.PhaseNone
+  room:broadcastProperty(player, "phase")
   room.logic:trigger(fk.TurnStart, player, data)
   player.phase = Player.NotActive
+  room:broadcastProperty(player, "phase")
   player:play(data.phase_table)
 end
 
@@ -247,9 +249,11 @@ function Turn:clear()
   end
 
   current.phase = Player.PhaseNone
+  room:broadcastProperty(current, "phase")
   logic:trigger(fk.TurnEnd, current, data, self.interrupted)
   logic:trigger(fk.AfterTurnEnd, current, data, self.interrupted)
   current.phase = Player.NotActive
+  room:broadcastProperty(current, "phase")
 
   room:setTag("endTurn", false)
 
