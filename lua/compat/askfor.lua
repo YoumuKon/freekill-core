@@ -559,7 +559,7 @@ end
 ---@param skipUse? boolean @ 是否跳过使用。默认不跳过
 ---@return UseCardDataSpec? @ 返回卡牌使用框架。取消使用则返回空
 ---@deprecated
-function Room:askForUseRealCard(player, pattern, skillName, prompt, extra_data, cancelable, skipUse)
+function CompatAskFor:askForUseRealCard(player, pattern, skillName, prompt, extra_data, cancelable, skipUse)
   pattern = type(pattern) == "string" and pattern or tostring(Exppattern{ id = pattern })
   skillName = skillName or ""
   prompt = prompt or ("#AskForUseOneCard:::" .. skillName)
