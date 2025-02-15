@@ -255,10 +255,6 @@ end
 ---@class TrigSkelAttribute
 ---@field public is_delay_effect? boolean
 --- 若为true，则不贴main_skill
----@field public not_has_skill? boolean
---- 若为false或nil，自动添加判断player:hasSkill(<主技能>)
----@field public player_not_target? boolean
---- 若为false或nil，自动添加判断(target == nil or target == player)
 
 ---@alias TrigFunc fun(self: TriggerSkill, event: TriggerEvent, target: ServerPlayer?, player: ServerPlayer, data: any): any
 ---@class TrigSkelSpec<T>: {
@@ -284,20 +280,13 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
   sk.event = key
   if spec.can_trigger then
-    local can_trigger = function(_self, event, target, player, data)
-      if (not attr.not_has_skill) and not
-        player:hasSkill(attr.is_delay_effect and sk or _skill.name) then return end
-      if (not attr.player_not_target) and
-        not (target == nil or target == player) then return end
-      return spec.can_trigger(_self, event, target, player, data)
-    end
     if _skill.frequency == Skill.Wake then
       sk.triggerable = function(_self, event, target, player, data)
-        return can_trigger(_self, event, target, player, data) and
+        return spec.can_trigger(_self, event, target, player, data) and
           sk:enableToWake(event, target, player, data)
       end
     else
-      sk.triggerable = can_trigger
+      sk.triggerable = spec.can_trigger
     end
     if _skill.frequency == Skill.Wake and spec.can_wake then
       sk.canWake = spec.can_wake
@@ -695,7 +684,7 @@ end
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
----@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string?
+---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardDataSpec): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? any

@@ -4,6 +4,7 @@ local skill = fk.CreateSkill {
 
 skill:addEffect(fk.AfterCardsMove, {
   can_trigger = function(self, event, target, player, data)
+    if not player:hasSkill(self.name) then return end
     for _, move in ipairs(data) do
       if move.from == player then
         for _, info in ipairs(move.moveInfo) do

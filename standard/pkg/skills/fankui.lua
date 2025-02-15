@@ -5,6 +5,7 @@ local skill = fk.CreateSkill({
 skill:addEffect(fk.Damaged, {
   anim_type = "masochism",
   can_trigger = function(self, event, target, player, data)
+    if not (target == player and player:hasSkill(skill.name)) then return end
     if data.from and not data.from.dead then
       if data.from == player then
         return #player:getCardIds("e") > 0

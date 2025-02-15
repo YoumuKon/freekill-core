@@ -280,7 +280,7 @@ function GameLogic:prepareForStart()
   local room = self.room
   local players = room.players
 
-  self:addTriggerSkill(GameRule)
+  self:addTriggerSkill(Fk.skills["game_rule"] --[[@as TriggerSkill]])
   for _, trig in ipairs(Fk.global_trigger) do
     self:addTriggerSkill(trig)
   end

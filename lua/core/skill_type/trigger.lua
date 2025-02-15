@@ -1,5 +1,9 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
+--[[
+  此为触发技，属于可发动技能。
+--]]
+
 ---@class TriggerSkill : UsableSkill
 ---@field public global boolean
 ---@field public event TriggerEvent

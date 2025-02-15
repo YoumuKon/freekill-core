@@ -39,11 +39,11 @@ function ViewAsSkill:enabledAtResponse(player, cardResponsing)
 end
 
 ---@param player Player
----@param cardUseStruct CardUseStruct
+---@param cardUseStruct UseCardDataSpec
 function ViewAsSkill:beforeUse(player, cardUseStruct) end
 
 ---@param player Player
----@param cardUseStruct CardUseStruct
+---@param cardUseStruct UseCardData
 function ViewAsSkill:afterUse(player, cardUseStruct) end
 
 ---@param player Player @ 你自己

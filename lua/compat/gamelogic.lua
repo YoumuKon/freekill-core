@@ -138,8 +138,7 @@ function M.triggerForLegacy(self, event, target, data, refresh_only)
         local skill_name = prio <= 0 and table.random(skill_names) or
           room:askForChoice(player, skill_names, "trigger", "#choose-trigger")
 
-        local skill = skill_name == "game_rule" and GameRule
-          or Fk.skills[skill_name]
+        local skill = Fk.skills[skill_name] --[[@as LegacyTriggerSkill]]
 
         table.insert(invoked_skills, skill)
         broken = skill:trigger(event, target, player, data)

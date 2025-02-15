@@ -10,6 +10,7 @@ skill:addEffect(fk.DrawNCards, {
     data.n = data.n - 1
   end,
 })
+
 skill:addEffect(fk.DamageCaused, {
   can_trigger = function(self, event, target, player, data)
     return player:usedSkillTimes(skill.name, Player.HistoryTurn) > 0 and

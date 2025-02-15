@@ -23,6 +23,7 @@ skill:addEffect(fk.TargetSpecified, {
   end,
   on_use = wushuang_spec.on_use
 })
+
 skill:addEffect(fk.TargetConfirmed, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card.trueName == "duel"

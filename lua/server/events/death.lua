@@ -17,7 +17,7 @@ function Dying:main()
   local dyingData = self.data
   local room = self.room
   local logic = room.logic
-  local dyingPlayer = room:getPlayerById(dyingData.who)
+  local dyingPlayer = dyingData.who
   dyingPlayer.dying = true
   room:broadcastProperty(dyingPlayer, "dying")
   room:sendLog{
@@ -45,7 +45,7 @@ function Dying:exit()
   local logic = room.logic
   local dyingData = self.data
 
-  local dyingPlayer = room:getPlayerById(dyingData.who)
+  local dyingPlayer = dyingData.who
 
   if dyingPlayer.dying then
     dyingPlayer.dying = false
@@ -67,7 +67,7 @@ local Death = GameEvent:subclass("GameEvent.Death")
 function Death:prepare()
   local deathData = self.data
   local room = self.room
-  local victim = room:getPlayerById(deathData.who)
+  local victim = deathData.who
   if victim.dead then
     return true
   end
@@ -76,7 +76,7 @@ end
 function Death:main()
   local deathData = self.data
   local room = self.room
-  local victim = room:getPlayerById(deathData.who)
+  local victim = deathData.who
   victim.dead = true
 
   if victim.rest <= 0 then

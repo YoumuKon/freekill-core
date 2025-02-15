@@ -1954,6 +1954,7 @@ function Room:handleUseCardReply(player, data)
     local selected_cards = card_data.subcards
     if skill.interaction then skill.interaction.data = data.interaction_data end
     if skill:isInstanceOf(ActiveSkill) then
+      ---@cast skill ActiveSkill
       self:useSkill(player, skill, function()
         skill:onUse(self, SkillUseData:new {
           from = player,
@@ -1963,16 +1964,19 @@ function Room:handleUseCardReply(player, data)
       end, {tos = table.map(targets, Util.Id2PlayerMapper), cards = selected_cards, cost_data = {}})
       return nil
     elseif skill:isInstanceOf(ViewAsSkill) then
+      ---@cast skill ViewAsSkill
       Self = player
       local c = skill:viewAs(player, selected_cards)
       if c then
-        local use = {}    ---@type UseCardDataSpec
-        use.from = player
-        use.tos = {}
+        ---@type UseCardDataSpec
+        local use = {
+          from = player,
+          tos = {},
+          card = c,
+        }
         for _, targetId in ipairs(targets) do
           table.insert(use.tos, self:getPlayerById(targetId))
         end
-        use.card = c
 
         self:useSkill(player, skill, Util.DummyFunc)
         use.attachedSkillAndUser = { skillName = skill.name, user = player.id }
@@ -1989,6 +1993,7 @@ function Room:handleUseCardReply(player, data)
     if data.special_skill then
       local skill = Fk.skills[data.special_skill]
       assert(skill:isInstanceOf(ActiveSkill))
+      ---@cast skill ActiveSkill
       skill:onUse(self, SkillUseData:new {
         from = player,
         cards = { card },
@@ -1996,7 +2001,7 @@ function Room:handleUseCardReply(player, data)
       })
       return nil
     end
-    local use = {}    ---@type UseCardDataSpec
+    local use = {}
     use.from = player
     use.tos = {}
     for _, targetId in ipairs(targets or Util.DummyTable) do

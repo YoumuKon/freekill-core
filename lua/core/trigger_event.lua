@@ -20,6 +20,8 @@ function TriggerEvent:initialize(room, target, data)
   self.skill_data = {}
   self.finished_skills = {}
 end
+
+--[[
 function TriggerEvent:__eq(other)
   --经实测 global event 是TriggerSkill的event.class
   local function eventName(obj)
@@ -27,6 +29,8 @@ function TriggerEvent:__eq(other)
   end
   return eventName(self) == eventName(other)
 end
+--]]
+
 ---@param skill Skill
 ---@param k string
 ---@param v any

@@ -1,7 +1,7 @@
 
 --- DyingData 描述和濒死事件有关的数据
 ---@class DyingDataSpec
----@field public who PlayerId @ 濒死角色
+---@field public who ServerPlayer @ 濒死角色
 ---@field public damage? DamageData @ 造成此次濒死的伤害数据
 ---@field public ignoreDeath? boolean @ 是否不进行死亡结算
 
@@ -26,7 +26,7 @@ fk.AskForPeachesDone = DyingEvent:subclass("fk.AskForPeachesDone")
 
 --- DeathData 描述和死亡事件有关的数据
 ---@class DeathDataSpec
----@field public who PlayerId @ 死亡角色
+---@field public who ServerPlayer @ 死亡角色
 ---@field public damage? DamageData @ 造成此次死亡的伤害数据
 
 --- 描述和死亡事件有关的数据
@@ -69,21 +69,15 @@ fk.AfterPlayerRevived = ReviveEvent:subclass("fk.AfterPlayerRevived")
 
 ---@alias DyingTrigFunc fun(self: TriggerSkill, event: DyingEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DyingData): any
-
----@class SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: DyingEvent,
----  data: TrigSkelSpec<DyingTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
-
 ---@alias DeathTrigFunc fun(self: TriggerSkill, event: DeathEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DeathData): any
-
----@class SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: DeathEvent,
----  data: TrigSkelSpec<DeathDataSpec>, attr: TrigSkelAttribute?): SkillSkeleton
-
 ---@alias ReviveTrigFunc fun(self: TriggerSkill, event: ReviveEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: ReviveData): any
 
 ---@class SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: DyingEvent,
+---  data: TrigSkelSpec<DyingTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: DeathEvent,
+---  data: TrigSkelSpec<DeathTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: ReviveEvent,
----  data: TrigSkelSpec<ReviveDataSpec>, attr: TrigSkelAttribute?): SkillSkeleton
+---  data: TrigSkelSpec<ReviveTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton

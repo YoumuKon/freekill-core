@@ -72,7 +72,7 @@ fk.AfterCardsMove = MoveCardsEvent:subclass("fk.AfterCardsMove")
 fk.BeforeDrawCard = DrawEvent:subclass("fk.BeforeDrawCard")
 
 ---@alias MoveCardsFunc fun(self: TriggerSkill, event: MoveCardsEvent,
----  target: ServerPlayer, player: ServerPlayer, data: MoveCardsData[]): any
+---  target: nil, player: ServerPlayer, data: MoveCardsData[]): any
 ---@alias DrawFunc fun(self: TriggerSkill, event: DrawEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DrawData): any
 

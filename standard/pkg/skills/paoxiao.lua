@@ -10,6 +10,7 @@ sk:addEffect("targetmod", {
     end
   end,
 })
+
 sk:addEffect(fk.CardUsing, {
   can_refresh = function(self, event, target, player, data)
     return target == player and player:hasSkill(sk.name) and
