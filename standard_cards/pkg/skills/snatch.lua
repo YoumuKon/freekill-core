@@ -20,4 +20,15 @@ skill:addEffect("active", {
   end,
 })
 
+skill:addTest(function(room, me)
+  local snatch = Fk:cloneCard("snatch")
+  FkTest.runInRoom(function()
+    room.players[3]:drawCards(1)
+  end)
+  lu.assertIsTrue(table.every(room:getOtherPlayers(me, false), function (other)
+    return not me:canUseTo(snatch, other)
+  end))
+  lu.assertIsTrue(me:canUseTo(snatch, room.players[3], {bypass_distances = true}))
+end)
+
 return skill

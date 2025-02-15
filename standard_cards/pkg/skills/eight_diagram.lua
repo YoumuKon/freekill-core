@@ -4,20 +4,34 @@ local skill = fk.CreateSkill {
 }
 
 local eight_diagram_on_use = function (self, event, target, player, data)
-  local room = player.room
-  local to = data.to
-  local ride_tab = table.filter(to:getCardIds("e"), function (id)
-    local card = Fk:getCardById(id)
-    return card.sub_type == Card.SubtypeDefensiveRide or card.sub_type == Card.SubtypeOffensiveRide
-  end)
-  if #ride_tab == 0 then return end
-  local id = room:askForCardChosen(player, to, {
-    card_data = {
-      { "equip_horse", ride_tab }
+    local room = player.room
+    local judgeData = {
+      who = player,
+      reason = self.name,
+      pattern = ".|.|heart,diamond",
     }
-  }, self.name)
-  room:throwCard({id}, skill.name, to, player)
-end
+    room:judge(judgeData)
+
+    if judgeData.card.color == Card.Red then
+      if event == fk.AskForCardUse then
+        data.result = {
+          from = player,
+          card = Fk:cloneCard("jink"),
+        }
+        data.result.card.skillName = "eight_diagram"
+
+        if data.eventData then
+          data.result.toCard = data.eventData.toCard
+          data.result.responseToEvent = data.eventData.responseToEvent
+        end
+      else
+        data.result = Fk:cloneCard("jink")
+        data.result.skillName = "eight_diagram"
+      end
+
+      return true
+    end
+  end
 skill:addEffect(fk.AskForCardUse, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
@@ -34,5 +48,32 @@ skill:addEffect(fk.AskForCardResponse, {
   end,
   on_use = eight_diagram_on_use,
 })
+
+--[[skill:addTest(function(room, me)
+  local eight_diagram = room:printCard("eight_diagram")
+  local comp2 = room.players[2]
+
+  FkTest.setNextReplies(me, { "1", "1" })
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      tos = { me },
+      card = eight_diagram,
+    }
+    room:moveCardTo({room:printCard("slash", Card.Heart), room:printCard("slash", Card.Spade)}, Card.DrawPile)
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash"),
+    }
+    lu.assertEquals(me.hp, 4)
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("archery_attack"),
+    }
+    lu.assertEquals(me.hp, 3)
+  end)
+end)]]--
 
 return skill

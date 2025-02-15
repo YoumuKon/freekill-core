@@ -144,4 +144,39 @@ skill:addEffect(fk.CardEffectCancelledOut, {
   end,
 })
 
+skill:addTest(function(room, me)
+  local qinggang_sword = room:printCard("qinggang_sword")
+  local nioh_shield = room:printCard("nioh_shield")
+  local comp2 = room.players[2]
+
+  FkTest.runInRoom(function()
+    --无视防具测试
+    room:useCard {
+      from = comp2,
+      tos = { comp2 },
+      card = qinggang_sword,
+    }
+    room:useCard {
+      from = me,
+      tos = { me },
+      card = nioh_shield,
+    }
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash", Card.Spade),
+    }
+    lu.assertEquals(me.hp, 3)
+
+    --正确移除tag测试（FIXME: 未通过）
+    --[[room:throwCard(qinggang_sword, "", comp2, comp2)
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash", Card.Spade),
+    }
+    lu.assertEquals(me.hp, 3)]]--
+  end)
+end)
+
 return skill

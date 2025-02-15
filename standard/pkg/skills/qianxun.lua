@@ -14,12 +14,8 @@ qianxun:addEffect("prohibit", {
 qianxun:addTest(function(room, me)
   local comp2 = room.players[2]
 
-  local snatch = Fk:getCardById(table.find(room.draw_pile, function(cid)
-    return Fk:getCardById(cid).trueName == "snatch"
-  end))
-  local indulgence = Fk:getCardById(table.find(room.draw_pile, function(cid)
-    return Fk:getCardById(cid).trueName == "indulgence"
-  end))
+  local snatch = room:printCard("snatch")
+  local indulgence = room:printCard("indulgence")
 
   FkTest.runInRoom(function()
     -- 让顺手牵羊可以用一下

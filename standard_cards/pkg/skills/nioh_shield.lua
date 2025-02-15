@@ -12,4 +12,29 @@ skill:addEffect(fk.PreCardEffect, {
   on_use = Util.TrueFunc,
 })
 
+skill:addTest(function(room, me)
+  local nioh_shield = room:printCard("nioh_shield")
+  local comp2 = room.players[2]
+
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      tos = { me },
+      card = nioh_shield,
+    }
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash", Card.Spade),
+    }
+    lu.assertEquals(me.hp, 4)
+    room:useCard {
+      from = comp2,
+      tos = { me },
+      card = Fk:cloneCard("slash", Card.Heart),
+    }
+    lu.assertEquals(me.hp, 3)
+  end)
+end)
+
 return skill

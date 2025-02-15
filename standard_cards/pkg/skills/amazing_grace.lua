@@ -67,4 +67,16 @@ skill:addEffect("active", {
   end,
 })
 
+skill:addTest(function(room, me)
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      card = Fk:cloneCard("amazing_grace"),
+    }
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 1)
+  lu.assertEquals(#room.players[2]:getCardIds("h"), 1)
+  lu.assertEquals(#room.players[3]:getCardIds("h"), 1)
+end)
+
 return skill

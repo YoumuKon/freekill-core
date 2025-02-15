@@ -27,4 +27,17 @@ skill:addEffect("active", {
   end,
 })
 
+skill:addTest(function(room, me)
+  FkTest.runInRoom(function()
+    room:loseHp(me, 1)
+    room:loseHp(room.players[2], 1)
+    room:useCard {
+      from = me,
+      card = Fk:cloneCard("god_salvation"),
+    }
+  end)
+  lu.assertEquals(me.hp, 4)
+  lu.assertEquals(room.players[2].hp, 4)
+end)
+
 return skill

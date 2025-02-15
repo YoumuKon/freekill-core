@@ -10,8 +10,6 @@ qicai:addEffect("targetmod", {
 })
 
 qicai:addTest(function(room, me)
-  local faraway = table.filter(room:getOtherPlayers(me), function(other) return me:distanceTo(other) > 1 end)
-
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "qicai")
     -- 让顺手牵羊可以用一下
@@ -19,12 +17,11 @@ qicai:addTest(function(room, me)
       other:drawCards(1)
     end
   end)
-  local snatch = Fk:cloneCard("snatch")
 
-  for _, other in ipairs(faraway) do
-    -- printf('%s', other)
-    lu.assertTrue(me:canUseTo(snatch, other))
-  end
+  local snatch = Fk:cloneCard("snatch")
+  lu.assertIsTrue(table.every(room:getOtherPlayers(me, false), function (other)
+    return me:canUseTo(snatch, other)
+  end))
 end)
 
 return qicai

@@ -21,9 +21,7 @@ jizhi:addTest(function(room, me)
   end)
 
   local slash = Fk:getCardById(1)
-  local god_salvation = Fk:getCardById(table.find(room.draw_pile, function(cid)
-    return Fk:getCardById(cid).trueName == "god_salvation"
-  end))
+  local god_salvation = room:printCard("god_salvation")
 
   FkTest.setNextReplies(me, { "1", "1" })
   FkTest.runInRoom(function()

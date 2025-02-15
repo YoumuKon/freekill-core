@@ -49,24 +49,20 @@ xiaoji:addTest(function(room, me)
   end)
   FkTest.setNextReplies(me, { "1", "1", "1", "1", "1", "1", "1", "1" })
 
-  local nioh = Fk:getCardById(table.find(room.draw_pile, function(cid)
-    return Fk:getCardById(cid).trueName == "nioh_shield"
-  end))
+  local nioh = room:printCard("nioh_shield")
 
-  local spear = Fk:getCardById(table.find(room.draw_pile, function(cid)
-    return Fk:getCardById(cid).trueName == "spear"
-  end))
+  local spear = room:printCard("spear")
 
   FkTest.runInRoom(function()
     room:useCard{
       from = me,
-      tos = {{me.id}},
-      card = nioh
+      tos = {me},
+      card = nioh,
     }
     room:useCard{
       from = me,
-      tos = {{me.id}},
-      card = spear
+      tos = {me},
+      card = spear,
     }
     room:throwCard(me:getCardIds("he"), nil, me, me)
   end)

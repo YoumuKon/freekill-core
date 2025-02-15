@@ -20,4 +20,17 @@ skill:addEffect("active", {
   end,
 })
 
+skill:addTest(function(room, me)
+  local ex_nihilo = room:printCard("ex_nihilo")
+  -- 服务端on_effect测试：能正常回血
+  FkTest.runInRoom(function()
+    room:useCard{
+      from = me,
+      tos = { me },
+      card = ex_nihilo,
+    }
+  end)
+  lu.assertEquals(#me:getCardIds("h"), 2)
+end)
+
 return skill

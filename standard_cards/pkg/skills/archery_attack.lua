@@ -44,4 +44,16 @@ skill:addEffect("active", {
   end,
 })
 
+skill:addTest(function(room, me)
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      card = Fk:cloneCard("archery_attack"),
+    }
+  end)
+  lu.assertEquals(me.hp, 4)
+  lu.assertEquals(room.players[2].hp, 3)
+  lu.assertEquals(room.players[3].hp, 3)
+end)
+
 return skill
