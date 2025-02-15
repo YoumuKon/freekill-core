@@ -92,7 +92,7 @@ function ReqResponseCard:feasible()
   local skill = Fk.skills[self.skill_name]---@type ViewAsSkill
   local card = self.selected_card
   if skill then
-    card = skill:viewAs(self.pendings, self.player)
+    card = skill:viewAs(self.player, self.pendings)
   end
   return card and self:cardFeasible(card)
 end

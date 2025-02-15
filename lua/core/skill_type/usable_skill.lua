@@ -1,10 +1,16 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
+--[[
+  此为可发动技能。
+
+  技能发动时，会产生SkillEffect事件，负责技能的计数，以及实际执行效果等。
+--]]
+
 ---@class UsableSkill : Skill
----@field public main_skill UsableSkill
 ---@field public max_use_time integer[]
 ---@field public expand_pile? string | integer[] | fun(self: UsableSkill, player: Player): integer[]|string? @ 额外牌堆，牌堆名称或卡牌id表
 ---@field public derived_piles? string | string[]
+---@field public times? fun(self: UsableSkill, player: Player): integer
 local UsableSkill = Skill:subclass("UsableSkill")
 
 function UsableSkill:initialize(name, frequency)
@@ -120,7 +126,7 @@ function UsableSkill:onLose(player, is_death)
   if #lost_piles > 0 then
     player.room:moveCards({
       ids = lost_piles,
-      from = player.id,
+      from = player,
       toArea = Card.DiscardPile,
       moveReason = fk.ReasonPutIntoDiscardPile,
     })

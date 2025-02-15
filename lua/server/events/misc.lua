@@ -10,9 +10,10 @@ function Game:main()
 end
 
 ---@class GameEvent.ChangeProperty : GameEvent
+---@field public data PropertyChangeData
 local ChangeProperty = GameEvent:subclass("GameEvent.Game")
 function ChangeProperty:main()
-  local data = table.unpack(self.data)
+  local data = self.data
   local room = self.room
   local player = data.from
   local logic = room.logic
@@ -154,11 +155,11 @@ function MiscEventWrappers:changeHero(player, new_general, full, isDeputy, sendL
       allKingdoms = Fk:getKingdomMap(new.kingdom)
     end
     if #allKingdoms > 0 then
-      kingdom = self:askForChoice(player, allKingdoms, "AskForKingdom", "#ChooseInitialKingdom")
+      kingdom = self:askToChoice(player, { choices = allKingdoms, skill_name = "AskForKingdom", prompt = "#ChooseInitialKingdom" })
     end
   end
 
-  ChangeProperty:create({
+  ChangeProperty:create(PropertyChangeData:new{
     from = player,
     general = not isDeputy and new_general or nil,
     deputyGeneral = isDeputy and new_general or nil,
@@ -197,7 +198,7 @@ function MiscEventWrappers:changeKingdom(player, kingdom, sendLog)
   if kingdom == player.kingdom then return end
   sendLog = sendLog or false
 
-  ChangeProperty:create({
+  ChangeProperty:create(PropertyChangeData:new{
     from = player,
     kingdom = kingdom,
     sendLog = sendLog,
@@ -206,9 +207,10 @@ function MiscEventWrappers:changeKingdom(player, kingdom, sendLog)
 end
 
 ---@class GameEvent.ClearEvent : GameEvent
+---@field data GameEvent
 local ClearEvent = GameEvent:subclass("GameEvent.ClearEvent")
 function ClearEvent:main()
-  local event = self.data[1]
+  local event = self.data
   local logic = self.room.logic
   -- 不可中断
   Pcall(event.clear, event)

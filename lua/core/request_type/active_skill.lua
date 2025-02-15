@@ -74,7 +74,8 @@ end
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local prompt = skill.prompt
   if type(skill.prompt) == "function" then
-    prompt = skill:prompt(selected_cards or self.pendings, self.selected_targets)
+    prompt = skill:prompt(self.player, selected_cards or self.pendings,
+      table.map(self.selected_targets, Util.Id2PlayerMapper))
   end
   if type(prompt) == "string" then
     self:setPrompt(prompt)
@@ -219,13 +220,16 @@ function ReqActiveSkill:feasible()
   local skill = Fk.skills[self.skill_name]
   if not skill then return false end
   local ret
+  local targets = table.map(self.selected_targets, Util.Id2PlayerMapper)
   if skill:isInstanceOf(ActiveSkill) then
-    ret = skill:feasible(self.selected_targets, self.pendings, player)
+    ---@cast skill ActiveSkill
+    ret = skill:feasible(player, targets, self.pendings)
   elseif skill:isInstanceOf(ViewAsSkill) then
-    local card = skill:viewAs(self.pendings, player)
+    ---@cast skill ViewAsSkill
+    local card = skill:viewAs(player, self.pendings)
     if card then
-      local card_skill = card.skill ---@type ActiveSkill
-      ret = card_skill:feasible(self.selected_targets, { card.id }, player, card)
+      local card_skill = card.skill
+      ret = card_skill:feasible(player, targets, { card.id }, card)
     end
   end
   return ret
@@ -238,21 +242,25 @@ end
 --- 判断一张牌是否能被主动技或转化技点亮（注，使用实体牌不用此函数判断
 ---@param cid integer @ 待选卡牌id
 function ReqActiveSkill:cardValidity(cid)
-  local skill = Fk.skills[self.skill_name]---@type ActiveSkill | ViewAsSkill
+  local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
-  return skill:cardFilter(cid, self.pendings, self.player)
+  return skill:cardFilter(self.player, cid, self.pendings)
 end
 
 function ReqActiveSkill:targetValidity(pid)
-  local skill = Fk.skills[self.skill_name] --- @type ActiveSkill | ViewAsSkill
+  local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
   local card -- 姑且接一下(雾)
   if skill:isInstanceOf(ViewAsSkill) then
-    card = skill:viewAs(self.pendings, self.player)
+    ---@cast skill ViewAsSkill
+    card = skill:viewAs(self.player, self.pendings)
     if not card then return false end
     skill = card.skill
   end
-  return skill:targetFilter(pid, self.selected_targets, self.pendings, card, self.extra_data, self.player)
+  local room = Fk:currentRoom()
+  local p = room:getPlayerById(pid)
+  local selected = table.map(self.selected_targets, Util.Id2PlayerMapper)
+  return skill:targetFilter(self.player, p, selected, self.pendings, card, self.extra_data)
 end
 
 function ReqActiveSkill:updateButtons()
@@ -286,7 +294,7 @@ function ReqActiveSkill:initiateTargets()
   local scene = self.scene
   local skill = Fk.skills[self.skill_name]
   if skill:isInstanceOf(ViewAsSkill) then
-    local card = skill:viewAs(self.pendings, self.player)
+    local card = skill:viewAs(self.player, self.pendings)
     if card then skill = card.skill else skill = nil end
   end
 
@@ -372,7 +380,8 @@ function ReqActiveSkill:selectTarget(playerid, data)
   scene:update("Photo", playerid, data)
   -- 发生以下Viewas判断时已经是因为选角色触发的了，说明肯定有card了，这么写不会出事吧？
   if skill:isInstanceOf(ViewAsSkill) then
-    skill = skill:viewAs(self.pendings, self.player).skill
+    ---@cast skill ViewAsSkill
+    skill = skill:viewAs(self.player, self.pendings).skill
   end
 
   -- 类似选卡

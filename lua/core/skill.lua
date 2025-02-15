@@ -18,6 +18,7 @@
 ---@field public switchSkillName string @ 转换技名字
 ---@field public times integer @ 技能剩余次数，负数不显示，正数显示
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
+---@field public main_skill Skill
 ---@field public lordSkill boolean @ 是否为主公技
 ---@field public cardSkill boolean @ 是否为卡牌效果对应的技能（仅用于ActiveSkill）
 local Skill = class("Skill")
@@ -167,12 +168,12 @@ function Skill:isPlayerSkill(player)
 end
 
 ---@return integer
-function Skill:getTimes()
+function Skill:getTimes(player)
   local ret = self.times
   if not ret then
     return -1
   elseif type(ret) == "function" then
-    ret = ret(self)
+    ret = ret(self, player)
   end
   return ret
 end

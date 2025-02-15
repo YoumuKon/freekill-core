@@ -11,18 +11,18 @@ function ViewAsSkill:initialize(name, frequency)
   self.pattern = ""
 end
 
+---@param player Player @ 你自己
 ---@param to_select integer @ id of a card not selected
 ---@param selected integer[] @ ids of selected cards
----@param player Player @ the user
 ---@return boolean
-function ViewAsSkill:cardFilter(to_select, selected, player)
+function ViewAsSkill:cardFilter(player, to_select, selected)
   return false
 end
 
----@param cards integer[] @ ids of cards
 ---@param player Player @ the user
+---@param cards integer[] @ ids of cards
 ---@return Card?
-function ViewAsSkill:viewAs(cards, player)
+function ViewAsSkill:viewAs(player, cards)
   return nil
 end
 
@@ -39,15 +39,16 @@ function ViewAsSkill:enabledAtResponse(player, cardResponsing)
 end
 
 ---@param player Player
----@param cardUseStruct CardUseStruct
+---@param cardUseStruct UseCardDataSpec
 function ViewAsSkill:beforeUse(player, cardUseStruct) end
 
 ---@param player Player
----@param cardUseStruct CardUseStruct
+---@param cardUseStruct UseCardData
 function ViewAsSkill:afterUse(player, cardUseStruct) end
 
+---@param player Player @ 你自己
 ---@param selected_cards integer[] @ ids of selected cards
----@param selected_targets integer[] @ ids of selected players
-function ViewAsSkill:prompt(selected_cards, selected_targets) return "" end
+---@param selected_targets Player[] @ ids of selected players
+function ViewAsSkill:prompt(player, selected_cards, selected_targets) return "" end
 
 return ViewAsSkill

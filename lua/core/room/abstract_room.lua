@@ -37,7 +37,9 @@ function AbstractRoom:initialize()
 end
 
 -- 仅供注释，其余空函数一样
----@param id integer
+
+--- 根据角色id，获得那名角色本人
+---@param id integer @ 角色的id
 ---@return Player
 ---@diagnostic disable-next-line: missing-return
 function AbstractRoom:getPlayerById(id) end
