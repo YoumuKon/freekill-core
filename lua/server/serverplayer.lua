@@ -328,12 +328,13 @@ function ServerPlayer:play(phase_table)
 
     self.phase_index = i
     local phase_change = {
-      from = self.phase,
+      -- from = self.phase,
       to = phases[i]
     }
 
     local logic = self.room.logic
     self.phase = Player.PhaseNone
+    room:broadcastProperty(self, "phase")
 
     local skip = phase_state[i].skipped
     if not skip then
