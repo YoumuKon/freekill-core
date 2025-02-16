@@ -380,13 +380,15 @@ function Engine:addSkill(skill)
   end
   self.skills[skill.name] = skill
 
-  if skill.global then
-    if skill:isInstanceOf(TriggerSkill) then
-      table.insert(self.global_trigger, skill)
-    else
-      local t = self.global_status_skill
-      t[skill.class] = t[skill.class] or {}
-      table.insert(t[skill.class], skill)
+  for _, sk in ipairs{ skill, table.unpack(skill.related_skills) } do
+    if sk.global then
+      if sk:isInstanceOf(TriggerSkill) then
+        table.insertIfNeed(self.global_trigger, sk)
+      else
+        local t = self.global_status_skill
+        t[sk.class] = t[sk.class] or {}
+        table.insert(t[sk.class], sk)
+      end
     end
   end
 

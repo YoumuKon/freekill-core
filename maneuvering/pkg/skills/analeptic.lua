@@ -1,8 +1,8 @@
-local skill = fk.CreateSkill {
+local analepticSkill = fk.CreateSkill {
   name = "analeptic_skill",
 }
 
-skill:addEffect("active", {
+analepticSkill:addEffect("active", {
   prompt = "#analeptic_skill",
   max_turn_use_time = 1,
   mod_target_filter = Util.TrueFunc,
@@ -37,7 +37,8 @@ skill:addEffect("active", {
     end
   end,
 })
-skill:addEffect(fk.PreCardUse, {
+
+analepticSkill:addEffect(fk.PreCardUse, {
   global = true,
   can_trigger = function(self, event, target, player, data)
     return target == player and data.card.trueName == "slash"
@@ -51,7 +52,8 @@ skill:addEffect(fk.PreCardUse, {
     room:broadcastProperty(player, "drank")
   end,
 })
-skill:addEffect(fk.AfterTurnEnd, {
+
+analepticSkill:addEffect(fk.AfterTurnEnd, {
   global = true,
   can_trigger = Util.TrueFunc,
   on_trigger = function(self, event, target, player, data)
@@ -65,4 +67,54 @@ skill:addEffect(fk.AfterTurnEnd, {
   end,
 })
 
-return skill
+analepticSkill:addTest(function(room, me)
+  local analeptic = room:printCard("analeptic")
+  local comp2 = room.players[2]
+
+  -- test1: 喝酒后等到回合结束，酒状态解除
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      card = analeptic,
+      tos = {},
+    }
+  end)
+  lu.assertEquals(me.drank, 1)
+  FkTest.runInRoom(function()
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Finish }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+  lu.assertEquals(me.drank, 0)
+
+  -- test2: 喝酒加伤害
+  FkTest.runInRoom(function()
+    room:useCard {
+      from = me,
+      card = analeptic,
+      tos = {},
+    }
+    room:useCard {
+      from = me,
+      tos = { comp2 },
+      card = Fk:cloneCard("slash")
+    }
+  end)
+  lu.assertEquals(me.drank, 0)
+  lu.assertEquals(comp2.hp, 2)
+
+  -- test3: 濒死时喝酒，改为回血
+  FkTest.setNextReplies(me, { json.encode {
+    card = analeptic.id,
+  }})
+  FkTest.runInRoom(function()
+    room:obtainCard(me, analeptic)
+    room:loseHp(me, 4)
+  end)
+  lu.assertEquals(me.hp, 1)
+end)
+
+return analepticSkill
