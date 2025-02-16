@@ -197,7 +197,7 @@ function ReqActiveSkill:expandPiles()
       end
     end
   end
-  
+
   -- 展开该技能本身的额外牌堆
   if not skill.expand_pile then return end
   local pile = skill.expand_pile

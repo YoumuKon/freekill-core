@@ -264,7 +264,7 @@ function Turn:clear()
       local current_phase = current.phase
       current.phase = Player.PhaseNone
       logic:trigger(fk.EventPhaseChanging, current,
-        { from = current_phase, to = Player.NotActive }, true) -- FIXME: 等待规范化 
+        { from = current_phase, to = Player.NotActive }, true) -- FIXME: 等待规范化
       current.phase = Player.NotActive
       room:broadcastProperty(current, "phase")
       logic:trigger(fk.EventPhaseStart, current, data, true)
