@@ -126,7 +126,9 @@ function Engine:loadPackage(pack)
 
   -- create skills from skel
   for _, skel in ipairs(pack.skill_skels) do
-    table.insert(pack.related_skills, skel:createSkill())
+    local skill = skel:createSkill()
+    skill.package = pack
+    table.insert(pack.related_skills, skill)
   end
 
   if pack.type == Package.GeneralPack then

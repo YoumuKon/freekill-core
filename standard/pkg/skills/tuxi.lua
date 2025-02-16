@@ -15,24 +15,71 @@ tuxi:addEffect(fk.EventPhaseStart, {
       return not p:isKongcheng()
     end)
 
-    local result = room:askToChoosePlayers(player, { targets = targets, min_num = 1, max_num = 2, prompt = "#tuxi-ask", skill_name = tuxi.name })
+    local result = room:askToChoosePlayers(player, {
+      targets = targets,
+      min_num = 1,
+      max_num = 2,
+      prompt = "#tuxi-ask",
+      skill_name = tuxi.name,
+    })
     if #result > 0 then
       room:sortByAction(result)
-      self.cost_data = {tos = result}
+      event:setCostData(self, {tos = result})
       return true
     end
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
-    player:skip(Player.Draw)
-    for _, p in ipairs(self.cost_data.tos) do
+    -- player:skip(Player.Draw)
+    for _, p in ipairs(event:getCostData(self).tos) do
       if player.dead then break end
       if not p.dead and not p:isKongcheng() then
-        local c = room:askToChooseCard(player, { target = p, flag = "h", skill_name = tuxi.name })
-        room:obtainCard(player.id, c, false, fk.ReasonPrey)
+        local c = room:askToChooseCard(player, {
+          target = p,
+          flag = "h",
+          skill_name = tuxi.name,
+        })
+        room:obtainCard(player, c, false, fk.ReasonPrey)
       end
     end
+    return true
   end,
 })
+
+tuxi:addTest(function(room, me)
+  local comp2, comp3 = room.players[2], room.players[3]
+
+  FkTest.setRoomBreakpoint(me, "AskForUseActiveSkill")
+  FkTest.runInRoom(function()
+    room:handleAddLoseSkills(me, tuxi.name)
+    room:obtainCard(comp2, 41)
+    room:obtainCard(comp3, 65)
+    local data = { ---@type TurnDataSpec
+      who = me,
+      reason = "game_rule",
+      phase_table = { Player.Draw }
+    }
+    GameEvent.Turn:create(TurnData:new(data)):exec()
+  end)
+
+  local handler = ClientInstance.current_request_handler --[[@as ReqActiveSkill]]
+  -- 验证只能选comp2和3
+  lu.assertIsFalse(handler:targetValidity(me.id))
+  lu.assertIsTrue(handler:targetValidity(comp2.id))
+  lu.assertIsTrue(handler:targetValidity(comp3.id))
+  for i = 4, 8 do
+    lu.assertIsFalse(handler:targetValidity(room.players[i].id))
+  end
+
+  -- 好了，让突袭选comp2和comp3吧，设置回复内容并返回房间运行
+  FkTest.setNextReplies(me, { json.encode {
+    card = { skill = "choose_players_skill", subcards = {} },
+    targets = { comp2.id, comp3.id }
+  }})
+  FkTest.resumeRoom()
+  lu.assertEquals(#me:getCardIds("h"), 2)
+  lu.assertIsTrue(comp2:isKongcheng())
+  lu.assertIsTrue(comp3:isKongcheng())
+end)
 
 return tuxi

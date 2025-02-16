@@ -236,11 +236,11 @@ function MoveEventWrappers:notifyMoveCards(players, moveDatas)
 end
 
 --- 让一名玩家获得一张牌
----@param player integer|ServerPlayer @ 要拿牌的玩家
+---@param player ServerPlayer @ 要拿牌的玩家
 ---@param card integer|integer[]|Card|Card[] @ 要拿到的卡牌
 ---@param unhide? boolean @ 是否明着拿
 ---@param reason? CardMoveReason @ 卡牌移动的原因
----@param proposer? integer @ 移动操作者的id
+---@param proposer? ServerPlayer @ 移动操作者的id
 ---@param skill_name? string @ 技能名
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
@@ -293,7 +293,7 @@ end
 ---@param skill_name? string @ 技能名
 ---@param special_name? string @ 私人牌堆名
 ---@param visible? boolean @ 是否明置
----@param proposer? integer @ 移动操作者的id
+---@param proposer? ServerPlayer @ 移动操作者
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
 function MoveEventWrappers:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer, moveMark, visiblePlayers)
@@ -394,7 +394,7 @@ end
 
 --- 将一些卡牌同时分配给一些角色。
 ---@param list table<integer, integer[]> @ 分配牌和角色的数据表，键为角色id，值为分配给其的牌id数组
----@param proposer? integer @ 操作者的id。默认为空
+---@param proposer? ServerPlayer @ 操作者的。默认为空
 ---@param skillName? string @ 技能名。默认为“分配”
 ---@return table<integer[]> @ 返回成功分配的卡牌
 function MoveEventWrappers:doYiji(list, proposer, skillName)
@@ -455,7 +455,7 @@ end
 ---@param cards integer|integer[] @ 移动的牌
 ---@param skillName? string @ 技能名
 ---@param convert? boolean @ 是否可以替换装备（默认可以）
----@param proposer? ServerPlayer | integer @ 操作者
+---@param proposer? ServerPlayer @ 操作者
 function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, proposer)
   convert = (convert == nil) and true or convert
   skillName = skillName or ""
