@@ -22,7 +22,7 @@ sk:addEffect(fk.CardUsing, {
 })
 sk:addEffect("targetmod", {
   bypass_times = function(self, player, skill, scope, card)
-    if player:hasSkill(skill.name) and card.trueName == "slash_skill" and scope == Player.HistoryPhase then
+    if player:hasSkill(skill.name) and card and card.trueName == "slash_skill" and scope == Player.HistoryPhase then
       --FIXME: 无法检测到非转化的cost选牌的情况，如活墨等
       local cardIds = Card:getIdList(card)
       local crossbows = table.filter(player:getEquipments(Card.SubtypeWeapon), function(id)

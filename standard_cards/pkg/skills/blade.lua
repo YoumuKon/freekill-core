@@ -12,7 +12,7 @@ skill:addEffect(fk.CardEffectCancelledOut, {
     local params = { ---@type AskToUseCardParams
       skill_name = "slash",
       pattern = "slash",
-      prompt = "#blade_slash:" .. data.to,
+      prompt = "#blade_slash:" .. data.to.id,
       cancelable = true,
       extra_data = {
         must_targets = {data.to},
