@@ -122,6 +122,8 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public additionalRecover? integer @ 额外回复值
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
+---@field public disresponsiveList? ServerPlayer[] @ 这些角色不可响应此牌
+---@field public unoffsetableList? ServerPlayer[] @ 这些角色不可抵消此牌
 ---@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
 ---@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
 ---@field public additionalEffect? integer @额外结算次数

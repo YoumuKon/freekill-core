@@ -585,7 +585,8 @@ end
 --- 对卡牌使用数据进行生效
 ---@param useCardData UseCardData
 function UseCardEventWrappers:doCardUseEffect(useCardData)
-  ---@type table<ServerPlayer, AimData>
+  ---@cast self Room
+  ---@type table<ServerPlayer, AimData[]>
   local aimEventCollaborators = {}
   if #useCardData.tos > 0 and not onAim(self, useCardData, aimEventCollaborators) then
     return
@@ -750,9 +751,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
             cardEffectData.disresponsiveList = cardEffectData.disresponsiveList or {}
 
             for _, disresponsivePlayer in ipairs(curAimEvent.disresponsiveList) do
-              if not table.contains(cardEffectData.disresponsiveList, disresponsivePlayer) then
-                table.insert(cardEffectData.disresponsiveList, disresponsivePlayer)
-              end
+              table.insertIfNeed(cardEffectData.disresponsiveList, disresponsivePlayer)
             end
           end
 
@@ -760,9 +759,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
             cardEffectData.unoffsetableList = cardEffectData.unoffsetableList or {}
 
             for _, unoffsetablePlayer in ipairs(curAimEvent.unoffsetableList) do
-              if not table.contains(cardEffectData.unoffsetableList, unoffsetablePlayer) then
-                table.insert(cardEffectData.unoffsetableList, unoffsetablePlayer)
-              end
+              table.insertIfNeed(cardEffectData.unoffsetableList, unoffsetablePlayer)
             end
           end
 
@@ -811,17 +808,18 @@ end
 ---@param event CardEffectEvent
 ---@param cardEffectData CardEffectData
 function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
+  ---@cast self Room
   if event == fk.PreCardEffect then
-    if
-      cardEffectData.card.trueName == "slash" and
-      not (cardEffectData.unoffsetable or table.contains(cardEffectData.unoffsetableList or Util.DummyTable, cardEffectData.to))
+    if cardEffectData.card.trueName == "slash" and not
+      (cardEffectData.unoffsetable or
+      table.contains(cardEffectData.unoffsetableList or Util.DummyTable, cardEffectData.to))
     then
       local loopTimes = 1
       if cardEffectData.fixedResponseTimes then
         if type(cardEffectData.fixedResponseTimes) == "table" then
           loopTimes = cardEffectData.fixedResponseTimes["jink"] or 1
         elseif type(cardEffectData.fixedResponseTimes) == "number" then
-          loopTimes = cardEffectData.fixedResponseTimes
+          loopTimes = cardEffectData.fixedResponseTimes --[[@as integer]]
         end
       end
       Fk.currentResponsePattern = "jink"
@@ -842,7 +840,7 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
           skill_name = "jink",
           prompt = prompt,
           cancelable = true,
-          event_data = evcardEffectData
+          event_data = cardEffectData
         }
         local use = self:askToUseCard(to, params)
         if use then
@@ -882,14 +880,15 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
           end
           if not table.contains(players, p) then
             Self = p -- for enabledAtResponse
-            for _, s in ipairs(table.connect(p.player_skills, p._fake_skills)) do
+            for _, s in ipairs(table.connect(p.player_skills, rawget(p, "_fake_skills"))) do
+              ---@cast s ViewAsSkill
               if
                 s.pattern and
                 Exppattern:Parse("nullification"):matchExp(s.pattern) and
                 not (s.enabledAtResponse and not s:enabledAtResponse(p)) and
                 not (
-                  table.contains(cardEffectData.disresponsiveList or Util.DummyTable, p.id) or
-                  table.contains(cardEffectData.unoffsetableList or Util.DummyTable, p.id)
+                  table.contains(cardEffectData.disresponsiveList or Util.DummyTable, p) or
+                  table.contains(cardEffectData.unoffsetableList or Util.DummyTable, p)
                 )
               then
                 table.insert(players, p)

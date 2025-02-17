@@ -1,5 +1,6 @@
 ---@class TriggerData: Object
 ---@field private _data any
+---@field public extra_data any
 TriggerData = class("TriggerData")
 
 function TriggerData:initialize(spec)

@@ -2152,7 +2152,7 @@ end
 
 ---@class AskToUseCardParams
 ---@field skill_name? string @ 烧条时显示的技能名
----@field pattern string|integer[] @ 使用牌的规则
+---@field pattern string @ 使用牌的规则
 ---@field prompt? string @ 提示信息
 ---@field cancelable? boolean @ 是否可以取消。默认可以取消
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
@@ -2175,7 +2175,8 @@ function Room:askToUseCard(player, params)
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   params.prompt = params.prompt or ""
   local card_name, prompt, cancelable, event_data = params.skill_name, params.prompt, params.cancelable, params.event_data
-  if event_data and (event_data.disresponsive or table.contains(event_data.disresponsiveList or Util.DummyTable, player.id)) then
+  if event_data and (event_data.disresponsive or
+    table.contains(event_data.disresponsiveList or Util.DummyTable, player)) then
     return nil
   end
   local pattern = params.pattern
@@ -2255,7 +2256,8 @@ function Room:askToResponse(player, params)
   local card_name, pattern, prompt, cancelable, event_data =
     params.skill_name, params.pattern, params.prompt,
     params.cancelable, params.event_data
-  if event_data and (event_data.disresponsive or table.contains(event_data.disresponsiveList or Util.DummyTable, player.id)) then
+  if event_data and (event_data.disresponsive or
+    table.contains(event_data.disresponsiveList or Util.DummyTable, player)) then
     return nil
   end
 
