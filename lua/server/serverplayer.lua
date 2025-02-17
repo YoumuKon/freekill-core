@@ -226,62 +226,36 @@ end
 
 ---@param phase Phase
 ---@param delay? boolean
-function ServerPlayer:gainAnExtraPhase(phase, delay)
+---@param skillName? string @ 额外阶段原因
+function ServerPlayer:gainAnExtraPhase(phase, delay, skillName)
   local room = self.room
   delay = (delay == nil) and true or delay
   local logic = room.logic
   if delay then
     local turn = logic:getCurrentEvent():findParent(GameEvent.Phase, true)
     if turn then
-      turn:prependExitFunc(function() self:gainAnExtraPhase(phase, false) end)
+      turn:prependExitFunc(function() self:gainAnExtraPhase(phase, false, skillName) end)
       return
     end
   end
 
   local current = self.phase
 
-  local phase_change = {
-    from = current,
-    to = phase
-  }
-
-  local skip = logic:trigger(fk.EventPhaseChanging, self, phase_change)
-
-  phase = phase_change.to
-  self.phase = phase
+  self.phase = Player.PhaseNone
   room:broadcastProperty(self, "phase")
 
-  local cancel_skip = true
-  if phase ~= Player.NotActive and (skip) then
-    cancel_skip = logic:trigger(fk.EventPhaseSkipping, self, phase)
-  end
-  if (not skip) or (cancel_skip) then
-    room:sendLog{
-      type = "#GainAnExtraPhase",
-      from = self.id,
-      arg = Util.PhaseStrMapper(phase),
-    }
+  room:sendLog{
+    type = "#GainAnExtraPhase",
+    from = self.id,
+    arg = Util.PhaseStrMapper(phase),
+  }
 
-    local data = { ---@type PhaseDataSpec
-      who = self,
-      reason = "game_rule",
-      phase = self.phase -- FIXME: 等待拆分
-    }
-    GameEvent.Phase:create(PhaseData:new(data)):exec()
-
-    phase_change = {
-      from = phase,
-      to = current
-    }
-    logic:trigger(fk.EventPhaseChanging, self, phase_change)
-  else
-    room:sendLog{
-      type = "#PhaseSkipped",
-      from = self.id,
-      arg = Util.PhaseStrMapper(phase),
-    }
-    logic:trigger(fk.EventPhaseSkipped, self, {phase = phase})
-  end
+  local data = { ---@type PhaseDataSpec
+    who = self,
+    reason = skillName or "game_rule",
+    phase = self.phase -- FIXME: 等待拆分
+  }
+  GameEvent.Phase:create(PhaseData:new(data)):exec()
 
   self.phase = current
   room:broadcastProperty(self, "phase")
@@ -295,14 +269,11 @@ function ServerPlayer:play(phase_table)
     if not table.contains(phase_table, Player.RoundStart) then
       table.insert(phase_table, 1, Player.RoundStart)
     end
-    if not table.contains(phase_table, Player.NotActive) then
-      table.insert(phase_table, Player.NotActive)
-    end
   else
     phase_table = {
       Player.RoundStart, Player.Start,
       Player.Judge, Player.Draw, Player.Play, Player.Discard,
-      Player.Finish, Player.NotActive,
+      Player.Finish,
     }
   end
 
@@ -320,57 +291,35 @@ function ServerPlayer:play(phase_table)
     }
   end
 
+  local logic = self.room.logic
+
   for i = 1, #phases do
     if self.dead or room:getTag("endTurn") or phases[i] == nil then
-      self:changePhase(self.phase, Player.NotActive)
       break
     end
 
     self.phase_index = i
-    local phase_change = {
-      -- from = self.phase,
-      to = phases[i]
+
+    local data = { ---@type PhaseDataSpec
+      who = self,
+      reason = "game_rule",
+      phase = phases[i], -- FIXME: 等待拆分
+      skipped = phase_state[i].skipped
     }
 
-    local logic = self.room.logic
-    self.phase = Player.PhaseNone
-    room:broadcastProperty(self, "phase")
-
-    local skip = phase_state[i].skipped
-    if not skip then
-      skip = logic:trigger(fk.EventPhaseChanging, self, phase_change)
-      if skip then
-        fk.qWarning("Return true at fk.EventPhaseChanging is deprecated! Use Player:skip() instead")
-      end
-      if self.skipped_phases[phases[i]] then
-        skip = true
-      end
-    end
-    phases[i] = phase_change.to
-    phase_state[i].phase = phases[i]
-
-    self.phase = phases[i]
-    room:broadcastProperty(self, "phase")
-
-    local cancel_skip = true
-    if phases[i] ~= Player.NotActive and (skip) then
-      cancel_skip = logic:trigger(fk.EventPhaseSkipping, self, self.phase)
+    if data.skipped then
+      logic:trigger(fk.EventPhaseSkipping, self, data)
     end
 
-    if (not skip) or (cancel_skip) then
-      local data = { ---@type PhaseDataSpec
-        who = self,
-        reason = "game_rule",
-        phase = self.phase -- FIXME: 等待拆分
-      }
-      GameEvent.Phase:create(PhaseData:new(data)):exec()
-    else
+    if data.skipped then
       room:sendLog{
         type = "#PhaseSkipped",
         from = self.id,
         arg = Util.PhaseStrMapper(self.phase),
       }
-      logic:trigger(fk.EventPhaseSkipped, self, {phase = self.phase})
+      logic:trigger(fk.EventPhaseSkipped, self, data)
+    else
+      GameEvent.Phase:create(PhaseData:new(data)):exec()
     end
   end
 end
@@ -397,14 +346,18 @@ end
 --- 当进行到出牌阶段空闲点时，结束出牌阶段。
 function ServerPlayer:endPlayPhase()
   if self.phase == Player.Play then
-    self._phase_end = true
+    self:endCurrentPhase()
   end
   -- TODO: send log
 end
 
 --- 结束当前阶段。
 function ServerPlayer:endCurrentPhase()
-  self._phase_end = true
+  local room = self.room
+  local current_phase = room.logic:getCurrentEvent():findParent(GameEvent.Phase, true)
+  if current_phase then
+    current_phase.data.phase_end = true
+  end
 end
 
 --- 获得一个额外回合

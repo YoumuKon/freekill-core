@@ -81,6 +81,7 @@ fk.AfterTurnEnd = TurnEvent:subclass("fk.AfterTurnEnd")
 ---@field reason string @ 当前额外阶段的原因，不为额外阶段则为game_rule
 ---@field phase Phase
 ---@field phase_end? boolean @ 该阶段是否即将结束
+---@field skipped? boolean @ 该阶段是否被跳过
 
 --- 阶段的数据
 ---@class PhaseData: PhaseDataSpec, TriggerData
