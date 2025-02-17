@@ -267,6 +267,7 @@ end
 --- can_wake?: T,
 --- global?: boolean,
 --- anim_type?: AnimationType,
+--- frequency?: integer,
 --- }
 
 ---@param _skill SkillSkeleton
@@ -277,7 +278,7 @@ end
 ---@return TriggerSkill
 function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_trig", _skill.name, idx)
-  local sk = TriggerSkill:new(new_name, _skill.frequency)
+  local sk = TriggerSkill:new(new_name, spec.frequency or Skill.NotFrequent)
   fk.readUsableSpecToSkill(sk, spec)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
   sk.event = key
