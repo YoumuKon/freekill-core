@@ -99,18 +99,12 @@ fk.EventPhaseProceeding = PhaseEvent:subclass("fk.EventPhaseProceeding")
 fk.EventPhaseEnd = PhaseEvent:subclass("fk.EventPhaseEnd")
 ---@class fk.AfterPhaseEnd: PhaseEvent
 fk.AfterPhaseEnd = PhaseEvent:subclass("fk.AfterPhaseEnd")
+---@class fk.EventPhaseChanging: PhaseEvent
+fk.EventPhaseChanging = PhaseEvent:subclass("fk.EventPhaseChanging")
 ---@class fk.EventPhaseSkipping: PhaseEvent
 fk.EventPhaseSkipping = PhaseEvent:subclass("fk.EventPhaseSkipping")
 ---@class fk.EventPhaseSkipped: PhaseEvent
 fk.EventPhaseSkipped = PhaseEvent:subclass("fk.EventPhaseSkipped")
-
----@class EventPhaseChangingData
----@field public from Phase
----@field public to Phase
-
----@class fk.EventPhaseChanging: TriggerEvent
----@field data EventPhaseChangingData
-fk.EventPhaseChanging = TriggerEvent:subclass("fk.EventPhaseChanging")
 
 ---@class DrawNCardsData: PhaseData
 ---@field public n integer 摸牌数量
@@ -141,9 +135,9 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 ---@alias DrawInitFunc fun(self: TriggerSkill, event: DrawInitialEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DrawInitialData): any
 ---@alias EventPhaseChangingFunc fun(self: TriggerSkill, event: fk.EventPhaseChanging,
----  target: ServerPlayer, player: ServerPlayer, data: EventPhaseChangingData): any
+---  target: ServerPlayer, player: ServerPlayer, data: PhaseData): any
 ---@alias EventTurnChangingFunc fun(self: TriggerSkill, event: fk.EventTurnChanging,
----  target: ServerPlayer, player: ServerPlayer, data: EventTurnChangingData): any
+---  target: ServerPlayer, player: ServerPlayer, data: PhaseData): any
 ---@alias DrawNCardsFunc fun(self: TriggerSkill, event: DrawNCardsEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DrawNCardsData): any
 ---@alias StartPlayCardFunc fun(self: TriggerSkill, event: fk.StartPlayCard,

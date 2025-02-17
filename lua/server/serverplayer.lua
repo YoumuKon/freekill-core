@@ -315,7 +315,7 @@ function ServerPlayer:play(phase_table)
       room:sendLog{
         type = "#PhaseSkipped",
         from = self.id,
-        arg = Util.PhaseStrMapper(self.phase),
+        arg = Util.PhaseStrMapper(phases[i]),
       }
       logic:trigger(fk.EventPhaseSkipped, self, data)
     else

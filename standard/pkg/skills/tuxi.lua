@@ -4,15 +4,15 @@ local tuxi = fk.CreateSkill {
 
 tuxi:addEffect(fk.EventPhaseStart, {
   can_trigger = function(self, event, target, player, data)
-    return target == player and player:hasSkill(tuxi.name) and player.phase == Player.Draw and
-      table.find(player.room:getOtherPlayers(player), function(p)
-        return not p:isKongcheng()
+    return target == player and player:hasSkill(tuxi.name) and player.phase == Player.Draw and not data.phase_end and
+      table.find(player.room.alive_players, function(p)
+        return p ~= player and not p:isKongcheng()
       end)
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local targets = table.filter(room:getOtherPlayers(player), function(p)
-      return not p:isKongcheng()
+    local targets = table.filter(room.alive_players, function(p)
+      return p ~= player and not p:isKongcheng()
     end)
 
     local result = room:askToChoosePlayers(player, {
@@ -30,7 +30,7 @@ tuxi:addEffect(fk.EventPhaseStart, {
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
-    -- player:skip(Player.Draw)
+    data.phase_end = true
     for _, p in ipairs(event:getCostData(self).tos) do
       if player.dead then break end
       if not p.dead and not p:isKongcheng() then
@@ -42,7 +42,6 @@ tuxi:addEffect(fk.EventPhaseStart, {
         room:obtainCard(player, c, false, fk.ReasonPrey)
       end
     end
-    return true
   end,
 })
 
