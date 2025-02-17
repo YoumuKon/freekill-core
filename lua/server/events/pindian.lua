@@ -37,6 +37,7 @@ function Pindian:main()
   local prompt = "#askForPindian:::" .. pindianData.reason
   local data = { "choose_cards_skill", prompt, false, extraData }
 
+  ---@type ServerPlayer[]
   local targets = {}
   local moveInfos = {}
   if not pindianData.fromCard then
@@ -110,9 +111,9 @@ function Pindian:main()
         pindianData.fromCard = pindianCard
         pindianData._fromCard = _pindianCard
       else
-        pindianData.results[p.id] = pindianData.results[p.id] or {}
-        pindianData.results[p.id].toCard = pindianCard
-        pindianData.results[p.id]._toCard = _pindianCard
+        pindianData.results[p] = pindianData.results[p] or {}
+        pindianData.results[p].toCard = pindianCard
+        pindianData.results[p]._toCard = _pindianCard
       end
 
       table.insert(moveInfos, {
@@ -172,7 +173,7 @@ function Pindian:main()
     }
 
     -- room:setCardEmotion(pindianData._fromCard.id, result.winner == pindianData.from and "pindianwin" or "pindiannotwin")
-    -- room:setCardEmotion(pindianData.results[to.id]._toCard.id, result.winner == to and "pindianwin" or "pindiannotwin")
+    -- room:setCardEmotion(pindianData.results[to]._toCard.id, result.winner == to and "pindianwin" or "pindiannotwin")
 
     logic:trigger(fk.PindianResultConfirmed, nil, singlePindianData)
   end
@@ -217,7 +218,7 @@ function PindianEventWrappers:pindian(pindianData)
 end
 
 --- 加减拼点牌点数（最小为1，最大为13）。
----@param pindianData PindianStruct
+---@param pindianData PindianData
 ---@param player ServerPlayer @ 拼点角色
 ---@param number integer @ 加减的点数
 ---@param skill_name string @ 技能名

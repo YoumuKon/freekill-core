@@ -619,7 +619,7 @@ end
 ---@param tos ServerPlayer[]
 ---@param skillName string
 ---@param initialCard? Card
----@return PindianStruct
+---@return PindianData
 function ServerPlayer:pindian(tos, skillName, initialCard)
   local pindianData = { from = self, tos = tos, reason = skillName, fromCard = initialCard, results = {} }
   self.room:pindian(pindianData)
