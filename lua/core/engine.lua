@@ -14,6 +14,7 @@
 ---@field public skills table<string, Skill> @ 所有的技能
 ---@field public related_skills table<string, Skill[]> @ 所有技能的关联技能
 ---@field public global_trigger TriggerSkill[] @ 所有的全局触发技
+---@field public legacy_global_trigger LegacyTriggerSkill[] @ 所有的全局触发技
 ---@field public global_status_skill table<class, Skill[]> @ 所有的全局状态技
 ---@field public generals table<string, General> @ 所有武将
 ---@field public same_generals table<string, string[]> @ 所有同名武将组合
@@ -63,6 +64,7 @@ function Engine:initialize()
   self.skills = {}    -- name --> Skill
   self.related_skills = {} -- skillName --> relatedSkill[]
   self.global_trigger = {}
+  self.legacy_global_trigger = {}
   self.global_status_skill = {}
   self.generals = {}    -- name --> General
   self.same_generals = {}
@@ -384,6 +386,8 @@ function Engine:addSkill(skill)
     if sk.global then
       if sk:isInstanceOf(TriggerSkill) then
         table.insertIfNeed(self.global_trigger, sk)
+      elseif sk:isInstanceOf(LegacyTriggerSkill) then
+        table.insertIfNeed(self.legacy_global_trigger, sk)
       else
         local t = self.global_status_skill
         t[sk.class] = t[sk.class] or {}

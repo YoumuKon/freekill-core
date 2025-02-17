@@ -284,6 +284,9 @@ function GameLogic:prepareForStart()
   for _, trig in ipairs(Fk.global_trigger) do
     self:addTriggerSkill(trig)
   end
+  for _, trig in ipairs(Fk.legacy_global_trigger) do
+    self:addTriggerSkill(trig)
+  end
 
   self.room:sendLog{ type = "$GameStart" }
 end
