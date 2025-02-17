@@ -750,7 +750,12 @@ function CompatAskFor:askForMoveCardInBoard(player, targetOne, targetTwo, skillN
     move_from = moveFrom,
     exclude_ids = excludeIds
   }
-  return self:askToMoveCardInBoard(player, params)
+  local ret = self:askToMoveCardInBoard(player, params)
+  if ret then
+    ret.from = ret.from.id
+    ret.to = ret.to.id
+  end
+  return ret
 end
 
 --- 询问一名玩家从targets中选择出若干名玩家来移动场上的牌。

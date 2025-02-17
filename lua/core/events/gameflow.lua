@@ -98,12 +98,18 @@ fk.EventPhaseProceeding = PhaseEvent:subclass("fk.EventPhaseProceeding")
 fk.EventPhaseEnd = PhaseEvent:subclass("fk.EventPhaseEnd")
 ---@class fk.AfterPhaseEnd: PhaseEvent
 fk.AfterPhaseEnd = PhaseEvent:subclass("fk.AfterPhaseEnd")
----@class fk.EventPhaseChanging: PhaseEvent
-fk.EventPhaseChanging = PhaseEvent:subclass("fk.EventPhaseChanging")
 ---@class fk.EventPhaseSkipping: PhaseEvent
 fk.EventPhaseSkipping = PhaseEvent:subclass("fk.EventPhaseSkipping")
 ---@class fk.EventPhaseSkipped: PhaseEvent
 fk.EventPhaseSkipped = PhaseEvent:subclass("fk.EventPhaseSkipped")
+
+---@class EventPhaseChangingData
+---@field public from Phase
+---@field public to Phase
+
+---@class fk.EventPhaseChanging: TriggerEvent
+---@field data EventPhaseChangingData
+fk.EventPhaseChanging = TriggerEvent:subclass("fk.EventPhaseChanging")
 
 ---@class DrawNCardsData: PhaseData
 ---@field public n integer 摸牌数量
@@ -133,6 +139,8 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 ---  target: ServerPlayer, player: ServerPlayer, data: PhaseData): any
 ---@alias DrawInitFunc fun(self: TriggerSkill, event: DrawInitialEvent,
 ---  target: ServerPlayer, player: ServerPlayer, data: DrawInitialData): any
+---@alias EventPhaseChangingFunc fun(self: TriggerSkill, event: fk.EventPhaseChanging,
+---  target: ServerPlayer, player: ServerPlayer, data: EventPhaseChangingData): any
 ---@alias EventTurnChangingFunc fun(self: TriggerSkill, event: fk.EventTurnChanging,
 ---  target: ServerPlayer, player: ServerPlayer, data: EventTurnChangingData): any
 ---@alias DrawNCardsFunc fun(self: TriggerSkill, event: DrawNCardsEvent,
@@ -149,6 +157,8 @@ fk.StartPlayCard = TriggerEvent:subclass("fk.StartPlayCard")
 ---  data: TrigSkelSpec<PhaseFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DrawInitialEvent,
 ---  data: TrigSkelSpec<DrawInitFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: fk.EventPhaseChanging,
+---  data: TrigSkelSpec<EventPhaseChangingFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: fk.EventTurnChanging,
 ---  data: TrigSkelSpec<EventTurnChangingFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: DrawNCardsEvent,

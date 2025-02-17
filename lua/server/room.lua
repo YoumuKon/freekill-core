@@ -913,7 +913,7 @@ end
 --- 如果发动的话，那么会执行一下技能的onUse函数，然后返回选择的牌和目标等。
 ---@param player ServerPlayer @ 询问目标
 ---@param params AskToUseActiveSkillParams @ 各种变量
----@return boolean, table? @ 返回第一个值为是否成功发动，第二值为技能选牌、目标等数据
+---@return boolean, { cards: integer[], targets: ServerPlayer[], interaction: any }? @ 返回第一个值为是否成功发动，第二值为技能选牌、目标等数据
 function Room:askToUseActiveSkill(player, params)
   params.prompt = params.prompt or ""
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
@@ -957,6 +957,7 @@ function Room:askToUseActiveSkill(player, params)
   end
 
   if skill:isInstanceOf(ActiveSkill) and not params.skip then
+    ---@cast skill ActiveSkill
     skill:onUse(self, SkillUseData:new {
       from = player,
       cards = selected_cards,
@@ -2562,13 +2563,14 @@ end
 --- 询问移动场上的一张牌。不可取消
 ---@param player ServerPlayer @ 移动的操作者
 ---@param params AskToMoveCardInBoardParams @ 各种变量
----@return table<"card"|"from"|"to">? @ 选择的卡牌、起点玩家id和终点玩家id列表
+---@return { card: Card | integer, from: ServerPlayer, to: ServerPlayer }? @ 选择的卡牌、起点玩家id和终点玩家id列表
 function Room:askToMoveCardInBoard(player, params)
   params.exclude_ids = type(params.exclude_ids) == "table" and params.exclude_ids or {}
 
   local targetOne, targetTwo, skillName, flag, moveFrom, excludeIds =
     params.target_one, params.target_two, params.skill_name,
     params.flag, params.move_from, params.exclude_ids
+  ---@cast excludeIds -nil
 
   if flag then
     assert(flag == "e" or flag == "j")
@@ -2664,10 +2666,10 @@ function Room:askToMoveCardInBoard(player, params)
     skillName,
     nil,
     true,
-    player.id
+    player
   )
 
-  return { card = cardToMove, from = from.id, to = to.id }
+  return { card = cardToMove, from = from, to = to }
 end
 
 ---@class AskToChooseToMoveCardInBoardParams: AskToUseActiveSkillParams
@@ -2677,7 +2679,7 @@ end
 --- 询问一名玩家从targets中选择出若干名玩家来移动场上的牌。
 ---@param player ServerPlayer @ 要做选择的玩家
 ---@param params AskToChooseToMoveCardInBoardParams @ 各种变量
----@return integer[] @ 选择的玩家id列表，可能为空
+---@return ServerPlayer[] @ 选择的玩家列表，可能为空
 function Room:askToChooseToMoveCardInBoard(player, params)
   if params.flag then
     assert(params.flag == "e" or params.flag == "j")
@@ -2899,7 +2901,7 @@ end
 ---@param flag? "e"|"j" @ 判断移动的区域
 ---@param players? ServerPlayer[] @ 可移动的玩家
 ---@param excludeIds? integer[] @ 不能移动的卡牌id
----@return integer[] @ 玩家id列表 可能为空表
+---@return ServerPlayer[] @ 玩家列表 可能为空表
 function Room:canMoveCardInBoard(flag, players, excludeIds)
   if flag then
     assert(flag == "e" or flag == "j")
@@ -2913,7 +2915,7 @@ function Room:canMoveCardInBoard(flag, players, excludeIds)
       return p ~= from and from:canMoveCardsInBoardTo(p, flag, excludeIds)
     end)
     if to then
-      return { from.id, to.id }
+      return { from, to }
     end
   end
 
