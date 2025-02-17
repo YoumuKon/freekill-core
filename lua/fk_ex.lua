@@ -137,7 +137,12 @@ local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
 function SkillSkeleton:initialize(spec)
-  self.name = spec.name
+  local name = spec.name ---@type string
+  self.name = name
+  if string.sub(name, #name) == "$" then
+    self.name = string.sub(name, 1, #name - 1)
+    self.lordSkill = true
+  end
   self.frequency = spec.frequency or Skill.NotFrequent
   fk.readCommonSpecToSkill(self, spec)
   self.effect_list = {}
@@ -237,6 +242,7 @@ function SkillSkeleton:createSkill()
           main_skill.name = string.sub(main_skill.name, 1, #main_skill.name - 1)
           main_skill.lordSkill = true
         end
+        if self.lordSkill then main_skill.lordSkill = true end
       else
         if not attr.is_delay_effect then
           sk.main_skill = main_skill
