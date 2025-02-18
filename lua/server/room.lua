@@ -1431,7 +1431,7 @@ function Room:askToChooseKingdom(players)
   end
 end
 
----@class AskToChooseCardParams: AskToUseActiveSkillParams
+---@class AskToChooseCardParams: AskToSkillInvokeParams
 ---@field target ServerPlayer @ 被选牌的人
 ---@field flag string | table @ 用"hej"三个字母的组合表示能选择哪些区域, h 手牌区, e - 装备区, j - 判定区
 ---@field skill_name string @ 原因，一般是技能名
