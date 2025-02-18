@@ -25,9 +25,9 @@ lijian:addEffect("active", {
     room:throwCard(effect.cards, lijian.name, player, player)
     local duel = Fk:cloneCard("duel")
     duel.skillName = lijian.name
-    local new_use = { ---@type CardUseStruct
+    local new_use = {
       from = effect.tos[2],
-      tos = { { effect.tos[1] } },
+      tos = { effect.tos[1] },
       card = duel,
       prohibitedCardNames = { "nullification" },
     }

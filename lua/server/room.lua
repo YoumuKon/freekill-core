@@ -1660,7 +1660,7 @@ function Room:askToChoices(player, params)
 end
 
 ---@class AskToSkillInvokeParams
----@field skill_name string @ 烧条时显示的技能名
+---@field skill_name string @ 询问技能名（烧条时显示）
 ---@field prompt? string @ 提示信息
 
 --- 询问玩家是否发动技能。

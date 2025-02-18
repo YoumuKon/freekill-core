@@ -799,8 +799,7 @@ function ServerPlayer:hideGeneral(isDeputy)
   local generalName = isDeputy and self.deputyGeneral or self.general
   local mark = isDeputy and "__heg_deputy" or "__heg_general"
 
-  self:setMark(mark, generalName)
-  self:doNotify("SetPlayerMark", json.encode{ self.id, mark, generalName})
+  room:setPlayerMark(self, mark, generalName)
 
   if isDeputy then
     room:setDeputyGeneral(self, "anjiang")

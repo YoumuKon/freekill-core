@@ -240,8 +240,8 @@ end
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
----@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string?
----@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: CardUseStruct): string? @ 使用此牌后执行的内容，注意打出不会执行
+---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string?
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public prompt? string|fun(self: ViewAsSkill, selected_cards: integer[], selected: integer[]): string
 ---@field public interaction? any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
