@@ -19,7 +19,6 @@ skill:addEffect("active", {
   end,
   target_num = 2,
   on_use = function(self, room, cardUseEvent)
-    dbg()
     local tos = table.simpleClone(cardUseEvent.tos)
     cardUseEvent:removeAllTargets()
     for i = 1, #tos, 2 do
