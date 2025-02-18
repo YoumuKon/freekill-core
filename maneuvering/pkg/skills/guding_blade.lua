@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#guding_blade_skill",
-  attached_equip = "guding_blade",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 skill:addEffect(fk.DamageCaused, {
+  attached_equip = "guding_blade",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       data.to:isKongcheng() and data.card and data.card.trueName == "slash" and data.by_user

@@ -9,7 +9,7 @@ jianxiong:addEffect(fk.Damaged, {
       data.card and player.room:getCardArea(data.card) == Card.Processing
   end,
   on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card, true, fk.ReasonJustMove)
+    player.room:obtainCard(player, data.card, true, fk.ReasonJustMove, player, jianxiong.name)
   end,
 })
 

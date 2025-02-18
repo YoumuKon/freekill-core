@@ -106,7 +106,7 @@ end
 
 ---@class SkillSpec
 ---@field public name? string @ 技能名
----@field public frequency? Frequency @ 技能发动的频繁程度，通常compulsory（锁定技）及limited（限定技）用的多。
+---@field public frequency? Frequency @ 技能标签，如compulsory（锁定技）、limited（限定技）。（deprecated，请改为向skeleton添加tag）
 ---@field public mute? boolean @ 决定是否关闭技能配音
 ---@field public no_indicate? boolean @ 决定是否关闭技能指示线
 ---@field public anim_type? string|AnimationType @ 技能类型定义
@@ -121,6 +121,7 @@ end
 
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effect_list ([any, any, any])[]
+---@field public tags Frequency[]
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil): SkillSkeleton
@@ -143,8 +144,12 @@ function SkillSkeleton:initialize(spec)
     self.name = string.sub(name, 1, #name - 1)
     self.lordSkill = true
   end
-  self.frequency = spec.frequency or Skill.NotFrequent
+  self.tags = {}
   fk.readCommonSpecToSkill(self, spec)
+  self.frequency = spec.frequency or Skill.NotFrequent
+  if self.frequency ~= Skill.NotFrequent then
+    table.insertIfNeed(self.tags, self.frequency)  --兼容牢代码
+  end
   self.effect_list = {}
   self.tests = {}
 end
@@ -202,7 +207,10 @@ end
 
 ---@return Skill
 function SkillSkeleton:createSkill()
-  local frequency = self.frequency
+  local frequency = self.frequency or Skill.NotFrequent
+  if #self.tags > 0 then
+    frequency = self.tags[1]
+  end
   local main_skill
   for i, effect in ipairs(self.effect_list) do
     local k, attr, data = table.unpack(effect)
@@ -242,6 +250,9 @@ function SkillSkeleton:createSkill()
           main_skill.name = string.sub(main_skill.name, 1, #main_skill.name - 1)
           main_skill.lordSkill = true
         end
+        if table.contains(self.tags, Skill.Lord) then
+          main_skill.lordSkill = true
+        end
         if self.lordSkill then main_skill.lordSkill = true end
       else
         if not attr.is_delay_effect then
@@ -273,7 +284,7 @@ end
 --- can_wake?: T,
 --- global?: boolean,
 --- anim_type?: AnimationType,
---- frequency?: integer,
+--- frequency?: string,
 --- }
 
 ---@param _skill SkillSkeleton
@@ -284,7 +295,7 @@ end
 ---@return TriggerSkill
 function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_trig", _skill.name, idx)
-  local sk = TriggerSkill:new(new_name, spec.frequency or Skill.NotFrequent)
+  local sk = TriggerSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
   fk.readUsableSpecToSkill(sk, spec)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
   sk.event = key
@@ -292,7 +303,7 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
     sk.global = spec.global
   end
   if spec.can_trigger then
-    if _skill.frequency == Skill.Wake then
+    if _skill.frequency == Skill.Wake or table.contains(_skill.tags, Skill.Wake) then
       sk.triggerable = function(_self, event, target, player, data)
         return spec.can_trigger(_self, event, target, player, data) and
           sk:enableToWake(event, target, player, data)
@@ -300,7 +311,7 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
     else
       sk.triggerable = spec.can_trigger
     end
-    if _skill.frequency == Skill.Wake and spec.can_wake then
+    if (_skill.frequency == Skill.Wake or table.contains(_skill.tags, Skill.Wake)) and spec.can_wake then
       sk.canWake = spec.can_wake
     end
   end
@@ -330,7 +341,7 @@ function SkillSkeleton:createDistanceSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_distance", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local sk = DistanceSkill:new(new_name)
+  local sk = DistanceSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(sk, spec)
   sk.getCorrect = spec.correct_func
   sk.getFixed = spec.fixed_func
@@ -344,7 +355,7 @@ function SkillSkeleton:createProhibitSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_prohibit", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local sk = ProhibitSkill:new(new_name)
+  local sk = ProhibitSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(sk, spec)
   sk.isProhibited = spec.is_prohibited or sk.isProhibited
   sk.prohibitUse = spec.prohibit_use or sk.prohibitUse
@@ -363,7 +374,7 @@ function SkillSkeleton:createAttackRangeSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_atkrange", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = AttackRangeSkill:new(new_name)
+  local skill = AttackRangeSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.correct_func then
     skill.getCorrect = spec.correct_func
@@ -388,7 +399,7 @@ function SkillSkeleton:createMaxCardsSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_maxcards", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = MaxCardsSkill:new(new_name)
+  local skill = MaxCardsSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.correct_func then
     skill.getCorrect = spec.correct_func
@@ -407,7 +418,7 @@ function SkillSkeleton:createTargetModSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_targetmod", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = TargetModSkill:new(new_name)
+  local skill = TargetModSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.bypass_times then
     skill.bypassTimesCheck = spec.bypass_times
@@ -440,7 +451,7 @@ function SkillSkeleton:createFilterSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_filter", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = FilterSkill:new(new_name)
+  local skill = FilterSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
   skill.cardFilter = spec.card_filter
   skill.viewAs = spec.view_as
@@ -456,7 +467,7 @@ function SkillSkeleton:createInvaliditySkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_invalidity", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = InvaliditySkill:new(new_name)
+  local skill = InvaliditySkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
 
   if spec.invalidity_func then
@@ -475,7 +486,7 @@ function SkillSkeleton:createVisibilitySkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_visibility", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = VisibilitySkill:new(new_name)
+  local skill = VisibilitySkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.Compulsory)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.card_visible then skill.cardVisible = spec.card_visible end
   if spec.role_visible then skill.roleVisible = spec.role_visible end
@@ -489,7 +500,7 @@ function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_active", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = ActiveSkill:new(new_name, spec.frequency or Skill.NotFrequent)
+  local skill = ActiveSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
   fk.readUsableSpecToSkill(skill, spec)
 
   if spec.can_use then
@@ -531,7 +542,7 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_active", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
-  local skill = ViewAsSkill:new(new_name, spec.frequency or Skill.NotFrequent)
+  local skill = ViewAsSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
   fk.readUsableSpecToSkill(skill, spec)
 
   skill.viewAs = spec.view_as

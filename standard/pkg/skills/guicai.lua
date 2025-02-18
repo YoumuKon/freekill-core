@@ -9,15 +9,19 @@ guicai:addEffect(fk.AskForRetrial, {
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local prompt = "#guicai-ask::" .. target.id
-    local card = room:askToCards(player, { min_num = 1, max_num = 1, include_equip = false, skill_name = guicai.name, cancelable = true, pattern = ".|.|.|hand", prompt = prompt })
-    if #card > 0 then
-      self.cost_data = {cards = card}
+    local card = room:askToResponse(player, {
+      skill_name = guicai.name,
+      pattern = ".|.|.|hand",
+      prompt = "#guicai-ask::"..target.id,
+      cancelable = true,
+    })
+    if card then
+      event:setCostData(self, {extra_data = card})
       return true
     end
   end,
   on_use = function(self, event, target, player, data)
-    player.room:retrial(Fk:getCardById(self.cost_data.cards[1]), player, data, guicai.name)
+    player.room:retrial(event:getCostData(self).extra_data, player, data, guicai.name)
   end,
 })
 

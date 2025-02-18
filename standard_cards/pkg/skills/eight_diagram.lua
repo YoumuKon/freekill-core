@@ -1,6 +1,5 @@
 local skill = fk.CreateSkill {
   name = "#eight_diagram_skill",
-  attached_equip = "eight_diagram",
 }
 
 local eight_diagram_on_use = function (self, event, target, player, data)
@@ -34,6 +33,7 @@ local eight_diagram_on_use = function (self, event, target, player, data)
     end
   end
 skill:addEffect(fk.AskForCardUse, {
+  attached_equip = "eight_diagram",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
@@ -42,6 +42,7 @@ skill:addEffect(fk.AskForCardUse, {
   on_use = eight_diagram_on_use,
 })
 skill:addEffect(fk.AskForCardResponse, {
+  attached_equip = "eight_diagram",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and

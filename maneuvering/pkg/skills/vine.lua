@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#vine_skill",
-  attached_equip = "vine",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 skill:addEffect(fk.PreCardEffect, {
+  attached_equip = "vine",
   can_trigger = function(self, event, target, player, data)
     return data.to == player and player:hasSkill(skill.name) and
       table.contains({"slash", "savage_assault", "archery_attack"}, data.card.name)
@@ -23,6 +23,7 @@ skill:addEffect(fk.PreCardEffect, {
 })
 
 skill:addEffect(fk.DamageInflicted, {
+  attached_equip = "vine",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.damageType == fk.FireDamage
   end,

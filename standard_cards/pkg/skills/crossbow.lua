@@ -1,6 +1,6 @@
 local sk = fk.CreateSkill {
   name = "#crossbow_skill",
-  attached_equip = "crossbow",
+  tags = {Skill.Compulsory},
 }
 
 sk:addEffect(fk.CardUsing, {
@@ -21,12 +21,14 @@ sk:addEffect(fk.CardUsing, {
   end,
 })
 sk:addEffect("targetmod", {
+  attached_equip = "crossbow",
+
   bypass_times = function(self, player, skill, scope, card)
     if player:hasSkill(skill.name) and card and card.trueName == "slash_skill" and scope == Player.HistoryPhase then
       --FIXME: 无法检测到非转化的cost选牌的情况，如活墨等
       local cardIds = Card:getIdList(card)
       local crossbows = table.filter(player:getEquipments(Card.SubtypeWeapon), function(id)
-        return Fk:getCardById(id).equip_skill == self
+        return Fk:getCardById(id).equip_skill == sk.name
       end)
       return #crossbows == 0 or not table.every(crossbows, function(id)
         return table.contains(cardIds, id)

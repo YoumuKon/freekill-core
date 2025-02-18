@@ -1,6 +1,6 @@
 local jiuyuan = fk.CreateSkill{
-  name = "jiuyuan$",
-  frequency = Skill.Compulsory,
+  name = "jiuyuan",
+  tags = {Skill.Lord, Skill.Compulsory},
 }
 
 jiuyuan:addEffect(fk.PreHpRecover, {

@@ -1,9 +1,9 @@
 local skill = fk.CreateSkill {
   name = "spear_skill",
-  attached_equip = "spear",
 }
 
 skill:addEffect("viewas", {
+  attached_equip = "spear",
   prompt = "#spear_skill",
   pattern = "slash",
   handly_pile = true,

@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#zhuahuangfeidian_skill",
-  attached_equip = "zhuahuangfeidian",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 skill:addEffect("distance", {
+  attached_equip = "zhuahuangfeidian",
   correct_func = function(self, from, to)
     if to:hasSkill(skill.name) then
       return 1

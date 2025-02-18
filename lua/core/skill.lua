@@ -23,14 +23,15 @@
 ---@field public cardSkill boolean @ 是否为卡牌效果对应的技能（仅用于ActiveSkill）
 local Skill = class("Skill")
 
----@alias Frequency integer
+---@alias Frequency string
 
-Skill.Frequent = 1
-Skill.NotFrequent = 2
-Skill.Compulsory = 3
-Skill.Limited = 4
-Skill.Wake = 5
-Skill.Quest = 6
+Skill.NotFrequent = "NotFrequent"
+Skill.Lord = "Lord"
+Skill.Compulsory = "Compulsory"
+Skill.Limited = "Limited"
+Skill.Wake = "Wake"
+Skill.Switch = "Switch"
+Skill.Quest = "Quest"
 
 --- 构造函数，不可随意调用。
 ---@param name string @ 技能名
@@ -42,7 +43,7 @@ function Skill:initialize(name, frequency)
   -- if you need skills that not belongs to any general (like 'jixi')
   -- then you should use general function addRelatedSkill to assign them
   self.package = { extensionName = "standard" }
-  self.frequency = frequency
+  self.frequency = frequency or Skill.NotFrequent
   self.visible = true
   self.lordSkill = false
   self.cardSkill = false

@@ -1,9 +1,9 @@
 local skill = fk.CreateSkill {
   name = "#double_swords_skill",
-  attached_equip = "double_swords",
 }
 
 skill:addEffect(fk.TargetSpecified, {
+  attached_equip = "double_swords",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       data.card and data.card.trueName == "slash" and

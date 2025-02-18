@@ -1,6 +1,6 @@
 local kongcheng = fk.CreateSkill{
   name = "kongcheng",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 kongcheng:addEffect("prohibit", {

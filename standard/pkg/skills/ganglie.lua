@@ -15,7 +15,13 @@ ganglie:addEffect(fk.Damaged, {
     }
     room:judge(judge)
     if judge.card.suit ~= Card.Heart and from and not from.dead then
-      local discards = room:askToDiscard(from, { min_num = 2, max_num = 2, include_equip = false, skill_name = ganglie.name, cancelable = true })
+      local discards = room:askToDiscard(from, {
+        min_num = 2,
+        max_num = 2,
+        include_equip = false,
+        skill_name = ganglie.name,
+        cancelable = true,
+      })
       if #discards == 0 then
         room:damage{
           from = player,

@@ -1,6 +1,6 @@
 local paoxiao = fk.CreateSkill{
   name = "paoxiao",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 paoxiao:addEffect("targetmod", {

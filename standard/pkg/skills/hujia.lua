@@ -1,5 +1,6 @@
 local hujia = fk.CreateSkill {
-  name = "hujia$",
+  name = "hujia",
+  tags = {Skill.Lord},
 }
 
 local hujia_spec = {

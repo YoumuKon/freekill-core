@@ -885,12 +885,19 @@ function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
 end
 
 --- 播放从source指到targets的指示线效果。
----@param source integer @ 指示线开始的那个玩家的id
----@param targets integer[] @ 指示线目标玩家的id列表
+---@param source integer | ServerPlayer @ 指示线开始的那个玩家
+---@param targets integer[] | ServerPlayer[] @ 指示线目标玩家的列表
 function Room:doIndicate(source, targets)
+  if type(source) == "table" then
+    source = source.id
+  end
   local target_group = {}
-  for _, id in ipairs(targets) do
-    table.insert(target_group, { id })
+  for _, p in ipairs(targets) do
+    if type(p) == "table" then
+      table.insert(target_group, { p.id })
+    else
+      table.insert(target_group, { p })
+    end
   end
   self:doAnimate("Indicate", {
     from = source,

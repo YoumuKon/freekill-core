@@ -12,6 +12,7 @@
 ---@field public packages table<string, Package> @ 所有拓展包的列表
 ---@field public package_names string[] @ 含所有拓展包名字的数组，为了方便排序
 ---@field public skills table<string, Skill> @ 所有的技能
+---@field public skill_skels table<string, SkillSkeleton> @ 所有的SkillSkeleton
 ---@field public related_skills table<string, Skill[]> @ 所有技能的关联技能
 ---@field public global_trigger TriggerSkill[] @ 所有的全局触发技
 ---@field public legacy_global_trigger LegacyTriggerSkill[] @ 所有的全局触发技
@@ -62,6 +63,7 @@ function Engine:initialize()
   self.packages = {}    -- name --> Package
   self.package_names = {}
   self.skills = {}    -- name --> Skill
+  self.skill_skels = {}    -- name --> SkillSkeleton
   self.related_skills = {} -- skillName --> relatedSkill[]
   self.global_trigger = {}
   self.legacy_global_trigger = {}
@@ -131,6 +133,7 @@ function Engine:loadPackage(pack)
     local skill = skel:createSkill()
     skill.package = pack
     table.insert(pack.related_skills, skill)
+    self.skill_skels[skel.name] = skel
   end
 
   if pack.type == Package.GeneralPack then

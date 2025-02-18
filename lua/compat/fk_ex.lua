@@ -19,7 +19,7 @@
 function fk.CreateTriggerSkill(spec)
   assert(type(spec.name) == "string")
   --assert(type(spec.on_trigger) == "function")
-  if spec.frequency then assert(type(spec.frequency) == "number") end
+  if spec.frequency then assert(type(spec.frequency) == "string") end
 
   local frequency = spec.frequency or Skill.NotFrequent
   local skill = LegacyTriggerSkill:new(spec.name, frequency)

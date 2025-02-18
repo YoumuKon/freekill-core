@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#qinggang_sword_skill",
-  attached_equip = "qinggang_sword",
-  frequency = Skill.Compulsory,
+  tags = {Skill.Compulsory},
 }
 
 skill:addEffect(fk.TargetSpecified, {
+  attached_equip = "qinggang_sword",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card and data.card.trueName == "slash" and not data.to.dead
   end,

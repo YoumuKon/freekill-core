@@ -13,7 +13,7 @@ jijiu:addEffect("viewas", {
   view_as = function(self, player, cards)
     if #cards ~= 1 then return end
     local c = Fk:cloneCard("peach")
-    c.skillName = skill.name
+    c.skillName = jijiu.name
     c:addSubcard(jijiu[1])
     return c
   end,
