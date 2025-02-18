@@ -528,13 +528,13 @@ end
 
 --- 获得使用此牌的固定目标，仅有不能自由选择目标的牌会有固定目标。即桃、无中、装备、AOE等
 ---@param player Player @ 使用者
----@param extra_data? any @ 额外数据
+---@param extra_data? UseExtraData @ 额外数据
 ---@return Player[]|nil @ 返回固定目标角色列表。若此牌可以选择目标，返回空值
 function Card:getFixedTargets(player, extra_data)
   local ret = extra_data and extra_data.fix_targets
-  if ret then return ret end
+  if ret then return table.map(ret, Util.Id2PlayerMapper) end
   ret = self.skill:fixTargets(player, self, extra_data)
-  if ret then return table.map(ret, Util.IdMapper) end
+  if ret then return ret end
   if self.skill:getMinTargetNum(player) == 0 then
     -- 此处仅作为默认值，若与默认选择规则不一致（如火烧连营）请修改cardSkill的fix_targets参数
     if self.multiple_targets then
@@ -557,19 +557,14 @@ end
 function Card:getAvailableTargets (player, extra_data)
   if not player:canUse(self, extra_data) or player:prohibitUse(self) then return {} end
   extra_data = extra_data or Util.DummyTable
-  local fixed_targets = extra_data.fix_targets or self:getFixedTargets(player, extra_data)
   local room = Fk:currentRoom()
-  local tos = {}
-  if fixed_targets then
-    tos = fixed_targets
-  elseif extra_data.exclusive_targets then
-    tos = extra_data.exclusive_targets
-  elseif extra_data.must_targets then
-    tos = extra_data.must_targets
-  elseif extra_data.include_targets then
-    tos = extra_data.include_targets
-  else
-    tos = table.simpleClone(room.alive_players)
+  local ret = extra_data.fix_targets or self:getFixedTargets(player, extra_data)
+  or extra_data.exclusive_targets or extra_data.must_targets or extra_data.include_targets
+  or room.alive_players
+  if #ret == 0 then return {} end
+  local tos = table.simpleClone(ret)
+  if type(tos[1]) == "number" then
+    tos = table.map(tos, Util.Id2PlayerMapper)
   end
   tos = table.filter(tos, function(p)
     return not player:isProhibited(p, self)

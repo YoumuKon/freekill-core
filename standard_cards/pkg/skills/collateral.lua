@@ -33,7 +33,7 @@ skill:addEffect("active", {
       prompt = nil
     end
     local extra_data = {
-      must_targets = effect.subTargets,
+      must_targets = table.map(effect.subTargets, Util.IdMapper),
       bypass_times = true,
     }
     local use = room:askToUseCard(to, { skill_name = "slash", pattern = "slash", prompt = prompt, cancelable = true, extra_data = extra_data, event_data = effect })

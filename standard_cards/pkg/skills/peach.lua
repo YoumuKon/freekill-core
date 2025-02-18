@@ -8,11 +8,6 @@ skill:addEffect("active", {
     return to_select:isWounded()
   end,
   can_use = Util.CanUseToSelf,
-  on_use = function(self, room, use)
-    if #use.tos == 0 then
-      use:addTarget(use.from)
-    end
-  end,
   on_effect = function(self, room, effect)
     if effect.to:isWounded() and not effect.to.dead then
       room:recover{

@@ -2166,9 +2166,9 @@ end
 ---@field event_data? CardEffectData @ 事件信息
 
 -- available extra_data:
--- * must_targets: Player[]
--- * exclusive_targets: Player[]
--- * fix_targets: Player[]
+-- * must_targets: integer[]
+-- * exclusive_targets: integer[]
+-- * fix_targets: integer[]
 -- * bypass_distances: boolean
 -- * bypass_times: boolean
 ---

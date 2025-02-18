@@ -15,8 +15,8 @@ skill:addEffect(fk.CardEffectCancelledOut, {
       prompt = "#blade_slash:" .. data.to.id,
       cancelable = true,
       extra_data = {
-        must_targets = {data.to},
-        exclusive_targets = {data.to},
+        must_targets = {data.to.id},
+        exclusive_targets = {data.to.id},
         bypass_distances = true,
         bypass_times = true,
       }

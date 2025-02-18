@@ -8,12 +8,6 @@ skill:addEffect("active", {
   can_use = function(self, player, card)
     return not player:isProhibited(player, card)
   end,
-  on_use = function(self, room, cardUseEvent)
-    ---@cast cardUseEvent -SkillUseData
-    if #cardUseEvent.tos == 0 then
-      cardUseEvent:addTarget(cardUseEvent.from)
-    end
-  end,
   on_effect = function(self, room, effect)
     if effect.to.dead then return end
     effect.to:drawCards(2, skill.name)

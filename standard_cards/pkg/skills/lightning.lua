@@ -6,12 +6,6 @@ skill:addEffect("active", {
   prompt = "#lightning_skill",
   mod_target_filter = Util.TrueFunc,
   can_use = Util.CanUseToSelf,
-  on_use = function(self, room, use)
-    ---@cast use -SkillUseData
-    if #use.tos == 0 then
-      use:addTarget(use.from)
-    end
-  end,
   on_effect = function(self, room, effect)
     local to = effect.to
     local judge = {
