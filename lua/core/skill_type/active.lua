@@ -41,7 +41,7 @@ end
 ---@param selected integer[] @ 已选牌
 ---@return boolean?
 function ActiveSkill:cardFilter(player, to_select, selected)
-  return self:getMinCardNum(player) > 0
+  return self:getMaxCardNum(player) > 0
 end
 
 -- 判断一名角色是否可被此技能选中
