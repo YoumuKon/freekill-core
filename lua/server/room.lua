@@ -1334,7 +1334,7 @@ function Room:askToYiji(player, params)
     }
     local success, dat = self:askToUseActiveSkill(player, activeParams)
     if success and dat then
-      local to = dat.targets[1]
+      local to = dat.targets[1].id
       local give_cards = dat.cards
       for _, id in ipairs(give_cards) do
         table.insert(list[to], id)
@@ -1366,7 +1366,7 @@ function Room:askToYiji(player, params)
     end
   end
   if not params.skip then
-    self:doYiji(list, player.id, skillName)
+    self:doYiji(list, player, skillName)
   end
 
   return list
