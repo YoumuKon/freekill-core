@@ -191,6 +191,7 @@ end
 
 ---@param from_phase Phase
 ---@param to_phase Phase
+---@deprecated
 function ServerPlayer:changePhase(from_phase, to_phase)
   local room = self.room
   local logic = room.logic
@@ -224,17 +225,18 @@ function ServerPlayer:changePhase(from_phase, to_phase)
   return false
 end
 
+--获得一个额外阶段
 ---@param phase Phase
----@param delay? boolean
 ---@param skillName? string @ 额外阶段原因
-function ServerPlayer:gainAnExtraPhase(phase, delay, skillName)
+---@param delay? boolean
+function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
   local room = self.room
   delay = (delay == nil) and true or delay
   local logic = room.logic
   if delay then
     local turn = logic:getCurrentEvent():findParent(GameEvent.Phase, true)
     if turn then
-      turn:prependExitFunc(function() self:gainAnExtraPhase(phase, false, skillName) end)
+      turn:prependExitFunc(function() self:gainAnExtraPhase(phase, skillName, false) end)
       return
     end
   end
