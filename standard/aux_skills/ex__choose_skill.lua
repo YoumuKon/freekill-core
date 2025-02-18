@@ -23,7 +23,7 @@ exChooseSkill:addEffect('active', {
   target_filter = function(self, player, to_select, selected, cards)
     if #cards < self.min_c_num then return end
     if #selected < self.max_t_num then
-      return table.contains(self.targets, to_select)
+      return table.contains(self.targets, to_select.id)
     end
   end,
   target_tip = function(self, player, to_select, selected, selected_cards, card, selectable, extra_data)
