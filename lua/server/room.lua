@@ -2166,9 +2166,9 @@ end
 ---@field event_data? CardEffectData @ 事件信息
 
 -- available extra_data:
--- * must_targets: integer[]
--- * exclusive_targets: integer[]
--- * fix_targets: integer[]
+-- * must_targets: Player[]
+-- * exclusive_targets: Player[]
+-- * fix_targets: Player[]
 -- * bypass_distances: boolean
 -- * bypass_times: boolean
 ---
@@ -2685,10 +2685,10 @@ end
 ---@field flag? "e" | "j" @ 限定可移动的区域，值为nil（装备区和判定区）、‘e’或‘j’
 ---@field exclude_ids? integer[] @ 本次不可移动的卡牌id
 
---- 询问一名玩家从targets中选择出若干名玩家来移动场上的牌。
+--- 询问一名玩家选择两名角色，在这两名角色之间移动场上一张牌
 ---@param player ServerPlayer @ 要做选择的玩家
 ---@param params AskToChooseToMoveCardInBoardParams @ 各种变量
----@return ServerPlayer[] @ 选择的玩家列表，可能为空
+---@return ServerPlayer[] @ 选择的两个玩家的列表，若未选择，返回空表
 function Room:askToChooseToMoveCardInBoard(player, params)
   if params.flag then
     assert(params.flag == "e" or params.flag == "j")
@@ -2720,7 +2720,7 @@ function Room:askToChooseToMoveCardInBoard(player, params)
     if params.cancelable then
       return {}
     else
-      return self:canMoveCardInBoard(params.flag, params.exclude_ids)
+      return self:canMoveCardInBoard(params.flag, nil, params.exclude_ids)
     end
   end
 end
