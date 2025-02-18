@@ -69,12 +69,40 @@ function UseCardData:removeAllTargets()
   self.tos = {}
 end
 
+-- 获取使用牌的合法额外目标（不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用首个目标的副目标）
+---@param extra_data? table
+---@return ServerPlayer[]
+function UseCardData:getExtraTargets(extra_data)
+  if not (self.card.type == Card.TypeBasic or self.card:isCommonTrick()) then return {} end
+  local tos = {}
+  local sub_tos = self:getSubTos(self.tos[1])
+  for _, p in ipairs(RoomInstance.alive_players) do
+    if not (table.contains(self.tos, p) or self.from:isProhibited(p, self.card)) and
+    self.card.skill:modTargetFilter(self.from, p, {}, self.card, extra_data) then
+      if #sub_tos > 0 then
+        local hsp_tos = {p}
+        if table.every(sub_tos, function (sub_to)
+          if self.card.skill:modTargetFilter(self.from, sub_to, hsp_tos, self.card, extra_data) then
+            table.insert(hsp_tos, sub_to)
+            return true
+          end
+        end) then
+          table.insert(tos, p)
+        end
+      else
+        table.insert(tos, p)
+      end
+    end
+  end
+  return tos
+end
+
 ---@param player ServerPlayer
 ---@param sub? ServerPlayer[]
 function UseCardData:addTarget(player, sub)
   table.insert(self.tos, player)
   self.subTos = self.subTos or {}
-  table.insert(self.subTos, sub or {})
+  table.insert(self.subTos, sub or self:getSubTos(self.tos[1]))
 end
 
 ---@param player ServerPlayer
@@ -184,20 +212,43 @@ function AimData:setTargetDone(player)
   end
 end
 
+-- 获取使用牌的合法额外目标（不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用首个目标的副目标）
+---@param extra_data? table
+---@return ServerPlayer[]
+function AimData:getExtraTargets(extra_data)
+  if not (self.card.type == Card.TypeBasic or self.card:isCommonTrick()) then return {} end
+  local tos = {}
+  local sub_tos = self.subTargets
+  for _, p in ipairs(RoomInstance.alive_players) do
+    if not (table.contains(self.useTos, p) or self.from:isProhibited(p, self.card)) and
+    self.card.skill:modTargetFilter(self.from, p, {}, self.card, extra_data) then
+      if #sub_tos > 0 then
+        local hsp_tos = {p}
+        if table.every(sub_tos, function (sub_to)
+          if self.card.skill:modTargetFilter(self.from, sub_to, hsp_tos, self.card, extra_data) then
+            table.insert(hsp_tos, sub_to)
+            return true
+          end
+        end) then
+          table.insert(tos, p)
+        end
+      else
+        table.insert(tos, p)
+      end
+    end
+  end
+  return tos
+end
+
 ---@param player ServerPlayer
 ---@param sub? ServerPlayer[]
 function AimData:addTarget(player, sub)
   table.insert(self.tos[AimData.Undone], player)
 
-  if sub then
-    self.subTargets = self.subTargets or {}
-    table.insertTable(self.subTargets, sub)
-  end
-
   RoomInstance:sortByAction(self.tos[AimData.Undone])
   if self.useTos then
     table.insert(self.useTos, player)
-    table.insert(self.useSubTos, sub or {})
+    table.insert(self.useSubTos, sub or self.subTargets)
   end
 end
 
