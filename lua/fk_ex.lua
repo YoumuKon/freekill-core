@@ -585,6 +585,7 @@ end
 ---@field public skill? string
 ---@field public type? integer
 ---@field public sub_type? integer
+---@field public attack_range? integer
 
 ---@class CardSkeleton : Object
 ---@field public spec CardSkelSpec
@@ -627,7 +628,13 @@ function CardSkeleton:createCardPrototype()
     return nil
   end
 
-  local card = klass:new(spec.name, spec.suit, spec.number)
+  local card
+  if klass == Weapon then
+    card = klass:new(spec.name, spec.suit, spec.number, spec.attack_range)
+  else
+    card = klass:new(spec.name, spec.suit, spec.number)
+  end
+
   fk.readCardSpecToCard(card, spec)
 
   if card.type == Card.TypeEquip then
