@@ -149,6 +149,7 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public additionalRecover? integer @ 额外回复值
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
+---@field public nullified? boolean @ 是否对此目标无效
 ---@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
 ---@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
 ---@field public extraData? UseExtraData | any @ 额外数据
@@ -169,7 +170,7 @@ AimData.Cancelled = 3
 ---@param players ServerPlayer[]
 ---@return AimGroup
 function AimData.static:initAimGroup(players)
-  return { [AimGroup.Undone] = players, [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
+  return { [AimGroup.Undone] = table.simpleClone(players), [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
 end
 
 ---@param players ServerPlayer[]
@@ -301,6 +302,25 @@ function AimData:isOnlyTarget(target)
   end)
 end
 
+---@param target? ServerPlayer
+---@return boolean
+function AimData:isDisresponsive(target)
+  target = target or self.to
+  return self.disresponsive or (target and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
+end
+
+---@param target? ServerPlayer
+---@return boolean
+function AimData:isUnoffsetable(target)
+  target = target or self.to
+  return self.unoffsetable or (target and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
+end
+
+---@return boolean
+function AimData:isNullified()
+  return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
+end
+
 ---@class AimEvent: TriggerEvent
 ---@field data AimData
 local AimEvent = TriggerEvent:subclass("AimData")
@@ -321,17 +341,15 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@field public tos ServerPlayer[] 目标列表
 ---@field public subTos? ServerPlayer[][] 子目标列表，借刀最爱的一集
 ---@field public toCard? Card @ 卡牌目标
+---@field public use UseCardData @ 使用流程信息
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
----@field public nullifiedTargets? ServerPlayer[] @ 对这些角色无效
----@field public extraUse? boolean @ 是否不计入次数
----@field public disresponsiveList? ServerPlayer[] @ 这些角色不可响应此牌
----@field public unoffsetableList? ServerPlayer[] @ 这些角色不可抵消此牌
 ---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
 ---@field public additionalRecover? integer @ 额外回复值
 ---@field public extra_data? any @ 额外数据（如目标过滤等）
 ---@field public cardsResponded? Card[] @ 响应此牌的牌
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
+---@field public nullified? boolean @ 是否对此目标无效
 ---@field public isCancellOut? boolean @ 是否被抵消
 ---@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
 ---@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
@@ -352,6 +370,25 @@ function CardEffectData:getSubTos(player)
     end
   end
   return {}
+end
+
+---@param target? ServerPlayer
+---@return boolean
+function CardEffectData:isDisresponsive(target)
+  target = target or self.to
+  return self.disresponsive or (target and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
+end
+
+---@param target? ServerPlayer
+---@return boolean
+function CardEffectData:isUnoffsetable(target)
+  target = target or self.to
+  return self.unoffsetable or (target and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
+end
+
+---@return boolean
+function CardEffectData:isNullified()
+  return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
 end
 
 ---@class CardEffectEvent: TriggerEvent

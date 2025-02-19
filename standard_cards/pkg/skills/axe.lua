@@ -26,13 +26,13 @@ skill:addEffect(fk.CardEffectCancelledOut, {
       pattern = tostring(Exppattern{ id = cards }),
       prompt = "#axe-invoke::"..data.to.id, skip = true })
     if #cards > 0 then
-      self.cost_data = {cards = cards}
+      event:setCostData(self, {cards = cards})
       return true
     end
   end,
   on_use = function(self, event, target, player, data)
-    player.room:throwCard(self.cost_data.cards, skill.name, player, player)
-    return true
+    player.room:throwCard(event:getCostData(self).cards, skill.name, player, player)
+    data.isCancellOut = false
   end,
 })
 

@@ -18,7 +18,7 @@ skill:addEffect(fk.PreCardEffect, {
     }
     room:broadcastPlaySound("./packages/maneuvering/audio/card/vine")
     room:setEmotion(player, "./packages/maneuvering/image/anim/vine")
-    return true
+    data.nullified = true
   end,
 })
 

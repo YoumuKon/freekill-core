@@ -9,7 +9,9 @@ skill:addEffect(fk.PreCardEffect, {
     return data.to == player and player:hasSkill(skill.name) and
     data.card.trueName == "slash" and data.card.color == Card.Black
   end,
-  on_use = Util.TrueFunc,
+  on_use = function(_, _, _, _, data)
+    data.nullified = true
+  end
 })
 
 skill:addTest(function(room, me)

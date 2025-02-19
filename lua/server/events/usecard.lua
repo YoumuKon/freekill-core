@@ -397,9 +397,8 @@ function CardEffect:main()
   end
   for _, event in ipairs({ fk.PreCardEffect, fk.BeforeCardEffect, fk.CardEffecting }) do
     if cardEffectData.isCancellOut then
-      if logic:trigger(fk.CardEffectCancelledOut, cardEffectData.from, cardEffectData) then
-        cardEffectData.isCancellOut = false
-      else
+      logic:trigger(fk.CardEffectCancelledOut, cardEffectData.from, cardEffectData)
+      if cardEffectData.isCancellOut then
         logic:breakEvent()
       end
     end
@@ -414,24 +413,20 @@ function CardEffect:main()
       logic:breakEvent()
     end
 
-    if table.contains((cardEffectData.nullifiedTargets or Util.DummyTable), cardEffectData.to) then
+    if cardEffectData:isNullified() then
       logic:breakEvent()
     end
 
     if event == fk.PreCardEffect then
-      if logic:trigger(event, cardEffectData.from, cardEffectData) then
-        if cardEffectData.to then
-          cardEffectData.nullifiedTargets = cardEffectData.nullifiedTargets or {}
-          table.insert(cardEffectData.nullifiedTargets, cardEffectData.to)
-        end
+      logic:trigger(event, cardEffectData.from, cardEffectData)
+      if cardEffectData:isNullified() then
         logic:breakEvent()
       end
-    elseif logic:trigger(event, cardEffectData.to, cardEffectData) then
-      if cardEffectData.to then
-        cardEffectData.nullifiedTargets = cardEffectData.nullifiedTargets or {}
-        table.insert(cardEffectData.nullifiedTargets, cardEffectData.to)
+    else
+      logic:trigger(event, cardEffectData.to, cardEffectData)
+      if cardEffectData:isNullified() then
+        logic:breakEvent()
       end
-      logic:breakEvent()
     end
 
     room:handleCardEffect(event, cardEffectData)
@@ -590,7 +585,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
     end
 
     local target = useCardData.tos[1]
-    if not (target.dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
+    if not target.dead and aimEventCollaborators[target] and not aimEventCollaborators[target][1]:isNullified() then
       local existingEquipId
       if useCardData.toPutSlot and useCardData.toPutSlot:startsWith("#EquipmentChoice") then
         local index = useCardData.toPutSlot:split(":")[2]
@@ -631,7 +626,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
     end
 
     local target = useCardData.tos[1]
-    if not (target.dead or table.contains((useCardData.nullifiedTargets or Util.DummyTable), target)) then
+    if not target.dead and aimEventCollaborators[target] and not aimEventCollaborators[target][1]:isNullified() then
       local findSameCard = false
       for _, cardId in ipairs(target:getCardIds(Player.Judge)) do
         if Fk:getCardById(cardId).trueName == useCardData.card.trueName then
@@ -677,6 +672,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
       subTos = useCardData.subTos,
       card = useCardData.card,
       toCard = useCardData.toCard,
+      use = useCardData,
       responseToEvent = useCardData.responseToEvent,
       nullifiedTargets = useCardData.nullifiedTargets,
       disresponsiveList = useCardData.disresponsiveList,
@@ -715,10 +711,8 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           subTos = useCardData.subTos,
           card = useCardData.card,
           toCard = useCardData.toCard,
+          use = useCardData,
           responseToEvent = useCardData.responseToEvent,
-          nullifiedTargets = useCardData.nullifiedTargets,
-          disresponsiveList = useCardData.disresponsiveList,
-          unoffsetableList = useCardData.unoffsetableList,
           additionalDamage = useCardData.additionalDamage,
           additionalRecover = useCardData.additionalRecover,
           cardsResponded = useCardData.cardsResponded,
@@ -736,6 +730,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           cardEffectData.additionalRecover = curAimEvent.additionalRecover
           cardEffectData.disresponsive = curAimEvent.disresponsive
           cardEffectData.unoffsetable = curAimEvent.unoffsetable
+          cardEffectData.nullified = curAimEvent.nullified
           cardEffectData.fixedResponseTimes = curAimEvent.fixedResponseTimes
           cardEffectData.fixedAddTimesResponsors = curAimEvent.fixedAddTimesResponsors
 
@@ -751,9 +746,6 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
             end
           end
 
-          if type(curCardEffectEvent.nullifiedTargets) == 'table' then
-            table.insertTableIfNeed(useCardData.nullifiedTargets, curCardEffectEvent.nullifiedTargets)
-          end
         end
       end
     end
@@ -781,9 +773,9 @@ end
 function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
   ---@cast self Room
   if event == fk.PreCardEffect then
-    if cardEffectData.card.trueName == "slash" and not
-      (cardEffectData.unoffsetable or
-      table.contains(cardEffectData.unoffsetableList or Util.DummyTable, cardEffectData.to))
+    if
+      cardEffectData.card.trueName == "slash" and
+      not cardEffectData:isUnoffsetable(cardEffectData.to)
     then
       local loopTimes = 1
       if cardEffectData.fixedResponseTimes then
@@ -841,8 +833,8 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
             if
               Fk:getCardById(cid).trueName == "nullification" and
               not (
-                table.contains(cardEffectData.disresponsiveList or Util.DummyTable, p.id) or
-                table.contains(cardEffectData.unoffsetableList or Util.DummyTable, p.id)
+                table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
+                table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
               )
             then
               table.insert(players, p)
@@ -858,8 +850,8 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
                 Exppattern:Parse("nullification"):matchExp(s.pattern) and
                 not (s.enabledAtResponse and not s:enabledAtResponse(p)) and
                 not (
-                  table.contains(cardEffectData.disresponsiveList or Util.DummyTable, p) or
-                  table.contains(cardEffectData.unoffsetableList or Util.DummyTable, p)
+                  table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
+                  table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
                 )
               then
                 table.insert(players, p)
