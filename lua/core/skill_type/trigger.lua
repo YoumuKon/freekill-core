@@ -56,6 +56,7 @@ end
 
 -- do cost and skill effect.
 -- DO NOT modify this function
+---@param event TriggerEvent @ TriggerEvent
 function TriggerSkill:doCost(event, target, player, data)
   local start_time = os.getms()
   local room = player.room ---@type Room
@@ -70,18 +71,16 @@ function TriggerSkill:doCost(event, target, player, data)
   end
   room.current_cost_skill = nil
 
-  local cost_data_bak = self.cost_data
+  local cost_data_bak = event:getCostData(self)
   room.logic:trigger(fk.BeforeTriggerSkillUse, player, { skill = self, willUse = ret })
   self.cost_data = cost_data_bak
 
   if ret then
     local skill_data = {cost_data = cost_data_bak, tos = {}, cards = {}}
-    if type(cost_data_bak) == "table" then
-      if type(cost_data_bak.tos) == "table" and #cost_data_bak.tos > 0 and type(cost_data_bak.tos[1]) == "number" and
-      room:getPlayerById(cost_data_bak.tos[1]) ~= nil then
-        skill_data.tos = cost_data_bak.tos
-      end
-      if type(cost_data_bak.cards) == "table" then skill_data.cards = cost_data_bak.cards end
+    if cost_data_bak then
+      skill_data.tos = cost_data_bak.tos
+      skill_data.cards = cost_data_bak.cards
+      skill_data.from = player
     end
     return room:useSkill(player, self, function()
       return self:use(event, target, player, data)

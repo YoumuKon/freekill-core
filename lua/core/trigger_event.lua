@@ -44,7 +44,7 @@ end
 ---@param k string
 function TriggerEvent:getSkillData(skill, k)
   local name = (skill.main_skill and skill.main_skill or skill).name
-  return self.skill_data[name][k]
+  return self.skill_data[name] and self.skill_data[name][k]
 end
 
 ---@param skill Skill
