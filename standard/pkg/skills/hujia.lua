@@ -36,6 +36,7 @@ local hujia_spec = {
             data.result = {
               from = player.id,
               card = Fk:cloneCard('jink'),
+              tos = {},
             }
             data.result.card:addSubcards(room:getSubcardsByRule(cardResponded, { Card.Processing }))
             data.result.card.skillName = hujia.name
