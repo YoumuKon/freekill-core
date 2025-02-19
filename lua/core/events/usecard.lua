@@ -142,7 +142,7 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public card Card @ 卡牌本牌
 ---@field public tos AimGroup @ 总角色目标
 ---@field public to ServerPlayer @ 当前角色目标
----@field public use UseCardEvent @ 使用流程信息
+---@field public use UseCardData @ 使用流程信息
 ---@field public subTargets? ServerPlayer[] @ 子目标（借刀！）
 ---@field public firstTarget boolean @ 是否是第一个目标
 ---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
