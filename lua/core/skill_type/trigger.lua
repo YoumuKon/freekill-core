@@ -96,7 +96,7 @@ end
 ---@param data any @ useful data of the event
 ---@return boolean? @ returns true if trigger is broken
 function TriggerSkill:cost(event, target, player, data)
-  if self.frequency == Skill.Compulsory or self.frequency == Skill.Wake then
+  if self:hasTag(Skill.Compulsory) then
     return true
   end
 

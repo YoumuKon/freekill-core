@@ -1,6 +1,6 @@
 local sk = fk.CreateSkill {
   name = "#crossbow_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 sk:addEffect(fk.CardUsing, {

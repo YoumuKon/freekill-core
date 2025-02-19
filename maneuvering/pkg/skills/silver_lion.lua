@@ -1,6 +1,6 @@
 local skill = fk.CreateSkill {
   name = "#silver_lion_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 skill:addEffect(fk.DamageInflicted, {

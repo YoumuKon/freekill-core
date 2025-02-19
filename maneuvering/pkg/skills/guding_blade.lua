@@ -1,6 +1,6 @@
 local skill = fk.CreateSkill {
   name = "#guding_blade_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 skill:addEffect(fk.DamageCaused, {

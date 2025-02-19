@@ -1,6 +1,6 @@
 local skill = fk.CreateSkill {
   name = "#qinggang_sword_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 skill:addEffect(fk.TargetSpecified, {

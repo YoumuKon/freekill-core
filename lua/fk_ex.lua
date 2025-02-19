@@ -121,6 +121,7 @@ end
 
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effect_list ([any, any, any])[]
+---@field public effect_names string[]
 ---@field public tags Frequency[]
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
@@ -140,17 +141,10 @@ local SkillSkeleton = class("SkillSkeleton")
 function SkillSkeleton:initialize(spec)
   local name = spec.name ---@type string
   self.name = name
-  if string.sub(name, #name) == "$" then
-    self.name = string.sub(name, 1, #name - 1)
-    self.lordSkill = true
-  end
-  self.tags = {}
+  self.tags = spec.tags or {}
   fk.readCommonSpecToSkill(self, spec)
-  self.frequency = spec.frequency or Skill.NotFrequent
-  if self.frequency ~= Skill.NotFrequent then
-    table.insertIfNeed(self.tags, self.frequency)  --兼容牢代码
-  end
   self.effect_list = {}
+  self.effect_names = {}
   self.tests = {}
 end
 
@@ -246,20 +240,13 @@ function SkillSkeleton:createSkill()
         local name_split = self.name:split("__")
         main_skill.trueName = name_split[#name_split]
         main_skill.visible = self.name[1] ~= "#"
-        if string.sub(main_skill.name, #main_skill.name) == "$" then
-          main_skill.name = string.sub(main_skill.name, 1, #main_skill.name - 1)
-          main_skill.lordSkill = true
-        end
-        if table.contains(self.tags, Skill.Lord) then
-          main_skill.lordSkill = true
-        end
-        if self.lordSkill then main_skill.lordSkill = true end
       else
         if not attr.is_delay_effect then
           sk.main_skill = main_skill
         end
         main_skill:addRelatedSkill(sk)
       end
+      table.insert(self.effect_names, sk.name)
     end
   end
   if not main_skill then

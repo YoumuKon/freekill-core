@@ -1,6 +1,6 @@
 local skill = fk.CreateSkill {
   name = "#vine_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 skill:addEffect(fk.PreCardEffect, {

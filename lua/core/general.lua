@@ -121,7 +121,7 @@ function General:getSkillNameList(include_lord)
   local other_skills = table.map(self.other_skills, Util.Name2SkillMapper)
   local skills = table.connect(self.skills, other_skills)
   for _, skill in ipairs(skills) do
-    if include_lord or not skill.lordSkill then
+    if include_lord or not skill:hasTag(Skill.Lord) then
       table.insert(ret, skill.name)
     end
   end

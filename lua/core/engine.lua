@@ -433,10 +433,6 @@ function Engine:addGeneral(general)
     self.same_generals[tName] = self.same_generals[tName] or { tName }
     table.insert(self.same_generals[tName], general.name)
   end
-
-  -- if table.find(general.skills, function(s) return s.lordSkill end) then
-  --   table.insert(self.lords, general.name)
-  -- end
 end
 
 --- 加载一系列武将。
@@ -454,7 +450,7 @@ function Engine:setLords()
     local other_skills = table.map(general.other_skills, Util.Name2SkillMapper)
     local skills = table.connect(general.skills, other_skills)
     for _, skill in ipairs(skills) do
-      if skill.lordSkill then
+      if skill:hasTag(Skill.Lord) then
         table.insert(self.lords, general.name)
         break
       end

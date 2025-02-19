@@ -242,7 +242,7 @@ function GameLogic:attachSkillToPlayers()
       fk.qCritical("Skill: "..skillName.." doesn't exist!")
       return
     end
-    if skill.lordSkill and not (player.role == "lord" and player.role_shown and room:isGameMode("role_mode")) then
+    if skill:hasTag(Skill.Lord) and not (player.role == "lord" and player.role_shown and room:isGameMode("role_mode")) then
       return
     end
 

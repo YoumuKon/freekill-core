@@ -6,7 +6,7 @@
 ---@field public name string @ 技能名
 ---@field public trueName string @ 技能真名
 ---@field public package Package @ 技能所属的包
----@field public frequency Frequency @ 技能发动的频繁程度，通常compulsory（锁定技）及limited（限定技）用的多。
+---@field public frequency? Frequency @ 技能标签，如compulsory（锁定技）、limited（限定技）。（deprecated，请改为向skeleton添加tag）
 ---@field public visible boolean @ 技能是否会显示在游戏中
 ---@field public mute boolean @ 决定是否关闭技能配音
 ---@field public no_indicate boolean @ 决定是否关闭技能指示线
@@ -19,7 +19,6 @@
 ---@field public times integer @ 技能剩余次数，负数不显示，正数显示
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
 ---@field public main_skill Skill
----@field public lordSkill boolean @ 是否为主公技
 ---@field public cardSkill boolean @ 是否为卡牌效果对应的技能（仅用于ActiveSkill）
 local Skill = class("Skill")
 
@@ -32,6 +31,7 @@ Skill.Limited = "Limited"
 Skill.Wake = "Wake"
 Skill.Switch = "Switch"
 Skill.Quest = "Quest"
+Skill.Permanent = "Permanent"
 
 --- 构造函数，不可随意调用。
 ---@param name string @ 技能名
@@ -45,7 +45,6 @@ function Skill:initialize(name, frequency)
   self.package = { extensionName = "standard" }
   self.frequency = frequency or Skill.NotFrequent
   self.visible = true
-  self.lordSkill = false
   self.cardSkill = false
   self.mute = false
   self.no_indicate = false
@@ -59,10 +58,6 @@ function Skill:initialize(name, frequency)
 
   if string.sub(name, 1, 1) == "#" then
     self.visible = false
-  end
-  if string.sub(name, #name) == "$" then
-    self.name = string.sub(name, 1, #name - 1)
-    self.lordSkill = true
   end
 
   self.attached_equip = nil
@@ -122,7 +117,7 @@ end
 ---@param player Player @ 玩家
 ---@return boolean
 function Skill:isEffectable(player)
-  if self.cardSkill or self.permanent_skill then
+  if self.cardSkill or self.permanent_skill or self:hasTag(Skill.Permanent) then
     return true
   end
 
@@ -229,6 +224,44 @@ function Skill:getDynamicDescription(player, lang)
   end
 
   return nil
+end
+
+--- 找到技能的骨架。可能为nil
+---@return SkillSkeleton?
+function Skill:getSkeleton()
+  if Fk.skill_skels[self.name] then
+    return Fk.skill_skels[self.name]
+  else
+    for _, skel in pairs(Fk.skill_skels) do
+      for _, effect in ipairs(skel) do
+        if effect == self then
+          return skel
+        end
+      end
+    end
+  end
+  return nil
+end
+
+--- 判断技能是否有某标签
+---@param frequency Frequency  待判断的标签
+---@param compulsory_expand boolean?  是否“拓展”锁定技标签的含义，包括觉醒技。默认是
+---@return boolean
+function Skill:hasTag(frequency, compulsory_expand)
+  local skel = self:getSkeleton()
+  if skel == nil then return false end
+  if (compulsory_expand == nil or compulsory_expand) and frequency == Skill.Compulsory then
+    if table.contains({Skill.Compulsory, Skill.Wake}, self.frequency) then  --兼容牢代码
+      return true
+    end
+    return table.find({Skill.Compulsory, Skill.Wake}, function (tag)
+      return table.contains(skel.tags, tag)
+    end) ~= nil
+  end
+  if self.frequency == frequency then  --兼容牢代码
+    return true
+  end
+  return table.contains(skel.tags, frequency)
 end
 
 return Skill

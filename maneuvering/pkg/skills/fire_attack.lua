@@ -1,10 +1,8 @@
-local skill_name = "fire_attack_skill"
-
-local skill = fk.CreateSkill {
-  name = skill_name,
+local fire_attack = fk.CreateSkill {
+  name = "fire_attack_skill",
 }
 
-skill:addEffect("active", {
+fire_attack:addEffect("active", {
   prompt = "#fire_attack_skill",
   can_use = Util.CanUse,
   target_num = 1,
@@ -21,7 +19,7 @@ skill:addEffect("active", {
       min_num = 1,
       max_num = 1,
       include_equip = false,
-      skill_name = skill_name,
+      skill_name = fire_attack.name,
       cancelable = false,
       pattern = ".|.|.|hand",
       prompt = "#fire_attack-show:" .. from.id
@@ -34,7 +32,7 @@ skill:addEffect("active", {
       min_num = 1,
       max_num = 1,
       include_equip = false,
-      skill_name = skill_name,
+      skill_name = fire_attack.name,
       cancelable = true,
       pattern = ".|.|" .. showCard:getSuitString(),
       prompt = "#fire_attack-discard:" .. to.id .. "::" .. showCard:getSuitString()
@@ -47,10 +45,10 @@ skill:addEffect("active", {
         card = effect.card,
         damage = 1,
         damageType = fk.FireDamage,
-        skillName = skill_name,
+        skillName = fire_attack.name,
       })
     end
   end,
 })
 
-return skill
+return fire_attack

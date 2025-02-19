@@ -90,7 +90,7 @@ local role_getlogic = function()
           fk.qCritical("Skill: "..skillName.." doesn't exist!")
           return false
         end
-        if skill.lordSkill and (player.role ~= "lord" or #room.players < 5) then
+        if skill:hasTag(Skill.Lord) and (player.role ~= "lord" or #room.players < 5) then
           return false
         end
 

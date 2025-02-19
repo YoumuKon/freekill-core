@@ -1,6 +1,6 @@
 local skill = fk.CreateSkill {
   name = "#nioh_shield_skill",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 skill:addEffect(fk.PreCardEffect, {
