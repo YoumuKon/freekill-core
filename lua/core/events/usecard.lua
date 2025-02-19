@@ -141,20 +141,15 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public card Card @ 卡牌本牌
 ---@field public tos AimGroup @ 总角色目标
 ---@field public to ServerPlayer @ 当前角色目标
+---@field public use UseCardEvent @ 使用流程信息
 ---@field public subTargets? ServerPlayer[] @ 子目标（借刀！）
----@field public useTos? ServerPlayer[] @ 目标组
----@field public useSubTos? ServerPlayer[][] @ 目标组
----@field public nullifiedTargets? ServerPlayer[] @ 对这些角色无效
 ---@field public firstTarget boolean @ 是否是第一个目标
 ---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
 ---@field public additionalRecover? integer @ 额外回复值
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
----@field public disresponsiveList? ServerPlayer[] @ 这些角色不可响应此牌
----@field public unoffsetableList? ServerPlayer[] @ 这些角色不可抵消此牌
 ---@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
 ---@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
----@field public additionalEffect? integer @额外结算次数
 ---@field public extraData? UseExtraData | any @ 额外数据
 
 --- 使用牌的数据
@@ -220,7 +215,7 @@ function AimData:getExtraTargets(extra_data)
   local tos = {}
   local sub_tos = self.subTargets
   for _, p in ipairs(RoomInstance.alive_players) do
-    if not (table.contains(self.useTos, p) or self.from:isProhibited(p, self.card)) and
+    if not (table.contains(self.use.tos, p) or self.from:isProhibited(p, self.card)) and
     self.card.skill:modTargetFilter(self.from, p, {}, self.card, extra_data) then
       if #sub_tos > 0 then
         local hsp_tos = {p}
@@ -246,10 +241,8 @@ function AimData:addTarget(player, sub)
   table.insert(self.tos[AimData.Undone], player)
 
   RoomInstance:sortByAction(self.tos[AimData.Undone])
-  if self.useTos then
-    table.insert(self.useTos, player)
-    table.insert(self.useSubTos, sub or self.subTargets)
-  end
+  table.insert(self.use.tos, player)
+  table.insert(self.use.subTos, sub or self.subTargets)
 end
 
 ---@param player ServerPlayer
@@ -273,13 +266,11 @@ function AimData:cancelTarget(player)
 
   if cancelled then
     table.insert(self.tos[AimData.Cancelled], player)
-    if self.useTos then
-      for i, p in ipairs(self.useTos) do
-        if p == player then
-          table.remove(self.useTos, i)
-          table.remove(self.useSubTos, i)
-          break
-        end
+    for i, p in ipairs(self.use.tos) do
+      if p == player then
+        table.remove(self.use.tos, i)
+        table.remove(self.use.subTos, i)
+        break
       end
     end
   end
@@ -290,12 +281,10 @@ function AimData:removeDeadTargets()
     self.tos[index] = RoomInstance:deadPlayerFilter(self.tos[index])
   end
 
-  if self.useTos then
-    for i, target in ipairs(self.useTos) do
-      if not target:isAlive() then
-        table.remove(self.useTos, i)
-        table.remove(self.useSubTos, i)
-      end
+  for i, target in ipairs(self.use.tos) do
+    if not target:isAlive() then
+      table.remove(self.use.tos, i)
+      table.remove(self.use.subTos, i)
     end
   end
 end

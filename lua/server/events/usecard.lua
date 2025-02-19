@@ -490,14 +490,11 @@ local onAim = function(room, useCardData, aimEventCollaborators)
           from = useCardData.from,
           card = useCardData.card,
           to = to,
-          useTos = useCardData.tos,
-          useSubTos = useCardData.subTos,
-          nullifiedTargets = useCardData.nullifiedTargets or {},
+          use = useCardData,
           tos = aimGroup,
           firstTarget = firstTarget,
           additionalDamage = useCardData.additionalDamage,
           additionalRecover = useCardData.additionalRecover,
-          additionalEffect = useCardData.additionalEffect,
           extra_data = useCardData.extra_data,
         }
 
@@ -521,11 +518,7 @@ local onAim = function(room, useCardData, aimEventCollaborators)
         aimStruct.from = useCardData.from
         aimStruct.card = useCardData.card
         aimStruct.tos = aimGroup
-        aimStruct.useTos = useCardData.tos
-        aimStruct.useSubTos = useCardData.subTos
-        aimStruct.nullifiedTargets = useCardData.nullifiedTargets or {}
         aimStruct.firstTarget = firstTarget
-        aimStruct.additionalEffect = useCardData.additionalEffect
         aimStruct.extra_data = useCardData.extra_data
       end
 
@@ -542,9 +535,7 @@ local onAim = function(room, useCardData, aimEventCollaborators)
       -- end
 
       useCardData.from = aimStruct.from
-      useCardData.tos = aimStruct.useTos
-      useCardData.nullifiedTargets = aimStruct.nullifiedTargets
-      useCardData.additionalEffect = aimStruct.additionalEffect
+      useCardData.card = aimStruct.card
       useCardData.extra_data = aimStruct.extra_data
 
       if #aimStruct:getAllTargets() == 0 then
@@ -743,23 +734,6 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           cardEffectData.subTargets = curAimEvent.subTargets
           cardEffectData.additionalDamage = curAimEvent.additionalDamage
           cardEffectData.additionalRecover = curAimEvent.additionalRecover
-
-          if curAimEvent.disresponsiveList then
-            cardEffectData.disresponsiveList = cardEffectData.disresponsiveList or {}
-
-            for _, disresponsivePlayer in ipairs(curAimEvent.disresponsiveList) do
-              table.insertIfNeed(cardEffectData.disresponsiveList, disresponsivePlayer)
-            end
-          end
-
-          if curAimEvent.unoffsetableList then
-            cardEffectData.unoffsetableList = cardEffectData.unoffsetableList or {}
-
-            for _, unoffsetablePlayer in ipairs(curAimEvent.unoffsetableList) do
-              table.insertIfNeed(cardEffectData.unoffsetableList, unoffsetablePlayer)
-            end
-          end
-
           cardEffectData.disresponsive = curAimEvent.disresponsive
           cardEffectData.unoffsetable = curAimEvent.unoffsetable
           cardEffectData.fixedResponseTimes = curAimEvent.fixedResponseTimes

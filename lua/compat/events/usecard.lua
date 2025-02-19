@@ -33,7 +33,7 @@ function UseCardData:toLegacy()
       local t = { p.id }
       local sub = self:getSubTos(p)
       if sub then
-        table.insertTable(sub, table.map(sub, Util.IdMapper))
+        table.insertTable(t, table.map(sub, Util.IdMapper))
       end
       table.insert(tos, t)
     end
@@ -95,13 +95,14 @@ function AimData:toLegacy()
   ret.to = ret.to and ret.to.id
 
   -- 傻逼tos可能nil
-  if self.useTos then
+  local use = self.use
+  if use.tos then
     local tos = {}
-    for i, p in ipairs(self.useTos) do
+    for i, p in ipairs(use.tos) do
       local t = { p.id }
-      local sub = self.useSubTos[i]
+      local sub = use:getSubTos(p)
       if sub then
-        table.insertTable(sub, table.map(sub, Util.IdMapper))
+        table.insertTable(t, table.map(sub, Util.IdMapper))
       end
       table.insert(tos, t)
     end
@@ -114,18 +115,30 @@ function AimData:toLegacy()
   end
 
   for _, k in ipairs({"nullifiedTargets", "disresponsiveList", "subTargets"}) do
-    ret[k] = ret[k] and table.map(ret[k], Util.IdMapper)
+    if k == "subTargets" then
+      ret[k] = ret[k] and table.map(ret[k], Util.IdMapper)
+    else
+      ret[k] = use[k] and table.map(use[k], Util.IdMapper)
+    end
   end
 
   return ret
 end
 
 function AimData:loadLegacy(data)
+  local use = self.use
   for k, v in pairs(data) do
     if table.contains({"from", "to"}, k) then
       self[k] = Fk:currentRoom():getPlayerById(v)
-    elseif table.contains({"nullifiedTargets", "disresponsiveList", "subTargets"}, k) then
-      self[k] = table.map(v, Util.Id2PlayerMapper)
+    elseif table.contains({"nullifiedTargets", "disresponsiveList", "unoffsetableList", "subTargets"}, k) then
+      local players = table.map(v, Util.Id2PlayerMapper)
+      if k == "subTargets" then
+        self[k] = players
+      else
+        use[k] = players
+      end
+    elseif k == "additionalEffect" then
+      use[k] = v
     elseif k == "targetGroup" then
       local targets = {}
       local subTargets = {}
@@ -135,8 +148,8 @@ function AimData:loadLegacy(data)
         table.insert(targets, p)
         table.insert(subTargets, sub)
       end
-      self.useTos = targets
-      self.useSubTos = subTargets
+      use.tos = targets
+      use.subTos = subTargets
     elseif k == "tos" then
       self.tos = {}
       for _, d in ipairs(v) do
@@ -161,7 +174,7 @@ function CardEffectData:toLegacy()
       local t = { p.id }
       local sub = self:getSubTos(p)
       if sub then
-        table.insertTable(sub, table.map(sub, Util.IdMapper))
+        table.insertTable(t, table.map(sub, Util.IdMapper))
       end
       table.insert(tos, t)
     end

@@ -26,9 +26,23 @@ skill:addEffect("active", {
     end
   end,
   on_effect = function(self, room, effect)
+    local from = effect.from
     local to = effect.to
     if to.dead then return end
-    local prompt = "#collateral-slash:"..effect.from..":"..effect.subTargets[1]
+
+    local giveWeapon = function ()
+      if from.dead then return end
+      local weapons = to:getEquipments(Card.SubtypeWeapon)
+      if #weapons > 0 then
+        room:moveCardTo(weapons, Card.PlayerHand, from, fk.ReasonGive, skill.name, nil, true, to.id)
+      end
+    end
+    if #(effect.subTargets or {}) == 0 then
+      giveWeapon()
+      return
+    end
+
+    local prompt = "#collateral-slash:".. effect.from.id .. ":" .. effect.subTargets[1].id
     if #effect.subTargets > 1 then
       prompt = nil
     end
@@ -41,12 +55,7 @@ skill:addEffect("active", {
       use.extraUse = true
       room:useCard(use)
     else
-      local from = effect.from
-      if from.dead then return end
-      local weapons = to:getEquipments(Card.SubtypeWeapon)
-      if #weapons > 0 then
-        room:moveCardTo(weapons, Card.PlayerHand, from, fk.ReasonGive, skill.name, nil, true, to.id)
-      end
+      giveWeapon()
     end
   end,
 })
