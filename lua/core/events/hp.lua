@@ -150,3 +150,7 @@ fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 ---  data: TrigSkelSpec<RecoverTrigFunc>, attr: DamageSkelAttr?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: MaxHpChangedEvent,
 ---  data: TrigSkelSpec<MaxHpChangedTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+
+function DamageEvent:breakCheck()
+    return self.data.damage < 1
+end

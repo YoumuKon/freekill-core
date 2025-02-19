@@ -57,6 +57,11 @@ function TriggerEvent:getCostData(skill)
   return self:getSkillData(skill, "cost_data")
 end
 
+--- 本事件是否要应该停止询问
+function TriggerEvent:breakCheck()
+  return false
+end
+
 -- 先执行带refresh的，再执行带效果的
 function TriggerEvent:exec()
   local room, logic = self.room, self.room.logic
@@ -115,16 +120,11 @@ function TriggerEvent:exec()
         ---@cast skill TriggerSkill
 
         table.insert(invoked_skills, skill)
-        broken = skill:trigger(self, target, player, data)
-        skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
-
-        -- TODO: 这段开个方法，搬家到相关时机的某个方法内
-        broken = broken or (event == fk.AskForPeaches
-          and data.who.hp > 0) or
-          (table.contains({fk.PreDamage, fk.DamageCaused, fk.DamageInflicted}, event) and data.damage < 1) or
-          cur_event.killed
+        broken = skill:trigger(self, target, player, data) or self:breakCheck() or cur_event.killed
 
         if broken then break end
+
+        skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
       end
 
       if broken then break end

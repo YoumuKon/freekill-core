@@ -83,3 +83,7 @@ fk.AfterPlayerRevived = ReviveEvent:subclass("fk.AfterPlayerRevived")
 ---  data: TrigSkelSpec<DeathTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: ReviveEvent,
 ---  data: TrigSkelSpec<ReviveTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
+
+function fk.AskForPeaches:breakCheck()
+    return self.data.who.hp > 0
+end
