@@ -2157,7 +2157,7 @@ end
 
 ---@class askToUseVirtualCardParams
 ---@field name string|string[] @ 可以选择的虚拟卡名
----@field subcards integer[] @ 虚拟牌的子牌，默认空
+---@field subcards? integer[] @ 虚拟牌的子牌，默认空
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
@@ -2648,6 +2648,7 @@ end
 ---@field flag? "e" | "j" @ 限定可移动的区域，值为nil（装备区和判定区）、‘e’或‘j’
 ---@field move_from? ServerPlayer @ 移动来源是否只能是某角色
 ---@field exclude_ids? integer[] @ 本次不可移动的卡牌id
+---@field skip? boolean @ 是否跳过移动。默认不跳过
 
 --- 询问移动场上的一张牌。不可取消
 ---@param player ServerPlayer @ 移动的操作者
@@ -2656,9 +2657,9 @@ end
 function Room:askToMoveCardInBoard(player, params)
   params.exclude_ids = type(params.exclude_ids) == "table" and params.exclude_ids or {}
 
-  local targetOne, targetTwo, skillName, flag, moveFrom, excludeIds =
+  local targetOne, targetTwo, skillName, flag, moveFrom, excludeIds, skip =
     params.target_one, params.target_two, params.skill_name,
-    params.flag, params.move_from, params.exclude_ids
+    params.flag, params.move_from, params.exclude_ids, params.skip
   ---@cast excludeIds -nil
 
   if flag then
@@ -2747,16 +2748,18 @@ function Room:askToMoveCardInBoard(player, params)
     from, to = targetTwo, targetOne
   end
   local cardToMove = self:getCardOwner(result.cardId):getVirualEquip(result.cardId) or Fk:getCardById(result.cardId)
-  self:moveCardTo(
-    cardToMove,
-    cardToMove.type == Card.TypeEquip and Player.Equip or Player.Judge,
-    to,
-    fk.ReasonPut,
-    skillName,
-    nil,
-    true,
-    player
-  )
+  if not skip then
+    self:moveCardTo(
+      cardToMove,
+      cardToMove.type == Card.TypeEquip and Player.Equip or Player.Judge,
+      to,
+      fk.ReasonPut,
+      skillName,
+      nil,
+      true,
+      player
+    )
+  end
 
   return { card = cardToMove, from = from, to = to }
 end
