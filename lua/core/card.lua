@@ -535,7 +535,7 @@ function Card:getFixedTargets(player, extra_data)
   if ret then return table.map(ret, Util.Id2PlayerMapper) end
   ret = self.skill:fixTargets(player, self, extra_data)
   if ret then return ret end
-  if self.skill:getMinTargetNum(player) == 0 then
+  if self.skill:getMinTargetNum(player) == 0 and not self.is_passive then
     -- 此处仅作为默认值，若与默认选择规则不一致（如火烧连营）请修改cardSkill的fix_targets参数
     if self.multiple_targets then
       return table.filter(Fk:currentRoom().alive_players, function (p)
