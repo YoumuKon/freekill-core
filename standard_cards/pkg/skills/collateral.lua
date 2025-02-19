@@ -5,8 +5,12 @@ local skill = fk.CreateSkill {
 skill:addEffect("active", {
   prompt = "#collateral_skill",
   can_use = Util.CanUse,
-  mod_target_filter = function(self, player, to_select, selected, card, distance_limited)
-    return to_select ~= player and #to_select:getEquipments(Card.SubtypeWeapon) > 0
+  mod_target_filter = function(self, player, to_select, selected, card, extra_data)
+    if #selected == 0 then
+      return to_select ~= player and #to_select:getEquipments(Card.SubtypeWeapon) > 0
+    elseif #selected == 1 then
+      return selected[1]:inMyAttackRange(to_select)
+    end
   end,
   target_filter = function(self, player, to_select, selected, _, card, extra_data)
     if #selected >= 2 then
