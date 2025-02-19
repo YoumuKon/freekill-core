@@ -217,6 +217,7 @@ Fk:loadTranslationTable({
   ["distribution_select_skill"] = "Distribute",
   ["choose_players_to_move_card_in_board"] = "Choose players",
   ["userealcard_skill"] = "Use",
+  ["virtual_viewas"] = "Use",
 
   ["reveal_skill&"] = "Reveal",
   ["#reveal_skill&"] = "Choose a character to reveal",

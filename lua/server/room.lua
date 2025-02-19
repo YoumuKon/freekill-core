@@ -979,8 +979,6 @@ function Room:askToUseActiveSkill(player, params)
   }
 end
 
-Room.askToUseViewAsSkill = Room.askToUseActiveSkill
-
 ---@class AskToDiscardParams: AskToUseActiveSkillParams
 ---@field min_num integer @ 最小值
 ---@field max_num integer @ 最大值
@@ -2133,7 +2131,7 @@ function Room:askToUseRealCard(player, params)
   extra_data.skillName = skillName
   if #cardIds == 0 and not cancelable then return end
   extra_data.cardIds = cardIds
-  local _, dat = self:askToUseViewAsSkill(player, { skill_name = "userealcard_skill", prompt = prompt, cancelable = cancelable, extra_data = extra_data })
+  local _, dat = self:askToUseActiveSkill(player, { skill_name = "userealcard_skill", prompt = prompt, cancelable = cancelable, extra_data = extra_data })
   if (not cancelable) and (not dat) then
     for _, cid in ipairs(cardIds) do
       local card = Fk:getCardById(cid)
@@ -2149,6 +2147,88 @@ function Room:askToUseRealCard(player, params)
     from = player,
     tos = dat.targets,
     card = Fk:getCardById(dat.cards[1]),
+    extraUse = extra_data.extraUse,
+  }
+  if not skipUse then
+    self:useCard(use)
+  end
+  return use
+end
+
+---@class askToUseVirtualCardParams
+---@field name string|string[] @ 可以选择的虚拟卡名
+---@field subcards integer[] @ 虚拟牌的子牌，默认空
+---@field skill_name string @ 烧条时显示的技能名
+---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
+---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
+---@field cancelable? boolean @ 是否可以取消。默认可以取消
+---@field skip? boolean @ 是否跳过使用。默认不跳过
+---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
+
+--- 询问玩家使用一张虚拟卡，或从几种牌名中选择一种视为使用
+---@param player ServerPlayer @ 要询问的玩家
+---@param params askToUseVirtualCardParams @ 各种变量
+---@return UseCardDataSpec? @ 返回卡牌使用框架。取消使用则返回空
+function Room:askToUseVirtualCard(player, params)
+  params.name = type(params.name) == "table" and params.name or {params.name}
+  params.subcards = params.subcards or {}
+  params.skill_name = params.skill_name or ""
+  params.prompt = params.prompt
+  if params.prompt == nil then
+    if #params.name == 1 then
+      params.prompt = ("#askForUseVirtualCard:::"..params.skill_name..":"..params.name[1])
+    else
+      params.prompt = ("#askForUseVirtualCards:::"..params.skill_name)
+    end
+  end
+  if (params.cancelable == nil) then params.cancelable = true end
+  local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
+  if extra_data.bypass_times == nil then extra_data.bypass_times = true end
+  if extra_data.extraUse == nil then extra_data.extraUse = true end
+  local all_names, subcards, skillName, prompt, cancelable, skipUse = params.name, params.subcards, params.skill_name, params.prompt, params.cancelable, params.skip
+  local names = table.filter(all_names, function (name)
+    local card = Fk:cloneCard(name)
+    card:addSubcards(subcards)
+    card.skillName = skillName
+    return card.skill:canUse(player, card, extra_data) and
+      table.find(self.alive_players, function (p)
+        return card.skill:modTargetFilter(player, p, {}, card, extra_data)
+      end) ~= nil
+  end)
+  extra_data.choices = names
+  extra_data.all_choices = all_names
+  extra_data.subcards = subcards
+  local _, dat = self:askToUseActiveSkill(player, {
+    skill_name = "virtual_viewas",
+    prompt = prompt,
+    cancelable = cancelable,
+    extra_data = extra_data,
+  })
+  if #names == 0 then return end
+  local card, tos
+  if dat then
+    tos = dat.targets
+    card = Fk:cloneCard(#all_names == 1 and all_names[1] or dat.interaction)
+    card:addSubcards(subcards)
+    card.skillName = skillName
+  else
+    if cancelable then return end
+    --[[for _, n in ipairs(names) do
+      card = Fk:cloneCard(n)
+      card:addSubcards(subcards)
+      card.skillName = skillName
+      local temp = Utility.getDefaultTargets(player, card, bypass_times, bypass_distances)
+      if temp then
+        tos = temp
+        break
+      end
+    end--]]
+  end
+  if not tos then return end
+  local use = {
+    from = player,
+    tos = tos,
+    card = card,
     extraUse = extra_data.extraUse,
   }
   if not skipUse then

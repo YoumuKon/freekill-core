@@ -532,6 +532,7 @@ Fk:loadTranslationTable{
   ["distribution_select_skill"] = "分配",
   ["choose_players_to_move_card_in_board"] = "选择角色",
   ["userealcard_skill"] = "使用",
+  ["virtual_viewas"] = "视为使用",
 
   ["AskForUseActiveSkill"] = "使用技能",
   ["AskForSkillInvoke"] = "发动技能",
