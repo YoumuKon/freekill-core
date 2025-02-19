@@ -341,7 +341,7 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@field public tos ServerPlayer[] 目标列表
 ---@field public subTos? ServerPlayer[][] 子目标列表，借刀最爱的一集
 ---@field public toCard? Card @ 卡牌目标
----@field public use UseCardData @ 使用流程信息
+---@field public use? UseCardData @ 使用流程信息（注意：延迟锦囊在处理时的use不存在！）
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
 ---@field public additionalDamage? integer @ 额外伤害值（如酒之于杀）
 ---@field public additionalRecover? integer @ 额外回复值
@@ -376,19 +376,19 @@ end
 ---@return boolean
 function CardEffectData:isDisresponsive(target)
   target = target or self.to
-  return self.disresponsive or (target and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
+  return self.disresponsive or (target and self.use ~= nil and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
 end
 
 ---@param target? ServerPlayer
 ---@return boolean
 function CardEffectData:isUnoffsetable(target)
   target = target or self.to
-  return self.unoffsetable or (target and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
+  return self.unoffsetable or (target and self.use ~= nil and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
 end
 
 ---@return boolean
 function CardEffectData:isNullified()
-  return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
+  return self.nullified or (self.to and self.use ~= nil and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
 end
 
 ---@class CardEffectEvent: TriggerEvent
