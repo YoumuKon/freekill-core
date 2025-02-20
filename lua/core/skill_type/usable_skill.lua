@@ -112,14 +112,6 @@ function UsableSkill:withinTimesLimit(player, scope, card, card_name, to)
   -- end)))
 end
 
--- 失去此技能时，触发此函数
----@param player ServerPlayer
----@param is_death boolean?
-function UsableSkill:onLose(player, is_death)
-  Skill:getSkeleton():onLose(player, is_death)
-end
-
-
 -- 获得技能的额外牌堆卡牌id表
 ---@param player Player @ 使用者
 ---@return integer[]

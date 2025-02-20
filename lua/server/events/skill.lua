@@ -195,16 +195,23 @@ function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skil
     end
   end
 
-  if (not no_trigger) and #triggers > 0 then
+  if #triggers > 0 then
+    no_trigger = no_trigger == nil and false or no_trigger
     for i = 1, #triggers do
       if losts[i] then
         local skill = triggers[i]
-        skill:getSkeleton():onLose(player)
-        self.logic:trigger(fk.EventLoseSkill, player, skill)
+        if not no_trigger then
+          self.logic:trigger(fk.EventLoseSkill, player, skill)
+        end
+        skill:getSkeleton():onLose(player, false)
       else
         local skill = triggers[i]
-        self.logic:trigger(fk.EventAcquireSkill, player, skill)
-        skill:getSkeleton():onAcquire(player)
+        if no_trigger then
+          skill:getSkeleton():onAcquire(player, player.room:getBanner("RoundCount") == nil)
+        else
+          self.logic:trigger(fk.EventAcquireSkill, player, skill)
+          skill:getSkeleton():onAcquire(player, false)
+        end
       end
     end
   end

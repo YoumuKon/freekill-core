@@ -92,10 +92,7 @@ end
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public attached_equip? string @ 属于什么装备的技能？
 ---@field public relate_to_place? string @ 主将技/副将技
----@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
----@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
 ---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string
----@field public attached_skill_name? string @ 给其他角色添加技能的名称
 
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effects Skill[] 技能对应的所有效果
@@ -577,9 +574,6 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   return skill
 end
 
--- 获得此技能时，触发此函数
----@param player ServerPlayer
----@param is_start boolean?
 function SkillSkeleton:onAcquire(player, is_start)
   local room = player.room
   if self.attached_skill_name then
@@ -589,9 +583,11 @@ function SkillSkeleton:onAcquire(player, is_start)
       end
     end
   end
+  if self.on_acquire then
+    self.on_acquire(player, is_start)
+  end
 end
 
--- 失去此技能时，触发此函数
 ---@param player ServerPlayer
 ---@param is_death boolean?
 function SkillSkeleton:onLose(player, is_death)
@@ -612,6 +608,9 @@ function SkillSkeleton:onLose(player, is_death)
   local lost_piles = {}
   for _, effect in ipairs(self.effects) do
     if effect.derived_piles then
+      if type(effect.derived_piles) == "string" then
+        effect.derived_piles = {effect.derived_piles}
+      end
       for _, pile_name in ipairs(effect.derived_piles) do
         table.insertTableIfNeed(lost_piles, player:getPile(pile_name))
       end
@@ -624,6 +623,28 @@ function SkillSkeleton:onLose(player, is_death)
       toArea = Card.DiscardPile,
       moveReason = fk.ReasonPutIntoDiscardPile,
     })
+  end
+  if self.on_lose then
+    self.on_lose(player, is_death)
+  end
+end
+
+-- 获得此技能时，触发此函数
+---@param fn function(ServerPlayer, boolean)
+function SkillSkeleton:addAcquireEffect(fn)
+  ---@param player ServerPlayer
+  ---@param is_start boolean?
+  self.on_acquire = function (player, is_start)
+    fn(self, player, is_start)
+  end
+end
+-- 失去此技能时，触发此函数
+---@param fn function(ServerPlayer, boolean)
+function SkillSkeleton:addLoseEffect(fn)
+  ---@param player ServerPlayer
+  ---@param is_start boolean?
+  self.on_lose = function (player, is_start)
+    fn(self, player, is_start)
   end
 end
 
