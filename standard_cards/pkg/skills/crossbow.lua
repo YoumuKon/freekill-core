@@ -21,7 +21,7 @@ sk:addEffect("targetmod", {
 sk:addEffect(fk.CardUsing, {
   can_refresh = function(self, event, target, player, data)
     return target == player and player:hasSkill(sk.name) and player.phase == Player.Play and
-      data.card.trueName == "slash" and player:usedCardTimes("slash", Player.HistoryPhase) > 1
+      data.card.trueName == "slash" and not data.extraUse and player:usedCardTimes("slash", Player.HistoryPhase) > 1
   end,
   on_refresh = function(self, event, target, player, data)
     local room = player.room

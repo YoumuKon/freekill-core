@@ -1098,6 +1098,7 @@ end
 ---@field min_card_num integer @ 选卡牌最小值
 ---@field max_card_num integer @ 选卡牌最大值
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
+---@field will_throw? boolean @ 选卡牌须能弃置
 
 --- 询问玩家选择X张牌和Y名角色。
 ---
@@ -1113,7 +1114,7 @@ function Room:askToChooseCardsAndPlayers(player, params)
 
   local pcards = table.filter(player:getCardIds({ Player.Hand, Player.Equip }), function(id)
     local c = Fk:getCardById(id)
-    return c:matchPattern(params.pattern)
+    return c:matchPattern(params.pattern) and not (params.will_throw and player:prohibitDiscard(c))
   end)
   if #pcards < minCardNum and not params.cancelable then return {}, {}, false end
 
@@ -1128,6 +1129,7 @@ function Room:askToChooseCardsAndPlayers(player, params)
     targetTipName = params.target_tip_name,
     extra_data = params.extra_data,
     expand_pile = params.expand_pile or (params.extra_data and params.extra_data.expand_pile),
+    will_throw = params.will_throw,
   }
   local activeParams = { ---@type AskToUseActiveSkillParams
     skill_name = "ex__choose_skill",

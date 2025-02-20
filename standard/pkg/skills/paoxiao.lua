@@ -14,7 +14,7 @@ paoxiao:addEffect("targetmod", {
 paoxiao:addEffect(fk.CardUsing, {
   can_refresh = function(self, event, target, player, data)
     return target == player and player:hasSkill(paoxiao.name) and
-      data.card.trueName == "slash" and
+      data.card.trueName == "slash" and not data.extraUse and
       player:usedCardTimes("slash", Player.HistoryPhase) > 1
   end,
   on_refresh = function(self, event, target, player, data)

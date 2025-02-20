@@ -12,9 +12,6 @@ liuli:addEffect(fk.TargetConfirming, {
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local cards = table.filter(player:getCardIds("he"), function(id)
-      return not player:prohibitDiscard(Fk:getCardById(id))
-    end)
     local targets = table.filter(room.alive_players, function (p)
       return player:inMyAttackRange(p) and p ~= data.from and not data.from:isProhibited(p, data.card)
     end)
@@ -24,10 +21,11 @@ liuli:addEffect(fk.TargetConfirming, {
       min_card_num = 1,
       max_card_num = 1,
       targets = targets,
-      pattern = tostring(Exppattern{ id = cards }),
+      pattern = ".",
       skill_name = liuli.name,
       prompt = "#liuli-target",
       cancelable = true,
+      will_throw = true,
     })
     if #tos > 0 and id then
       event:setCostData(self, {tos = tos, cards = {id}})

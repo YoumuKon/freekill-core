@@ -14,6 +14,10 @@ exChooseSkill:addEffect('active', {
     local checkpoint = true
     local card = Fk:getCardById(to_select)
 
+    if self.will_throw and player:prohibitDiscard(card) then
+      return false
+    end
+
 
     if self.pattern and self.pattern ~= "" then
       checkpoint = checkpoint and (Exppattern:Parse(self.pattern):match(card))
