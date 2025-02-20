@@ -832,9 +832,12 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
           for _, cid in ipairs(cards) do
             if
               Fk:getCardById(cid).trueName == "nullification" and
-              not (
-                table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
-                table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+              (
+                cardEffectData.use == nil or
+                not (
+                  table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
+                  table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+                )
               )
             then
               table.insert(players, p)
@@ -849,9 +852,12 @@ function UseCardEventWrappers:handleCardEffect(event, cardEffectData)
                 s.pattern and
                 Exppattern:Parse("nullification"):matchExp(s.pattern) and
                 not (s.enabledAtResponse and not s:enabledAtResponse(p)) and
-                not (
-                  table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
-                  table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+                (
+                  cardEffectData.use == nil or
+                  not (
+                    table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
+                    table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+                  )
                 )
               then
                 table.insert(players, p)
