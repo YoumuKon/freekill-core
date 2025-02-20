@@ -189,9 +189,20 @@ function Round:clear()
     end
   end
 
+  for name, _ in pairs(room.banners) do
+    if name:find("-round", 1, true) then
+      room:setBanner(name, 0)
+    end
+  end
+
+  for name, _ in pairs(room.tag) do
+    if name:find("-round", 1, true) then
+      room:setTag(name, nil)
+    end
+  end
+
   for _, p in ipairs(room.players) do
     p:filterHandcards()
-    room:broadcastProperty(p, "MaxCards")
   end
 end
 
@@ -287,9 +298,20 @@ function Turn:clear()
     end
   end
 
+  for name, _ in pairs(room.banners) do
+    if name:find("-turn", 1, true) then
+      room:setBanner(name, 0)
+    end
+  end
+
+  for name, _ in pairs(room.tag) do
+    if name:find("-turn", 1, true) then
+      room:setTag(name, nil)
+    end
+  end
+
   for _, p in ipairs(room.players) do
     p:filterHandcards()
-    room:broadcastProperty(p, "MaxCards")
   end
 end
 
@@ -451,9 +473,20 @@ function Phase:clear()
     end
   end
 
+  for name, _ in pairs(room.banners) do
+    if name:find("-phase", 1, true) then
+      room:setBanner(name, 0)
+    end
+  end
+
+  for name, _ in pairs(room.tag) do
+    if name:find("-phase", 1, true) then
+      room:setTag(name, nil)
+    end
+  end
+
   for _, p in ipairs(room.players) do
     p:filterHandcards()
-    room:broadcastProperty(p, "MaxCards")
   end
 end
 

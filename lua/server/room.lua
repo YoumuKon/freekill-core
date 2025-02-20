@@ -491,7 +491,7 @@ function Room:setPlayerProperty(player, property, value)
 end
 
 --- 将房间中某个tag设为特定值。
----
+--- 注意：客户端无法获取room tag，请改用setBanner
 --- 当在编程中想在服务端搞点全局变量的时候哦，不要自己设置全局变量或者上值，而是应该使用room的tag。
 ---@param tag_name string @ tag名字
 ---@param value any @ 值
@@ -511,6 +511,7 @@ function Room:removeTag(tag_name)
   self.tag[tag_name] = nil
 end
 
+--- 设置房间banner于左上角，用于模式介绍，仁区等
 function Room:setBanner(name, value)
   AbstractRoom.setBanner(self, name, value)
   self:doBroadcastNotify("SetBanner", json.encode{ name, value })
