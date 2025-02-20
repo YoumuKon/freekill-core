@@ -695,6 +695,8 @@ function Room:sendFootnote(ids, log)
   self:doBroadcastNotify("SetCardFootnote", json.encode{ ids, log })
 end
 
+---@param ids integer[] @ 要设置虚拟牌名的牌的id列表
+---@param name string @ 虚拟牌名
 function Room:sendCardVirtName(ids, name)
   self:doBroadcastNotify("SetCardVirtName", json.encode{ ids, name })
 end

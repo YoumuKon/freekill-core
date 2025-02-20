@@ -119,6 +119,30 @@ function UseCardData:getSubTos(player)
   return {}
 end
 
+
+-- 以锁视的方式改变使用的卡牌牌名
+---@param name string
+function UseCardData:changeCardName(name)
+  if self.card.name == name then return end
+  local card = Fk:cloneCard(name, self.card.suit, self.card.number)
+  for k, v in pairs(self.card) do
+    if card[k] == nil then
+      card[k] = v
+    end
+  end
+  if self.card:isVirtual() then
+    card.subcards = self.card.subcards
+  else
+    card.id = self.card.id
+  end
+  card.skillNames = self.card.skillNames
+  if RoomInstance then
+    RoomInstance:sendCardVirtName(Card:getIdList(card), name)
+  end
+  self.card = card
+end
+
+
 ---@class UseCardEvent: TriggerEvent
 ---@field data UseCardData
 local UseCardEvent = TriggerEvent:subclass("UseCardEvent")
