@@ -98,7 +98,7 @@ end
 ---@field public effects Skill[] 技能对应的所有效果
 ---@field public effect_names string[] 技能对应的效果名
 ---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
----@field public tags Frequency[] 技能标签
+---@field public tags SkillTag[] 技能标签
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil): SkillSkeleton
@@ -242,6 +242,7 @@ function SkillSkeleton:createSkill()
       end
       table.insert(self.effects, sk)
       table.insert(self.effect_names, sk.name)
+      sk.skeleton = self
     end
   end
   if not main_skill then
