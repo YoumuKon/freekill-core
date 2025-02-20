@@ -15,7 +15,6 @@
 ---@field public related_skills Skill[] @ 和本技能相关的其他技能，有时候一个技能实际上是通过好几个技能拼接而实现的。
 ---@field public attached_equip string @ 属于什么装备的技能？
 ---@field public relate_to_place string| "m" | "d" @ 主将技("m")/副将技("d")
----@field public switchSkillName string @ 转换技名字
 ---@field public times integer @ 技能剩余次数，负数不显示，正数显示
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
 ---@field public main_skill Skill
@@ -35,7 +34,6 @@ Skill.Permanent = "Permanent"
 
 --- 构造函数，不可随意调用。
 ---@param name string @ 技能名
----@param frequency Frequency @ 技能发动的频繁程度，通常compulsory（锁定技）及limited（限定技）用的多。
 function Skill:initialize(name, frequency)
   -- TODO: visible, lord, etc
   self.name = name
@@ -43,27 +41,27 @@ function Skill:initialize(name, frequency)
   -- if you need skills that not belongs to any general (like 'jixi')
   -- then you should use general function addRelatedSkill to assign them
   self.package = { extensionName = "standard" }
-  self.frequency = frequency or Skill.NotFrequent
   self.visible = true
-  self.cardSkill = false
   self.mute = false
   self.no_indicate = false
   self.anim_type = ""
   self.related_skills = {}
-  self.attachedKingdom = {}
   self._extra_data = {}
 
-  local name_splited = name:split("__")
-  self.trueName = name_splited[#name_splited]
+  self.attached_skill_name = nil
 
+  --TODO: 以下是应当移到skeleton的参数
+  self.attachedKingdom = {}
+  self.cardSkill = false
+  local name_splited = self.name:split("__")
+  self.trueName = name_splited[#name_splited]
   if string.sub(name, 1, 1) == "#" then
     self.visible = false
   end
-
   self.attached_equip = nil
-  self.relate_to_place = nil
+  self.relate_to_place = "m"
 
-  self.attached_skill_name = nil
+  self.frequency = self.frequency or Skill.NotFrequent
 end
 
 function Skill:__index(k)
@@ -108,7 +106,7 @@ function Skill:isEquipmentSkill(player)
     end
   end
 
-  return self.attached_equip and type(self.attached_equip) == 'string' and self.attached_equip ~= ""
+  return self:getSkeleton() ~= nil and type(self:getSkeleton().attached_equip) == "string"
 end
 
 --- 判断技能是不是对于某玩家而言失效了。
@@ -117,7 +115,7 @@ end
 ---@param player Player @ 玩家
 ---@return boolean
 function Skill:isEffectable(player)
-  if self.cardSkill or self.permanent_skill or self:hasTag(Skill.Permanent) then
+  if self.cardSkill or self:hasTag(Skill.Permanent) then
     return true
   end
 
@@ -145,21 +143,20 @@ function Skill:isEffectable(player)
   return true
 end
 
+--[[
 --- 为技能增加所属势力，需要在隶属特定势力时才能使用此技能。
 --- 案例：手杀文鸯
 function Skill:addAttachedKingdom(kingdom)
   table.insertIfNeed(self.attachedKingdom, kingdom)
 end
-
---- 判断某个技能是否为转换技
-function Skill:isSwitchSkill()
-  return self.switchSkillName and type(self.switchSkillName) == 'string' and self.switchSkillName ~= ""
-end
+--]]
 
 --判断技能是否为角色技能
 ---@param player Player
 ---@return boolean
 function Skill:isPlayerSkill(player)
+  local skel = self:getSkeleton()
+  if skel == nil then return false end
   return not (self:isEquipmentSkill(player) or self.name:endsWith("&"))
 end
 
@@ -174,49 +171,14 @@ function Skill:getTimes(player)
   return ret
 end
 
--- 获得此技能时，触发此函数
----@param player ServerPlayer
----@param is_start boolean?
-function Skill:onAcquire(player, is_start)
-  local room = player.room
-
-  if self.attached_skill_name then
-    for _, p in ipairs(room.alive_players) do
-      if p ~= player then
-        room:handleAddLoseSkills(p, self.attached_skill_name, nil, false, true)
-      end
-    end
-  end
-end
-
--- 失去此技能时，触发此函数
----@param player ServerPlayer
----@param is_death boolean?
-function Skill:onLose(player, is_death)
-  local room = player.room
-  if self.attached_skill_name then
-    local skill_owners = table.filter(room.alive_players, function (p)
-      return p:hasSkill(self, true)
-    end)
-    if #skill_owners == 0 then
-      for _, p in ipairs(room.alive_players) do
-        room:handleAddLoseSkills(p, "-" .. self.attached_skill_name, nil, false, true)
-      end
-    elseif #skill_owners == 1 then
-      local p = skill_owners[1]
-      room:handleAddLoseSkills(p, "-" .. self.attached_skill_name, nil, false, true)
-    end
-  end
-
-end
-
 ---@param player Player
 ---@param lang? string
 ---@return string?
 function Skill:getDynamicDescription(player, lang)
-  if self:isSwitchSkill() then
-    local switchState = player:getSwitchSkillState(self.name)
-    local descKey = ":" .. self.name .. (switchState == fk.SwitchYang and "_yang" or "_yin")
+  if self:hasTag(Skill.Switch) then
+    local skill_name = self:getSkeleton().name
+    local switchState = player:getSwitchSkillState(skill_name)
+    local descKey = ":" .. skill_name .. (switchState == fk.SwitchYang and "_yang" or "_yin")
     local translation = Fk:translate(descKey, lang)
     if translation ~= descKey then
       return translation
@@ -226,20 +188,23 @@ function Skill:getDynamicDescription(player, lang)
   return nil
 end
 
---- 找到技能的骨架。可能为nil
+--- 找到效果的技能骨架。可能为nil
 ---@return SkillSkeleton?
 function Skill:getSkeleton()
-  if Fk.skill_skels[self.name] then
+  for _, skel in pairs(Fk.skill_skels) do
+    if table.contains(skel.effects, self) then
+      return skel
+    end
+  end
+  --[[if Fk.skill_skels[self.name] then
     return Fk.skill_skels[self.name]
   else
     for _, skel in pairs(Fk.skill_skels) do
-      for _, effect in ipairs(skel) do
-        if effect == self then
-          return skel
-        end
+      if table.contains(skel.effect_names, self.name) then
+        return skel
       end
     end
-  end
+  end--]]
   return nil
 end
 
@@ -254,9 +219,7 @@ function Skill:hasTag(frequency, compulsory_expand)
     if table.contains({Skill.Compulsory, Skill.Wake}, self.frequency) then  --兼容牢代码
       return true
     end
-    return table.find({Skill.Compulsory, Skill.Wake}, function (tag)
-      return table.contains(skel.tags, tag)
-    end) ~= nil
+    return table.contains(skel.tags, Skill.Compulsory) or table.contains(skel.tags, Skill.Wake)
   end
   if self.frequency == frequency then  --兼容牢代码
     return true

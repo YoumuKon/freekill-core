@@ -37,29 +37,9 @@ function fk.readCommonSpecToSkill(skill, spec)
   skill.no_indicate = spec.no_indicate
   skill.anim_type = spec.anim_type
 
-  if spec.attached_equip then
-    assert(type(spec.attached_equip) == "string")
-    skill.attached_equip = spec.attached_equip
-  end
-
-  if spec.switch_skill_name then
-    assert(type(spec.switch_skill_name) == "string")
-    skill.switchSkillName = spec.switch_skill_name
-  end
-
   if spec.relate_to_place then
     assert(type(spec.relate_to_place) == "string")
     skill.relate_to_place = spec.relate_to_place
-  end
-
-  if spec.on_acquire then
-    assert(type(spec.on_acquire) == "function")
-    skill.onAcquire = spec.on_acquire
-  end
-
-  if spec.on_lose then
-    assert(type(spec.on_lose) == "function")
-    skill.onLose = spec.on_lose
   end
 
   if spec.dynamic_desc then
@@ -106,13 +86,11 @@ end
 
 ---@class SkillSpec
 ---@field public name? string @ 技能名
----@field public frequency? Frequency @ 技能标签，如compulsory（锁定技）、limited（限定技）。（deprecated，请改为向skeleton添加tag）
 ---@field public mute? boolean @ 决定是否关闭技能配音
 ---@field public no_indicate? boolean @ 决定是否关闭技能指示线
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public attached_equip? string @ 属于什么装备的技能？
----@field public switch_skill_name? string @ 转换技名字
 ---@field public relate_to_place? string @ 主将技/副将技
 ---@field public on_acquire? fun(self: UsableSkill, player: ServerPlayer, is_start: boolean)
 ---@field public on_lose? fun(self: UsableSkill, player: ServerPlayer, is_death: boolean)
@@ -120,9 +98,10 @@ end
 ---@field public attached_skill_name? string @ 给其他角色添加技能的名称
 
 ---@class SkillSkeleton : Object, SkillSpec
----@field public effect_list ([any, any, any])[]
----@field public effect_names string[]
----@field public tags Frequency[]
+---@field public effects Skill[] 技能对应的所有效果
+---@field public effect_names string[] 技能对应的效果名
+---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
+---@field public tags Frequency[] 技能标签
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil): SkillSkeleton
@@ -135,17 +114,39 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', data: VisibilitySpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'active', data: ActiveSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'viewas', data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
+---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean): SkillSkeleton
+---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean): SkillSkeleton
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
 function SkillSkeleton:initialize(spec)
   local name = spec.name ---@type string
   self.name = name
-  self.tags = spec.tags or {}
-  fk.readCommonSpecToSkill(self, spec)
-  self.effect_list = {}
+  self.effects = {}
   self.effect_names = {}
+  self.effect_spec_list = {}
   self.tests = {}
+
+  local name_splited = self.name:split("__")
+  self.trueName = name_splited[#name_splited]
+
+  self.tags = spec.tags or {}
+
+  self.visible = true
+  if string.sub(name, 1, 1) == "#" then
+    self.visible = false
+  end
+
+  self.attached_equip = spec.attached_equip
+
+  self.attached_skill_name = spec.attached_skill_name
+
+  self.cardSkill = spec.cardSkill
+
+  self.attachedKingdom = spec.attachedKingdom or {}
+
+  --Notify智慧，当不存在main_skill时，用于创建main_skill。看上去毫无用处
+  fk.readCommonSpecToSkill(self, spec)
 end
 
 function SkillSkeleton:addEffect(key, data, attribute)
@@ -162,7 +163,7 @@ function SkillSkeleton:addEffect(key, data, attribute)
       return 1
     end
   end
-  local main_effect = self.effect_list[1]
+  local main_effect = self.effect_spec_list[1]
   local first
   if not main_effect then
     first = true
@@ -181,9 +182,9 @@ function SkillSkeleton:addEffect(key, data, attribute)
   end
 
   if first then
-    table.insert(self.effect_list, 1, { key, attribute, data })
+    table.insert(self.effect_spec_list, 1, { key, attribute, data })
   else
-    table.insert(self.effect_list, { key, attribute, data })
+    table.insert(self.effect_spec_list, { key, attribute, data })
   end
   return self
 end
@@ -201,12 +202,8 @@ end
 
 ---@return Skill
 function SkillSkeleton:createSkill()
-  local frequency = self.frequency or Skill.NotFrequent
-  if #self.tags > 0 then
-    frequency = self.tags[1]
-  end
   local main_skill
-  for i, effect in ipairs(self.effect_list) do
+  for i, effect in ipairs(self.effect_spec_list) do
     local k, attr, data = table.unpack(effect)
     attr = attr or Util.DummyTable
     local sk
@@ -246,10 +243,15 @@ function SkillSkeleton:createSkill()
         end
         main_skill:addRelatedSkill(sk)
       end
+      table.insert(self.effects, sk)
       table.insert(self.effect_names, sk.name)
     end
   end
   if not main_skill then
+    local frequency = Skill.NotFrequent
+    if #self.tags > 0 then
+      frequency = self.tags[1]
+    end
     main_skill = Skill:new(self.name, frequency)
     fk.readCommonSpecToSkill(main_skill, self)
   end
@@ -290,7 +292,7 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
     sk.global = spec.global
   end
   if spec.can_trigger then
-    if _skill.frequency == Skill.Wake or table.contains(_skill.tags, Skill.Wake) then
+    if table.contains(_skill.tags, Skill.Wake) then
       sk.triggerable = function(_self, event, target, player, data)
         return spec.can_trigger(_self, event, target, player, data) and
           sk:enableToWake(event, target, player, data)
@@ -298,7 +300,7 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
     else
       sk.triggerable = spec.can_trigger
     end
-    if (_skill.frequency == Skill.Wake or table.contains(_skill.tags, Skill.Wake)) and spec.can_wake then
+    if table.contains(_skill.tags, Skill.Wake) and spec.can_wake then
       sk.canWake = spec.can_wake
     end
   end
@@ -573,6 +575,56 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   skill.handly_pile = spec.handly_pile
 
   return skill
+end
+
+-- 获得此技能时，触发此函数
+---@param player ServerPlayer
+---@param is_start boolean?
+function SkillSkeleton:onAcquire(player, is_start)
+  local room = player.room
+  if self.attached_skill_name then
+    for _, p in ipairs(room.alive_players) do
+      if p ~= player then
+        room:handleAddLoseSkills(p, self.attached_skill_name, nil, false, true)
+      end
+    end
+  end
+end
+
+-- 失去此技能时，触发此函数
+---@param player ServerPlayer
+---@param is_death boolean?
+function SkillSkeleton:onLose(player, is_death)
+  local room = player.room
+  if self.attached_skill_name then
+    local skill_owners = table.filter(room.alive_players, function (p)
+      return p:hasSkill(self.name, true)
+    end)
+    if #skill_owners == 0 then
+      for _, p in ipairs(room.alive_players) do
+        room:handleAddLoseSkills(p, "-" .. self.attached_skill_name, nil, false, true)
+      end
+    elseif #skill_owners == 1 then
+      local p = skill_owners[1]
+      room:handleAddLoseSkills(p, "-" .. self.attached_skill_name, nil, false, true)
+    end
+  end
+  local lost_piles = {}
+  for _, effect in ipairs(self.effects) do
+    if effect.derived_piles then
+      for _, pile_name in ipairs(effect.derived_piles) do
+        table.insertTableIfNeed(lost_piles, player:getPile(pile_name))
+      end
+    end
+  end
+  if #lost_piles > 0 then
+    player.room:moveCards({
+      ids = lost_piles,
+      from = player,
+      toArea = Card.DiscardPile,
+      moveReason = fk.ReasonPutIntoDiscardPile,
+    })
+  end
 end
 
 ---@param spec SkillSpec

@@ -817,12 +817,13 @@ end
 ---@param times integer
 local function updateLimitSkill(pid, skill, times)
   if not skill.visible then return end
-  if skill:isSwitchSkill() then
-    local _times = ClientInstance:getPlayerById(pid):getSwitchSkillState(skill.switchSkillName) == fk.SwitchYang and 0 or 1
+  local skill_name = skill:getSkeleton().name
+  if skill:hasTag(Skill.Switch) then
+    local _times = ClientInstance:getPlayerById(pid):getSwitchSkillState(skill_name) == fk.SwitchYang and 0 or 1
     if times == -1 then _times = -1 end
-    ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill.switchSkillName, _times })
-  elseif skill.frequency == Skill.Limited or skill.frequency == Skill.Wake or skill.frequency == Skill.Quest then
-    ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill.name, times })
+    ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill_name, _times })
+  elseif skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) or skill:hasTag(Skill.Quest) then
+    ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill_name, times })
   end
 end
 

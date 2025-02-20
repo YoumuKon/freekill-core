@@ -474,7 +474,7 @@ end
 
 function ServerPlayer:onAllSkillLose()
   for _, skill in ipairs(self:getAllSkills()) do
-    skill:onLose(self, true)
+    skill:getSkeleton():onLose(self, true)
   end
 end
 
@@ -697,7 +697,7 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
     local other = Fk.generals[self:getMark(isDeputy and "__heg_general" or "__heg_deputy")] or Fk.generals["blank_shibing"]
     for _, sname in ipairs(other:getSkillNameList(true)) do
       local s = Fk.skills[sname]
-      if s.frequency == Skill.Compulsory and s.relate_to_place ~= (isDeputy and "m" or "d") then
+      if s:hasTag(Skill.Compulsory) and s.relate_to_place ~= (isDeputy and "m" or "d") then
         ret = false
         break
       end
@@ -817,7 +817,7 @@ function ServerPlayer:hideGeneral(isDeputy)
     room:handleAddLoseSkills(self, "-" .. sname, nil, false, false)
     local s = Fk.skills[sname]
     if s.relate_to_place ~= place then
-      if s.frequency == Skill.Compulsory then
+      if s:hasTag(Skill.Compulsory) then
         self:addFakeSkill("reveal_skill&")
       end
       self:addFakeSkill(s)

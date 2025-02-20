@@ -164,10 +164,12 @@ function CompatAskFor:askForChooseCardAndPlayers(player, targets, minNum, maxNum
   no_indicate = no_indicate or false
   pattern = pattern or "."
 
-  local params = { ---@type AskToChooseCardAndPlayersParams
+  local params = { ---@type AskToChooseCardsAndPlayersParams
     targets = table.map(targets, Util.Id2PlayerMapper),
     min_num = minNum,
     max_num = maxNum,
+    min_card_num = 1,
+    max_card_num = 1,
     pattern = pattern,
     prompt = prompt or "",
     skill_name = skillName,
@@ -176,7 +178,7 @@ function CompatAskFor:askForChooseCardAndPlayers(player, targets, minNum, maxNum
     target_tip_name = targetTipName,
     no_indicate = no_indicate
   }
-  local selected, cardid = self:askToChooseCardAndPlayers(player, params)
+  local selected, cardid = self:askToChooseCardsAndPlayers(player, params)
   if #selected ~= 0 then
     selected = table.map(selected, Util.IdMapper)
   end

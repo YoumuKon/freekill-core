@@ -55,16 +55,16 @@ function SkillEffect:main()
           room:setEmotion(player, pkgPath .. "/image/anim/" .. equip.name)
         end
       else
-        player:broadcastSkillInvoke(skill.name)
-        room:notifySkillInvoked(player, skill.name, nil, no_indicate and {} or tos)
+        player:broadcastSkillInvoke(skill:getSkeleton().name)
+        room:notifySkillInvoked(player, skill.name, skill.anim_type, no_indicate and {} or tos)
       end
     end
     if not no_indicate then
       room:doIndicate(player.id, tos)
     end
 
-    if skill:isSwitchSkill() then
-      local switchSkillName = skill.switchSkillName
+    if skill:hasTag(Skill.Switch) then
+      local switchSkillName = skill:getSkeleton().name
       room:setPlayerMark(
         player,
         MarkEnum.SwithSkillPreName .. switchSkillName,
@@ -199,24 +199,15 @@ function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skil
     for i = 1, #triggers do
       if losts[i] then
         local skill = triggers[i]
-        skill:onLose(player)
+        skill:getSkeleton():onLose(player)
         self.logic:trigger(fk.EventLoseSkill, player, skill)
       else
         local skill = triggers[i]
         self.logic:trigger(fk.EventAcquireSkill, player, skill)
-        skill:onAcquire(player)
+        skill:getSkeleton():onAcquire(player)
       end
     end
   end
-
-  -- if #lost_piles > 0 then
-  --   self:moveCards({
-  --     ids = lost_piles,
-  --     from = player.id,
-  --     toArea = Card.DiscardPile,
-  --     moveReason = fk.ReasonPutIntoDiscardPile,
-  --   })
-  -- end
 end
 
 return { SkillEffect, SkillEventWrappers }

@@ -145,16 +145,10 @@ function Round:main()
   local logic = room.logic
   local data = self.data
 
-  local isFirstRound = room:getTag("FirstRound")
-  if isFirstRound then
-    room:setTag("FirstRound", false)
-  end
-
   local roundCount = room:getBanner("RoundCount") or 0
   roundCount = roundCount + 1
-  room:setTag("RoundCount",  roundCount)
-  room:setBanner("RoundCount",  roundCount)
-  room:doBroadcastNotify("UpdateRoundNum", roundCount)
+  room:setBanner("RoundCount", roundCount)
+  room:doBroadcastNotify("UpdateRoundNum", tostring(roundCount))
   -- 强行平局 防止can_trigger报错导致瞬间几十万轮卡炸服务器
   if roundCount >= 280 then
     room:sendLog{
@@ -164,7 +158,7 @@ function Round:main()
     room:gameOver("")
   end
 
-  if isFirstRound then
+  if roundCount == 1 then
     logic:trigger(fk.GameStart, room.current, data)
   end
 

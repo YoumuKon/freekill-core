@@ -41,7 +41,7 @@ function TriggerSkill:refresh(event, target, player, data) end
 ---@return boolean?
 function TriggerSkill:triggerable(event, target, player, data)
   return target and (target == player)
-    and (self.global or target:hasSkill(self))
+    and (self.global or target:hasSkill(self:getSkeleton().name))
 end
 
 -- Determine how to cost this skill.

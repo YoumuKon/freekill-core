@@ -277,11 +277,11 @@ function GetSkillData(skill_name)
     freq = "active"
   end
   local frequency
-  if skill.frequency == Skill.Limited then
+  if skill:hasTag(Skill.Limited) then
     frequency = "limit"
-  elseif skill.frequency == Skill.Wake then
+  elseif skill:hasTag(Skill.Wake) then
     frequency = "wake"
-  elseif skill.frequency == Skill.Quest then
+  elseif skill:hasTag(Skill.Quest) then
     frequency = "quest"
   end
   return {
@@ -290,7 +290,7 @@ function GetSkillData(skill_name)
     extension = skill.package.extensionName,
     freq = freq,
     frequency = frequency,
-    switchSkillName = skill.switchSkillName,
+    switchSkillName = skill:getSkeleton().name,
     isViewAsSkill = skill:isInstanceOf(ViewAsSkill),
   }
 end

@@ -116,23 +116,7 @@ end
 ---@param player ServerPlayer
 ---@param is_death boolean?
 function UsableSkill:onLose(player, is_death)
-  local lost_piles = {}
-  if self.derived_piles then
-    for _, pile_name in ipairs(self.derived_piles) do
-      table.insertTableIfNeed(lost_piles, player:getPile(pile_name))
-    end
-  end
-
-  if #lost_piles > 0 then
-    player.room:moveCards({
-      ids = lost_piles,
-      from = player,
-      toArea = Card.DiscardPile,
-      moveReason = fk.ReasonPutIntoDiscardPile,
-    })
-  end
-
-  Skill.onLose(self, player, is_death)
+  Skill:getSkeleton():onLose(player, is_death)
 end
 
 

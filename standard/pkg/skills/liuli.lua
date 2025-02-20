@@ -18,9 +18,11 @@ liuli:addEffect(fk.TargetConfirming, {
     local targets = table.filter(room.alive_players, function (p)
       return player:inMyAttackRange(p) and p ~= data.from and not data.from:isProhibited(p, data.card)
     end)
-    local tos, id = room:askToChooseCardAndPlayers(player, {
+    local tos, id = room:askToChooseCardsAndPlayers(player, {
       min_num = 1,
       max_num = 1,
+      min_card_num = 1,
+      max_card_num = 1,
       targets = targets,
       pattern = tostring(Exppattern{ id = cards }),
       skill_name = liuli.name,

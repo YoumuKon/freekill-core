@@ -634,66 +634,6 @@ function Room:doBroadcastNotify(command, jsonData, players)
   end
 end
 
---- 向某个玩家发起一次Request。
----@param player ServerPlayer @ 发出这个请求的目标玩家
----@param command string @ 请求的类型
----@param jsonData string @ 请求的数据
----@param wait? boolean @ 是否要等待答复，默认为true
----@return string @ 收到的答复，如果wait为false的话就返回nil
----@deprecated
-function Room:doRequest(player, command, jsonData, wait)
-  -- fk.qCritical("Room:doRequest is deprecated!")
-  if wait == true then error("wait can't be true") end
-  local request = Request:new(player, command)
-  request.send_encode = false -- 因为参数已经json.encode过了，该死的兼容性
-  request.receive_decode = false
-  request.accept_cancel = true
-  request:setData(player, jsonData)
-  request:ask()
-  return request.result[player.id]
-end
-
---- 向多名玩家发出请求。
----@param command string @ 请求类型
----@param players? ServerPlayer[] @ 发出请求的玩家列表
----@param jsonData? string @ 请求数据
----@deprecated
-function Room:doBroadcastRequest(command, players, jsonData)
-  -- fk.qCritical("Room:doBroadcastRequest is deprecated!")
-  players = players or self.players
-  local request = Request:new(players, command)
-  request.send_encode = false -- 因为参数已经json.encode过了
-  request.receive_decode = false
-  request.accept_cancel = true
-  for _, p in ipairs(players) do
-    request:setData(p, jsonData or p.request_data)
-  end
-  request:ask()
-end
-
---- 向多名玩家发出竞争请求。
----
---- 他们都可以做出答复，但是服务器只认可第一个做出回答的角色。
----
---- 返回获胜的角色，可以通过属性获得回复的具体内容。
----@param command string @ 请求类型
----@param players ServerPlayer[] @ 要竞争这次请求的玩家列表
----@param jsonData string @ 请求数据
----@return ServerPlayer? @ 在这次竞争请求中获胜的角色，可能是nil
----@deprecated
-function Room:doRaceRequest(command, players, jsonData)
-  -- fk.qCritical("Room:doRaceRequest is deprecated!")
-  players = players or self.players
-  local request = Request:new(players, command, 1)
-  request.send_encode = false -- 因为参数已经json.encode过了
-  request.receive_decode = false
-  for _, p in ipairs(players) do
-    request:setData(p, jsonData or p.request_data)
-  end
-  request:ask()
-  return request.winners[1]
-end
-
 --- 延迟一段时间。
 ---@param ms integer @ 要延迟的毫秒数
 function Room:delay(ms)
@@ -811,18 +751,6 @@ function Room:sendLogEvent(type, data, players)
   self:doBroadcastNotify("LogEvent", json.encode(data), players)
 end
 
---- 播放技能的语音。
----@param skill_name nil @ 技能名
----@param index? integer @ 语音编号，默认为-1（也就是随机播放）
-function Room:broadcastSkillInvoke(skill_name, index)
-  fk.qCritical 'Room:broadcastSkillInvoke deprecated; use SPlayer:broadcastSkillInvoke'
-  index = index or -1
-  self:sendLogEvent("PlaySkillSound", {
-    name = skill_name,
-    i = index
-  })
-end
-
 --- 播放一段音频。
 ---@param path string @ 音频文件路径
 function Room:broadcastPlaySound(path)
@@ -844,7 +772,7 @@ function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
     local skill = Fk.skills[skill_name]
     if not skill then skill_type = "" end
 
-    if skill.frequency == Skill.Limited or skill.frequency == Skill.Wake then
+    if skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
       bigAnim = true
     end
 
@@ -1165,69 +1093,17 @@ function Room:askToCards(player, params)
   return chosenCards
 end
 
----@class AskToChooseCardAndPlayersParams: AskToChoosePlayersParams
----@field pattern? string @ 选牌规则
-
---- 询问玩家选择1张牌和若干名角色。
----
---- 返回两个值，第一个是选择的目标列表，第二个是选择的那张牌的id
----@param player ServerPlayer @ 要询问的玩家
----@param params AskToChooseCardAndPlayersParams @ 各种变量
----@return ServerPlayer[], integer?
-function Room:askToChooseCardAndPlayers(player, params)
-  local maxNum, minNum = params.max_num, params.min_num
-  if maxNum < 1 then
-    return {}
-  end
-  params.cancelable = (params.cancelable == nil) and true or params.cancelable
-  params.no_indicate = params.no_indicate or false
-  params.pattern = params.pattern or "."
-
-  local pcards = table.filter(player:getCardIds({ Player.Hand, Player.Equip }), function(id)
-    local c = Fk:getCardById(id)
-    return c:matchPattern(params.pattern)
-  end)
-  if #pcards == 0 and not params.cancelable then return {} end
-
-  local data = {
-    targets = table.map(params.targets, Util.IdMapper),
-    num = maxNum,
-    min_num = minNum,
-    pattern = params.pattern,
-    skillName = params.skill_name,
-    targetTipName = params.target_tip_name,
-    extra_data = params.extra_data,
-  }
-  local activeParams = { ---@type AskToUseActiveSkillParams
-    skill_name = "choose_players_skill",
-    prompt = params.prompt or "",
-    cancelable = params.cancelable,
-    extra_data = data,
-    no_indicate = params.no_indicate
-  }
-  local _, ret = self:askToUseActiveSkill(player, activeParams)
-  if ret then
-    return ret.targets, ret.cards[1]
-  else
-    if params.cancelable then
-      return {}
-    else
-      return table.random(params.targets, minNum), table.random(pcards)
-    end
-  end
-end
-
----@class AskToChooseCardsAndPlayersParams: AskToChooseCardAndPlayersParams
+---@class AskToChooseCardsAndPlayersParams: AskToChoosePlayersParams
 ---@field min_card_num integer @ 选卡牌最小值
 ---@field max_card_num integer @ 选卡牌最大值
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 
 --- 询问玩家选择X张牌和Y名角色。
 ---
---- 返回两个值，第一个是选择目标id列表，第二个是选择的牌id列表，第三个是否按了确定
+--- 返回两个值，第一个是选择目标列表，第二个是选择的牌id列表，第三个是否按了确定
 ---@param player ServerPlayer @ 要询问的玩家
 ---@param params AskToChooseCardsAndPlayersParams @ 各种变量
----@return ServerPlayer[], integer[], boolean @ 第一个是选择目标id列表，第二个是选择的牌id列表，第三个是否按了确定
+---@return ServerPlayer[], integer[], boolean @ 第一个是选择目标列表，第二个是选择的牌id列表，第三个是否按了确定
 function Room:askToChooseCardsAndPlayers(player, params)
   local maxTargetNum, minTargetNum, maxCardNum, minCardNum = params.max_num, params.min_num, params.max_card_num, params.min_card_num
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
