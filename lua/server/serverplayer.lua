@@ -255,7 +255,7 @@ function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
   local data = { ---@type PhaseDataSpec
     who = self,
     reason = skillName or "game_rule",
-    phase = self.phase -- FIXME: 等待拆分
+    phase = phase -- FIXME: 等待拆分
   }
   GameEvent.Phase:create(PhaseData:new(data)):exec()
 
