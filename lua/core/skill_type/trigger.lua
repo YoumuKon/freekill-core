@@ -51,12 +51,14 @@ end
 ---@param data any @ useful data of the event
 ---@return boolean? @ returns true if trigger is broken
 function TriggerSkill:trigger(event, target, player, data)
+  event:setSkillData(self, "cancel_cost", false)
   return self:doCost(event, target, player, data)
 end
 
 -- do cost and skill effect.
 -- DO NOT modify this function
 ---@param event TriggerEvent @ TriggerEvent
+---@return boolean? @ returns true if skill is invoked and trigger is broken
 function TriggerSkill:doCost(event, target, player, data)
   local start_time = os.getms()
   local room = player.room ---@type Room
@@ -86,6 +88,7 @@ function TriggerSkill:doCost(event, target, player, data)
       return self:use(event, target, player, data)
     end, skill_data)
   end
+  event:setSkillData(self, "cancel_cost", true)
 end
 
 -- ask player how to use this skill.

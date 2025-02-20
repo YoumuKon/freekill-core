@@ -35,7 +35,7 @@ end
 ---@param k string
 ---@param v any
 function TriggerEvent:setSkillData(skill, k, v)
-  local name = (skill.main_skill and skill.main_skill or skill).name
+  local name = skill.name--(skill.main_skill and skill.main_skill or skill).name
   self.skill_data[name] = self.skill_data[name] or {}
   self.skill_data[name][k] = v
 end
@@ -43,7 +43,7 @@ end
 ---@param skill Skill
 ---@param k string
 function TriggerEvent:getSkillData(skill, k)
-  local name = (skill.main_skill and skill.main_skill or skill).name
+  local name = skill.name--(skill.main_skill and skill.main_skill or skill).name
   return self.skill_data[name] and self.skill_data[name][k]
 end
 
@@ -60,6 +60,11 @@ end
 --- 本事件是否要应该停止询问
 function TriggerEvent:breakCheck()
   return false
+end
+
+---@param skill Skill
+function TriggerEvent:isCancelCost(skill)
+  return not not self:getSkillData(skill, "cancel_cost")
 end
 
 -- 先执行带refresh的，再执行带效果的

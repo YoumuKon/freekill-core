@@ -4,18 +4,15 @@ local yiji = fk.CreateSkill {
 
 yiji:addEffect(fk.Damaged, {
   on_trigger = function(self, event, target, player, data)
-    self.cancel_cost = false
     for _ = 1, data.damage do
-      if self.cancel_cost or not player:hasSkill(self) then break end
+      if event:isCancelCost(self) or not player:hasSkill(self) then break end
       self:doCost(event, target, player, data)
     end
   end,
   on_cost = function(self, event, target, player, data)
-    local room = player.room
-    if room:askToSkillInvoke(player, { skill_name = yiji.name }) then
+    if player.room:askToSkillInvoke(player, { skill_name = yiji.name }) then
       return true
     end
-    self.cancel_cost = true
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
