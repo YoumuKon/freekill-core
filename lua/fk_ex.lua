@@ -630,7 +630,7 @@ function SkillSkeleton:onLose(player, is_death)
 end
 
 -- 获得此技能时，触发此函数
----@param fn function(ServerPlayer, boolean)
+---@param fn fun(self:SkillSkeleton, player:ServerPlayer, is_start:boolean?)
 function SkillSkeleton:addAcquireEffect(fn)
   ---@param player ServerPlayer
   ---@param is_start boolean?
@@ -639,12 +639,10 @@ function SkillSkeleton:addAcquireEffect(fn)
   end
 end
 -- 失去此技能时，触发此函数
----@param fn function(ServerPlayer, boolean)
+---@param fn fun(self:SkillSkeleton, player:ServerPlayer, is_death:boolean?)
 function SkillSkeleton:addLoseEffect(fn)
-  ---@param player ServerPlayer
-  ---@param is_start boolean?
-  self.on_lose = function (player, is_start)
-    fn(self, player, is_start)
+  self.on_lose = function (player, is_death)
+    fn(self, player, is_death)
   end
 end
 
