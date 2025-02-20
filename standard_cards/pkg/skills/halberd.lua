@@ -1,9 +1,9 @@
 local sk = fk.CreateSkill {
   name = "#halberd_skill",
+  attached_equip = "halberd",
 }
 
 sk:addEffect("targetmod", {
-  attached_equip = "halberd",
   extra_target_func = function(self, player, skill, card)
     if player:hasSkill(sk.name) and skill.trueName == "slash_skill" then
       local cards = card:isVirtual() and card.subcards or {card.id}

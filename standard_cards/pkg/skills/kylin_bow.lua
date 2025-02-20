@@ -1,9 +1,9 @@
 local skill = fk.CreateSkill {
   name = "#kylin_bow_skill",
+  attached_equip = "kylin_bow",
 }
 
 skill:addEffect(fk.DamageCaused, {
-  attached_equip = "kylin_bow",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
       data.card and data.card.trueName == "slash" and not data.chain and

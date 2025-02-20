@@ -30,6 +30,8 @@ luoshen:addEffect(fk.FinishJudge, {
   on_use = function(self, event, target, player, data)
     player.room:obtainCard(player.id, data.card, false, fk.ReasonJustMove, nil, luoshen.name)
   end,
+}, {
+  is_delay_effect = true,
 })
 
 luoshen:addTest(function(room, me)

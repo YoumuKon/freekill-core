@@ -26,9 +26,8 @@ xiaoji:addEffect(fk.AfterCardsMove, {
         end
       end
     end
-    self.cancel_cost = false
     for _ = 1, i do
-      if self.cancel_cost or not player:hasSkill(self) then break end
+      if event:isCancelCost(self) or not player:hasSkill(xiaoji.name) then break end
       self:doCost(event, target, player, data)
     end
   end,
@@ -36,7 +35,6 @@ xiaoji:addEffect(fk.AfterCardsMove, {
     if player.room:askToSkillInvoke(player, { skill_name = xiaoji.name }) then
       return true
     end
-    self.cancel_cost = true
   end,
   on_use = function(self, event, target, player, data)
     player:drawCards(2, xiaoji.name)

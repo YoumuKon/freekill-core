@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#vine_skill",
   tags = { Skill.Compulsory },
+  attached_equip = "vine",
 }
 
 skill:addEffect(fk.PreCardEffect, {
-  attached_equip = "vine",
   can_trigger = function(self, event, target, player, data)
     return data.to == player and player:hasSkill(skill.name) and
       table.contains({"slash", "savage_assault", "archery_attack"}, data.card.name)
@@ -14,7 +14,7 @@ skill:addEffect(fk.PreCardEffect, {
     room:sendLog{
       type = "#InvokeSkill",
       from = player.id,
-      arg = self.name,
+      arg = skill.name,
     }
     room:broadcastPlaySound("./packages/maneuvering/audio/card/vine")
     room:setEmotion(player, "./packages/maneuvering/image/anim/vine")
@@ -23,7 +23,6 @@ skill:addEffect(fk.PreCardEffect, {
 })
 
 skill:addEffect(fk.DamageInflicted, {
-  attached_equip = "vine",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.damageType == fk.FireDamage
   end,
@@ -32,7 +31,7 @@ skill:addEffect(fk.DamageInflicted, {
     room:sendLog{
       type = "#InvokeSkill",
       from = player.id,
-      arg = self.name,
+      arg = skill.name,
     }
     room:broadcastPlaySound("./packages/maneuvering/audio/card/vineburn")
     room:setEmotion(player, "./packages/maneuvering/image/anim/vineburn")

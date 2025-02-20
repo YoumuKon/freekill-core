@@ -1,9 +1,9 @@
 local skill = fk.CreateSkill {
   name = "#fan_skill",
+  attached_equip = "fan",
 }
 
 skill:addEffect(fk.AfterCardUseDeclared, {
-  attached_equip = "fan",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.card.name == "slash"
   end,

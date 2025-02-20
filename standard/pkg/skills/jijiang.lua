@@ -1,6 +1,6 @@
 local jijiang = fk.CreateSkill {
   name = "jijiang",
-  tags = {Skill.Lord},
+  tags = { Skill.Lord },
 }
 
 jijiang:addEffect("viewas", {

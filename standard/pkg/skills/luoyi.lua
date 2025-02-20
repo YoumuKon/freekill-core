@@ -18,11 +18,10 @@ luoyi:addEffect(fk.DamageCaused, {
   end,
   on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    local room = player.room
-    player:broadcastSkillInvoke("luoyi")
-    room:notifySkillInvoked(player, "luoyi")
     data.damage = data.damage + 1
   end,
+}, {
+  is_delay_effect = true,
 })
 
 luoyi:addTest(function(room, me)

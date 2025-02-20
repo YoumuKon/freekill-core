@@ -1,6 +1,6 @@
 local mashu = fk.CreateSkill{
   name = "mashu",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 mashu:addEffect("distance", {

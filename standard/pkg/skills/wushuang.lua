@@ -1,6 +1,6 @@
 local wushuang = fk.CreateSkill {
   name = "wushuang",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 local wushuang_spec = {

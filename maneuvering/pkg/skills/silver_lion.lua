@@ -1,10 +1,10 @@
 local skill = fk.CreateSkill {
   name = "#silver_lion_skill",
   tags = { Skill.Compulsory },
+  attached_equip = "silver_lion",
 }
 
 skill:addEffect(fk.DamageInflicted, {
-  attached_equip = "silver_lion",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and data.damage > 1
   end,
@@ -13,14 +13,13 @@ skill:addEffect(fk.DamageInflicted, {
   end,
 })
 skill:addEffect(fk.AfterCardsMove, {
-  attached_equip = "silver_lion",
   can_trigger = function(self, event, target, player, data)
     if player.dead or not player:isWounded() then return end
     for _, move in ipairs(data) do
       if move.from == player then
         for _, info in ipairs(move.moveInfo) do
           if info.fromArea == Card.PlayerEquip and Fk:getCardById(info.cardId).name == self.attached_equip then
-            return self:isEffectable(player)
+            return Fk.skills[skill.name]:isEffectable(player)
           end
         end
       end

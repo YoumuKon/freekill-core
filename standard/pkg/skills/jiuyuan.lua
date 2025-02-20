@@ -1,9 +1,10 @@
 local jiuyuan = fk.CreateSkill{
   name = "jiuyuan",
-  tags = {Skill.Lord, Skill.Compulsory},
+  tags = { Skill.Lord, Skill.Compulsory },
 }
 
 jiuyuan:addEffect(fk.PreHpRecover, {
+  anim_type = "support",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(jiuyuan.name) and
       data.card and data.card.trueName == "peach" and

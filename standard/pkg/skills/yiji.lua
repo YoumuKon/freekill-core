@@ -5,7 +5,7 @@ local yiji = fk.CreateSkill {
 yiji:addEffect(fk.Damaged, {
   on_trigger = function(self, event, target, player, data)
     for _ = 1, data.damage do
-      if event:isCancelCost(self) or not player:hasSkill(self) then break end
+      if event:isCancelCost(self) or not player:hasSkill(yiji.name) then break end
       self:doCost(event, target, player, data)
     end
   end,

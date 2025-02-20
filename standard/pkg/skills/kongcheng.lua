@@ -1,6 +1,6 @@
 local kongcheng = fk.CreateSkill{
   name = "kongcheng",
-  tags = {Skill.Compulsory},
+  tags = { Skill.Compulsory },
 }
 
 kongcheng:addEffect("prohibit", {
@@ -15,7 +15,7 @@ kongcheng:addEffect(fk.AfterCardsMove, {
   can_refresh = function(self, event, target, player, data)
     if not (player:hasSkill(kongcheng.name) and player:isKongcheng()) then return end
     for _, move in ipairs(data) do
-      if move.from == player.id then
+      if move.from == player then
         for _, info in ipairs(move.moveInfo) do
           if info.fromArea == Card.PlayerHand then
             return true
