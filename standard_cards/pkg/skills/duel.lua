@@ -45,7 +45,7 @@ skill:addEffect("cardskill", {
         cardResponded = room:askToResponse(currentResponser, params)
         if cardResponded then
           room:responseCard({
-            from = currentResponser.id,
+            from = currentResponser,
             card = cardResponded,
             responseToEvent = effect,
           })

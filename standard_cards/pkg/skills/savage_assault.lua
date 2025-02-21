@@ -32,7 +32,7 @@ skill:addEffect("cardskill", {
       cardResponded = room:askToResponse(effect.to, params)
       if cardResponded then
         room:responseCard({
-          from = effect.to.id,
+          from = effect.to,
           card = cardResponded,
           responseToEvent = effect,
         })

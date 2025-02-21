@@ -43,6 +43,7 @@ fk.CardRespondFinished = RespondCardEvent:subclass("fk.CardRespondFinished")
 ---@field public damageDealt? table<ServerPlayer, number> @ 此牌造成的伤害
 ---@field public additionalEffect? integer @ 额外结算次数
 ---@field public noIndicate? boolean @ 隐藏指示线
+---@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转换技
 
 --- 使用牌的数据
 ---@class UseCardData: UseCardDataSpec, TriggerData

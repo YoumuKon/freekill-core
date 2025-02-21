@@ -190,17 +190,14 @@ function UseCard:main()
   local room = self.room
   local logic = room.logic
 
-  if type(useCardData.attachedSkillAndUser) == "table" then
-    local attachedSkillAndUser = table.simpleClone(useCardData.attachedSkillAndUser)
-    self:addExitFunc(function()
-      if
-        type(attachedSkillAndUser) == "table" and
-        Fk.skills[attachedSkillAndUser.skillName] and
-        Fk.skills[attachedSkillAndUser.skillName].afterUse
-      then
-        Fk.skills[attachedSkillAndUser.skillName]:afterUse(attachedSkillAndUser.user, useCardData)
-      end
-    end)
+  if useCardData.attachedSkillAndUser then
+    local skill = Fk.skills[useCardData.attachedSkillAndUser.skillName]---@type ViewAsSkill
+    local user = room:getPlayerById(useCardData.attachedSkillAndUser.user)
+    if skill and skill.afterUse then
+      self:addExitFunc(function()
+        skill:afterUse(user, useCardData)
+      end)
+    end
     useCardData.attachedSkillAndUser = nil
   end
 

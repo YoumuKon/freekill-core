@@ -29,7 +29,7 @@ jijiang:addEffect("viewas", {
         })
         if cardResponded then
           room:responseCard({
-            from = p.id,
+            from = p,
             card = cardResponded,
             skipDrop = true,
           })

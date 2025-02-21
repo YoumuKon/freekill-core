@@ -60,6 +60,7 @@ Fk:loadTranslationTable({
   ["guanyu"] = "Guan Yu",
   ["wusheng"] = "Warrior Saint",
   [":wusheng"] = "You can use/play any red card as Slash.",
+  ["#wusheng"] = "Use Warrior Saint to use/play any red card as Slash.",
 
   ["zhangfei"] = "Zhang Fei",
   ["paoxiao"] = "Roar",
@@ -74,6 +75,7 @@ Fk:loadTranslationTable({
   ["zhaoyun"] = "Zhao Yun",
   ["longdan"] = "Dragon Heart",
   [":longdan"] = "You can use/play Slash as Dodge. You can use/play Dodge as Slash.",
+  ["#longdan"] = "Use Dragon Heart to use/play Slash as Dodge, or use/play Dodge as Slash.",
 
   ["machao"] = "Ma Chao",
   ["mashu"] = "Horsemanship",

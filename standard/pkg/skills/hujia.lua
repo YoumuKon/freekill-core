@@ -27,7 +27,7 @@ local hujia_spec = {
         local cardResponded = room:askToResponse(p, params)
         if cardResponded then
           room:responseCard({
-            from = p.id,
+            from = p,
             card = cardResponded,
             skipDrop = true,
           })

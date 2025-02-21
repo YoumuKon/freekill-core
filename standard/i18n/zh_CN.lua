@@ -115,6 +115,7 @@ Fk:loadTranslationTable{
   ["$wusheng2"] = "看尔乃插标卖首！",
   ["wusheng"] = "武圣",
   [":wusheng"] = "你可以将一张红色牌当【杀】使用或打出。",
+  ["#wusheng"] = "发动 武圣，将一张红色牌当【杀】使用或打出",
 
   ["zhangfei"] = "张飞",
   ["#zhangfei"] = "万夫不当",
@@ -146,6 +147,7 @@ Fk:loadTranslationTable{
   ["$longdan2"] = "吾乃常山赵子龙也！",
   ["longdan"] = "龙胆",
   [":longdan"] = "你可以将一张【杀】当【闪】使用或打出，或将一张【闪】当普通【杀】使用或打出。",
+  ["#longdan"] = "发动 龙胆，将一张【杀】当【闪】使用或打出，或将一张【闪】当【杀】使用或打出",
 
   ["machao"] = "马超",
   ["#machao"] = "一骑当千",
