@@ -835,7 +835,7 @@ end
 ---@field public target_tip_func? fun(self: TargetModSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@class FilterSpec: StatusSkillSpec
----@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean): any
+---@field public card_filter? fun(self: FilterSkill, card: Card, player: Player, isJudgeEvent: boolean?): any
 ---@field public view_as? fun(self: FilterSkill, player: Player, card: Card): Card?
 ---@field public equip_skill_filter? fun(self: FilterSkill, skill: Skill, player: Player): string?
 ---@field public handly_cards? fun(self: FilterSkill, player: Player): integer[]? @ 视为拥有可以如手牌般使用或打出的牌

@@ -691,10 +691,14 @@ function Room:sendLog(log)
   self:doBroadcastNotify("GameLog", json.encode(log))
 end
 
+-- 为一些牌设置脚注
+---@param ids integer[] @ 要设置虚拟牌名的牌的id列表
+---@param log LogMessage @ Log的实际内容
 function Room:sendFootnote(ids, log)
   self:doBroadcastNotify("SetCardFootnote", json.encode{ ids, log })
 end
 
+--- 为一些牌设置虚拟转化牌名
 ---@param ids integer[] @ 要设置虚拟牌名的牌的id列表
 ---@param name string @ 虚拟牌名
 function Room:sendCardVirtName(ids, name)
@@ -3174,6 +3178,56 @@ function Room:addSkill(skill)
   for _, s in ipairs(skill.related_skills) do
     self:addSkill(s)
   end
+end
+
+
+--- 在判定或使用流程中，将使用或判定牌应用锁视转化，发出战报，并返回转化后的牌
+---@param id integer @ 牌id
+---@param player ServerPlayer @ 使用者或判定角色
+---@param JudgeEvent boolean? @ 是否为判定事件
+---@return Card @ 返回应用锁视后的牌
+function Room:filterCard(id, player, JudgeEvent)
+  local card = Fk:getCardById(id, true)
+  local filters = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable---@type FilterSkill[]
+
+  if #filters == 0 then
+    self.filtered_cards[id] = nil
+    return card
+  end
+
+  local modify = false
+  for _, f in ipairs(filters) do
+    if f:cardFilter(card, player, JudgeEvent) then
+      local new_card = f:viewAs(player, card)
+      if new_card then
+        modify = true
+        local skill_name = (f:getSkeleton() or f).name
+        new_card.id = id
+        new_card.skillName = skill_name
+        if not f.mute then
+          player:broadcastSkillInvoke(skill_name)
+          self:doAnimate("InvokeSkill", {
+            name = skill_name,
+            player = player.id,
+            skill_type = f.anim_type,
+          })
+        end
+        self:sendLog{
+          type = "#FilterCard",
+          arg = skill_name,
+          from = player.id,
+          arg2 = card:toLogString(),
+          arg3 = new_card:toLogString(),
+        }
+        card = new_card
+        self.filtered_cards[id] = card
+      end
+    end
+  end
+  if not modify then
+    self.filtered_cards[id] = nil
+  end
+  return card
 end
 
 

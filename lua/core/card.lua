@@ -491,13 +491,14 @@ function Card:toLogString()
 end
 
 --- 静态方法。传入下列类型之一的参数，返回id列表。
----@param c integer|integer[]|Card|Card[]
+---@param c? integer|integer[]|Card|Card[]
 ---@return integer[]
 function Card:getIdList(c)
   error("This is a static method. Please use Card:getIdList instead")
 end
 
 function Card.static:getIdList(c)
+  if c == nil then return {} end
   if type(c) == "number" then
     return {c}
   end

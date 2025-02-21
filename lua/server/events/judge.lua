@@ -19,9 +19,13 @@ function Judge:main()
   local logic = room.logic
   local who = data.who
 
-  -- data.isJudgeEvent = true
   logic:trigger(fk.StartJudge, who, data)
-  data.card = data.card or Fk:getCardById(room:getNCards(1)[1])
+  if not data.card then
+    local card = Fk:getCardById(room:getNCards(1)[1])
+    data.card = Fk:cloneCard(card.name)
+    card:addSubcard(card.id)
+    data.card = card
+  end
 
   if data.reason ~= "" then
     room:sendLog{
@@ -30,7 +34,6 @@ function Judge:main()
       arg = data.reason,
     }
   end
-  Fk:filterCard(data.card.id, who, data)
 
   room:sendLog{
     type = "#InitialJudge",
@@ -38,10 +41,14 @@ function Judge:main()
     arg = data.card:toLogString(),
   }
   room:moveCardTo(data.card, Card.Processing, nil, fk.ReasonJudge)
-  room:sendFootnote({ data.card.id }, {
+  room:sendFootnote({ data.card:getEffectiveId() }, {
     type = "##JudgeCard",
     arg = data.reason,
   })
+  local cid = data.card:getEffectiveId()
+  if cid and room:getCardArea(cid) == Card.Processing then
+    data.card = room:filterCard(cid, who, true)
+  end
 
   logic:trigger(fk.AskForRetrial, who, data)
   logic:trigger(fk.FinishRetrial, who, data)
@@ -50,14 +57,16 @@ function Judge:main()
     from = who.id,
     arg = data.card:toLogString(),
   }
-  room:sendFootnote({ data.card.id }, {
-    type = "##JudgeCard",
-    arg = data.reason,
-  })
 
-  if data.pattern then
+  cid = data.card:getEffectiveId()
+  if cid and room:getCardArea(cid) == Card.Processing then
+    room:sendFootnote({ cid }, {
+      type = "##JudgeCard",
+      arg = data.reason,
+    })
+
     room:delay(400);
-    room:setCardEmotion(data.card.id, data.card:matchPattern(data.pattern) and "judgegood" or "judgebad")
+    room:setCardEmotion(cid, data.card:matchPattern(data.pattern) and "judgegood" or "judgebad")
     room:delay(900);
   end
 
@@ -69,7 +78,7 @@ end
 function Judge:clear()
   local data = self.data
   local room = self.room
-  if (self.interrupted or not data.skipDrop) and data.card and room:getCardArea(data.card.id) == Card.Processing then
+  if (self.interrupted or not data.skipDrop) and data.card and room:getCardArea(data.card:getEffectiveId()) == Card.Processing then
     room:moveCardTo(data.card, Card.DiscardPile, nil, fk.ReasonJudge)
   end
   if not self.interrupted then return end
@@ -102,6 +111,7 @@ end
 ---@param exchange? boolean @ 是否要替换原有判定牌（即类似鬼道那样）
 function JudgeEventWrappers:retrial(card, player, judge, skillName, exchange)
   if not card then return end
+  ---@cast self Room
 
   local move1 = {} ---@type CardsMoveInfo
   move1.ids = { card:getEffectiveId() }

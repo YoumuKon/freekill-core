@@ -762,10 +762,37 @@ end
 
 --- 对那个id应用锁定视为技，将它变成要被锁定视为的牌。
 ---@param id integer @ 要处理的id
----@param player Player @ 和这张牌扯上关系的那名玩家
----@param data any @ 随意，目前只用到JudgeStruct，为了影响判定牌
-function Engine:filterCard(id, player, data)
-  return Fk:currentRoom():filterCard(id, player, data)
+---@param player? Player @ 和这张牌有关的角色。若无则还原为原卡牌
+function Engine:filterCard(id, player)
+  if player == nil then
+    self.filtered_cards[id] = nil
+    return
+  end
+
+  local card = Fk:getCardById(id, true)
+  local filters = Fk:currentRoom().status_skills[FilterSkill] or Util.DummyTable---@type FilterSkill[]
+
+  if #filters == 0 then
+    self.filtered_cards[id] = nil
+    return
+  end
+
+  local modity = false
+  for _, f in ipairs(filters) do
+    if f:cardFilter(card, player) then
+      local new_card = f:viewAs(player, card)
+      if new_card then
+        new_card.id = id
+        new_card.skillName = f.name
+        card = new_card
+        self.filtered_cards[id] = card
+        modity = true
+      end
+    end
+  end
+  if not modity then
+    self.filtered_cards[id] = nil
+  end
 end
 
 --- 获知当前的Engine是跑在服务端还是客户端，并返回相应的实例。

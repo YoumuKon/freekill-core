@@ -10,10 +10,12 @@ local function exec(tp, ...)
   return ret
 end
 
----@param room Room
----@param player ServerPlayer
----@param card Card
-local playCardEmotionAndSound = function(room, player, card)
+
+--- 播放使用/打出卡牌的声音和特效
+---@param player ServerPlayer @ 使用者
+---@param card Card @ 使用的牌
+function UseCardEventWrappers:playCardEmotionAndSound(player, card)
+  ---@cast self Room
   if card.type ~= Card.TypeEquip then
     local anim_path = "./packages/" .. card.package.extensionName .. "/image/anim/" .. card.name
     if not FileIO.exists(anim_path) then
@@ -22,7 +24,7 @@ local playCardEmotionAndSound = function(room, player, card)
         if FileIO.exists(anim_path) then break end
       end
     end
-    if FileIO.exists(anim_path) then room:setEmotion(player, anim_path) end
+    if FileIO.exists(anim_path) then self:setEmotion(player, anim_path) end
   end
 
   local soundName
@@ -46,29 +48,24 @@ local playCardEmotionAndSound = function(room, player, card)
       .. (player.gender == General.Male and "male/" or "female/") .. orig.name
     end
   end
-  room:broadcastPlaySound(soundName)
+  self:broadcastPlaySound(soundName)
 end
 
+
+--- 播放使用卡牌的信息（此步骤在使用牌移至处理区前）
 ---@param room Room
 ---@param useCardData UseCardData
 local sendCardEmotionAndLog = function(room, useCardData)
   local from = useCardData.from
-  local _card = useCardData.card
+  local card = useCardData.card
 
-  -- when this function is called, card is already in PlaceTable and no filter skill is applied.
-  -- So filter this card manually here to get 'real' use.card
-  local card = _card
-  ---[[
-  if not _card:isVirtual() then
-    local temp = { card = _card }
-    Fk:filterCard(_card.id, room:getCardOwner(_card), temp)
-    card = temp.card
+  if not card:isVirtual() then
+    card = room:filterCard(card.id, from)
   end
-  useCardData.card = card
-  --]]
 
-  playCardEmotionAndSound(room, from, card)
+  room:playCardEmotionAndSound(from, card)
 
+  -- 发送目标指示线
   if not useCardData.noIndicate then
     local tosData
     if useCardData.tos then
@@ -86,12 +83,14 @@ local sendCardEmotionAndLog = function(room, useCardData)
 
   local useCardIds = card:isVirtual() and card.subcards or { card.id }
   if useCardData.tos and #useCardData.tos > 0 and not useCardData.noIndicate then
+    local isVirtual = card:isVirtual() or card.name ~= Fk:getCardById(card.id, true).name
     local to = {}
     for _, p in ipairs(useCardData.tos) do
       table.insert(to, p.id)
     end
 
-    if card:isVirtual() or (card ~= _card) then
+    -- 使用转化牌或锁视牌
+    if isVirtual then
       if #useCardIds == 0 then
         room:sendLog{
           type = "#UseV0CardToTargets",
@@ -117,6 +116,7 @@ local sendCardEmotionAndLog = function(room, useCardData)
       }
     end
 
+    -- 声明子目标
     for _, p in ipairs(useCardData.tos) do
       local subt = useCardData:getSubTos(p)
       if #subt > 0 then
@@ -128,8 +128,9 @@ local sendCardEmotionAndLog = function(room, useCardData)
         }
       end
     end
+    -- 因响应而使用牌
   elseif useCardData.toCard then
-    if card:isVirtual() or (card ~= _card) then
+    if isVirtual then
       if #useCardIds == 0 then
         room:sendLog{
           type = "#UseV0CardToCard",
@@ -154,8 +155,9 @@ local sendCardEmotionAndLog = function(room, useCardData)
         arg = useCardData.toCard.name,
       }
     end
+    -- 其他一般的使用牌
   else
-    if card:isVirtual() or (card ~= _card) then
+    if isVirtual then
       if #useCardIds == 0 then
         room:sendLog{
           type = "#UseV0Card",
@@ -178,8 +180,6 @@ local sendCardEmotionAndLog = function(room, useCardData)
       }
     end
   end
-
-  return _card
 end
 
 ---@class GameEvent.UseCard : GameEvent
@@ -253,12 +253,12 @@ function UseCard:main()
     logic:breakEvent()
   end
 
-  local _card = sendCardEmotionAndLog(room, useCardData)
+  sendCardEmotionAndLog(room, useCardData)
 
   room:moveCardTo(useCardData.card, Card.Processing, nil, fk.ReasonUse)
 
   local card = useCardData.card
-  local useCardIds = card:isVirtual() and card.subcards or { card.id }
+  local useCardIds = Card:getIdList(card)
   if #useCardIds > 0 then
     if useCardData.tos and #useCardData.tos > 0 and #useCardData.tos <= 2 and not useCardData.noIndicate then
       local tos = table.map(useCardData.tos, Util.IdMapper)
@@ -267,17 +267,14 @@ function UseCard:main()
         from = useCardData.from.id,
         to = tos,
       })
-      if card:isVirtual() or card ~= _card then
-        room:sendCardVirtName(useCardIds, card.name)
-      end
     else
       room:sendFootnote(useCardIds, {
         type = "##UseCard",
         from = useCardData.from.id,
       })
-      if card:isVirtual() or card ~= _card then
-        room:sendCardVirtName(useCardIds, card.name)
-      end
+    end
+    if card:isVirtual() or card.name ~= Fk:getCardById(card.id).name then
+      room:sendCardVirtName(useCardIds, card.name)
     end
   end
 
@@ -357,7 +354,7 @@ function RespondCard:main()
     }
   end
 
-  playCardEmotionAndSound(room, from, card)
+  room:playCardEmotionAndSound(from, card)
 
   room:moveCardTo(card, Card.Processing, nil, fk.ReasonResonpse)
   if #cardIds > 0 then
