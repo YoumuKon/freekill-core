@@ -92,6 +92,7 @@ end
 ---@field public attached_equip? string @ 属于什么装备的技能？
 ---@field public relate_to_place? string @ 主将技/副将技
 ---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string
+---@field public tag? SkillTag[] @ 技能标签
 
 ---@class SkillSkeleton : Object, SkillSpec
 ---@field public effects Skill[] 技能对应的所有效果
