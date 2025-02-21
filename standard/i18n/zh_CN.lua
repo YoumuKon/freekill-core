@@ -546,7 +546,7 @@ Fk:loadTranslationTable{
   ["AskForPindian"] = "拼点",
 
   ["reveal_skill&"] = "亮将",
-  ["#reveal_skill&"] = "选择一个武将亮将（点击左侧选择框展开）",
+  ["#reveal_skill&"] = "选择一个武将亮将",
   [":reveal_skill&"] = "出牌阶段，你可明置一张有锁定技的武将。",
   ["revealMain"] = "明置主将 %arg",
   ["revealDeputy"] = "明置副将 %arg",

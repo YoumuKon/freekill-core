@@ -259,7 +259,7 @@ function Damage:exec()
   end
 end
 
----@param damageData DamageData
+---@param damageData DamageDataSpec
 ---@return boolean
 function AIGameLogic:damage(damageData)
   local data = DamageData:new(damageData)
