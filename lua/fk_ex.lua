@@ -12,7 +12,7 @@ dofile "lua/server/event.lua"
 dofile "lua/server/system_enum.lua"
 dofile "lua/server/mark_enum.lua"
 TriggerSkill = require "core.skill_type.trigger"
-LegacyTriggerSkill = require "compat.trigger_legacy"
+-- LegacyTriggerSkill = require "compat.trigger_legacy"
 ActiveSkill = require "core.skill_type.active"
 CardSkill = require "core.skill_type.cardskill"
 ViewAsSkill = require "core.skill_type.view_as"
@@ -31,7 +31,7 @@ TrickCard, DelayedTrickCard = table.unpack(Trick)
 local Equip = require "core.card_type.equip"
 _, Weapon, Armor, DefensiveRide, OffensiveRide, Treasure = table.unpack(Equip)
 
-dofile "lua/compat/fk_ex.lua"
+-- dofile "lua/compat/fk_ex.lua"
 
 function fk.readCommonSpecToSkill(skill, spec)
   skill.mute = spec.mute

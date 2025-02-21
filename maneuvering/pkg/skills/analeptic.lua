@@ -2,7 +2,7 @@ local analepticSkill = fk.CreateSkill {
   name = "analeptic_skill",
 }
 
-analepticSkill:addEffect("active", {
+analepticSkill:addEffect("cardskill", {
   prompt = "#analeptic_skill",
   max_turn_use_time = 1,
   mod_target_filter = Util.TrueFunc,

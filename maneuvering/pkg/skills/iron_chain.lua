@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "iron_chain_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#iron_chain_skill",
   can_use = Util.CanUse,
   min_target_num = 1,

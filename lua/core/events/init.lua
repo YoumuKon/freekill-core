@@ -30,4 +30,4 @@ require "core.events.gameflow"
 require "core.events.pindian"
 
 -- 要兼容的嘛
-require "compat.events.init"
+-- require "compat.events.init"

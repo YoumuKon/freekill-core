@@ -2,7 +2,7 @@ local fire_attack = fk.CreateSkill {
   name = "fire_attack_skill",
 }
 
-fire_attack:addEffect("active", {
+fire_attack:addEffect("cardskill", {
   prompt = "#fire_attack_skill",
   can_use = Util.CanUse,
   target_num = 1,

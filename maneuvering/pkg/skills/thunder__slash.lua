@@ -4,7 +4,7 @@ local skill = fk.CreateSkill {
 
 local slash_skill = Fk.skills["slash_skill"] --[[ @as ActiveSkill ]]
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = function(self, player, selected_cards)
     local card = Fk:cloneCard("thunder__slash")
     card:addSubcards(selected_cards)

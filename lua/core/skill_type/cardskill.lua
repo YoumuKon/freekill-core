@@ -3,7 +3,7 @@
 ---@class CardSkill : ActiveSkill
 ---@field public distance_limit? integer @ 距离限制（牢代码）
 ---@field public offset_func? fun(self: CardSkill, room: Room, data: CardEffectData)  @ 卡牌的特殊抵消方式，覆盖原方式(杀问闪，锦囊问无懈)
-local CardSkill = UsableSkill:subclass("CardSkill")
+local CardSkill = ActiveSkill:subclass("CardSkill")
 
 function CardSkill:initialize(name, frequency)
   UsableSkill.initialize(self, name, frequency)

@@ -1,5 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
+--@field public legacy_global_trigger LegacyTriggerSkill[] @ 所有的全局触发技
 --- Engine是整个FreeKill赖以运行的核心。
 ---
 --- 它包含了FreeKill涉及的所有武将、卡牌、游戏模式等等
@@ -15,7 +16,6 @@
 ---@field public skill_skels table<string, SkillSkeleton> @ 所有的SkillSkeleton
 ---@field public related_skills table<string, Skill[]> @ 所有技能的关联技能
 ---@field public global_trigger TriggerSkill[] @ 所有的全局触发技
----@field public legacy_global_trigger LegacyTriggerSkill[] @ 所有的全局触发技
 ---@field public global_status_skill table<class, Skill[]> @ 所有的全局状态技
 ---@field public generals table<string, General> @ 所有武将
 ---@field public same_generals table<string, string[]> @ 所有同名武将组合
@@ -58,8 +58,9 @@ function Engine:initialize()
     ["standard"] = { "standard" },
     ["standard_cards"] = { "standard_cards" },
     ["maneuvering"] = { "maneuvering" },
+    ["test"] = { "test_p_0" },
   }
-  self.extension_names = { "standard", "standard_cards", "maneuvering" }
+  self.extension_names = { "standard", "standard_cards", "maneuvering", "test" }
   self.packages = {}    -- name --> Package
   self.package_names = {}
   self.skills = {}    -- name --> Skill
@@ -237,15 +238,18 @@ function Engine:loadPackages()
     self:loadPackage(require("packages.freekill-core.standard"))
     self:loadPackage(require("packages.freekill-core.standard_cards"))
     self:loadPackage(require("packages.freekill-core.maneuvering"))
+    self:loadPackage(require("packages.freekill-core.test"))
     table.removeOne(directories, "freekill-core")
   else
     self:loadPackage(require("packages.standard"))
     self:loadPackage(require("packages.standard_cards"))
     self:loadPackage(require("packages.maneuvering"))
+    self:loadPackage(require("packages.test"))
   end
   table.removeOne(directories, "standard")
   table.removeOne(directories, "standard_cards")
   table.removeOne(directories, "maneuvering")
+  table.removeOne(directories, "test")
 
   ---@type string[]
   local _disable_packs = json.decode(fk.GetDisabledPacks())
@@ -389,8 +393,8 @@ function Engine:addSkill(skill)
     if sk.global then
       if sk:isInstanceOf(TriggerSkill) then
         table.insertIfNeed(self.global_trigger, sk)
-      elseif sk:isInstanceOf(LegacyTriggerSkill) then
-        table.insertIfNeed(self.legacy_global_trigger, sk)
+      -- elseif sk:isInstanceOf(LegacyTriggerSkill) then
+      --   table.insertIfNeed(self.legacy_global_trigger, sk)
       else
         local t = self.global_status_skill
         t[sk.class] = t[sk.class] or {}

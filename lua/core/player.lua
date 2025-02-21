@@ -878,9 +878,9 @@ function Player:addSkill(skill, source_skill)
   for _, s in ipairs(toget) do
     if not self:hasSkill(s, true, true) then
       table.insert(ret, s)
-      if (s:isInstanceOf(TriggerSkill) or s:isInstanceOf(LegacyTriggerSkill)) and RoomInstance then
+      if (s:isInstanceOf(TriggerSkill) --[[or s:isInstanceOf(LegacyTriggerSkill)]]) and RoomInstance then
         ---@cast room Room
-        ---@cast s TriggerSkill|LegacyTriggerSkill
+        ---@cast s TriggerSkill --|LegacyTriggerSkill
         room.logic:addTriggerSkill(s)
       end
       if s:isInstanceOf(StatusSkill) then

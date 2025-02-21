@@ -194,7 +194,7 @@ AimData.Cancelled = 3
 ---@param players ServerPlayer[]
 ---@return AimGroup
 function AimData.static:initAimGroup(players)
-  return { [AimGroup.Undone] = table.simpleClone(players), [AimGroup.Done] = {}, [AimGroup.Cancelled] = {} }
+  return { [AimData.Undone] = table.simpleClone(players), [AimData.Done] = {}, [AimData.Cancelled] = {} }
 end
 
 ---@param players ServerPlayer[]

@@ -476,13 +476,13 @@ end
 
 function AIGameLogic:useCard(useCardData)
   local new_data
-  if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
-    and type(useCardData.tos[1][1]) == "number") then
-    new_data = UseCardData:new({})
-    new_data:loadLegacy(useCardData)
-  else
+  -- if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
+  --   and type(useCardData.tos[1][1]) == "number") then
+  --   new_data = UseCardData:new({})
+    -- new_data:loadLegacy(useCardData)
+  -- else
     new_data = UseCardData:new(useCardData)
-  end
+  -- end
   return not UseCard:new(self, new_data):getBenefit()
 end
 

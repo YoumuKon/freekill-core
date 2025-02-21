@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "supply_shortage_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#supply_shortage_skill",
   can_use = Util.CanUse,
   distance_limit = 1,

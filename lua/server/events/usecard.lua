@@ -447,13 +447,13 @@ end
 ---@return boolean
 function UseCardEventWrappers:useCard(useCardData)
   local new_data
-  if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
-    and type(useCardData.tos[1][1]) == "number") then
-    new_data = UseCardData:new({})
-    new_data:loadLegacy(useCardData)
-  else
-    new_data = UseCardData:new(useCardData)
-  end
+  -- if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
+  --   and type(useCardData.tos[1][1]) == "number") then
+  --   new_data = UseCardData:new({})
+  --   new_data:loadLegacy(useCardData)
+  -- else
+     new_data = UseCardData:new(useCardData)
+  -- end
   return exec(UseCard, new_data)
 end
 
@@ -544,7 +544,7 @@ local onAim = function(room, useCardData, aimEventCollaborators)
           collaboratorsIndex[target] = 1
         end
       end
-      aimStruct.tos[AimGroup.Cancelled] = {}
+      aimStruct.tos[AimData.Cancelled] = {}
 
       aimEventCollaborators[to] = aimEventCollaborators[to] or {}
       if to:isAlive() then
@@ -793,9 +793,9 @@ end
 ---@param responseCardData RespondCardDataSpec
 function UseCardEventWrappers:responseCard(responseCardData)
   local new_data = RespondCardData:new(responseCardData)
-  if type(new_data.from) == "number" then
-    new_data:loadLegacy(responseCardData)
-  end
+  -- if type(new_data.from) == "number" then
+  --   new_data:loadLegacy(responseCardData)
+  -- end
   return exec(RespondCard, new_data)
 end
 

@@ -36,8 +36,8 @@ ServerPlayer = require "server.serverplayer"
 CompatAskFor = require "compat.askfor"
 Room:include(CompatAskFor)
 
--- 唉，兼容牢函数
-GameLogic:include(dofile "lua/compat/gamelogic.lua")
+-- 唉，兼容个锤子牢函数
+-- GameLogic:include(dofile "lua/compat/gamelogic.lua")
 
 ---@type Player
 Self = nil -- `Self' is client-only, but we need it in AI

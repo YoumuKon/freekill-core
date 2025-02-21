@@ -1,6 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
----@class GameLogic: Object, GameLogicLegacyMixin
+---@class GameLogic: Object --, GameLogicLegacyMixin
 ---@field public room Room
 ---@field public skill_table table<(TriggerEvent|integer|string), TriggerSkill[]>
 ---@field public skill_priority_table table<(TriggerEvent|integer|string), number[]>
@@ -305,14 +305,14 @@ function GameLogic:action()
 end
 
 --- 将一个触发技和它的关联触发技添加到房间（触发技必须添加到房间才能正常触发）
----@param skill TriggerSkill|LegacyTriggerSkill
+---@param skill TriggerSkill --|LegacyTriggerSkill
 function GameLogic:addTriggerSkill(skill)
   if not skill then return end
-  if skill:isInstanceOf(LegacyTriggerSkill) then
-    ---@cast skill LegacyTriggerSkill
-    self:addLegacyTriggerSkill(skill)
-    return
-  end
+  -- if skill:isInstanceOf(LegacyTriggerSkill) then
+  --   ---@cast skill LegacyTriggerSkill
+  --   self:addLegacyTriggerSkill(skill)
+  --   return
+  -- end
 
   ---@cast skill TriggerSkill
   if table.contains(self.skills, skill.name) then return end
@@ -353,7 +353,7 @@ end
 ---@param target? ServerPlayer
 ---@param data? any data应该传入一个构造好的某某class实例
 function GameLogic:trigger(event, target, data, refresh_only)
-  local broken = self:triggerForLegacy(event, target, data, refresh_only)
+  local broken = false --self:triggerForLegacy(event, target, data, refresh_only)
   if broken then return broken end
   if not (type(event) == "table" and event:isSubclassOf(TriggerEvent)) then
     return broken
