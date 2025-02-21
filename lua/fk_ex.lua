@@ -14,6 +14,7 @@ dofile "lua/server/mark_enum.lua"
 TriggerSkill = require "core.skill_type.trigger"
 LegacyTriggerSkill = require "compat.trigger_legacy"
 ActiveSkill = require "core.skill_type.active"
+CardSkill = require "core.skill_type.cardskill"
 ViewAsSkill = require "core.skill_type.view_as"
 DistanceSkill = require "core.skill_type.distance"
 ProhibitSkill = require "core.skill_type.prohibit"
@@ -61,11 +62,9 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.target_num = spec.target_num or skill.target_num
   skill.min_target_num = spec.min_target_num or skill.min_target_num
   skill.max_target_num = spec.max_target_num or skill.max_target_num
-  skill.target_num_table = spec.target_num_table or skill.target_num_table
   skill.card_num = spec.card_num or skill.card_num
   skill.min_card_num = spec.min_card_num or skill.min_card_num
   skill.max_card_num = spec.max_card_num or skill.max_card_num
-  skill.card_num_table = spec.card_num_table or skill.card_num_table
   skill.max_use_time = {
     spec.max_phase_use_time,
     spec.max_turn_use_time,
@@ -110,6 +109,7 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', data: InvaliditySpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'visibility', data: VisibilitySpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'active', data: ActiveSkillSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: 'cardskill', data: CardSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'viewas', data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
 ---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean): SkillSkeleton
 ---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean): SkillSkeleton
@@ -138,8 +138,6 @@ function SkillSkeleton:initialize(spec)
 
   self.attached_skill_name = spec.attached_skill_name
 
-  self.cardSkill = spec.cardSkill
-
   self.attachedKingdom = spec.attachedKingdom or {}
 
   --Notify智慧，当不存在main_skill时，用于创建main_skill。看上去毫无用处
@@ -152,7 +150,7 @@ function SkillSkeleton:addEffect(key, data, attribute)
   -- 'active' 和 'viewas' 必须唯一
 
   local function getTypePriority(k)
-    if k == 'active' or k == 'viewas' then
+    if k == 'active' or k == 'viewas' or k == 'cardskill' then
       return 5
     elseif type(k) == 'table' then
       return 3
@@ -222,6 +220,8 @@ function SkillSkeleton:createSkill()
       sk = self:createVisibilitySkill(self, i, k, attr, data)
     elseif k == 'active' then
       sk = self:createActiveSkill(self, i, k, attr, data)
+    elseif k == 'cardskill' then
+      sk = self:createCardSkill(self, i, k, attr, data)
     elseif k == 'viewas' then
       sk = self:createViewAsSkill(self, i, k, attr, data)
     else
@@ -481,34 +481,8 @@ function SkillSkeleton:createVisibilitySkill(_skill, idx, key, attr, spec)
   return skill
 end
 
----@param spec ActiveSkillSpec
----@return ActiveSkill
-function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
-  local new_name = string.format("#%s_%d_active", _skill.name, idx)
-  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
-
-  local skill = ActiveSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
-  fk.readUsableSpecToSkill(skill, spec)
-
-  if spec.can_use then
-    skill.canUse = function(curSkill, player, card, extra_data)
-      return spec.can_use(curSkill, player, card, extra_data) and curSkill:isEffectable(player)
-    end
-  end
-  if spec.card_filter then skill.cardFilter = spec.card_filter end
-  if spec.target_filter then skill.targetFilter = spec.target_filter end
-  if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
-  if spec.feasible then skill.feasible = spec.feasible end
-  if spec.on_use then skill.onUse = spec.on_use end
-  if spec.on_action then skill.onAction = spec.on_action end
-  if spec.about_to_effect then skill.aboutToEffect = spec.about_to_effect end
-  if spec.on_effect then skill.onEffect = spec.on_effect end
-  if spec.on_nullified then skill.onNullified = spec.on_nullified end
-  if spec.prompt then skill.prompt = spec.prompt end
-  if spec.target_tip then skill.targetTip = spec.target_tip end
-  if spec.handly_pile then skill.handly_pile = spec.handly_pile end
-  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
-
+-- 将技能的选项框设置元表，仅用于主动技、视为技
+function fk.readInteractionToSkill(skill, spec)
   if spec.interaction then
     skill.interaction = setmetatable({}, {
       __call = function(_, ...)
@@ -520,6 +494,58 @@ function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
       end,
     })
   end
+end
+
+---@param spec ActiveSkillSpec
+---@return ActiveSkill
+function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_active", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
+
+  local skill = ActiveSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
+  fk.readUsableSpecToSkill(skill, spec)
+
+  if spec.can_use then
+    skill.canUse = function(curSkill, player)
+      return spec.can_use(curSkill, player) and curSkill:isEffectable(player)
+    end
+  end
+  if spec.card_filter then skill.cardFilter = spec.card_filter end
+  if spec.target_filter then skill.targetFilter = spec.target_filter end
+  if spec.feasible then skill.feasible = spec.feasible end
+  if spec.on_use then skill.onUse = spec.on_use end
+  if spec.prompt then skill.prompt = spec.prompt end
+  if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.handly_pile then skill.handly_pile = spec.handly_pile end
+
+  fk.readInteractionToSkill(skill, spec)
+  return skill
+end
+
+---@param spec CardSkillSpec
+---@return CardSkill
+function SkillSkeleton:createCardSkill(_skill, idx, key, attr, spec)
+  local new_name = string.format("#%s_%d_cardskill", _skill.name, idx)
+  Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
+
+  local skill = CardSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
+  fk.readUsableSpecToSkill(skill, spec)
+
+  if spec.can_use then skill.canUse = spec.can_use end
+  if spec.target_filter then skill.targetFilter = spec.target_filter end
+  if spec.mod_target_filter then skill.modTargetFilter = spec.mod_target_filter end
+  if spec.feasible then skill.feasible = spec.feasible end
+  if spec.on_use then skill.onUse = spec.on_use end
+  if spec.on_action then skill.onAction = spec.on_action end
+  if spec.about_to_effect then skill.aboutToEffect = spec.about_to_effect end
+  if spec.on_effect then skill.onEffect = spec.on_effect end
+  if spec.on_nullified then skill.onNullified = spec.on_nullified end
+  if spec.prompt then skill.prompt = spec.prompt end
+  if spec.target_tip then skill.targetTip = spec.target_tip end
+  if spec.fix_targets then skill.fixTargets = spec.fix_targets end
+  if spec.offset_func then skill.preEffect = spec.offset_func end
+
+  fk.readInteractionToSkill(skill, spec)
   return skill
 end
 
@@ -551,17 +577,7 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   end
   if spec.prompt then skill.prompt = spec.prompt end
 
-  if spec.interaction then
-    skill.interaction = setmetatable({}, {
-      __call = function(_, ...)
-        if type(spec.interaction) == "function" then
-          return spec.interaction(...)
-        else
-          return spec.interaction
-        end
-      end,
-    })
-  end
+  fk.readInteractionToSkill(skill, spec)
 
   if spec.before_use and type(spec.before_use) == "function" then
     skill.beforeUse = spec.before_use
@@ -742,30 +758,39 @@ end
 ---@field public min_target_num? integer
 ---@field public max_target_num? integer
 ---@field public target_num? integer
----@field public target_num_table? integer[]
 ---@field public min_card_num? integer
 ---@field public max_card_num? integer
 ---@field public card_num? integer
----@field public card_num_table? integer[]
 
 ---@class StatusSkillSpec: SkillSpec
 
 ---@class ActiveSkillSpec: UsableSkillSpec
----@field public can_use? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): any @ 判断主动技能否发动
+---@field public can_use? fun(self: ActiveSkill, player: Player): any @ 判断主动技能否发动
 ---@field public card_filter? fun(self: ActiveSkill, player: Player, to_select: integer, selected: integer[]): any @ 判断卡牌能否选择
----@field public target_filter? fun(self: ActiveSkill, player: Player?, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, extra_data: any): any @ 判定目标能否选择
----@field public feasible? fun(self: ActiveSkill, player: Player, selected: Player[], selected_cards: integer[]): any @ 判断卡牌和目标是否符合技能限制
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillUseData): any
----@field public on_action? fun(self: ActiveSkill, room: Room, cardUseEvent: UseCardData | SkillUseData, finished: boolean): any
----@field public about_to_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData): any
----@field public on_effect? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData): any
----@field public on_nullified? fun(self: ActiveSkill, room: Room, cardEffectEvent: CardEffectData): any
----@field public mod_target_filter? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], card?: Card, extra_data: any): any
+---@field public target_filter? fun(self: ActiveSkill, player: Player?, to_select: Player, selected: Player[], selected_cards: integer[]): any @ 判定目标能否选择
+---@field public feasible? fun(self: ActiveSkill, player: Player, selected: Player[], selected_cards: integer[], card: Card): any @ 判断卡牌和目标是否符合技能限制
+---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: SkillUseData): any
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
 ---@field public interaction? any
 ---@field public target_tip? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
----@field public fix_targets? fun(self: ActiveSkill, player: Player, card?: Card, extra_data: any): Player[]? @ 设置固定目标
+
+
+---@class CardSkillSpec: UsableSkillSpec
+---@field public mod_target_filter? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], card: Card, extra_data: any): any @ 判定目标是否合法（例如不能杀自己，火攻无手牌目标）
+---@field public target_filter? fun(self: CardSkill, player: Player?, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, extra_data: any): any @ 判定目标能否选择
+---@field public feasible? fun(self: CardSkill, player: Player, selected: Player[], selected_cards: integer[]): any @ 判断卡牌和目标是否符合技能限制
+---@field public can_use? fun(self: CardSkill, player: Player, card: Card, extra_data: any): any @ 判断主动技能否发动
+---@field public on_use? fun(self: CardSkill, room: Room, cardUseEvent: UseCardData): any
+---@field public fix_targets? fun(self: CardSkill, player: Player, card: Card, extra_data: any): Player[]? @ 设置固定目标
+---@field public on_action? fun(self: CardSkill, room: Room, cardUseEvent: UseCardData | SkillUseData, finished: boolean): any
+---@field public about_to_effect? fun(self: CardSkill, room: Room, effect: CardEffectData): boolean? @ 生效前判断，返回true则取消效果
+---@field public on_effect? fun(self: CardSkill, room: Room, effect: CardEffectData): any
+---@field public on_nullified? fun(self: CardSkill, room: Room, effect: CardEffectData): any @ (仅用于延时锦囊)被抵消时执行内容
+---@field public offset_func? fun(self: CardSkill, room: Room, effect: CardEffectData): any @ 重新定义抵消方式
+---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
+---@field public interaction? any
+---@field public target_tip? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 
 ---@class ViewAsSkillSpec: UsableSkillSpec
 ---@field public card_filter? fun(self: ViewAsSkill, player: Player, to_select: integer, selected: integer[]): any @ 判断卡牌能否选择
@@ -775,7 +800,7 @@ end
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardDataSpec): string?
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
----@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected: Player[]): string
+---@field public prompt? string|fun(self: ViewAsSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
@@ -830,9 +855,9 @@ end
 ---@field public number? integer @ 卡牌的点数（0到K）
 ---@field public skill? ActiveSkill
 ---@field public special_skills? string[]
----@field public is_damage_card? boolean
----@field public multiple_targets? boolean
----@field public is_passive? boolean
+---@field public is_damage_card? boolean @ 是否为伤害类卡牌
+---@field public multiple_targets? boolean @ 是否为多目标卡牌
+---@field public is_passive? boolean @ 是否为被动使用的卡牌，如闪、无懈
 
 function fk.preprocessCardSpec(spec)
   assert(type(spec.name) == "string" or type(spec.class_name) == "string")

@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "peach_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#peach_skill",
   mod_target_filter = function(self, player, to_select)
     return to_select:isWounded()

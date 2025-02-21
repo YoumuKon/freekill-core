@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "savage_assault_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#savage_assault_skill",
   can_use = Util.AoeCanUse,
   on_use = function (self, room, cardUseEvent)

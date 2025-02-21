@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "indulgence_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#indulgence_skill",
   can_use = Util.CanUse,
   mod_target_filter = function(self, player, to_select, selected, card, distance_limited)

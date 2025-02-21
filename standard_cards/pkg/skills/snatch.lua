@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "snatch_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#snatch_skill",
   can_use = Util.CanUse,
   distance_limit = 1,

@@ -3174,6 +3174,9 @@ function Room:addSkill(skill)
   elseif skill:isInstanceOf(TriggerSkill) then
     self.logic:addTriggerSkill(skill)
   end
+  for _, s in ipairs(skill.related_skills) do
+    self:addSkill(s)
+  end
 end
 
 

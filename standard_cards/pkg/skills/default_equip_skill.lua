@@ -2,7 +2,7 @@ local skill = fk.CreateSkill{
   name = "default_equip_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = function(self, player, selected_cards, _)
     if not selected_cards or #selected_cards == 0 then return " " end
     return "#default_equip_skill:::" .. Fk:getCardById(selected_cards[1]).name

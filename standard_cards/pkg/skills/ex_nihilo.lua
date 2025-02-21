@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "ex_nihilo_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#ex_nihilo_skill",
   mod_target_filter = Util.TrueFunc,
   can_use = function(self, player, card)

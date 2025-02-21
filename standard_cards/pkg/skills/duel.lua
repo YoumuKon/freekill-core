@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "duel_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#duel_skill",
   can_use = Util.CanUse,
   mod_target_filter = function(self, player, to_select, selected, card)

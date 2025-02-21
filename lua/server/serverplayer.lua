@@ -652,8 +652,7 @@ function ServerPlayer:prelightSkill(skill, isPrelight)
   if not self._prelighted_skills[skill] and not self:hasSkill(skill) then
     self._prelighted_skills[skill] = true
     -- to attach skill to room
-    self:addSkill(skill)
-    self:loseSkill(skill)
+    self.room:addSkill(skill)
   end
 
   if isPrelight then

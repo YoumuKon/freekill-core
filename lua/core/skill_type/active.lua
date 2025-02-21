@@ -4,11 +4,9 @@
 ---@field public min_target_num integer
 ---@field public max_target_num integer
 ---@field public target_num integer
----@field public target_num_table integer[]
 ---@field public min_card_num integer
 ---@field public max_card_num integer
 ---@field public card_num integer
----@field public card_num_table integer[]
 ---@field public interaction any
 ---@field public prompt string | function? @ 技能提示
 ---@field public handly_pile boolean?  @ 是否能够选择“如手牌使用或打出”的牌
@@ -83,43 +81,24 @@ end
 function ActiveSkill:getMinTargetNum(player)
   local ret
   if self.target_num then ret = self.target_num
-  elseif self.target_num_table then ret = self.target_num_table
   else ret = self.min_target_num end
 
   if type(ret) == "function" then
     ret = ret(self, player)
   end
-  if type(ret) == "table" then
-    return ret[1]
-  else
-    return ret
-  end
+  return ret
 end
 
 -- 获得技能的最大目标数
 ---@param player? Player @ 使用者
----@param card? Card @ 牌
 ---@return number @ 最大目标数
-function ActiveSkill:getMaxTargetNum(player, card)
+function ActiveSkill:getMaxTargetNum(player)
   local ret
   if self.target_num then ret = self.target_num
-  elseif self.target_num_table then ret = self.target_num_table
   else ret = self.max_target_num end
 
   if type(ret) == "function" then
-    ret = ret(self, player, card)
-  end
-  if type(ret) == "table" then
-    ret = ret[#ret]
-  end
-
-  if player and card then
-    local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable
-    for _, skill in ipairs(status_skills) do
-      local correct = skill:getExtraTargetNum(player, self, card)
-      if correct == nil then correct = 0 end
-      ret = ret + correct
-    end
+    ret = ret(self, player)
   end
   return ret
 end
@@ -130,7 +109,6 @@ end
 function ActiveSkill:getMinCardNum(player)
   local ret
   if self.card_num then ret = self.card_num
-  elseif self.card_num_table then ret = self.card_num_table
   else ret = self.min_card_num end
 
   if type(ret) == "function" then
@@ -149,17 +127,12 @@ end
 function ActiveSkill:getMaxCardNum(player)
   local ret
   if self.card_num then ret = self.card_num
-  elseif self.card_num_table then ret = self.card_num_table
   else ret = self.max_card_num end
 
   if type(ret) == "function" then
     ret = ret(self, player)
   end
-  if type(ret) == "table" then
-    return ret[#ret]
-  else
-    return ret
-  end
+  return ret
 end
 
 -- 获得技能的距离限制
@@ -235,10 +208,9 @@ end
 ---@param player Player @ 使用者
 ---@param selected Player[] @ 已选目标
 ---@param selected_cards integer[] @ 已选牌
----@param card? Card @ 牌
 ---@return boolean
-function ActiveSkill:feasible(player, selected, selected_cards, card)
-  return #selected >= self:getMinTargetNum(player) and #selected <= self:getMaxTargetNum(player, card)
+function ActiveSkill:feasible(player, selected, selected_cards)
+  return #selected >= self:getMinTargetNum(player) and #selected <= self:getMaxTargetNum(player)
     and #selected_cards >= self:getMinCardNum(player) and #selected_cards <= self:getMaxCardNum(player)
 end
 
@@ -252,26 +224,11 @@ function ActiveSkill:prompt(player, selected_cards, selected_targets) return "" 
 ------- }
 
 ---@param room Room
----@param cardUseEvent UseCardData | SkillUseData
+---@param cardUseEvent SkillUseData
 function ActiveSkill:onUse(room, cardUseEvent) end
 
----@param room Room
----@param cardUseEvent UseCardData | SkillEffectEvent
----@param finished? boolean?
-function ActiveSkill:onAction(room, cardUseEvent, finished) end
 
----@param room Room
----@param cardEffectEvent CardEffectData | SkillEffectData
-function ActiveSkill:aboutToEffect(room, cardEffectEvent) end
 
----@param room Room
----@param cardEffectEvent CardEffectData
-function ActiveSkill:onEffect(room, cardEffectEvent) end
-
--- Delayed Trick Only
----@param room Room
----@param cardEffectEvent CardEffectData | SkillEffectData
-function ActiveSkill:onNullified(room, cardEffectEvent) end
 
 --- 选择目标时产生的目标提示，贴在目标脸上
 ---@param player Player @ 使用者

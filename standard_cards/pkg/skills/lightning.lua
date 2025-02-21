@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "lightning_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#lightning_skill",
   mod_target_filter = Util.TrueFunc,
   can_use = Util.CanUseToSelf,

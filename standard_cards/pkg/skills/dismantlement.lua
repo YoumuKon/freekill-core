@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "dismantlement_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#dismantlement_skill",
   can_use = Util.CanUse,
   target_num = 1,

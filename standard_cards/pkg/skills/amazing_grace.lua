@@ -2,7 +2,7 @@ local skill = fk.CreateSkill {
   name = "amazing_grace_skill",
 }
 
-skill:addEffect("active", {
+skill:addEffect("cardskill", {
   prompt = "#amazing_grace_skill",
   can_use = Util.GlobalCanUse,
   on_use = function (self, room, cardUseEvent)
