@@ -9,7 +9,7 @@ skill:addEffect(fk.TargetSpecified, {
     return target == player and player:hasSkill(skill.name) and data.card and data.card.trueName == "slash" and not data.to.dead
   end,
   on_cost = function(self, event, target, player, data)
-    self.cost_data = { tos = {data.to} }
+    event:setCostData(self, { tos = { data.to.id } })
     return true
   end,
   on_use = function(self, event, target, player, data)
@@ -39,11 +39,11 @@ skill:addEffect(fk.BeforeHpChanged, {
     game_event = game_event.parent
     if game_event.event ~= GameEvent.Damage then return false end
     game_event = game_event.parent
-    if game_event.event ~= GameEvent.SkillEffect or game_event.data.trueName ~= "slash_skill" then return false end
+    if game_event.event ~= GameEvent.SkillEffect or game_event.data.skill.trueName ~= "slash_skill" then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.CardEffect then return false end
     local effect = game_event.data
-    if player.id ~= effect.to or effect.qinggang_clean then return false end
+    if player ~= effect.to or effect.qinggang_clean then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.UseCard then return false end
     local use = game_event.data
@@ -68,11 +68,11 @@ skill:addEffect(fk.DamageFinished, {
     local logic = player.room.logic
     local game_event = logic:getCurrentEvent()
     if data.card == nil or data.to ~= player then return false end
-    if game_event.event ~= GameEvent.SkillEffect or game_event.data.trueName ~= "slash_skill" then return false end
+    if game_event.event ~= GameEvent.SkillEffect or game_event.data.skill.trueName ~= "slash_skill" then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.CardEffect then return false end
     local effect = game_event.data
-    if player.id ~= effect.to or effect.qinggang_clean then return false end
+    if player ~= effect.to or effect.qinggang_clean then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.UseCard then return false end
     local use = game_event.data
@@ -98,7 +98,7 @@ skill:addEffect(fk.CardEffectFinished, {
     local game_event = logic:getCurrentEvent()
     if game_event.event ~= GameEvent.CardEffect then return false end
     local effect = game_event.data
-    if player.id ~= effect.to or effect.qinggang_clean then return false end
+    if player ~= effect.to or effect.qinggang_clean then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.UseCard then return false end
     local use = game_event.data
@@ -124,7 +124,7 @@ skill:addEffect(fk.CardEffectCancelledOut, {
     local game_event = logic:getCurrentEvent()
     if game_event.event ~= GameEvent.CardEffect then return false end
     local effect = game_event.data
-    if player.id ~= effect.to or effect.qinggang_clean then return false end
+    if player ~= effect.to or effect.qinggang_clean then return false end
     game_event = game_event.parent
     if game_event.event ~= GameEvent.UseCard then return false end
     local use = game_event.data
