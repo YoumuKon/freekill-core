@@ -71,6 +71,7 @@ skill:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:useCard {
       from = me,
+      tos = {},
       card = Fk:cloneCard("amazing_grace"),
     }
   end)

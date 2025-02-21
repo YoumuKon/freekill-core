@@ -3,6 +3,7 @@ local skill = fk.CreateSkill {
   attached_equip = "eight_diagram",
 }
 
+---@type AskForCardFunc
 local eight_diagram_on_use = function (self, event, target, player, data)
     local room = player.room
     local judgeData = {

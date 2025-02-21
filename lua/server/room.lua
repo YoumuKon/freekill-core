@@ -1959,10 +1959,7 @@ function Room:handleUseCardReply(player, data)
     end
     local use = {}
     use.from = player
-    use.tos = {}
-    for _, targetId in ipairs(targets or Util.DummyTable) do
-      table.insert(use.tos, self:getPlayerById(targetId))
-    end
+    use.tos = table.map(targets or Util.DummyTable, Util.Id2PlayerMapper)
     Fk:filterCard(card, player)
     use.card = Fk:getCardById(card)
     return use

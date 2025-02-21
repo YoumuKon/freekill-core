@@ -450,7 +450,8 @@ function GameLogic:resumeEvent(event)
     if err == false then
       -- handle error, then break
       if not string.find(yield_result, "__manuallyBreak") then
-        fk.qCritical(yield_result .. "\n" .. debug.traceback(co))
+        fk.qCritical(yield_result .. "\n" .. debug.traceback(co) ..
+          "\n" .. self:dumpEventStack())
       end
       ret = true
       break
@@ -715,38 +716,22 @@ function GameLogic:damageByCardEffect(is_exact)
   (not is_exact or (damage.from or {}).id == effect.from)
 end
 
-function GameLogic:dumpEventStack(detailed)
+function GameLogic:dumpEventStack()
   local top = self:getCurrentEvent()
   local i = self.game_event_stack.p
-  local inspect = p
   if not top then return end
 
-  print("===== Start of event stack dump =====")
-  if not detailed then print("") end
+  local ret = "===== Start of event stack dump =====\n"
 
   repeat
-    local printable_data
-    if type(top.data) ~= "table" then
-      printable_data = top.data
-    else
-      printable_data = table.cloneWithoutClass(top.data)
-    end
-
-    if not detailed then
-      print("Stack level #" .. i .. ": " .. tostring(top))
-    else
-      print("\nStack level #" .. i .. ":")
-      inspect{
-        eventId = GameEvent:translate(top.event),
-        data = printable_data or "nil",
-      }
-    end
+    ret = ret .. "Stack level #" .. i .. ": " .. tostring(top) .. "\n"
 
     top = top.parent
     i = i - 1
   until not top
 
-  print("\n===== End of event stack dump =====")
+  ret = ret .. "===== End of event stack dump =====\n"
+  return ret
 end
 
 function GameLogic:dumpAllEvents(from, to)

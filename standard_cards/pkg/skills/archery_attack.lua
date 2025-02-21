@@ -54,6 +54,7 @@ skill:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:useCard {
       from = me,
+      tos = {},
       card = Fk:cloneCard("archery_attack"),
     }
   end)

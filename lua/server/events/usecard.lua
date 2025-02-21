@@ -185,6 +185,14 @@ end
 ---@class GameEvent.UseCard : GameEvent
 ---@field public data UseCardData
 local UseCard = GameEvent:subclass("GameEvent.UseCard")
+
+function UseCard:__tostring()
+  local data = self.data
+  return string.format("<UseCard %s: %s => [%s] #%d>",
+    data.card, data.from, table.concat(
+      table.map(data.tos or {}, ServerPlayer.__tostring), ", "), self.id)
+end
+
 function UseCard:main()
   local useCardData = self.data
   local room = self.room
@@ -443,13 +451,14 @@ end
 ---@param useCardData UseCardDataSpec @ 使用数据
 ---@return boolean
 function UseCardEventWrappers:useCard(useCardData)
-  local new_data
+  -- local new_data
   -- if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
   --   and type(useCardData.tos[1][1]) == "number") then
   --   new_data = UseCardData:new({})
   --   new_data:loadLegacy(useCardData)
   -- else
-     new_data = UseCardData:new(useCardData)
+  local new_data = UseCardData:new(useCardData)
+  new_data.tos = new_data.tos or {}
   -- end
   return exec(UseCard, new_data)
 end

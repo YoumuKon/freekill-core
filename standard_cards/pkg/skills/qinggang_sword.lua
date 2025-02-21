@@ -166,17 +166,18 @@ skill:addTest(function(room, me)
       tos = { me },
       card = Fk:cloneCard("slash", Card.Spade),
     }
-    lu.assertEquals(me.hp, 3)
+  end)
+  lu.assertEquals(me.hp, 3)
 
-    --正确移除tag测试（FIXME: 未通过）
-    --[[room:throwCard(qinggang_sword, "", comp2, comp2)
+  FkTest.runInRoom(function()
+    room:throwCard(qinggang_sword, "", comp2, comp2)
     room:useCard {
       from = comp2,
       tos = { me },
       card = Fk:cloneCard("slash", Card.Spade),
     }
-    lu.assertEquals(me.hp, 3)]]--
   end)
+  lu.assertEquals(me.hp, 3)
 end)
 
 return skill
