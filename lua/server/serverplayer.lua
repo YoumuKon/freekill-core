@@ -429,11 +429,11 @@ end
 ---@param card integer | integer[] | Card | Card[]
 ---@param visible? boolean
 ---@param skillName? string
----@param proposer? integer
+---@param proposer? ServerPlayer
 ---@param visiblePlayers? integer | integer[] @ 为nil时默认对自己可见
 function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, visiblePlayers)
   self.room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible,
-  proposer or self.id, nil, visiblePlayers)
+  proposer or self, nil, visiblePlayers)
 end
 
 function ServerPlayer:bury()
@@ -608,9 +608,7 @@ function ServerPlayer:addFakeSkill(skill)
 
   table.insert(self._fake_skills, skill)
   for _, s in ipairs(skill.related_skills) do
-    -- if s.main_skill == skill then -- TODO: need more detailed
-      table.insert(self._fake_skills, s)
-    -- end
+    table.insert(self._fake_skills, s)
   end
 
   -- TODO

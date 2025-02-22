@@ -32,8 +32,8 @@ function SkillEffect:main()
       if cost_data.no_indicate then no_indicate = cost_data.no_indicate end
     end
     if not mute then
-      if skill.attached_equip then
-        local equip = Fk.all_card_types[skill.attached_equip]
+      if skill:getSkeleton() and skill:getSkeleton().attached_equip then
+        local equip = Fk.all_card_types[skill:getSkeleton().attached_equip]
         if equip then
           local pkgPath = "./packages/" .. equip.package.extensionName
           local soundName = pkgPath .. "/audio/card/" .. equip.name
@@ -72,7 +72,10 @@ function SkillEffect:main()
       )
     end
 
-    player:addSkillUseHistory(main_skill.name)
+    player:addSkillUseHistory(skill.name)
+    if skill.name ~= skill:getSkeleton().name and not skill.is_delay_effect then
+      player:addSkillUseHistory(skill:getSkeleton().name)
+    end
   end
 
   local cost_data_bak = skill.cost_data

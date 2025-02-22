@@ -17,7 +17,8 @@
 ---@field public relate_to_place string| "m" | "d" @ 主将技("m")/副将技("d")
 ---@field public times integer @ 技能剩余次数，负数不显示，正数显示
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
----@field public main_skill Skill
+---@field public main_skill Skill @ 仅用作添加技能和提示信息
+---@field public is_delay_effect boolean @ 是否是延时效果
 ---@field public cardSkill boolean @ 是否为卡牌效果对应的技能（仅用于ActiveSkill）
 ---@field public skeleton SkillSkeleton @ 获取技能骨架
 local Skill = class("Skill")
@@ -53,6 +54,7 @@ function Skill:initialize(name, frequency)
   self.anim_type = ""
   self.related_skills = {}
   self._extra_data = {}
+  self.is_delay_effect = false
 
   self.attached_skill_name = nil
 

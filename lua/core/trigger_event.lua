@@ -35,7 +35,7 @@ end
 ---@param k string
 ---@param v any
 function TriggerEvent:setSkillData(skill, k, v)
-  local name = skill.name--(skill.main_skill and skill.main_skill or skill).name
+  local name = skill.name
   self.skill_data[name] = self.skill_data[name] or {}
   self.skill_data[name][k] = v
 end
@@ -43,7 +43,7 @@ end
 ---@param skill Skill
 ---@param k string
 function TriggerEvent:getSkillData(skill, k)
-  local name = skill.name--(skill.main_skill and skill.main_skill or skill).name
+  local name = skill.name
   return self.skill_data[name] and self.skill_data[name][k]
 end
 

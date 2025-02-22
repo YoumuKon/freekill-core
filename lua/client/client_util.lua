@@ -290,7 +290,7 @@ function GetSkillData(skill_name)
     extension = skill.package.extensionName,
     freq = freq,
     frequency = frequency,
-    switchSkillName = skill:getSkeleton().name,
+    switchSkillName = skill:hasTag(Skill.Switch) and skill:getSkeleton().name or "",
     isViewAsSkill = skill:isInstanceOf(ViewAsSkill),
   }
 end

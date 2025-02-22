@@ -74,6 +74,7 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.distance_limit = spec.distance_limit or skill.distance_limit
   skill.expand_pile = spec.expand_pile
   skill.times = spec.times or skill.times
+  skill.is_delay_effect = spec.is_delay_effect
 end
 
 function fk.readStatusSpecToSkill(skill, spec)

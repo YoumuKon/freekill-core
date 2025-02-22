@@ -841,11 +841,6 @@ fk.client_callback["LoseSkill"] = function(self, data)
   elseif skill.visible then
     -- 按理说能弄得更好的但还是复制粘贴舒服
     local sks = { table.unpack(skill.related_skills) }
-    --[[ 需要大伙都适配好main_skill或者讨论出更好方案才行。不敢轻举妄动
-    local sks = table.filter(skill.related_skills, function(s)
-      return s.main_skill == skill
-    end)
-    --]]
     table.insert(sks, skill)
     table.removeOne(target.player_skills, skill)
     local chk = false

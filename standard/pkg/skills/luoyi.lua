@@ -3,6 +3,7 @@ local luoyi = fk.CreateSkill {
 }
 
 luoyi:addEffect(fk.DrawNCards, {
+  anim_type = "offensive",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(luoyi.name) and data.n > 0
   end,
@@ -12,6 +13,8 @@ luoyi:addEffect(fk.DrawNCards, {
 })
 
 luoyi:addEffect(fk.DamageCaused, {
+  anim_type = "offensive",
+  is_delay_effect = true,
   can_trigger = function(self, event, target, player, data)
     return player:usedSkillTimes(luoyi.name, Player.HistoryTurn) > 0 and
       data.card and (data.card.trueName == "slash" or data.card.name == "duel") and data.by_user
@@ -20,8 +23,6 @@ luoyi:addEffect(fk.DamageCaused, {
   on_use = function(self, event, target, player, data)
     data.damage = data.damage + 1
   end,
-}, {
-  is_delay_effect = true,
 })
 
 luoyi:addTest(function(room, me)

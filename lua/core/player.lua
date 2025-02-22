@@ -770,6 +770,31 @@ function Player:usedSkillTimes(skill_name, scope)
   return self.skillUsedHistory[skill_name][scope]
 end
 
+--- 获取玩家使用特定技能效果的历史次数。
+---@param skill_name string @ 技能名
+---@param scope? integer @ 查询历史范围，默认Turn
+function Player:usedEffectTimes(skill_name, scope)
+  if not self.skillUsedHistory[skill_name] then
+    return 0
+  end
+  scope = scope or Player.HistoryTurn
+  local skel = Fk.skills[skill_name]:getSkeleton()
+  if skel then
+    if skel.name ~= skill_name then
+      return self.skillUsedHistory[skill_name][scope]
+    else
+      local total = self.skillUsedHistory[skill_name][scope]
+      for _, effect in ipairs(skel.effect_names) do
+        if effect ~= skill_name and not Fk.skills[effect].is_delay_effect and self.skillUsedHistory[effect][scope] then
+          total = total - self.skillUsedHistory[effect][scope]
+        end
+      end
+      return total
+    end
+  end
+  return self.skillUsedHistory[skill_name][scope]
+end
+
 function Player:isAlive()
   return self.dead == false
 end

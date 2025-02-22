@@ -22,6 +22,8 @@ luoshen:addEffect(fk.EventPhaseStart, {
   end,
 })
 luoshen:addEffect(fk.FinishJudge, {
+  mute = true,
+  is_delay_effect = true,
   can_trigger = function(self, event, target, player, data)
     return target == player and not player.dead and data.reason == luoshen.name and data.card.color == Card.Black and
       player.room:getCardArea(data.card) == Card.Processing
@@ -30,8 +32,6 @@ luoshen:addEffect(fk.FinishJudge, {
   on_use = function(self, event, target, player, data)
     player.room:obtainCard(player.id, data.card, false, fk.ReasonJustMove, nil, luoshen.name)
   end,
-}, {
-  is_delay_effect = true,
 })
 
 luoshen:addTest(function(room, me)
