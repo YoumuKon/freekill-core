@@ -169,6 +169,7 @@ function Card:getEffectiveId()
   return self.id
 end
 
+--- 根据虚拟牌的子卡牌更新牌的颜色、花色和点数
 local function updateColorAndNumber(card)
   local color = Card.NoColor
   local number = 0

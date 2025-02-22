@@ -570,10 +570,10 @@ function ServerPlayer:reset()
   if not self.faceup then self:turnOver() end
 end
 
---- 进行拼点。
----@param tos ServerPlayer[]
----@param skillName string
----@param initialCard? Card
+--- 对若干名角色发起拼点。
+---@param tos ServerPlayer[] @ 拼点目标角色
+---@param skillName string @ 技能名
+---@param initialCard? Card @ 发起者的起始拼点牌
 ---@return PindianData
 function ServerPlayer:pindian(tos, skillName, initialCard)
   local pindianData = { from = self, tos = tos, reason = skillName, fromCard = initialCard, results = {} }
