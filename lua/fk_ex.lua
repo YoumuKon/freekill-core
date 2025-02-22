@@ -90,16 +90,20 @@ end
 ---@field public no_indicate? boolean @ 决定是否关闭技能指示线
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
----@field public attached_equip? string @ 属于什么装备的技能？
----@field public relate_to_place? string @ 主将技/副将技
----@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string
----@field public tag? SkillTag[] @ 技能标签
+---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string @ 动态描述函数
 
----@class SkillSkeleton : Object, SkillSpec
+---@class SkillSkeletonSpec
+---@field public name? string @ 骨架名，即此技能集合的外在名称
+---@field public tags? SkillTag[] 技能标签
+---@field public attached_equip? string @ 属于什么装备的技能？
+---@field public attachedKingdom? string[] @ 只有哪些势力可以获得，若为空则均可。用于势力技。
+---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
+
+
+---@class SkillSkeleton : Object, SkillSkeletonSpec
 ---@field public effects Skill[] 技能对应的所有效果
 ---@field public effect_names string[] 技能对应的效果名
 ---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
----@field public tags SkillTag[] 技能标签
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil): SkillSkeleton
@@ -117,7 +121,7 @@ end
 ---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
 local SkillSkeleton = class("SkillSkeleton")
 
----@param spec SkillSpec
+---@param spec SkillSkeletonSpec
 function SkillSkeleton:initialize(spec)
   local name = spec.name ---@type string
   self.name = name
@@ -154,7 +158,7 @@ function SkillSkeleton:addEffect(key, data, attribute)
   local function getTypePriority(k)
     if k == 'active' or k == 'viewas' or k == 'cardskill' then
       return 5
-    elseif type(k) == 'table' then
+    elseif type(k) == 'table' then -- 触发技
       return 3
     else
       return 1
@@ -237,7 +241,7 @@ function SkillSkeleton:createSkill()
         main_skill.trueName = name_split[#name_split]
         main_skill.visible = self.name[1] ~= "#"
       else
-        if not attr.is_delay_effect then
+        if not (attr.is_delay_effect or sk.is_delay_effect) then
           sk.main_skill = main_skill
         end
         main_skill:addRelatedSkill(sk)
@@ -670,7 +674,7 @@ function SkillSkeleton:addLoseEffect(fn)
   end
 end
 
----@param spec SkillSpec
+---@param spec SkillSkeletonSpec
 ---@return SkillSkeleton
 function fk.CreateSkill(spec)
   return SkillSkeleton:new(spec)
