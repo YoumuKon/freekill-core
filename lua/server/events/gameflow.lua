@@ -459,7 +459,7 @@ function Phase:clear()
   logic:trigger(fk.EventPhaseEnd, player, data, self.interrupted)
   logic:trigger(fk.AfterPhaseEnd, player, data, self.interrupted)
 
-  player.phase = Player.PhaseNone
+  player.phase = (room.current == player and Player.PhaseNone or Player.NotActive)
   room:broadcastProperty(player, "phase")
 
   for _, p in ipairs(room.players) do
