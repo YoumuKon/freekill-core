@@ -13,7 +13,7 @@ local eight_diagram_on_use = function (self, event, target, player, data)
     }
     room:judge(judgeData)
 
-    if judgeData.card.color == Card.Red then
+    if judgeData:matchPattern() then
       if event:isInstanceOf(fk.AskForCardUse) then
         data.result = {
           from = player,
@@ -37,7 +37,7 @@ local eight_diagram_on_use = function (self, event, target, player, data)
 skill:addEffect(fk.AskForCardUse, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
-      (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
+      Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none") and
       not player:prohibitUse(Fk:cloneCard("jink"))
   end,
   on_use = eight_diagram_on_use,
@@ -45,7 +45,7 @@ skill:addEffect(fk.AskForCardUse, {
 skill:addEffect(fk.AskForCardResponse, {
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(skill.name) and
-      (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
+      Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none") and
       not player:prohibitResponse(Fk:cloneCard("jink"))
   end,
   on_use = eight_diagram_on_use,

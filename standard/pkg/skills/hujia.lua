@@ -7,7 +7,7 @@ local hujia_spec = {
   anim_type = "defensive",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(hujia.name) and
-      (data.cardName == "jink" or (data.pattern and Exppattern:Parse(data.pattern):matchExp("jink|0|nosuit|none"))) and
+      Exppattern:Parse(data.pattern):matchExp("jink") and
       (data.extraData == nil or data.extraData.hujia_ask == nil) and
       not table.every(player.room.alive_players, function(p)
         return p == player or p.kingdom ~= "wei"

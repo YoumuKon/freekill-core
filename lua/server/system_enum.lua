@@ -15,7 +15,7 @@
 --- AskForCardUse 询问使用卡牌的数据
 ---@class AskForCardUse
 ---@field public user ServerPlayer @ 使用者
----@field public cardName string @ 烧条信息
+---@field public skillName string @ 烧条技能名
 ---@field public pattern string @ 可用牌过滤
 ---@field public eventData? CardEffectEvent @ 事件数据
 ---@field public extraData? UseExtraData | any @ 额外数据
@@ -24,10 +24,10 @@
 --- AskForCardResponse 询问响应卡牌的数据
 ---@class AskForCardResponse
 ---@field public user ServerPlayer @ 响应者
----@field public cardName string @ 烧条信息
+---@field public skillName string @ 烧条技能名
 ---@field public pattern string @ 可用牌过滤
 ---@field public extraData? UseExtraData | any @ 额外数据
----@field public result? Card
+---@field public result? RespondCardDataSpec @ 打出牌的数据
 
 --- LogMessage 战报信息
 ---@class LogMessage
