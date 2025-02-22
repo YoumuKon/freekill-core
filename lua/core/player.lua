@@ -785,7 +785,7 @@ function Player:usedEffectTimes(skill_name, scope)
     else
       local total = self.skillUsedHistory[skill_name][scope]
       for _, effect in ipairs(skel.effect_names) do
-        if effect ~= skill_name and not Fk.skills[effect].is_delay_effect and self.skillUsedHistory[effect][scope] then
+        if effect ~= skill_name and not Fk.skills[effect].is_delay_effect and self.skillUsedHistory[effect] then
           total = total - self.skillUsedHistory[effect][scope]
         end
       end
