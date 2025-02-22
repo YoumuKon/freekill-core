@@ -27,15 +27,6 @@ function Pindian:main()
     }
   end
 
-  local extraData = {
-    num = 1,
-    min_num = 1,
-    include_equip = false,
-    pattern = ".",
-    reason = pindianData.reason,
-  }
-  local prompt = "#askForPindian:::" .. pindianData.reason
-  local data = { "choose_cards_skill", prompt, false, extraData }
 
   ---@type ServerPlayer[]
   local targets = {}
@@ -87,10 +78,20 @@ function Pindian:main()
     end
   end
 
+  local extraData = {
+    num = 1,
+    min_num = 1,
+    include_equip = false,
+    pattern = ".",
+    reason = pindianData.reason,
+  }
+  local prompt = "#askForPindian:::" .. pindianData.reason
+  local req_data = { "choose_cards_skill", prompt, false, extraData }
+
   if #targets ~= 0 then
     local req = Request:new(targets, "AskForUseActiveSkill")
     for _, p in ipairs(targets) do
-      req:setData(p, data)
+      req:setData(p, req_data)
       req:setDefaultReply(p, p:getCardIds(Player.Hand)[1])
     end
     req.focus_text = "AskForPindian"

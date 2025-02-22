@@ -82,8 +82,8 @@ local sendCardEmotionAndLog = function(room, useCardData)
   end
 
   local useCardIds = card:isVirtual() and card.subcards or { card.id }
+  local isVirtual = card:isVirtual() or card.name ~= Fk:getCardById(card.id, true).name
   if useCardData.tos and #useCardData.tos > 0 and not useCardData.noIndicate then
-    local isVirtual = card:isVirtual() or card.name ~= Fk:getCardById(card.id, true).name
     local to = {}
     for _, p in ipairs(useCardData.tos) do
       table.insert(to, p.id)

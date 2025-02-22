@@ -9,11 +9,13 @@ guicai:addEffect(fk.AskForRetrial, {
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
+    local pattern = tostring(Exppattern{ id = table.filter(player:getCardIds("h"),
+    function(id) return not player:prohibitDiscard(Fk:getCardById(id)) end) })
     local cards = room:askToCards(player, {
       min_num = 1,
       max_num = 1,
       skill_name = guicai.name,
-      pattern = ".|.|.|hand",
+      pattern = pattern,
       prompt = "#guicai-ask::"..target.id,
       cancelable = true,
     })
@@ -23,7 +25,13 @@ guicai:addEffect(fk.AskForRetrial, {
     end
   end,
   on_use = function(self, event, target, player, data)
-    player.room:retrial(Fk:getCardById(event:getCostData(self).cards[1]), player, data, guicai.name)
+    player.room:ChangeJudge{
+      card = Fk:getCardById(event:getCostData(self).cards[1]),
+      player = player,
+      data = data,
+      skillName = guicai.name,
+      response = true,
+    }
   end,
 })
 

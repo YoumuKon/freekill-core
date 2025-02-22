@@ -14,7 +14,7 @@ tieqi:addEffect(fk.TargetSpecified, {
       pattern = ".|.|heart,diamond",
     }
     room:judge(judge)
-    if judge.card.color == Card.Red then
+    if judge:matchPattern() then
       data.disresponsive = true
     end
   end,

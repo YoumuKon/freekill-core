@@ -15,7 +15,7 @@ luoshen:addEffect(fk.EventPhaseStart, {
         pattern = ".|.|spade,club",
       }
       room:judge(judge)
-      if judge.card.color ~= Card.Black or player.dead or not room:askToSkillInvoke(player, { skill_name = luoshen.name }) then
+      if judge:matchPattern() or player.dead or not room:askToSkillInvoke(player, { skill_name = luoshen.name }) then
         break
       end
     end
@@ -30,7 +30,7 @@ luoshen:addEffect(fk.FinishJudge, {
   end,
   on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card, false, fk.ReasonJustMove, nil, luoshen.name)
+    player.room:obtainCard(player.id, data.card, true, fk.ReasonJustMove, nil, luoshen.name)
   end,
 })
 

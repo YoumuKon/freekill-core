@@ -14,7 +14,7 @@ ganglie:addEffect(fk.Damaged, {
       pattern = ".|.|^heart",
     }
     room:judge(judge)
-    if judge.card.suit ~= Card.Heart and from and not from.dead then
+    if judge:matchPattern() and from and not from.dead then
       local discards = room:askToDiscard(from, {
         min_num = 2,
         max_num = 2,

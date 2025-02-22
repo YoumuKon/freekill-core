@@ -107,7 +107,7 @@ end
 --- 改判参数集
 ---@class RetrialParams
 ---@field card Card @ 新的判定牌
----@field player ServerPlayer @ 改判的发动这
+---@field player ServerPlayer @ 改判的发动者
 ---@field data JudgeData @ 要被改判的判定数据
 ---@field skillName? string @ 技能名
 ---@field exchange? boolean @ 改判者是否获得原判定牌（鬼道）。默认否

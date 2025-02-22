@@ -6,7 +6,7 @@
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
 ---@field public skipDrop? boolean @ 是否不进入弃牌堆
 ---@field public customFrom? ServerPlayer @ 新响应者
----@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转换技
+---@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转化技
 
 --- 打出牌的数据
 ---@class RespondCardData: RespondCardDataSpec, TriggerData
@@ -44,7 +44,7 @@ fk.CardRespondFinished = RespondCardEvent:subclass("fk.CardRespondFinished")
 ---@field public damageDealt? table<ServerPlayer, number> @ 此牌造成的伤害
 ---@field public additionalEffect? integer @ 额外结算次数
 ---@field public noIndicate? boolean @ 隐藏指示线
----@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转换技
+---@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转化技
 
 --- 使用牌的数据
 ---@class UseCardData: UseCardDataSpec, TriggerData

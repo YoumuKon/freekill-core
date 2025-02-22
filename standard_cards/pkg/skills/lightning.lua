@@ -14,8 +14,7 @@ skill:addEffect("cardskill", {
       pattern = ".|2~9|spade",
     }
     room:judge(judge)
-    local result = judge.card
-    if result.suit == Card.Spade and result.number >= 2 and result.number <= 9 then
+    if judge:matchPattern() then
       room:damage{
         to = to,
         damage = 3,

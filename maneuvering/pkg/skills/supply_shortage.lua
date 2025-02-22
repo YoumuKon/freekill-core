@@ -20,8 +20,7 @@ skill:addEffect("cardskill", {
       pattern = ".|.|spade,heart,diamond",
     }
     room:judge(judge)
-    local result = judge.card
-    if result.suit ~= Card.Club then
+    if judge:matchPattern() then
       to:skip(Player.Draw)
     end
     self:onNullified(room, effect)
