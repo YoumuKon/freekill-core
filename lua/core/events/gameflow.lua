@@ -93,7 +93,7 @@ end
 ---@param reason? string @ 额外阶段的原因，不为额外阶段则为game_rule
 ---@param who? ServerPlayer @ 额外阶段的执行者（默认为当前回合角色）
 function TurnData:gainAnExtraPhase(phase, reason, who)
-  table.insert(self.phase_table, PhaseData:new{
+  table.insert(self.phase_table, self.phase_index + 1, PhaseData:new{
     who = who or self.who,
     reason = reason or "game_rule",
     phase = phase
