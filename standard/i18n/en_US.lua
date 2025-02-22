@@ -119,6 +119,7 @@ Fk:loadTranslationTable({
   ["daqiao"] = "Da Qiao",
   ["guose"] = "National Beauty",
   [":guose"] = "You can use any diamond card as Indulgence.",
+  ["#guose"] = "Use National Beauty to use any diamond card as Indulgence",
   ["liuli"] = "Shirk",
   [":liuli"] = "When you become the target of Slash: you can discard 1 card and select another player (except the attacker) within your attack range; then, he becomes the target of the Slash instead.",
   ["#liuli-target"] = "Shirk: you can discard 1 card and transfer the Slash",

@@ -3,13 +3,13 @@
 ---@class PindianDataSpec
 ---@field public from ServerPlayer @ 拼点发起者
 ---@field public tos ServerPlayer[] @ 拼点目标
----@field public fromCard Card @ 拼点发起者的初始拼点牌
+---@field public fromCard? Card @ 拼点发起者的初始拼点牌
 ---@field public results table<ServerPlayer, PindianResult> @ 所有的拼点结果
 ---@field public reason string @ 拼点原因，一般为技能名
 
 --- PindianResult 拼点结果
 ---@class PindianResult
----@field public toCard Card @ 被拼点者的拼点牌
+---@field public toCard? Card @ 被拼点者的拼点牌
 ---@field public winner? ServerPlayer @ 赢家，可能不存在
 
 --- 拼点的数据

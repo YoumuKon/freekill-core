@@ -235,6 +235,7 @@ Fk:loadTranslationTable{
   ["$guose2"] = "你累了。",
   ["guose"] = "国色",
   [":guose"] = "你可以将一张<font color='red'>♦</font>牌当【乐不思蜀】使用。",
+  ["#guose"] = "发动 国色，将一张<font color='red'>♦</font>牌当【乐不思蜀】使用",
   ["$liuli1"] = "交给你了。",
   ["$liuli2"] = "你来嘛～",
   ["liuli"] = "流离",

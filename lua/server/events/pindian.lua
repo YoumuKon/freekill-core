@@ -100,15 +100,8 @@ function Pindian:main()
     req.focus_text = "AskForPindian"
 
     for _, to in ipairs(targets) do
-      local card
       local result = req:getResult(to)
-      if type(result) == "table" then
-        p("aaaaaaaaa")
-        card = Fk:getCardById(result.card.subcards[1])
-      else
-        p("bbbbbbbbbbb")
-        card = Fk:getCardById(result)
-      end
+      local card = Fk:getCardById(result.card.subcards[1])
 
       virtualize(card)
 
