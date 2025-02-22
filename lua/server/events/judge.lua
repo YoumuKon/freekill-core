@@ -103,6 +103,64 @@ function JudgeEventWrappers:judge(data)
   return exec(Judge, data)
 end
 
+
+--- 改判参数集
+---@class RetrialParams
+---@field card Card @ 新的判定牌
+---@field player ServerPlayer @ 改判的发动这
+---@field data JudgeData @ 要被改判的判定数据
+---@field skillName? string @ 技能名
+---@field exchange? boolean @ 改判者是否获得原判定牌（鬼道）。默认否
+---@field response? boolean @ 是否以打出方式改判（老诸葛瑾）。默认否
+
+
+--- 改变判定牌
+---@param params RetrialParams
+function JudgeEventWrappers:ChangeJudge(params)
+  local card, player, data, skillName = params.card, params.player, params.data, params.skillName
+  if not card then return end
+  ---@cast self Room
+
+  local newId = card:getEffectiveId()
+  local oldId = data.card:getEffectiveId()
+  if newId and self:getCardArea(newId) ~= Card.Processing then
+    self:moveCards{
+      ids = {newId},
+      from = self:getCardOwner(newId),
+      toArea = Card.Processing,
+      moveReason = params.response and fk.ReasonResonpse or fk.ReasonJustMove,
+      skillName = skillName,
+    }
+  end
+  data.card = card
+
+  self:sendLog{
+    type = "#ChangedJudge",
+    from = player.id,
+    to = { data.who.id },
+    arg2 = card:toLogString(),
+    arg = skillName,
+  }
+
+  if newId and self:getCardArea(newId) == Card.Processing then
+    data.card = self:filterCard(newId, data.who, true)
+  end
+
+  if oldId and self:getCardArea(oldId) == Card.Processing then
+    local exchange = params.exchange and not player.dead
+    self:moveCards{
+      ids = { oldId },
+      toArea = exchange and Card.PlayerHand or Card.DiscardPile,
+      moveReason = exchange and fk.ReasonJustMove or fk.ReasonJudge,
+      to = exchange and player or nil,
+      skillName = skillName,
+    }
+  end
+
+end
+
+
+
 --- 改判。
 ---@param card Card @ 改判的牌
 ---@param player ServerPlayer @ 改判的玩家
@@ -110,42 +168,7 @@ end
 ---@param skillName? string @ 技能名
 ---@param exchange? boolean @ 是否要替换原有判定牌（即类似鬼道那样）
 function JudgeEventWrappers:retrial(card, player, judge, skillName, exchange)
-  if not card then return end
-  ---@cast self Room
-
-  local move1 = {} ---@type CardsMoveInfo
-  move1.ids = { card:getEffectiveId() }
-  move1.from = self:getCardOwner(card:getEffectiveId())
-  move1.toArea = Card.Processing
-  move1.moveReason = fk.ReasonJustMove
-  move1.skillName = skillName
-  self:moveCards(move1)
-
-  local oldJudge = judge.card
-  judge.card = card
-
-  self:sendLog{
-    type = "#ChangedJudge",
-    from = player.id,
-    to = { judge.who.id },
-    arg2 = card:toLogString(),
-    arg = skillName,
-  }
-
-  Fk:filterCard(judge.card.id, judge.who, judge)
-
-  if self:getCardArea(oldJudge) == Card.Processing then
-    exchange = exchange and not player.dead
-
-    local move2 = {} ---@type CardsMoveInfo
-    move2.ids = { oldJudge:getEffectiveId() }
-    move2.toArea = exchange and Card.PlayerHand or Card.DiscardPile
-    move2.moveReason = exchange and fk.ReasonJustMove or fk.ReasonJudge
-    move2.to = exchange and player or nil
-    move2.skillName = skillName
-    self:moveCards(move2)
-  end
-
+  self:ChangeJudge{card = card, player = player, data = judge, skillName = skillName, exchange = exchange}
 end
 
 return { Judge, JudgeEventWrappers }
