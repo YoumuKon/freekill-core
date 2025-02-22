@@ -24,32 +24,26 @@ local hujia_spec = {
           cancelable = true,
           extra_data = {hujia_ask = true}
         }
-        local cardResponded = room:askToResponse(p, params)
-        if cardResponded then
-          room:responseCard({
-            from = p,
-            card = cardResponded,
-            skipDrop = true,
-          })
+        local respond = room:askToResponse(p, params)
+        if respond then
+          respond.skipDrop = true
+          room:responseCard(respond)
 
+          local new_card = Fk:cloneCard('jink')
+          new_card.skillName = hujia.name
+          new_card:addSubcards(room:getSubcardsByRule(respond.card, { Card.Processing }))
+          local result = {
+            from = player,
+            card = new_card,
+          }
           if event == fk.AskForCardUse then
-            data.result = {
-              from = player.id,
-              card = Fk:cloneCard('jink'),
-              tos = {},
-            }
-            data.result.card:addSubcards(room:getSubcardsByRule(cardResponded, { Card.Processing }))
-            data.result.card.skillName = hujia.name
-
-            if data.eventData then
-              data.result.toCard = data.eventData.toCard
-              data.result.responseToEvent = data.eventData.responseToEvent
-            end
-          else
-            data.result = Fk:cloneCard('jink')
-            data.result:addSubcards(room:getSubcardsByRule(cardResponded, { Card.Processing }))
-            data.result.skillName = hujia.name
+            result.tos = {}
           end
+          if data.eventData then
+            result.toCard = data.eventData.toCard
+            result.responseToEvent = data.eventData.responseToEvent
+          end
+          data.result = result
           return true
         end
       end

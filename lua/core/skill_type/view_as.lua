@@ -38,13 +38,22 @@ function ViewAsSkill:enabledAtResponse(player, cardResponsing)
   return self:isEffectable(player)
 end
 
+--- 使用转换技使用/打出牌前执行的操作，注意此时牌未被使用/打出
 ---@param player Player
 ---@param cardUseStruct UseCardDataSpec
+---@return any @ 若返回字符串，则取消本次使用
 function ViewAsSkill:beforeUse(player, cardUseStruct) end
 
+--- 使用转换技使用牌后执行的操作
 ---@param player Player
 ---@param cardUseStruct UseCardData
 function ViewAsSkill:afterUse(player, cardUseStruct) end
+
+--- 使用转换技打出牌后执行的操作
+---@param player Player
+---@param response RespondCardData
+function ViewAsSkill:afterResponse(player, response) end
+
 
 ---@param player Player @ 你自己
 ---@param selected_cards integer[] @ ids of selected cards

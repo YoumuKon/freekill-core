@@ -237,19 +237,13 @@ function CardSkill:onNullified(room, cardEffectEvent) end
 
 -- 卡牌生效前，询问抵消（默认杀询问闪，锦囊询问无懈）
 ---@param room Room
+---@param cardEffectData CardEffectData
 function CardSkill:preEffect(room, cardEffectData)
   if
     cardEffectData.card.trueName == "slash" and
     not cardEffectData:isUnoffsetable(cardEffectData.to)
   then
-    local loopTimes = 1
-    if cardEffectData.fixedResponseTimes then
-      if type(cardEffectData.fixedResponseTimes) == "table" then
-        loopTimes = cardEffectData.fixedResponseTimes["jink"] or 1
-      elseif type(cardEffectData.fixedResponseTimes) == "number" then
-        loopTimes = cardEffectData.fixedResponseTimes --[[@as integer]]
-      end
-    end
+    local loopTimes = cardEffectData:getResponseTimes()
     Fk.currentResponsePattern = "jink"
 
     for i = 1, loopTimes do

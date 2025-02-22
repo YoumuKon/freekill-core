@@ -249,6 +249,8 @@ Fk:loadTranslationTable({
   ["#AskForUseOneCard"] = "%arg: Please use 1 card from these",
   ["#askForUseVirtualCard"] = "%arg：Please use a virtual card %arg2",
   ["#askForUseVirtualCards"] = "%arg：Please use a virtual card",
+  ["#AskForUseMultiCard"] = "Please use %arg ( %arg2 th, %arg3 total )",
+  ["#AskForResponseMultiCard"] = "Please play %arg ( %arg2 th, %arg3 total )",
 
   ["#AskForDiscard"] = "Please discard %arg cards (%arg2 at least)",
   ["#AskForCard"] = "Please choose %arg cards (%arg2 at least)",

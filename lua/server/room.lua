@@ -1904,7 +1904,7 @@ end
 --- 将从Request获得的数据转化为UseCardData，或执行主动技的onUse部分
 --- 一般DIY用不到的内部函数
 ---@param player ServerPlayer
----@return UseCardDataSpec?
+---@return UseCardDataSpec|string? @ 返回字符串则取消使用，若返回技能名，在当前询问中禁用此技能
 function Room:handleUseCardReply(player, data)
   local card = data.card
   local targets = data.targets or {}
@@ -2143,9 +2143,8 @@ function Room:askToUseCard(player, params)
   local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   params.prompt = params.prompt or ""
-  local card_name, prompt, cancelable, event_data = params.skill_name, params.prompt, params.cancelable, params.event_data
-  if event_data and (event_data.disresponsive or
-    table.contains(event_data.disresponsiveList or Util.DummyTable, player)) then
+  local skillName, prompt, cancelable, event_data = params.skill_name, params.prompt, params.cancelable, params.event_data
+  if event_data and event_data:isDisresponsive(player) then
     return nil
   end
   local pattern = params.pattern
@@ -2163,9 +2162,9 @@ function Room:askToUseCard(player, params)
 
   local command = "AskForUseCard"
 
-  local askForUseCardData = {
+  local askForUseCardData = { ---@type AskForCardData
     user = player,
-    cardName = card_name,
+    skillName = skillName,
     pattern = pattern,
     extraData = extra_data,
     eventData = event_data,
@@ -2184,13 +2183,13 @@ function Room:askToUseCard(player, params)
 
     repeat
       useResult = nil
-      local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
+      local data = {skillName, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
       self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
 
       local req = Request:new(player, command)
-      req.focus_text = card_name or ""
+      req.focus_text = skillName or ""
       req:setData(player, data)
       local result = req:getResult(player)
 
@@ -2217,55 +2216,54 @@ end
 --- 询问一名玩家打出一张牌。
 ---@param player ServerPlayer @ 要询问的玩家
 ---@param params AskToUseCardParams @ 各种变量
----@return Card? @ 打出的牌
+---@return RespondCardDataSpec? @ 打出的事件
 function Room:askToResponse(player, params)
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
   local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
   params.prompt = params.prompt or ""
-  local card_name, pattern, prompt, cancelable, event_data =
+  local skillName, pattern, prompt, cancelable, event_data =
     params.skill_name, params.pattern, params.prompt,
     params.cancelable, params.event_data
-  if event_data and (event_data.disresponsive or
-    table.contains(event_data.disresponsiveList or Util.DummyTable, player)) then
+  if event_data and event_data:isDisresponsive(player) then
     return nil
   end
 
   local command = "AskForResponseCard"
 
-  local eventData = {
+  local askForUseCardData = { ---@type AskForCardData
     user = player,
-    cardName = card_name,
+    skillName = skillName,
     pattern = pattern,
     extraData = extra_data,
     eventData = event_data,
   }
-  self.logic:trigger(fk.AskForCardResponse, player, eventData)
+  self.logic:trigger(fk.AskForCardResponse, player, askForUseCardData)
 
   local responseResult
-  if eventData.result then
-    if type(eventData.result) == "table" then
-      responseResult = eventData.result
+  if askForUseCardData.result then
+    if type(askForUseCardData.result) == "table" then
+      responseResult = askForUseCardData.result
     else
-      eventData.result = nil
+      askForUseCardData.result = nil
     end
   else
     local disabledSkillNames = {}
 
     repeat
       responseResult = nil
-      local data = {card_name, pattern, prompt, cancelable, extra_data, disabledSkillNames}
+      local data = {skillName, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
-      eventData.isResponse = true
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
+      askForUseCardData.isResponse = true
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
 
       local req = Request:new(player, command)
-      req.focus_text = card_name or ""
+      req.focus_text = skillName or ""
       req:setData(player, data)
       local result = req:getResult(player)
 
-      eventData.afterRequest = true
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
+      askForUseCardData.afterRequest = true
+      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
@@ -2277,14 +2275,14 @@ function Room:askToResponse(player, params)
       end
     until type(responseResult) ~= "string"
 
-    if responseResult then
-      responseResult = responseResult.card
+    if type(responseResult) == "table" then
+      responseResult.tos = nil
+      responseResult.responseToEvent = event_data
     end
-
-    eventData.result = responseResult
+    askForUseCardData.result = responseResult
   end
 
-  self.logic:trigger(fk.AfterAskForCardResponse, player, eventData)
+  self.logic:trigger(fk.AfterAskForCardResponse, player, askForUseCardData)
   return responseResult
 end
 

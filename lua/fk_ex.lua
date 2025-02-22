@@ -112,8 +112,8 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: 'active', data: ActiveSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'cardskill', data: CardSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: 'viewas', data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
----@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean): SkillSkeleton
----@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean): SkillSkeleton
+---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean)
+---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSpec
@@ -587,6 +587,11 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   if spec.after_use and type(spec.after_use) == "function" then
     skill.afterUse = spec.after_use
   end
+
+  if spec.after_response and type(spec.after_response) == "function" then
+    skill.afterResponse = spec.after_response
+  end
+
   skill.handly_pile = spec.handly_pile
 
   return skill
@@ -799,8 +804,9 @@ end
 ---@field public pattern? string
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
----@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardDataSpec): string?
+---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardDataSpec): string? @ 使用/打出前执行的内容，返回字符串则取消此次使用，返回技能名则在本次询问中禁止使用此技能
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
+---@field public after_response? fun(self: ViewAsSkill, player: ServerPlayer, response: RespondCardData): string? @ 打出此牌后执行的内容
 ---@field public prompt? string|fun(self: ViewAsSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? any
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌

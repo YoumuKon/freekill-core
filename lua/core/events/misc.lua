@@ -92,11 +92,13 @@ fk.GameFinished = StringEvent:subclass("fk.GameFinished")
 
 ---@class AskForCardData
 ---@field user ServerPlayer
----@field cardName string
+---@field skillName? string @ 烧条显示的技能名称
 ---@field pattern string
 ---@field extraData UseExtraData
----@field eventData? CardEffectData
+---@field eventData? CardEffectData @ 询问此响应的事件，例如借刀之于问杀
 ---@field result? any
+---@field isResponse? boolean @ 是否为打出事件
+---@field afterRequest? boolean @ 是否已询问
 
 ---@class AskForCardEvent : TriggerEvent
 ---@field data AskForCardData

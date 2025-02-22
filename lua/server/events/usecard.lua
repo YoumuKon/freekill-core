@@ -323,15 +323,33 @@ function RespondCard:main()
   local room = self.room
   local logic = room.logic
 
+  if respondCardData.attachedSkillAndUser then
+    local skill = Fk.skills[respondCardData.attachedSkillAndUser.skillName]---@type ViewAsSkill
+    local user = room:getPlayerById(respondCardData.attachedSkillAndUser.user)
+    if skill and skill.afterResponse then
+      self:addExitFunc(function()
+        skill:afterResponse(user, respondCardData)
+      end)
+    end
+    respondCardData.attachedSkillAndUser = nil
+  end
+
   if logic:trigger(fk.PreCardRespond, respondCardData.from, respondCardData) then
     logic:breakEvent()
+  end
+
+  if not respondCardData.card:isVirtual() then
+    respondCardData.card = room:filterCard(respondCardData.card.id, respondCardData.from)
   end
 
   local from = respondCardData.customFrom or respondCardData.from
   local card = respondCardData.card
   local cardIds = room:getSubcardsByRule(card)
+  local isVirtual = card:isVirtual() or card.name ~= Fk:getCardById(card.id, true).name
 
-  if card:isVirtual() then
+  room:playCardEmotionAndSound(from, card)
+
+  if isVirtual then
     if #cardIds == 0 then
       room:sendLog{
         type = "#ResponsePlayV0Card",
@@ -354,15 +372,13 @@ function RespondCard:main()
     }
   end
 
-  room:playCardEmotionAndSound(from, card)
-
   room:moveCardTo(card, Card.Processing, nil, fk.ReasonResonpse)
   if #cardIds > 0 then
     room:sendFootnote(cardIds, {
       type = "##ResponsePlayCard",
       from = from.id,
     })
-    if card:isVirtual() then
+    if isVirtual then
       room:sendCardVirtName(cardIds, card.name)
     end
   end

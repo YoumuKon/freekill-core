@@ -6,6 +6,7 @@
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
 ---@field public skipDrop? boolean @ 是否不进入弃牌堆
 ---@field public customFrom? ServerPlayer @ 新响应者
+---@field public attachedSkillAndUser? { user: integer, skillName: string } @ 附加技能与使用者，用于转换技
 
 --- 打出牌的数据
 ---@class RespondCardData: RespondCardDataSpec, TriggerData
@@ -175,8 +176,8 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
----@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
----@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
+---@field public fixedResponseTimes? integer @ 响应此事件需要的牌张数（如杀之于决斗），默认1张
+---@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双），为nil则应用所有角色
 ---@field public extraData? UseExtraData | any @ 额外数据
 
 --- 使用牌的数据
@@ -376,8 +377,8 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
 ---@field public isCancellOut? boolean @ 是否被抵消
----@field public fixedResponseTimes? table<string, integer>|integer @ 额外响应请求
----@field public fixedAddTimesResponsors? integer[] @ 额外响应请求次数
+---@field public fixedResponseTimes? integer @ 响应此事件需要的牌张数（如杀之于决斗），默认1张
+---@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双），为nil则应用所有角色
 ---@field public prohibitedCardNames? string[] @ 这些牌名的牌不可响应此牌
 
 --- 卡牌效果的数据
@@ -397,6 +398,7 @@ function CardEffectData:getSubTos(player)
   return {}
 end
 
+--- 当前生效目标是否不可抵消此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function CardEffectData:isDisresponsive(target)
@@ -404,6 +406,7 @@ function CardEffectData:isDisresponsive(target)
   return self.disresponsive or (target and self.use ~= nil and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
 end
 
+--- 当前生效目标是否不可响应此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function CardEffectData:isUnoffsetable(target)
@@ -411,9 +414,22 @@ function CardEffectData:isUnoffsetable(target)
   return self.unoffsetable or (target and self.use ~= nil and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
 end
 
+--- 判断此牌是否对当前目标无效
 ---@return boolean
 function CardEffectData:isNullified()
   return self.nullified or (self.to and self.use ~= nil and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
+end
+
+--- 响应当前牌需要的牌张数，默认1
+---@param target? ServerPlayer @ 需要响应的角色，默认为生效目标
+---@return integer
+function CardEffectData:getResponseTimes(target)
+  if self.fixedResponseTimes then
+    if self.fixedAddTimesResponsors == nil or table.contains(self.fixedAddTimesResponsors, target or self.to) then
+      return self.fixedResponseTimes
+    end
+  end
+  return 1
 end
 
 ---@class CardEffectEvent: TriggerEvent

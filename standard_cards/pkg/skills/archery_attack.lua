@@ -12,15 +12,8 @@ skill:addEffect("cardskill", {
     return to_select ~= player
   end,
   on_effect = function(self, room, effect)
-    local loopTimes = 1
-    if effect.fixedResponseTimes and table.contains(effect.fixedAddTimesResponsors or {}, effect.to.id) then
-      if type(effect.fixedResponseTimes) == 'table' then
-        loopTimes = effect.fixedResponseTimes["jink"] or 1
-      elseif type(effect.fixedResponseTimes) == 'number' then
-        loopTimes = effect.fixedResponseTimes
-      end
-    end
-    local cardResponded
+    local loopTimes = effect:getResponseTimes()
+    local respond
     for i = 1, loopTimes do
       local params = { ---@type AskToUseCardParams
         skill_name = 'jink',
@@ -28,13 +21,9 @@ skill:addEffect("cardskill", {
         cancelable = true,
         event_data = effect
       }
-      cardResponded = room:askToResponse(effect.to, params)
-      if cardResponded then
-        room:responseCard({
-          from = effect.to,
-          card = cardResponded,
-          responseToEvent = effect,
-        })
+      respond = room:askToResponse(effect.to, params)
+      if respond then
+        room:responseCard(respond)
       else
         room:damage({
           from = effect.from,
