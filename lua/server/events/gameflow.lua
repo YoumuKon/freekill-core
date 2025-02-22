@@ -110,11 +110,7 @@ function Round:action()
   -- local currentPlayer
 
   while true do
-    local data = { ---@type TurnDataSpec
-      who = room.current,
-      reason = "game_rule"
-    }
-    GameEvent.Turn:create(TurnData:new(data)):exec()
+    GameEvent.Turn:create(TurnData:new(room.current)):exec()
     if room.game_finished then break end
 
     local changingData = { from = room.current, to = room.current.next, skipRoundPlus = false }
@@ -214,12 +210,6 @@ function Turn:prepare()
   local logic = room.logic
   local data = self.data
   local player = data.who
-  data.reason = data.reason or "game_rule"
-  data.phase_table = data.phase_table or {
-    Player.RoundStart, Player.Start,
-    Player.Judge, Player.Draw, Player.Play, Player.Discard,
-    Player.Finish,
-  }
 
   if player.rest > 0 and player.rest < 999 then
     room:setPlayerRest(player, player.rest - 1)
@@ -250,14 +240,21 @@ function Turn:main()
   local room = self.room
   local data = self.data
   local player = data.who
+  local logic = room.logic
 
   --标志正式进入回合，第一步先把phase设置为PhaseNone，以便于可用NotActive正确判定回合内外
   player.phase = Player.PhaseNone
   room:broadcastProperty(player, "phase")
 
-  room.logic:trigger(fk.TurnStart, player, data)
+  logic:trigger(fk.TurnStart, player, data)
 
-  player:play(data.phase_table)
+  while #data.phase_table > data.phase_index do
+    if player.dead then return end
+    data.phase_index = data.phase_index + 1
+    local phase_data = data.phase_table[data.phase_index]
+
+    GameEvent.Phase:create(phase_data):exec()
+  end
 end
 
 function Turn:clear()
@@ -325,7 +322,17 @@ function Phase:prepare()
   local data = self.data
   local player = data.who
 
-  logic:trigger(fk.EventPhaseChanging, player, data)
+  if data.reason ~= "game_rule" then
+    room:sendLog{
+      type = "#GainAnExtraPhase",
+      from = player.id,
+      arg = Util.PhaseStrMapper(data.phase),
+    }
+  end
+
+  if not data.skipped then
+    logic:trigger(fk.EventPhaseChanging, player, data)
+  end
 
   if data.skipped then
     logic:trigger(fk.EventPhaseSkipping, player, data)

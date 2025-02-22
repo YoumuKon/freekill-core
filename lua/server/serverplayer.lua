@@ -234,9 +234,9 @@ function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
   delay = (delay == nil) and true or delay
   local logic = room.logic
   if delay then
-    local turn = logic:getCurrentEvent():findParent(GameEvent.Phase, true)
+    local turn = logic:getCurrentEvent():findParent(GameEvent.Turn, true)
     if turn then
-      turn:prependExitFunc(function() self:gainAnExtraPhase(phase, skillName, false) end)
+      turn.data:gainAnExtraPhase(phase, skillName, self)
       return
     end
   end
@@ -245,12 +245,6 @@ function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
 
   self.phase = Player.PhaseNone
   room:broadcastProperty(self, "phase")
-
-  room:sendLog{
-    type = "#GainAnExtraPhase",
-    from = self.id,
-    arg = Util.PhaseStrMapper(phase),
-  }
 
   local data = { ---@type PhaseDataSpec
     who = self,
@@ -265,6 +259,7 @@ end
 
 --- 执行回合的内容，即依次执行额定阶段
 ---@param phase_table? Phase[] @ 回合的额定阶段，填空则为正常流程
+---@deprecated
 function ServerPlayer:play(phase_table)
   phase_table = phase_table or {}
   if #phase_table > 0 then
@@ -326,23 +321,38 @@ function ServerPlayer:play(phase_table)
   end
 end
 
---- 跳过本回合的某个额定阶段
+--- 跳过本回合的某个阶段
 ---@param phase Phase
 function ServerPlayer:skip(phase)
-  if not table.contains({
-    Player.Judge,
-    Player.Draw,
-    Player.Play,
-    Player.Discard
-  }, phase) then
-    return
-  end
-  self.skipped_phases[phase] = true
-  for _, t in ipairs(self.phase_state) do
-    if t.phase == phase then
-      t.skipped = true
+  local room = self.room
+  local current_turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
+  if current_turn then
+    local phase_data
+    for i = current_turn.data.phase_index, #current_turn.data.phase_table, 1 do
+      phase_data = current_turn.data.phase_table[i]
+      if phase_data.phase == phase then
+        phase_data.skipped = true
+      end
     end
   end
+end
+
+--- 判断该角色是否拥有能跳过的阶段
+---@param phase Phase
+---@return boolean
+function ServerPlayer:canSkip(phase)
+  local room = self.room
+  local current_turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
+  if current_turn then
+    local phase_data
+    for i = current_turn.data.phase_index, #current_turn.data.phase_table, 1 do
+      phase_data = current_turn.data.phase_table[i]
+      if phase_data.phase == phase and not phase_data.skipped then
+        return true
+      end
+    end
+  end
+  return false
 end
 
 --- 当进行到出牌阶段空闲点时，结束出牌阶段。
@@ -365,18 +375,15 @@ end
 --- 获得一个额外回合
 ---@param delay? boolean @ 是否延迟到当前回合结束再开启额外回合，默认是
 ---@param skillName? string @ 额外回合原因
----@param turnData? TurnDataSpec @ 额外回合的信息
-function ServerPlayer:gainAnExtraTurn(delay, skillName, turnData)
+---@param phases? Phase[] @ 此额外回合进行的额定阶段列表
+function ServerPlayer:gainAnExtraTurn(delay, skillName, phases)
   local room = self.room
   delay = (delay == nil) and true or delay
   skillName = skillName or room.logic:getCurrentSkillName() or "game_rule"
-  turnData = turnData or {}
-  turnData.who = self
-  turnData.reason = skillName
   if delay then
     local turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
     if turn then
-      turn:prependExitFunc(function() self:gainAnExtraTurn(false, skillName, turnData) end)
+      turn:prependExitFunc(function() self:gainAnExtraTurn(false, skillName, phases) end)
       return
     end
   end
@@ -391,7 +398,7 @@ function ServerPlayer:gainAnExtraTurn(delay, skillName, turnData)
 
   room:addTableMark(self, "_extra_turn_count", skillName)
 
-  GameEvent.Turn:create(TurnData:new(turnData)):exec()
+  GameEvent.Turn:create(TurnData:new(self, skillName, phases)):exec()
 
   local mark = self:getTableMark("_extra_turn_count")
   if #mark > 0 then

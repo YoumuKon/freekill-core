@@ -54,11 +54,51 @@ fk.GameStart = RoundEvent:subclass("fk.GameStart")
 ---@class TurnDataSpec -- TODO: 发挥想象力，填写这个Spec吧
 ---@field who ServerPlayer @ 本回合的执行者
 ---@field reason string @ 当前额外回合的原因，不为额外回合则为game_rule
----@field phase_table? Phase[] @ 额定阶段表，填空则为正常流程
+---@field phase_table PhaseData[] @ 回合进行的阶段列表（包含额定与额外阶段），填空则为正常流程
+---@field phase_index integer @ 当前进行的阶段索引值
 
 --- 回合的数据
 ---@class TurnData: TurnDataSpec, TriggerData
 TurnData = TriggerData:subclass("TurnData")
+
+--- 构造函数，不可随意调用。
+---@param who ServerPlayer @ 本回合的执行者
+---@param reason? string @ 当前额外回合的原因，不为额外回合则为game_rule
+---@param phases? Phase[] @ 回合进行的额定阶段列表
+function TurnData:initialize(who, reason, phases)
+  self.who = who
+  self.reason = reason or "game_rule"
+  self.phase_table = table.map(
+    phases or {
+      Player.Start,
+      Player.Judge,
+      Player.Draw,
+      Player.Play,
+      Player.Discard,
+      Player.Finish
+    },
+    function(phase)
+      return
+        PhaseData:new{
+          who = who,
+          reason = "game_rule",
+          phase = phase
+        }
+    end
+  )
+  self.phase_index = 0
+end
+
+---@param phase Phase @ 阶段名称
+---@param reason? string @ 额外阶段的原因，不为额外阶段则为game_rule
+---@param who? ServerPlayer @ 额外阶段的执行者（默认为当前回合角色）
+function TurnData:gainAnExtraPhase(phase, reason, who)
+  table.insert(self.phase_table, PhaseData:new{
+    who = who or self.who,
+    reason = reason or "game_rule",
+    phase = phase
+  })
+end
 
 ---@class TurnEvent: TriggerEvent
 ---@field data TurnData
