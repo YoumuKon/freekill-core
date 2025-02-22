@@ -48,7 +48,7 @@ cheat:addEffect("active", {
     -- from:addToPile(self.name, toGain, true, self.name)
     -- room:setCardMark(Fk:getCardById(toGain), "@@test_cheat-phase", 1)
     -- room:setCardMark(Fk:getCardById(toGain), "@@test_cheat-inhand", 1)
-    room:obtainCard(effect.from, toGain, true, fk.ReasonPrey)
+    room:obtainCard(effect.from, toGain, true, fk.ReasonPrey, effect.from, "cheat")
   end
 })
 

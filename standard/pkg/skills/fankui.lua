@@ -22,7 +22,7 @@ fankui:addEffect(fk.Damaged, {
       flag = flag,
       skill_name = fankui.name,
     })
-    room:obtainCard(player, card, false, fk.ReasonPrey)
+    room:obtainCard(player, card, false, fk.ReasonPrey, player, fankui.name)
   end
 })
 

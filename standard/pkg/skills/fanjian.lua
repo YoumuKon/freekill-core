@@ -23,7 +23,7 @@ fanjian:addEffect("active", {
       flag = "h",
       skill_name = fanjian.name,
     })
-    room:obtainCard(target.id, card, true, fk.ReasonPrey)
+    room:obtainCard(target, card, true, fk.ReasonPrey, target, fanjian.name)
     if Fk:getCardById(card):getSuitString(true) ~= choice and target:isAlive() then
       room:damage{
         from = player,

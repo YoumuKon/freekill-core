@@ -39,7 +39,7 @@ tuxi:addEffect(fk.EventPhaseStart, {
           flag = "h",
           skill_name = tuxi.name,
         })
-        room:obtainCard(player, c, false, fk.ReasonPrey)
+        room:obtainCard(player, c, false, fk.ReasonPrey, player, tuxi.name)
       end
     end
   end,
