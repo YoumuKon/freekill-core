@@ -3,6 +3,7 @@ local luoshen = fk.CreateSkill{
 }
 
 luoshen:addEffect(fk.EventPhaseStart, {
+  anim_type = "drawcard",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(luoshen.name) and player.phase == Player.Start
   end,

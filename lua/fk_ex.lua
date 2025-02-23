@@ -106,17 +106,17 @@ end
 ---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
 ---@field public ai_list ([string, string, any])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
----@field public addEffect fun(self: SkillSkeleton, key: 'distance', data: DistanceSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'prohibit', data: ProhibitSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'atkrange', data: AttackRangeSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'maxcards', data: MaxCardsSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'targetmod', data: TargetModSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'filter', data: FilterSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'invalidity', data: InvaliditySpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'visibility', data: VisibilitySpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'active', data: ActiveSkillSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'cardskill', data: CardSkillSpec, attribute: nil): SkillSkeleton
----@field public addEffect fun(self: SkillSkeleton, key: 'viewas', data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "distance", data: DistanceSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "prohibit", data: ProhibitSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "atkrange", data: AttackRangeSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "maxcards", data: MaxCardsSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "targetmod", data: TargetModSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "filter", data: FilterSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "invalidity", data: InvaliditySpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "visibility", data: VisibilitySpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "active", data: ActiveSkillSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "cardskill", data: CardSkillSpec, attribute: nil): SkillSkeleton
+---@field public addEffect fun(self: SkillSkeleton, key: "viewas", data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
 ---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean)
 ---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
 local SkillSkeleton = class("SkillSkeleton")

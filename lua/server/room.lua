@@ -1803,6 +1803,7 @@ end
 ---@param bypass_distances boolean? @ 是否无距离关系的限制
 ---@param use_AimGroup boolean? @ 某些场合需要使用AimGroup，by smart Ho-spair
 ---@return integer[] @ 返回满足条件的player的id列表
+---@deprecated
 function Room:getUseExtraTargets(data, bypass_distances, use_AimGroup)
   if not (data.card.type == Card.TypeBasic or data.card:isCommonTrick()) then return {} end
   if data.card.skill:getMinTargetNum() > 1 then return {} end --stupid collateral
