@@ -2873,7 +2873,7 @@ end
 ---@param skillName string
 ---@param failed? boolean
 function Room:updateQuestSkillState(player, skillName, failed)
-  assert(Fk.skills[skillName].frequency == Skill.Quest)
+  assert(Fk.skills[skillName]:hasTag(Skill.Quest))
 
   self:setPlayerMark(player, MarkEnum.QuestSkillPreName .. skillName, failed and "failed" or "succeed")
   local updateValue = failed and 2 or 1

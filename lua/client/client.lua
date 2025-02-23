@@ -915,7 +915,7 @@ fk.client_callback["AddSkill"] = function(self, data)
     end
   end
 
-  if skill.frequency == Skill.Quest then
+  if skill:hasTag(Skill.Quest) then
     return
   end
 
@@ -1071,7 +1071,7 @@ fk.client_callback["AddSkillUseHistory"] = function(self, data)
   player:addSkillUseHistory(skill_name, time)
 
   local skill = Fk.skills[skill_name]
-  if not skill or skill.frequency == Skill.Quest then return end
+  if not skill or skill:hasTag(Skill.Quest) then return end
   updateLimitSkill(playerid, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
@@ -1081,7 +1081,7 @@ fk.client_callback["SetSkillUseHistory"] = function(self, data)
   player:setSkillUseHistory(skill_name, time, scope)
 
   local skill = Fk.skills[skill_name]
-  if not skill or skill.frequency == Skill.Quest then return end
+  if not skill or skill:hasTag(Skill.Quest) then return end
   updateLimitSkill(id, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
