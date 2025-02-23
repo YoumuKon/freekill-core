@@ -113,7 +113,7 @@ function General:addRelatedSkills(skill_list)
   end
 end
 
---- 获取武将所有技能。
+--- 获取武将牌上的技能名。
 ---@param include_lord? boolean @ 是否包含主公技。默认否
 ---@return string[]
 function General:getSkillNameList(include_lord)

@@ -325,9 +325,9 @@ function SkillEffect:exec()
   local effect_cb, player, skill, skill_data = data.skill_cb, data.who, data.skill, data.skill_data
   local main_skill = skill.main_skill and skill.main_skill or skill
 
-  logic:trigger(fk.SkillEffect, player, main_skill)
+  logic:trigger(fk.SkillEffect, player, data)
   effect_cb()
-  logic:trigger(fk.AfterSkillEffect, player, main_skill)
+  logic:trigger(fk.AfterSkillEffect, player, data)
 end
 
 function AIGameLogic:useSkill(player, skill, effect_cb, skill_data)

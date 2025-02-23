@@ -1124,6 +1124,21 @@ function Player:canMoveCardIntoEquip(cardId, convert)
   return false
 end
 
+--- 角色当前拥有的技能名列表。只包含武将技能，不含装备技能、附加技能
+---@return string[]
+function Player:getSkillNameList()
+  local names = {}
+  for _, skill in ipairs(self.player_skills) do
+    if not skill.name:startsWith("#") and not skill.name:endsWith("&") then
+      local skel = skill:getSkeleton()
+      if skel and not skel.attached_equip then
+        table.insertIfNeed(names, skel.name)
+      end
+    end
+  end
+  return names
+end
+
 --转换技状态阳
 fk.SwitchYang = 0
 --转换技状态阴

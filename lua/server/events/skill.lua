@@ -79,11 +79,11 @@ function SkillEffect:main()
   end
 
   local cost_data_bak = skill.cost_data
-  logic:trigger(fk.SkillEffect, player, main_skill)
+  logic:trigger(fk.SkillEffect, player, data)
   skill.cost_data = cost_data_bak
 
   local ret = effect_cb and effect_cb() or false
-  logic:trigger(fk.AfterSkillEffect, player, main_skill)
+  logic:trigger(fk.AfterSkillEffect, player, data)
   return ret
 end
 
