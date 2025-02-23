@@ -15,7 +15,7 @@ luoshen:addEffect(fk.EventPhaseStart, {
         pattern = ".|.|spade,club",
       }
       room:judge(judge)
-      if judge:matchPattern() or player.dead or not room:askToSkillInvoke(player, { skill_name = luoshen.name }) then
+      if not judge:matchPattern() or player.dead or not room:askToSkillInvoke(player, { skill_name = luoshen.name }) then
         break
       end
     end
@@ -52,13 +52,7 @@ luoshen:addTest(function(room, me)
     -- 控顶
     room:moveCardTo(red, Card.DrawPile)
     if rnd > 0 then room:moveCardTo(table.slice(blacks, 1, rnd + 1), Card.DrawPile) end
-
-    local data = { ---@type TurnDataSpec
-      who = me,
-      reason = "game_rule",
-      phase_table = { Player.Start }
-    }
-    GameEvent.Turn:create(TurnData:new(data)):exec()
+    GameEvent.Turn:create(TurnData:new(me, "game_rule", { Player.Start })):exec()
   end)
   lu.assertEquals(#me:getCardIds("h"), rnd)
 end)

@@ -40,11 +40,7 @@ luoyi:addTest(function(room, me)
   local origin_hp = comp2.hp
   FkTest.runInRoom(function()
     room:obtainCard(me, 1)
-    local data = { ---@type TurnDataSpec
-      who = me,
-      reason = "game_rule",
-    }
-    GameEvent.Turn:create(TurnData:new(data)):exec()
+    GameEvent.Turn:create(TurnData:new(me, "game_rule")):exec()
   end)
   -- p(me:getCardIds("h"))
   lu.assertEquals(#me:getCardIds("h"), 1)

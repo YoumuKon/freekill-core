@@ -53,12 +53,7 @@ tuxi:addTest(function(room, me)
     room:handleAddLoseSkills(me, tuxi.name)
     room:obtainCard(comp2, 41)
     room:obtainCard(comp3, 65)
-    local data = { ---@type TurnDataSpec
-      who = me,
-      reason = "game_rule",
-      phase_table = { Player.Draw }
-    }
-    GameEvent.Turn:create(TurnData:new(data)):exec()
+    GameEvent.Turn:create(TurnData:new(me, "game_rule", { Player.Draw })):exec()
   end)
 
   local handler = ClientInstance.current_request_handler --[[@as ReqActiveSkill]]

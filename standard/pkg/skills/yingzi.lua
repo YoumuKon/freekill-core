@@ -15,12 +15,7 @@ yingzi:addTest(function(room, me)
 
   FkTest.setNextReplies(me, { "1" })
   FkTest.runInRoom(function()
-    local data = { ---@type TurnDataSpec
-      who = me,
-      reason = "game_rule",
-      phase_table = { Player.Draw }
-    }
-    GameEvent.Turn:create(TurnData:new(data)):exec()
+    GameEvent.Turn:create(TurnData:new(me, "game_rule", { Player.Draw })):exec()
   end)
 
   lu.assertEquals(#me:getCardIds("h"), 3)
