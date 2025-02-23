@@ -313,8 +313,8 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["#AskForPeaches"] = "%src 生命危急，需要 %arg 个【桃】",
   ["#AskForPeachesSelf"] = "你生命危急，需要 %arg 个【桃】或【酒】",
   ["#AskForUseOneCard"] = "%arg：请使用一张牌",
-  ["#askForUseVirtualCard"] = "%arg：请视为使用 %arg2",
-  ["#askForUseVirtualCards"] = "%arg：请视为使用一张牌",
+  ["#AskForUseVirtualCard"] = "%arg：请视为使用 %arg2",
+  ["#AskForUseVirtualCards"] = "%arg：请视为使用一张牌",
   ["#AskForUseMultiCard"] = "请使用【%arg】（此为第 %arg2 张，共需 %arg3 张）",
   ["#AskForResponseMultiCard"] = "请打出【%arg】（此为第 %arg2 张，共需 %arg3 张）",
 

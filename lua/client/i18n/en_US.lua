@@ -247,8 +247,8 @@ Fk:loadTranslationTable({
   ["#AskForPeaches"] = "%src is dying, please use %arg Peach(es) to save him",
   ["#AskForPeachesSelf"] = "You are dying, please use %arg Peach(es)/Alcohol to save yourself",
   ["#AskForUseOneCard"] = "%arg: Please use 1 card from these",
-  ["#askForUseVirtualCard"] = "%arg：Please use a virtual card %arg2",
-  ["#askForUseVirtualCards"] = "%arg：Please use a virtual card",
+  ["#AskForUseVirtualCard"] = "%arg：Please use a virtual card %arg2",
+  ["#AskForUseVirtualCards"] = "%arg：Please use a virtual card",
   ["#AskForUseMultiCard"] = "Please use %arg ( %arg2 th, %arg3 total )",
   ["#AskForResponseMultiCard"] = "Please play %arg ( %arg2 th, %arg3 total )",
 
