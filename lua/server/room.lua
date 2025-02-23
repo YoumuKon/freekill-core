@@ -2125,7 +2125,7 @@ end
 ---@field prompt? string @ 提示信息
 ---@field cancelable? boolean @ 是否可以取消。默认可以取消
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
----@field event_data? CardEffectData @ 事件信息
+---@field event_data? CardEffectData @ 事件信息，如借刀事件之于询问杀
 
 -- available extra_data:
 -- * must_targets: integer[]
@@ -2209,6 +2209,13 @@ function Room:askToUseCard(player, params)
     askForUseCardData.result = useResult
   end
 
+  if type(askForUseCardData.result) == "table" then
+    if event_data then
+      askForUseCardData.result.responseToEvent = event_data
+      askForUseCardData.result.toCard = event_data.card
+    end
+  end
+
   self.logic:trigger(fk.AfterAskForCardUse, player, askForUseCardData)
   return useResult
 end
@@ -2275,11 +2282,15 @@ function Room:askToResponse(player, params)
       end
     until type(responseResult) ~= "string"
 
-    if type(responseResult) == "table" then
-      responseResult.tos = nil
-      responseResult.responseToEvent = event_data
-    end
     askForUseCardData.result = responseResult
+  end
+
+  if type(askForUseCardData.result) == "table" then
+    askForUseCardData.result.tos = nil
+    if event_data then
+      askForUseCardData.result.responseToEvent = event_data
+      askForUseCardData.result.toCard = event_data.card
+    end
   end
 
   self.logic:trigger(fk.AfterAskForCardResponse, player, askForUseCardData)

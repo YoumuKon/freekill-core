@@ -39,10 +39,6 @@ local hujia_spec = {
           if event == fk.AskForCardUse then
             result.tos = {}
           end
-          if data.eventData then
-            result.toCard = data.eventData.toCard
-            result.responseToEvent = data.eventData.responseToEvent
-          end
           data.result = result
           return true
         end

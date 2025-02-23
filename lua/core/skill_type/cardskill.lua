@@ -266,8 +266,8 @@ function CardSkill:preEffect(room, cardEffectData)
       }
       local use = room:askToUseCard(to, params)
       if use then
-        use.toCard = cardEffectData.card
-        use.responseToEvent = cardEffectData
+        --use.toCard = cardEffectData.card
+        --use.responseToEvent = cardEffectData
         room:useCard(use)
       end
 
