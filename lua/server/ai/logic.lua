@@ -227,10 +227,10 @@ function Damage:exec()
 
   for _, struct in ipairs(stages) do
     local event, player = table.unpack(struct)
-    if logic:trigger(event, damageData[player], damageData) then
+    logic:trigger(event, damageData[player], damageData)
+    if damageData.prevented or damageData.damage < 1 then
       return true
     end
-    if damageData.damage < 1 then return true end
   end
 
   if not damageData.isVirtualDMG then

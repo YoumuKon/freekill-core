@@ -192,10 +192,13 @@ function Damage:main()
 
   for _, struct in ipairs(stages) do
     local event, player = table.unpack(struct)
-    if logic:trigger(event, damageData[player], damageData) or damageData.damage < 1 then
+    logic:trigger(event, damageData[player], damageData)
+    if damageData.damage < 1 then
+      damageData.prevented = true
+    end
+    if damageData.prevented then
       logic:breakEvent(false)
     end
-
     assert(damageData.to:isInstanceOf(ServerPlayer))
   end
 
@@ -215,12 +218,7 @@ function Damage:main()
     end
   end
 
-  if not room:changeHp(
-    damageData.to,
-    -damageData.damage,
-    "damage",
-    damageData.skillName,
-    damageData) then
+  if not room:changeHp(damageData.to, -damageData.damage, "damage", damageData.skillName, damageData) then
     logic:breakEvent(false)
   end
 

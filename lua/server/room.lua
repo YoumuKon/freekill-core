@@ -233,30 +233,6 @@ function Room:getPlayerBySeat(seat)
   return nil
 end
 
---- 将房间中的角色按照行动顺序重新排序。
----@param playerIds integer[] @ 玩家id列表，这个数组会被这个函数排序
----@deprecated
-function Room:sortPlayersByAction(playerIds, isTargetGroup)
-  table.sort(playerIds, function(prev, next)
-    local prevSeat = self:getPlayerById(isTargetGroup and prev[1] or prev).seat
-    local nextSeat = self:getPlayerById(isTargetGroup and next[1] or next).seat
-
-    return prevSeat < nextSeat
-  end)
-
-  if
-    self.current and
-    table.find(isTargetGroup and TargetGroup:getRealTargets(playerIds) or playerIds, function(id)
-      return self:getPlayerById(id).seat >= self.current.seat
-    end)
-  then
-    while self:getPlayerById(isTargetGroup and playerIds[1][1] or playerIds[1]).seat < self.current.seat do
-      local toPlayerId = table.remove(playerIds, 1)
-      table.insert(playerIds, toPlayerId)
-    end
-  end
-end
-
 ---@param players ServerPlayer[]
 function Room:sortByAction(players)
   table.sort(players, function(prev, next)
@@ -1795,28 +1771,6 @@ function Room:askToExchange(player, params)
   else
     return piles
   end
-end
-
-
--- 获取使用牌的合法额外目标（【借刀杀人】等带副目标的卡牌除外）
----@param data UseCardDataSpec @ 使用事件的data
----@param bypass_distances boolean? @ 是否无距离关系的限制
----@param use_AimGroup boolean? @ 某些场合需要使用AimGroup，by smart Ho-spair
----@return integer[] @ 返回满足条件的player的id列表
----@deprecated
-function Room:getUseExtraTargets(data, bypass_distances, use_AimGroup)
-  if not (data.card.type == Card.TypeBasic or data.card:isCommonTrick()) then return {} end
-  if data.card.skill:getMinTargetNum() > 1 then return {} end --stupid collateral
-  local tos = {}
-  local current_targets = use_AimGroup and AimGroup:getAllTargets(data.tos) or TargetGroup:getRealTargets(data.tos)
-  for _, p in ipairs(self.alive_players) do
-    if not table.contains(current_targets, p.id) and not self:getPlayerById(data.from):isProhibited(p, data.card) then
-      if data.card.skill:modTargetFilter(self:getPlayerById(data.from), p, {}, data.card, not bypass_distances) then
-        table.insert(tos, p.id)
-      end
-    end
-  end
-  return tos
 end
 
 --- 抽个武将

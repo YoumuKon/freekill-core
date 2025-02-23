@@ -54,6 +54,7 @@ fk.IceDamage = 4
 ---@field public chain_table? ServerPlayer[] @ 铁索连环表
 ---@field public isVirtualDMG? boolean @ 是否是虚拟伤害
 ---@field public dealtRecorderId integer? @ “实际造成的伤害”中对应的事件ID
+---@field public prevented boolean? @ 伤害是否被防止
 
 --- 描述和伤害事件有关的数据
 ---@class DamageData: DamageDataSpec, TriggerData

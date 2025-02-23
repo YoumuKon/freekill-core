@@ -510,26 +510,6 @@ function Player:isRemoved()
       end
     end
   end
-  -- return self:getMark(MarkEnum.PlayerRemoved) ~= 0 or table.find(MarkEnum.TempMarkSuffix, function(s)
-  --   return self:getMark(MarkEnum.PlayerRemoved .. s) ~= 0
-  -- end)
-end
-
---- 修改玩家与其他角色的固定距离。
----@param other Player @ 其他玩家
----@param num integer @ 距离数
----@deprecated
-function Player:setFixedDistance(other, num)
-  --print(self.name .. ": fixedDistance is deprecated. Use fixed_func instead.")
-  self.fixedDistance[other] = num
-end
-
---- 移除玩家与其他角色的固定距离。
----@param other Player @ 其他玩家
----@deprecated
-function Player:removeFixedDistance(other)
-  --print(self.name .. ": fixedDistance is deprecated. Use fixed_func instead.")
-  self.fixedDistance[other] = nil
 end
 
 --- 获取玩家与其他角色的实际距离。
