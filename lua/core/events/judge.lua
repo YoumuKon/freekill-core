@@ -11,6 +11,13 @@
 ---@class JudgeData: JudgeDataSpec, TriggerData
 JudgeData = TriggerData:subclass("JudgeData")
 
+--- 构造函数
+function JudgeData:initialize(spec)
+    TriggerData.initialize(self, spec)
+    self.pattern = spec.pattern or "."
+    spec.matchPattern = JudgeData.matchPattern
+end
+
 ---@class JudgeEvent: TriggerEvent
 ---@field data JudgeData
 local JudgeEvent = TriggerEvent:subclass("JudgeEvent")

@@ -100,7 +100,6 @@ end
 ---@param data JudgeDataSpec
 function JudgeEventWrappers:judge(data)
   data = JudgeData:new(data)
-  self.matchPattern = JudgeData.matchPattern ---FIXME
   return exec(Judge, data)
 end
 
