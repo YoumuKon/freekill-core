@@ -474,6 +474,7 @@ function UseCard:exec()
   }
 end
 
+---@param useCardData UseCardDataSpec
 function AIGameLogic:useCard(useCardData)
   local new_data
   -- if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]

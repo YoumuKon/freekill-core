@@ -193,11 +193,11 @@ SmartAI:setSkillAI("spear_skill", {
     local logic = AIGameLogic:new(ai)
     local val_func = function(targets)
       logic.benefit = 0
-      logic:useCard({
-        from = ai.player.id,
-        tos = table.map(targets, function(p) return { p.id } end),
+      logic:useCard{
+        from = ai.player,
+        tos = targets,
         card = self.skill:viewAs(ai.player, ai:getSelectedCards()),
-      })
+      }
       verbose(1, "目前状况下，对[%s]的预测收益为%d", table.concat(table.map(targets, function(p)return tostring(p)end), "+"), logic.benefit)
       return logic.benefit
     end

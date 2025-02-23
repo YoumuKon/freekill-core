@@ -253,7 +253,7 @@ function GetPlayerSkills(id)
   if p == Self then
     return table.map(p.player_skills, function(s)
       return s.visible and {
-        name = s.name,
+        name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
         description = Fk:getDescription(s.name, nil, p),
       } or nil
     end)
