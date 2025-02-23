@@ -746,6 +746,71 @@ function Engine:getAllCardIds(except)
   return result
 end
 
+-- 获取加入游戏的卡的牌名（暂不考虑装备牌），常用于泛转化技能的interaction
+---@param card_type string @ 卡牌的类别， b 基本牌, t - 普通锦囊牌, d - 延时锦囊牌, e - 装备牌
+---@param true_name? boolean @ 是否使用真实卡名（即不区分【杀】、【无懈可击】等的具体种类）
+---@return string[] @ 返回牌名列表
+function Engine:getAllCardNames(card_type, true_name)
+  local all_names = {}
+  local basic, equip, normal_trick, delayed_trick = {}, {}, {}, {}
+  for _, name in ipairs(self.all_card_names) do
+    local card = self.all_card_types[name]
+    if not table.contains(self:currentRoom().disabled_packs, card.package.name) and not card.is_derived then
+      if card.type == Card.TypeBasic then
+        table.insertIfNeed(basic, true_name and card.trueName or card.name)
+      elseif card.type == Card.TypeEquip then
+        table.insertIfNeed(equip, true_name and card.trueName or card.name)
+      elseif card.sub_type ~= Card.SubtypeDelayedTrick then
+        table.insertIfNeed(normal_trick, true_name and card.trueName or card.name)
+      else
+        table.insertIfNeed(delayed_trick, true_name and card.trueName or card.name)
+      end
+    end
+  end
+  if card_type:find("b") then
+    table.insertTable(all_names, basic)
+  end
+  if card_type:find("t") then
+    table.insertTable(all_names, normal_trick)
+  end
+  if card_type:find("d") then
+    table.insertTable(all_names, delayed_trick)
+  end
+  if card_type:find("e") then
+    table.insertTable(all_names, equip)
+  end
+  return all_names
+end
+
+
+---@class ViewAsCardNamesParams
+---@field player Player @ 使用者
+---@field card_names string[] @ 待判定的牌名列表
+---@field skill_name string @ 泛转化技的技能名
+---@field subcards? string[] @ 子卡（某些技能可以提前确定子卡，如奇策、妙弦）
+---@field ban_cards? string[] @ 被排除的卡名
+---@field extra_data? table @ 用于使用的额外信息
+
+
+--- 当前可用的牌名筛选。用于转化技的interaction里对泛转化牌名的合法性检测
+---@param params ViewAsCardNamesParams
+---@return string[] @ 返回牌名列表
+function Engine:getViewAsCardNames(params)
+  local ban_cards = params.ban_cards or Util.DummyTable
+  local player = params.player
+  return table.filter(params.card_names, function (name)
+    local card = Fk:cloneCard(name)
+    if params.subcards then card:addSubcards(params.subcards) end
+    if table.contains(ban_cards, card.trueName) or table.contains(ban_cards, card.name) then return false end
+    if Fk.currentResponsePattern == nil then
+      return player:canUse(card, params.extra_data) and not player:prohibitUse(card)
+    else
+      return Exppattern:Parse(Fk.currentResponsePattern):match(card)
+    end
+  end)
+end
+
+
 --- 根据id返回相应的卡牌。
 ---@param id integer @ 牌的id
 ---@param ignoreFilter? boolean @ 是否要无视掉锁定视为技，直接获得真牌

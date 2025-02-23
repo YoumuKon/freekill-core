@@ -782,7 +782,7 @@ end
 ---@field public feasible? fun(self: ActiveSkill, player: Player, selected: Player[], selected_cards: integer[], card: Card): any @ 判断卡牌和目标是否符合技能限制
 ---@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: SkillUseData): any
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
----@field public interaction? any
+---@field public interaction? fun(self: ActiveSkill, player: Player): table? @ 选项框
 ---@field public target_tip? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
@@ -813,7 +813,7 @@ end
 ---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
 ---@field public after_response? fun(self: ViewAsSkill, player: ServerPlayer, response: RespondCardData): string? @ 打出此牌后执行的内容
 ---@field public prompt? string|fun(self: ViewAsSkill, player: Player, selected_cards: integer[], selected: Player[]): string
----@field public interaction? any
+---@field public interaction? fun(self: ViewAsSkill, player: Player): table? @ 选项框
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 
 ---@class DistanceSpec: StatusSkillSpec
