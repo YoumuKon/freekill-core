@@ -281,6 +281,7 @@ end
 --- frequency?: string,
 --- is_delay_effect?: boolean,
 --- late_refresh?: boolean,
+--- priority? : number,
 --- }
 
 ---@param _skill SkillSkeleton
@@ -325,7 +326,7 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
   end
 
   -- TODO: useAbleSpec, priority
-  sk.priority = 1
+  sk.priority = spec.priority or 1
 
   return sk
 end

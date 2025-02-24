@@ -114,11 +114,14 @@ function TriggerEvent:exec()
             skill:triggerable(self, target, player, data)
         end
 
-        local skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
+        local skill_available = table.filter(skills, filter_func)
 
-        while #skill_names > 0 do
-          local skill_name = prio <= 0 and table.random(skill_names) or
-            room:askToChoice(player, { choices = skill_names, skill_name = "trigger", prompt = "#choose-trigger" })
+        while #skill_available > 0 do
+          local player_skills = table.filter(skill_available, function(s) return s:isPlayerSkill(player) end)
+          local skill_name = prio <= 0 and skill_available[1].name or
+          room:askToChoice(player, { skill_name = "trigger", prompt = "#choose-trigger",
+            choices = table.map(#player_skills > 0 and player_skills or skill_available, Util.NameMapper)
+          })
 
           local skill = Fk.skills[skill_name]
           ---@cast skill TriggerSkill
@@ -128,7 +131,7 @@ function TriggerEvent:exec()
 
           if broken then break end
 
-          skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
+          skill_available = table.filter(skills, filter_func)
         end
 
         if broken then break end

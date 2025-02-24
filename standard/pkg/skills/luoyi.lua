@@ -16,7 +16,7 @@ luoyi:addEffect(fk.DamageCaused, {
   anim_type = "offensive",
   is_delay_effect = true,
   can_trigger = function(self, event, target, player, data)
-    return player:usedSkillTimes(luoyi.name, Player.HistoryTurn) > 0 and
+    return player:usedSkillTimes(luoyi.name, Player.HistoryTurn) > 0 and target == player and
       data.card and (data.card.trueName == "slash" or data.card.name == "duel") and data.by_user
   end,
   on_cost = Util.TrueFunc,

@@ -100,7 +100,7 @@ function Skill:addRelatedSkill(skill)
 end
 
 --- 确认本技能是否为装备技能。
----@param player Player
+---@param player? Player @ 技能拥有者
 ---@return boolean
 function Skill:isEquipmentSkill(player)
   if player then
@@ -159,7 +159,7 @@ end
 --]]
 
 --判断技能是否为角色技能
----@param player Player
+---@param player? Player @ 技能拥有者
 ---@return boolean
 function Skill:isPlayerSkill(player)
   local skel = self:getSkeleton()
