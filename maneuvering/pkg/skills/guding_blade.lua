@@ -10,7 +10,7 @@ skill:addEffect(fk.DamageCaused, {
       data.to:isKongcheng() and data.card and data.card.trueName == "slash" and data.by_user
   end,
   on_use = function(self, event, target, player, data)
-    data.damage = data.damage + 1
+    data:changeDamage(1)
   end,
 })
 

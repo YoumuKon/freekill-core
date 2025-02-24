@@ -21,7 +21,7 @@ luoyi:addEffect(fk.DamageCaused, {
   end,
   on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    data.damage = data.damage + 1
+    data:changeDamage(1)
   end,
 })
 

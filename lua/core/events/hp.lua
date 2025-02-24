@@ -60,6 +60,21 @@ fk.IceDamage = 4
 ---@class DamageData: DamageDataSpec, TriggerData
 DamageData = TriggerData:subclass("DamageData")
 
+--- 改变伤害事件的伤害值
+---@param num integer 伤害值改变量
+function DamageData:changeDamage(num)
+  self.damage = self.damage + num
+  if self.damage < 1 then
+    self:preventDamage()
+  end
+end
+
+--- 防止伤害
+function DamageData:preventDamage()
+  self.damage = 0
+  self.prevented = true
+end
+
 --- RecoverData 描述和回复体力有关的数据
 ---@class RecoverDataSpec
 ---@field public who ServerPlayer @ 回复体力的角色
@@ -153,5 +168,5 @@ fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 ---  data: TrigSkelSpec<MaxHpChangedTrigFunc>, attr: TrigSkelAttribute?): SkillSkeleton
 
 function DamageEvent:breakCheck()
-    return self.data.damage < 1
+    return self.data.damage < 1 or self.data.prevented
 end

@@ -10,7 +10,7 @@ skill:addEffect(fk.DamageCaused, {
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
-    data.prevented = true
+    data:preventDamage()
     local to = data.to
     for i = 1, 2 do
       if player.dead or to.dead or to:isNude() then break end
