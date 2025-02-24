@@ -234,10 +234,10 @@ function PindianEventWrappers:changePindianNumber(pindianData, player, number, s
     orig_num = pindianData.fromCard.number
     new_num = math.max(1, math.min(13, orig_num + number))
     pindianData.fromCard.number = new_num
-  elseif pindianData.results[player.id] then
-    orig_num = pindianData.results[player.id].toCard.number
+  elseif pindianData.results[player] then
+    orig_num = pindianData.results[player].toCard.number
     new_num = math.max(1, math.min(13, orig_num + number))
-    pindianData.results[player.id].toCard.number = new_num
+    pindianData.results[player].toCard.number = new_num
   end
   self:sendLog{
     type = "#ChangePindianNumber",
