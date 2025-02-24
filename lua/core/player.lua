@@ -489,6 +489,10 @@ function Player:getAttackRange()
   local status_skills = Fk:currentRoom().status_skills[AttackRangeSkill] or Util.DummyTable ---@type AttackRangeSkill[]
   local max_fixed, correct = nil, 0
   for _, skill in ipairs(status_skills) do
+    local final = skill:getFinal(self)
+    if final then -- 目前逻辑，发现一个终值马上返回
+      return math.max(0, final)
+    end
     local f = skill:getFixed(self)
     if f ~= nil then
       max_fixed = max_fixed and math.max(max_fixed, f) or f

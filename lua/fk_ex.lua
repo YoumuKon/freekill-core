@@ -380,6 +380,9 @@ function SkillSkeleton:createAttackRangeSkill(_skill, idx, key, attr, spec)
   if spec.fixed_func then
     skill.getFixed = spec.fixed_func
   end
+  if spec.final_func then
+    skill.getFinal = spec.final_func
+  end
   if spec.within_func then
     skill.withinAttackRange = spec.within_func
   end
@@ -835,6 +838,7 @@ end
 ---@class AttackRangeSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: AttackRangeSkill, from: Player, to: Player): number?
 ---@field public fixed_func? fun(self: AttackRangeSkill, player: Player): number?  @ 判定角色的锁定攻击范围初值
+---@field public final_func? fun(self: AttackRangeSkill, player: Player): number?  @ 判定角色的锁定攻击范围终值
 ---@field public within_func? fun(self: AttackRangeSkill, from: Player, to: Player): any @ 判定to角色是否锁定在角色from攻击范围内
 ---@field public without_func? fun(self: AttackRangeSkill, from: Player, to: Player): any @ 判定to角色是否锁定在角色from攻击范围外
 
