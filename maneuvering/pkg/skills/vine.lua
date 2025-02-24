@@ -5,6 +5,7 @@ local vineSkill = fk.CreateSkill {
 }
 
 vineSkill:addEffect(fk.PreCardEffect, {
+  mute = true,
   can_trigger = function(self, event, target, player, data)
     return data.to == player and player:hasSkill(vineSkill.name) and
       table.contains({"slash", "savage_assault", "archery_attack"}, data.card.name)
@@ -18,6 +19,7 @@ vineSkill:addEffect(fk.PreCardEffect, {
 })
 
 vineSkill:addEffect(fk.DamageInflicted, {
+  mute = true,
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(vineSkill.name) and data.damageType == fk.FireDamage
   end,
@@ -25,7 +27,7 @@ vineSkill:addEffect(fk.DamageInflicted, {
     local room = player.room
     room:broadcastPlaySound("./packages/maneuvering/audio/card/vineburn")
     room:setEmotion(player, "./packages/maneuvering/image/anim/vineburn")
-    data.damage = data.damage + 1
+    data:changeDamage(1)
   end,
 })
 
