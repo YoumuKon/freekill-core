@@ -74,7 +74,8 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.distance_limit = spec.distance_limit or skill.distance_limit
   skill.expand_pile = spec.expand_pile
   skill.times = spec.times or skill.times
-  skill.is_delay_effect = spec.is_delay_effect
+  skill.is_delay_effect = not not spec.is_delay_effect
+  skill.late_refresh = not not spec.late_refresh
 end
 
 function fk.readStatusSpecToSkill(skill, spec)
@@ -241,7 +242,7 @@ function SkillSkeleton:createSkill()
         main_skill.trueName = name_split[#name_split]
         main_skill.visible = self.name[1] ~= "#"
       else
-        if not (attr.is_delay_effect or sk.is_delay_effect) then
+        if not sk.is_delay_effect then
           sk.main_skill = main_skill
         end
         main_skill:addRelatedSkill(sk)
@@ -278,6 +279,8 @@ end
 --- global?: boolean,
 --- anim_type?: AnimationType,
 --- frequency?: string,
+--- is_delay_effect?: boolean,
+--- late_refresh?: boolean,
 --- }
 
 ---@param _skill SkillSkeleton
@@ -289,6 +292,7 @@ end
 function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
   local new_name = string.format("#%s_%d_trig", _skill.name, idx)
   local sk = TriggerSkill:new(new_name, #_skill.tags > 0 and _skill.tags[1] or Skill.NotFrequent)
+  if attr.is_delay_effect then spec.is_delay_effect = true end
   fk.readUsableSpecToSkill(sk, spec)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
   sk.event = key

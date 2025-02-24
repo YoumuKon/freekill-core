@@ -5,9 +5,10 @@
 --]]
 
 ---@class TriggerSkill : UsableSkill
----@field public global boolean
----@field public event TriggerEvent
----@field public priority number
+---@field public global boolean @ 是否为全局事件
+---@field public event TriggerEvent @ 事件时机
+---@field public priority number @ 优先级，越大越优先（默认1，装备默认0.1，游戏规则为0）
+---@field public late_refresh? boolean @ 仅用于Refresh，表示该触发技的refresh在trigger之后执行
 local TriggerSkill = UsableSkill:subclass("TriggerSkill")
 
 function TriggerSkill:initialize(name, frequency)
@@ -116,6 +117,7 @@ end
 ---@return boolean?
 function TriggerSkill:use(event, target, player, data) end
 
+--- 是否满足觉醒条件，默认是
 function TriggerSkill:canWake(event, target, player, data)
   return true
 end

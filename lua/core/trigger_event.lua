@@ -70,7 +70,7 @@ end
 -- 先执行带refresh的，再执行带效果的
 function TriggerEvent:exec()
   local room, logic = self.room, self.room.logic
-  local skills = logic.skill_table[self.class] or Util.DummyTable
+  local skills = logic.skill_table[self.class] or Util.DummyTable ---@type TriggerSkill[]
   if #skills == 0 then return false end
 
   local _target = room.current -- for iteration
@@ -78,68 +78,78 @@ function TriggerEvent:exec()
   local event = self.class
   local target = self.target
   local data = self.data
-  local cur_event = logic:getCurrentEvent() or Util.DummyTable
-  -- 如果当前事件被杀，就强制只refresh
-  -- 因为被杀的事件再进行正常trigger只可能在cleaner和exit了
-  self.refresh_only = self.refresh_only or cur_event.killed
-
-  if self.refresh_only then return end
 
   repeat do
     -- refresh skills. This should not be broken
     for _, skill in ipairs(skills) do
-      if skill:canRefresh(self, target, player, data) then
+      if skill:canRefresh(self, target, player, data) and not skill.late_refresh then
         skill:refresh(self, target, player, data)
       end
     end
     player = player.next
   end until player == _target
 
-  local broken
+  local cur_event = logic:getCurrentEvent() or Util.DummyTable
+  -- 如果当前事件被杀，就强制只refresh
+  -- 因为被杀的事件再进行正常trigger只可能在cleaner和exit了
+  self.refresh_only = self.refresh_only or cur_event.killed
+  local broken = false
+  if not self.refresh_only then
 
-  local prio_tab = logic.skill_priority_table[event]
-  local prev_prio = math.huge
+    local prio_tab = logic.skill_priority_table[event]
+    local prev_prio = math.huge
 
-  for _, prio in ipairs(prio_tab) do
-    if broken then break end
-    if prio >= prev_prio then
-      goto continue
-    end
-
-    repeat do
-      local invoked_skills = {}
-      ---@param skill TriggerSkill
-      local filter_func = function(skill)
-        return skill.priority == prio and
-          not table.contains(invoked_skills, skill) and
-          skill:triggerable(self, target, player, data)
+    for _, prio in ipairs(prio_tab) do
+      if broken then break end
+      if prio >= prev_prio then
+        goto continue
       end
 
-      local skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
+      repeat do
+        local invoked_skills = {}
+        ---@param skill TriggerSkill
+        local filter_func = function(skill)
+          return skill.priority == prio and
+            not table.contains(invoked_skills, skill) and
+            skill:triggerable(self, target, player, data)
+        end
 
-      while #skill_names > 0 do
-        local skill_name = prio <= 0 and table.random(skill_names) or
-          room:askToChoice(player, { choices = skill_names, skill_name = "trigger", prompt = "#choose-trigger" })
+        local skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
 
-        local skill = Fk.skills[skill_name]
-        ---@cast skill TriggerSkill
+        while #skill_names > 0 do
+          local skill_name = prio <= 0 and table.random(skill_names) or
+            room:askToChoice(player, { choices = skill_names, skill_name = "trigger", prompt = "#choose-trigger" })
 
-        table.insert(invoked_skills, skill)
-        broken = skill:trigger(self, target, player, data) or self:breakCheck() or cur_event.killed
+          local skill = Fk.skills[skill_name]
+          ---@cast skill TriggerSkill
+
+          table.insert(invoked_skills, skill)
+          broken = skill:trigger(self, target, player, data) or self:breakCheck() or cur_event.killed
+
+          if broken then break end
+
+          skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
+        end
 
         if broken then break end
 
-        skill_names = table.map(table.filter(skills, filter_func), Util.NameMapper)
-      end
+        player = player.next
+      end until player == _target
 
-      if broken then break end
-
-      player = player.next
-    end until player == _target
-
-    prev_prio = prio
-    ::continue::
+      prev_prio = prio
+      ::continue::
+    end
   end
+
+  player = _target
+  repeat do
+    for _, skill in ipairs(skills) do
+      if skill:canRefresh(self, target, player, data) and skill.late_refresh then
+        skill:refresh(self, target, player, data)
+      end
+    end
+    player = player.next
+  end until player == _target
 
   return broken
 end
