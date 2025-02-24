@@ -10,6 +10,7 @@
 ---@field public fix_targets? integer[] @ 将固定目标修改为这些目标（例如对他人使用桃）
 ---@field public bypass_distances? boolean @ 无距离限制？
 ---@field public bypass_times? boolean @ 无次数限制？
+---@field public not_passive? boolean @ 禁止使用被动牌（用于模拟出牌阶段空闲时使用）
 ---@field public playing? boolean @ (AI专用) 出牌阶段？
 
 --- AskForCardUse 询问使用卡牌的数据

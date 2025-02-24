@@ -95,7 +95,7 @@ function Pindian:main()
     local req = Request:new(targets, "AskForUseActiveSkill")
     for _, to in ipairs(targets) do
       req:setData(to, req_data)
-      req:setDefaultReply(to, to:getCardIds(Player.Hand)[1])
+      req:setDefaultReply(to, {card = {subcards = {to:getCardIds(Player.Hand)[1]}}})
     end
     req.focus_text = "AskForPindian"
 
@@ -230,7 +230,7 @@ end
 ---@param skill_name string @ 技能名
 function PindianEventWrappers:changePindianNumber(pindianData, player, number, skill_name)
   local orig_num, new_num
-  if player == from then
+  if player == pindianData.from then
     orig_num = pindianData.fromCard.number
     new_num = math.max(1, math.min(13, orig_num + number))
     pindianData.fromCard.number = new_num
