@@ -37,6 +37,7 @@ Skill.Permanent = "Permanent" -- 持恒技
 Skill.MainPlace = "MainPlace" -- 主将技
 Skill.DeputyPlace = "DeputyPlace" -- 副将技
 Skill.Hidden = "Hidden" -- 隐匿技
+Skill.AttachedKingdom = "AttachedKingdom" --势力技
 
 
 --- 构造函数，不可随意调用。
@@ -59,8 +60,6 @@ function Skill:initialize(name, frequency)
   self.attached_skill_name = nil
 
   --TODO: 以下是应当移到skeleton的参数
-  self.attachedKingdom = {}
-  self.cardSkill = false
   local name_splited = self.name:split("__")
   self.trueName = name_splited[#name_splited]
   if string.sub(name, 1, 1) == "#" then
@@ -149,14 +148,6 @@ function Skill:isEffectable(player)
 
   return true
 end
-
---[[
---- 为技能增加所属势力，需要在隶属特定势力时才能使用此技能。
---- 案例：手杀文鸯
-function Skill:addAttachedKingdom(kingdom)
-  table.insertIfNeed(self.attachedKingdom, kingdom)
-end
---]]
 
 --判断技能是否为角色技能
 ---@param player? Player @ 技能拥有者

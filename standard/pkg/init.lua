@@ -94,7 +94,7 @@ local role_getlogic = function()
           return false
         end
 
-        if #skill.attachedKingdom > 0 and not table.contains(skill.attachedKingdom, player.kingdom) then
+        if skill:hasTag(Skill.AttachedKingdom) and not table.contains(skill:getSkeleton().attached_kingdom, player.kingdom) then
           return false
         end
 

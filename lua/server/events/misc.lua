@@ -107,8 +107,8 @@ function ChangeProperty:main()
   end
   for _, sname in ipairs(skillsAttachedKingdom) do
     local s = Fk.skills[sname]
-    if #s.attachedKingdom > 0 then
-      if table.contains(s.attachedKingdom, player.kingdom) then
+    if s:hasTag(Skill.AttachedKingdom) then
+      if table.contains(s:getSkeleton().attached_kingdom, player.kingdom) then
         table.insertIfNeed(skills, s.name)
       else
         if table.contains(skills, s.name) then
