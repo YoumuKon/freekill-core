@@ -246,7 +246,7 @@ function GameLogic:attachSkillToPlayers()
       return
     end
 
-    if #skill:hasTag(Skill.AttachedKingdom) > 0 and not table.contains(skill:getSkeleton().attached_kingdom, player.kingdom) then
+    if skill:hasTag(Skill.AttachedKingdom) and not table.contains(skill:getSkeleton().attached_kingdom, player.kingdom) then
       return
     end
 
