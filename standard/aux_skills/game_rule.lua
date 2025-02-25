@@ -124,8 +124,7 @@ gameRule:addEffect(fk.BuryVictim, {
     if room.tag["SkipNormalDeathProcess"] or player.rest > 0 or (data.extra_data and data.extra_data.skip_reward_punish) then
       return false
     end
-    local damage = data.damage
-    Fk.game_modes[room.settings.gameMode]:deathRewardAndPunish(player, damage and damage.from)
+    Fk.game_modes[room.settings.gameMode]:deathRewardAndPunish(player, data.killer)
   end,
 })
 
