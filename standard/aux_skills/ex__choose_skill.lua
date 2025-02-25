@@ -34,7 +34,7 @@ exChooseSkill:addEffect('active', {
     if self.targetTipName then
       local targetTip = Fk.target_tips[self.targetTipName]
       assert(targetTip)
-      return targetTip.target_tip(self, to_select, selected, selected_cards, card, selectable, extra_data)
+      return targetTip.target_tip(self, player, to_select, selected, selected_cards, card, selectable, extra_data)
     end
   end,
   min_target_num = function(self) return self.min_t_num end,

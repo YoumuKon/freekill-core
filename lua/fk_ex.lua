@@ -1027,4 +1027,4 @@ end
 
 ---@class TargetTipSpec
 ---@field name string
----@field target_tip fun(self: ActiveSkill, to_select: integer, selected: integer[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+---@field target_tip fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
