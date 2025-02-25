@@ -144,6 +144,53 @@ function UseCardData:changeCardName(name)
   self.card = card
 end
 
+--- 判断使用事件是否是在使用手牌
+---@param player ServerPlayer @ 要判断的使用者
+---@return boolean
+function UseCardData:IsUsingHandcard(player)
+  local useEvent = player.room.logic:getCurrentEvent()
+  local cards = Card:getIdList(self.card)
+  if #cards == 0 then return false end
+  local moveEvents = useEvent:searchEvents(GameEvent.MoveCards, 1, function(e)
+    return e.parent and e.parent.id == useEvent.id
+  end)
+  if #moveEvents == 0 then return false end
+  local subcheck = table.simpleClone(cards)
+  for _, move in ipairs(moveEvents[1].data) do
+    if move.moveReason == fk.ReasonUse then
+      for _, info in ipairs(move.moveInfo) do
+        if table.removeOne(subcheck, info.cardId) and info.fromArea ~= Card.PlayerHand then
+          return false
+        end
+      end
+    end
+  end
+  return #subcheck == 0
+end
+
+--- 判断打出事件是否是在打出手牌
+---@param player ServerPlayer @ 要判断的使用者
+---@return boolean
+function RespondCardData:IsUsingHandcard(player)
+  local useEvent = player.room.logic:getCurrentEvent()
+  local cards = Card:getIdList(self.card)
+  if #cards == 0 then return false end
+  local moveEvents = useEvent:searchEvents(GameEvent.MoveCards, 1, function(e)
+    return e.parent and e.parent.id == useEvent.id
+  end)
+  if #moveEvents == 0 then return false end
+  local subcheck = table.simpleClone(cards)
+  for _, move in ipairs(moveEvents[1].data) do
+    if move.moveReason == fk.ReasonResonpse then
+      for _, info in ipairs(move.moveInfo) do
+        if table.removeOne(subcheck, info.cardId) and info.fromArea ~= Card.PlayerHand then
+          return false
+        end
+      end
+    end
+  end
+  return #subcheck == 0
+end
 
 ---@class UseCardEvent: TriggerEvent
 ---@field data UseCardData
