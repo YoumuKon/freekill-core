@@ -76,14 +76,13 @@ function TriggerSkill:doCost(event, target, player, data)
 
   local cost_data_bak = event:getCostData(self)
   room.logic:trigger(fk.BeforeTriggerSkillUse, player, { skill = self, willUse = ret })
-  self.cost_data = cost_data_bak
+  --self.cost_data = cost_data_bak
 
   if ret then
     local skill_data = {cost_data = cost_data_bak, tos = {}, cards = {}}
-    if cost_data_bak then
+    if cost_data_bak and type(cost_data_bak) == "table" then
       skill_data.tos = cost_data_bak.tos
       skill_data.cards = cost_data_bak.cards
-      skill_data.from = player
     end
     return room:useSkill(player, self, function()
       return self:use(event, target, player, data)
@@ -99,7 +98,7 @@ end
 ---@param data any @ useful data of the event
 ---@return boolean? @ returns true if trigger is broken
 function TriggerSkill:cost(event, target, player, data)
-  if self:hasTag(Skill.Compulsory) then
+  if self:hasTag(Skill.Compulsory) or self.is_delay_effect then
     return true
   end
 
