@@ -82,10 +82,26 @@ end
 ---@field public recoverBy? ServerPlayer @ 此次回复的回复来源
 ---@field public skillName? string @ 因何种技能而回复
 ---@field public card? Card @ 造成此次回复的卡牌
+---@field public prevented boolean? @ 回复体力是否被防止
 
 --- 描述和回复体力有关的数据
 ---@class RecoverData: RecoverDataSpec, TriggerData
 RecoverData = TriggerData:subclass("RecoverData")
+
+--- 改变回复事件的回复值
+---@param num integer 回复值改变量
+function RecoverData:changeRecover(num)
+  self.num = self.num + num
+  if self.num < 1 then
+    self:preventRecover()
+  end
+end
+
+--- 防止回复
+function RecoverData:preventRecover()
+  self.num = 0
+  self.prevented = true
+end
 
 ---@class HpChangedEvent: TriggerEvent
 ---@field data HpChangedData

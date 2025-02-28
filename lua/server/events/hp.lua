@@ -347,14 +347,13 @@ function Recover:main()
 
   local who = recoverData.who
 
-  if logic:trigger(fk.PreHpRecover, who, recoverData) then
-    logic:breakEvent(false)
-  end
-
+  logic:trigger(fk.PreHpRecover, who, recoverData)
   recoverData.num = math.min(recoverData.num, who.maxHp - who.hp)
-
   if recoverData.num < 1 then
-    return false
+    recoverData.prevented = true
+  end
+  if recoverData.prevented then
+    logic:breakEvent(false)
   end
 
   if not room:changeHp(who, recoverData.num, "recover", recoverData.skillName) then
@@ -406,7 +405,7 @@ function ChangeMaxHp:main()
       arg = 0,
       arg2 = 0,
     }
-    room:killPlayer({ who = player.id })
+    room:killPlayer({ who = player })
     return false
   end
 

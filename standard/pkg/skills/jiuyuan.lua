@@ -11,7 +11,7 @@ jiuyuan:addEffect(fk.PreHpRecover, {
       data.recoverBy and data.recoverBy.kingdom == "wu" and data.recoverBy ~= player
   end,
   on_use = function(self, event, target, player, data)
-    data.num = data.num + 1
+    data:changeRecover(1)
   end,
 })
 
