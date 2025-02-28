@@ -278,6 +278,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["#AskForChoice"] = "%1：请选择",
   ["#AskForChoices"] = "%1：请选择",
   ["#choose-trigger"] = "请选择一项技能发动",
+  ["#skill_muti_trigger"] = "%arg[%arg2]",
   ["trigger"] = "选择技能",
   ["Please arrange cards"] = "请拖拽移动卡牌",
   ["Please click to move card"] = "请点击移动卡牌",

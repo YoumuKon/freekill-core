@@ -274,6 +274,7 @@ Trang chủ: https://libgit2.org
   ["#AskForChoice"] = "%1: Hãy chọn",
   ["#AskForChoices"] = "%1: Hãy chọn",
   ["#choose-trigger"] = "Vui lòng chọn kỹ năng để phát động",
+  ["#skill_muti_trigger"] = "%arg[%arg2]",
   ["trigger"] = "Phát động kỹ năng",
   ["Please arrange cards"] = "Hãy kéo thả bài",
   ["Please click to move card"] = "Hãy nhấp để di chuyển bài",

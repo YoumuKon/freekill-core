@@ -213,6 +213,7 @@ Fk:loadTranslationTable({
   ["#AskForChoice"] = "%1: Please choose",
   ["#AskForChoices"] = "%1: Please choose",
   ["#choose-trigger"] = "Please choose the skill to use",
+  ["#skill_muti_trigger"] = "%arg[%arg2]",
   ["trigger"] = "Trigger skill",
   -- ["Please arrange cards"] = "请拖拽移动卡牌",
   -- ["Please click to move card"] = "请点击移动卡牌",

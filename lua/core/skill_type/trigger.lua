@@ -135,4 +135,14 @@ function TriggerSkill:enableToWake(event, target, player, data)
     self:canWake(event, target, player, data)
 end
 
+-- 技能于单角色单时机内的发动次数上限
+---@param event TriggerEvent @ TriggerEvent
+---@param target ServerPlayer? @ Player who triggered this event
+---@param player ServerPlayer @ Player who is operating
+---@param data any @ useful data of the event
+---@return number @ 次数上限
+function TriggerSkill:triggerableTimes(event, target, player, data)
+  return 1
+end
+
 return TriggerSkill

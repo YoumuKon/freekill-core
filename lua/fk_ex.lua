@@ -281,6 +281,7 @@ end
 --- frequency?: string,
 --- is_delay_effect?: boolean,
 --- late_refresh?: boolean,
+--- trigger_times?: T,
 --- priority? : number,
 --- }
 
@@ -324,6 +325,8 @@ function SkillSkeleton:createTriggerSkill(_skill, idx, key, attr, spec)
     or spec.on_cost or spec.on_use) then
     sk.triggerable = Util.FalseFunc
   end
+
+  if spec.trigger_times then sk.triggerableTimes = spec.trigger_times end
 
   -- TODO: useAbleSpec, priority
   sk.priority = spec.priority or 1
