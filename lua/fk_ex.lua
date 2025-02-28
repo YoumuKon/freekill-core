@@ -368,7 +368,8 @@ end
 ---@return AttackRangeSkill
 function SkillSkeleton:createAttackRangeSkill(_skill, idx, key, attr, spec)
   assert(type(spec.correct_func) == "function" or type(spec.fixed_func) == "function" or
-    type(spec.within_func) == "function" or type(spec.without_func) == "function")
+    type(spec.within_func) == "function" or type(spec.without_func) == "function" or
+    type(spec.final_func) == "function")
   local new_name = string.format("#%s_%d_atkrange", _skill.name, idx)
   Fk:loadTranslationTable({ [new_name] = Fk:translate(_skill.name) }, Config.language)
 
