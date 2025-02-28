@@ -982,6 +982,29 @@ function Player:canUseTo(card, to, extra_data)
   return can_use and Util.CardTargetFilter(card.skill, self, to, {}, card.subcards, card, _extra)
 end
 
+--- 当前可用的牌名筛选。用于转化技的interaction里对泛转化牌名的合法性检测
+---@param skill_name string @ 泛转化技的技能名
+---@param card_names string[] @ 待判定的牌名列表
+---@param subcards? integer[] @ 子卡（某些技能可以提前确定子卡，如奇策、妙弦）
+---@param ban_cards? string[] @ 被排除的卡名
+---@param extra_data? table @ 用于使用的额外信息
+---@return string[] @ 返回牌名列表
+function Player:getViewAsCardNames(skill_name, card_names, subcards, ban_cards, extra_data)
+  ban_cards = ban_cards or Util.DummyTable
+  extra_data = extra_data or Util.DummyTable
+  return table.filter(card_names, function (name)
+    local card = Fk:cloneCard(name)
+    card.skillName = skill_name
+    if subcards then card:addSubcards(subcards) end
+    if table.contains(ban_cards, card.trueName) or table.contains(ban_cards, card.name) then return false end
+    if Fk.currentResponsePattern == nil then
+      return self:canUse(card, extra_data)
+    else
+      return Exppattern:Parse(Fk.currentResponsePattern):match(card)
+    end
+  end)
+end
+
 --- 确认玩家是否被禁止对特定玩家使用特定牌。
 ---@param to Player @ 特定玩家
 ---@param card Card @ 特定牌
