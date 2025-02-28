@@ -782,28 +782,24 @@ function Engine:getAllCardNames(card_type, true_name)
   return all_names
 end
 
-
----@class ViewAsCardNamesParams
----@field player Player @ 使用者
----@field card_names string[] @ 待判定的牌名列表
+--- 当前可用的牌名筛选。用于转化技的interaction里对泛转化牌名的合法性检测
+---@param player Player @ 使用者
 ---@field skill_name string @ 泛转化技的技能名
----@field subcards? string[] @ 子卡（某些技能可以提前确定子卡，如奇策、妙弦）
+---@field card_names string[] @ 待判定的牌名列表
+---@field subcards? integer[] @ 子卡（某些技能可以提前确定子卡，如奇策、妙弦）
 ---@field ban_cards? string[] @ 被排除的卡名
 ---@field extra_data? table @ 用于使用的额外信息
-
-
---- 当前可用的牌名筛选。用于转化技的interaction里对泛转化牌名的合法性检测
----@param params ViewAsCardNamesParams
 ---@return string[] @ 返回牌名列表
-function Engine:getViewAsCardNames(params)
-  local ban_cards = params.ban_cards or Util.DummyTable
-  local player = params.player
-  return table.filter(params.card_names, function (name)
+function Engine:getViewAsCardNames(player, skill_name, card_names, subcards, ban_cards, extra_data)
+  ban_cards = ban_cards or Util.DummyTable
+  extra_data = extra_data or Util.DummyTable
+  return table.filter(card_names, function (name)
     local card = Fk:cloneCard(name)
-    if params.subcards then card:addSubcards(params.subcards) end
+    card.skillName = skill_name
+    if subcards then card:addSubcards(subcards) end
     if table.contains(ban_cards, card.trueName) or table.contains(ban_cards, card.name) then return false end
     if Fk.currentResponsePattern == nil then
-      return player:canUse(card, params.extra_data) and not player:prohibitUse(card)
+      return player:canUse(card, extra_data)
     else
       return Exppattern:Parse(Fk.currentResponsePattern):match(card)
     end
