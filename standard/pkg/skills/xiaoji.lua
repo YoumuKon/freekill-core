@@ -15,7 +15,7 @@ xiaoji:addEffect(fk.AfterCardsMove, {
       end
     end
   end,
-  on_trigger = function(self, event, target, player, data)
+  trigger_times = function(self, event, target, player, data)
     local i = 0
     for _, move in ipairs(data) do
       if move.from == player then
@@ -26,10 +26,7 @@ xiaoji:addEffect(fk.AfterCardsMove, {
         end
       end
     end
-    for _ = 1, i do
-      if event:isCancelCost(self) or not player:hasSkill(xiaoji.name) then break end
-      self:doCost(event, target, player, data)
-    end
+    return i
   end,
   on_cost = function(self, event, target, player, data)
     if player.room:askToSkillInvoke(player, { skill_name = xiaoji.name }) then
