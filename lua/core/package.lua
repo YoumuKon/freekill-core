@@ -100,6 +100,22 @@ function Package:loadSkillSkels(skels)
   end
 end
 
+---@param path string
+function Package:loadSkillSkelsByPath(path)
+  local skels = {}
+  local normalized_dir = path
+      :gsub("^%.+/", "")
+      :gsub("/+$", "")
+      :gsub("/", ".")
+  for _, filename in ipairs(FileIO.ls(path)) do
+    if filename:sub(-4) == ".lua" and filename ~= "init.lua" then
+      local skel = require(normalized_dir .. "." .. filename:sub(1, -5))
+      table.insert(skels, skel)
+    end
+  end
+  self:loadSkillSkels(skels)
+end
+
 ---@param skels CardSkeleton[]
 function Package:loadCardSkels(skels)
   for _, e in ipairs(skels) do
