@@ -73,7 +73,7 @@ function UsableSkill:withinTimesLimit(player, scope, card, card_name, to)
     if card then
       card_name = card.trueName
     else ---坏了，不是卡的技能
-      return player:usedSkillTimes(self.name, scope) < limit
+      return player:usedEffectTimes(self.name, scope) < limit
     end
   end
 
