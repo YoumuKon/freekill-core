@@ -227,7 +227,7 @@ function ServerPlayer:skip(phase)
   local current_turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
   if current_turn then
     local phase_data
-    for i = current_turn.data.phase_index, #current_turn.data.phase_table, 1 do
+    for i = current_turn.data.phase_index + 1, #current_turn.data.phase_table, 1 do
       phase_data = current_turn.data.phase_table[i]
       if phase_data.phase == phase then
         phase_data.skipped = true
@@ -244,7 +244,7 @@ function ServerPlayer:canSkip(phase)
   local current_turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
   if current_turn then
     local phase_data
-    for i = current_turn.data.phase_index, #current_turn.data.phase_table, 1 do
+    for i = current_turn.data.phase_index + 1, #current_turn.data.phase_table, 1 do
       phase_data = current_turn.data.phase_table[i]
       if phase_data.phase == phase and not phase_data.skipped then
         return true
