@@ -8,6 +8,7 @@
 ---@field public skillName string @ 引起体力变化的技能名
 ---@field public damageEvent? DamageData @ 引起这次体力变化的伤害数据
 ---@field public preventDying? boolean @ 是否阻止本次体力变更流程引发濒死流程
+---@field public prevented boolean? @ 体力变化是否被防止
 
 --- 描述和一次体力变化有关的数据
 ---@class HpChangedData: HpChangedDataSpec, TriggerData
@@ -18,19 +19,33 @@ HpChangedData = TriggerData:subclass("HpChangedData")
 ---@field public who ServerPlayer @ 失去体力的角色
 ---@field public num integer @ 失去体力的数值
 ---@field public skillName string @ 导致这次失去的技能名
+---@field public prevented boolean? @ 失去体力是否被防止
 
 --- 描述跟失去体力有关的数据
 ---@class HpLostData: HpLostDataSpec, TriggerData
 HpLostData = TriggerData:subclass("HpLostData")
 
+--- 防止改变体力上限
+function HpLostData:preventHpLost()
+  self.num = 0
+  self.prevented = true
+end
+
 --- MaxHpChangedData 描述跟体力上限变化有关的数据
 ---@class MaxHpChangedDataSpec
 ---@field public who ServerPlayer @ 改变体力上限的角色
 ---@field public num integer @ 体力上限变化量，可能是正数或者负数
+---@field public prevented boolean? @ 改变体力上限是否被防止
 
 --- 描述跟体力上限变化有关的数据
 ---@class MaxHpChangedData: MaxHpChangedDataSpec, TriggerData
 MaxHpChangedData = TriggerData:subclass("MaxHpChangedData")
+
+--- 防止改变体力上限
+function MaxHpChangedData:preventMaxHpChange()
+  self.num = 0
+  self.prevented = true
+end
 
 --- DamageType 伤害的属性
 ---@alias DamageType integer

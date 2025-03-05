@@ -73,7 +73,11 @@ function ChangeHp:main()
     data.num = num + data.shield_lost
   end
 
-  if logic:trigger(fk.BeforeHpChanged, data.who, data) then
+  logic:trigger(fk.BeforeHpChanged, data.who, data)
+  if data.num == 0 then
+    data.prevented = true
+  end
+  if data.prevented then
     logic:breakEvent(false)
   end
 
@@ -290,7 +294,11 @@ function LoseHp:main()
     return false
   end
 
-  if logic:trigger(fk.PreHpLost, data.who, data) or data.num < 1 then
+  logic:trigger(fk.PreHpLost, data.who, data)
+  if data.num < 1 then
+    data.prevented = true
+  end
+  if data.prevented then
     logic:breakEvent(false)
   end
 
@@ -379,8 +387,12 @@ function ChangeMaxHp:main()
   local data = self.data
   local room = self.room
 
-  if room.logic:trigger(fk.BeforeMaxHpChanged, data.who, data) or data.num == 0 then
-    return false
+  room.logic:trigger(fk.BeforeMaxHpChanged, data.who, data)
+  if data.num == 0 then
+    data.prevented = true
+  end
+  if data.prevented then
+    logic:breakEvent(false)
   end
 
   local player = data.who
