@@ -56,6 +56,7 @@ fk.GameStart = RoundEvent:subclass("fk.GameStart")
 ---@field reason string @ 当前额外回合的原因，不为额外回合则为game_rule
 ---@field phase_table PhaseData[] @ 回合进行的阶段列表（包含额定与额外阶段），填空则为正常流程
 ---@field phase_index integer @ 当前进行的阶段索引值
+---@field turn_end? boolean @ 是否结束此回合
 
 --- 回合的数据
 ---@class TurnData: TurnDataSpec, TriggerData
@@ -87,6 +88,7 @@ function TurnData:initialize(who, reason, phases)
     end
   )
   self.phase_index = 0
+  self.turn_end = false
 end
 
 ---@param phase Phase @ 阶段名称

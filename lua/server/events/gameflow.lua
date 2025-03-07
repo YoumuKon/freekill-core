@@ -249,7 +249,7 @@ function Turn:main()
   logic:trigger(fk.TurnStart, player, data)
 
   while #data.phase_table > data.phase_index do
-    if player.dead then return end
+    if player.dead or data.turn_end then return end
     data.phase_index = data.phase_index + 1
     local phase_data = data.phase_table[data.phase_index]
 
@@ -272,8 +272,6 @@ function Turn:clear()
 
   current.phase = Player.NotActive
   room:broadcastProperty(current, "phase")
-
-  room:setTag("endTurn", false)
 
   current.skipped_phases = {}
 

@@ -3040,10 +3040,13 @@ function Room:setPlayerRest(player, roundNum)
   self:broadcastProperty(player, "rest")
 end
 
---- 结束当前回合（不会终止结算）
+--- 结束当前回合（不会终止结算）即结束当前阶段，且不执行本回合之后的阶段
 function Room:endTurn()
-  self.current._phase_end = true
-  self:setTag("endTurn", true)
+  self.current:endCurrentPhase()
+  local current_turn = self.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
+  if current_turn then
+    current_turn.data.turn_end = true
+  end
 end
 
 --清理遗留在处理区的卡牌
