@@ -74,7 +74,7 @@ function ChangeHp:main()
   end
 
   logic:trigger(fk.BeforeHpChanged, data.who, data)
-  if data.num == 0 then
+  if data.num == 0 and data.shield_lost == 0 then
     data.prevented = true
   end
   if data.prevented then

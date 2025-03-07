@@ -25,7 +25,7 @@ HpChangedData = TriggerData:subclass("HpChangedData")
 ---@class HpLostData: HpLostDataSpec, TriggerData
 HpLostData = TriggerData:subclass("HpLostData")
 
---- 防止改变体力上限
+--- 防止失去体力
 function HpLostData:preventHpLost()
   self.num = 0
   self.prevented = true
