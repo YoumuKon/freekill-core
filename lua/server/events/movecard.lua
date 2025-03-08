@@ -364,8 +364,9 @@ end
 ---@param card_ids integer[] @ 被重铸的牌
 ---@param who ServerPlayer @ 重铸的角色
 ---@param skillName? string @ 技能名，默认为“重铸”
+---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
-function MoveEventWrappers:recastCard(card_ids, who, skillName)
+function MoveEventWrappers:recastCard(card_ids, who, skillName, moveMark)
   if type(card_ids) == "number" then
     card_ids = {card_ids}
   end
@@ -376,7 +377,7 @@ function MoveEventWrappers:recastCard(card_ids, who, skillName)
     toArea = Card.DiscardPile,
     skillName = skillName,
     moveReason = fk.ReasonRecast,
-    proposer = who.id
+    proposer = who.id,
   })
   self:sendFootnote(card_ids, {
     type = "##RecastCard",
@@ -389,7 +390,7 @@ function MoveEventWrappers:recastCard(card_ids, who, skillName)
     card = card_ids,
     arg = skillName,
   }
-  return self:drawCards(who, #card_ids, skillName)
+  return self:drawCards(who, #card_ids, skillName, "top", moveMark)
 end
 
 --- 将一些卡牌同时分配给一些角色。
