@@ -501,8 +501,9 @@ function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName
     skillName = skillName,
     proposer = player,
     moveVisible = (moveVisible == nil or moveVisible == true),
-    visiblePlayers = visiblePlayers,
+    --visiblePlayers = visiblePlayers,
   }
+  return card_ids
 end
 
 --将处理区的卡牌返回牌堆
@@ -532,7 +533,7 @@ function MoveEventWrappers:returnCardsToDrawPile(player, cards, skillName, toPla
     skillName = skillName,
     proposer = player,
     moveVisible = (moveVisible == nil or moveVisible == true),
-    visiblePlayers = visiblePlayers,
+    --visiblePlayers = visiblePlayers,
     drawPilePosition = toPlace == "top" and 1 or -1
   }
 end
