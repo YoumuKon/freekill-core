@@ -484,6 +484,292 @@ function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, 
   self:moveCards(table.unpack(moves))
 end
 
+--- 从牌堆亮出一些牌移动到处理区
+---@param player ServerPlayer @ 进行操作的角色
+---@param card_ids integer[] @ 要亮出的牌，通常用getNCards获得
+---@param skillName string @ 技能名
+---@param moveVisible? boolean @ 是否正面向上移动
+---@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+---@return integer[] @ 返回卡牌id列表
+function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName, moveVisible, visiblePlayers )
+  ---@cast self Room
+  visiblePlayers = moveVisible == false and visiblePlayers or { player }
+  self:moveCards {
+    ids = card_ids,
+    toArea = Card.Processing,
+    moveReason = fk.ReasonJustMove,
+    skillName = skillName,
+    proposer = player,
+    moveVisible = (moveVisible == nil or moveVisible == true),
+    visiblePlayers = visiblePlayers,
+  }
+end
+
+--将处理区的卡牌返回牌堆
+---@param player ServerPlayer @ 进行操作的角色
+---@param cards integer[] @ 返回牌堆的卡牌
+---@param skillName string @ 技能名
+---@param toPlace? DrawPilePos @ 返回牌堆的位置，默认牌堆顶
+---@param moveVisible? boolean @ 是否正面向上移动
+---@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+function MoveEventWrappers:returnCardsToDrawPile(player, cards, skillName, toPlace, moveVisible, visiblePlayers)
+  ---@cast self Room
+  local to_drawpile = table.filter(cards, function (id)
+    return self:getCardArea(id) == Card.Processing
+  end)
+  if #to_drawpile == 0 then return end
+  if toPlace == nil then
+    toPlace = "top"
+  end
+  visiblePlayers = moveVisible == false and visiblePlayers or { player }
+  if toPlace == "top" then
+    to_drawpile = table.reverse(to_drawpile)
+  end
+  self:moveCards {
+    ids = to_drawpile,
+    toArea = Card.DrawPile,
+    moveReason = fk.ReasonJustMove,
+    skillName = skillName,
+    proposer = player,
+    moveVisible = (moveVisible == nil or moveVisible == true),
+    visiblePlayers = visiblePlayers,
+    drawPilePosition = toPlace == "top" and 1 or -1
+  }
+end
+
+-- 令两名角色交换特定的牌（FIXME：暂时只能正面朝上移动过）
+---@param player ServerPlayer @ 进行操作的角色
+---@param card_data any @ {{角色1, 角色1的卡牌}, {角色2, 角色2的卡牌}}
+---@param skillName string @ 技能名
+---@param toArea integer? @ 交换牌的目标区域，默认为手牌
+function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
+  ---@cast self Room
+  toArea = toArea or Card.PlayerHand
+  local target1, cards1, target2, cards2 = card_data[1][1], card_data[1][2], card_data[2][1], card_data[2][2]
+  local moveInfos = {}
+  if #cards1 > 0 then
+    table.insert(moveInfos, {
+      from = target1,
+      ids = cards1,
+      toArea = Card.Processing,
+      moveReason = fk.ReasonExchange,
+      proposer = player,
+      skillName = skillName,
+      moveVisible = (toArea ~= Card.PlayerHand),  --交换蓄谋牌是否可见，待定
+    })
+  end
+  if #cards2 > 0 then
+    table.insert(moveInfos, {
+      from = target2,
+      ids = cards2,
+      toArea = Card.Processing,
+      moveReason = fk.ReasonExchange,
+      proposer = player,
+      skillName = skillName,
+      moveVisible = (toArea ~= Card.PlayerHand),
+    })
+  end
+  if #moveInfos > 0 then
+    self:moveCards(table.unpack(moveInfos))
+  end
+  moveInfos = {}
+  if not target2.dead then
+    local to_ex_cards = table.filter(cards1, function (id)
+      if self:getCardArea(id) == Card.Processing then
+        if toArea == Card.PlayerEquip then
+          return #target2:getAvailableEquipSlots(Fk:getCardById(id).sub_type) > 0  --多个同副类别装备如何处理，待定
+        elseif toArea == Card.PlayerJudge then
+          return not table.contains(target2.sealedSlots, Player.JudgeSlot)
+        else
+          return true
+        end
+      end
+    end)
+    if #to_ex_cards > 0 then
+      table.insert(moveInfos, {
+        ids = to_ex_cards,
+        fromArea = Card.Processing,
+        to = target2,
+        toArea = toArea,
+        moveReason = fk.ReasonExchange,
+        proposer = player,
+        skillName = skillName,
+        moveVisible = (toArea ~= Card.PlayerHand),
+        visiblePlayers = target2,
+      })
+    end
+  end
+  if not target1.dead then
+    local to_ex_cards = table.filter(cards2, function (id)
+      if toArea == Card.PlayerEquip then
+        return #target1:getAvailableEquipSlots(Fk:getCardById(id).sub_type) > 0
+      elseif toArea == Card.PlayerJudge then
+        return not table.contains(target1.sealedSlots, Player.JudgeSlot)
+      else
+        return true
+      end
+    end)
+    if #to_ex_cards > 0 then
+      table.insert(moveInfos, {
+        ids = to_ex_cards,
+        fromArea = Card.Processing,
+        to = target1,
+        toArea = toArea,
+        moveReason = fk.ReasonExchange,
+        proposer = player,
+        skillName = skillName,
+        moveVisible = (toArea ~= Card.PlayerHand),
+        visiblePlayers = target2,
+      })
+    end
+  end
+  if #moveInfos > 0 then
+    self:moveCards(table.unpack(moveInfos))
+  end
+  self:cleanProcessingArea(table.connect(cards1, cards2), skillName)
+end
+
+-- 令两名角色交换一个区域内所有牌
+---@param player ServerPlayer @ 进行操作的角色
+---@param targets ServerPlayer[] @ 交换手牌的两名角色
+---@param skillName string @ 技能名
+---@param flag? "h" | "e" | "j" @ 交换的区域。默认是手牌
+function MoveEventWrappers:swapAllCards(player, targets, skillName, flag)
+  ---@cast self Room
+  flag = flag or "h"
+  local toArea = Card.PlayerHand
+  if flag == "e" then
+    toArea = Card.PlayerEquip
+  elseif flag == "j" then
+    toArea = Card.PlayerJudge
+  end
+  self:swapCards(player, {
+    {targets[1], targets[1]:getCardIds(flag)},
+    {targets[2], targets[2]:getCardIds(flag)}
+  }, skillName, toArea)
+end
+
+-- 将一名角色的卡牌与牌堆中的卡牌交换
+---@param player ServerPlayer @ 移动的目标
+---@param cards1 integer[] @ 将要放到牌堆的牌
+---@param cards2 integer[] @ 将要收为手牌的牌
+---@param skillName string @ 技能名
+---@param pile_name string @ 交换的私有牌堆名，特别的，为"Top"则为牌堆顶，"Bottom"则为牌堆底，"discardPile"则为弃牌堆
+---@param visible? boolean @ 是否明牌移动
+---@param proposer? ServerPlayer @ 移动的操作者（默认同player）
+function MoveEventWrappers:swapCardsWithPile(player, cards1, cards2, skillName, pile_name, visible, proposer)
+  ---@cast self Room
+  proposer = proposer or player
+  visible = (visible ~= nil) and visible or false
+  local handcards = player:getCardIds("he")
+  if pile_name == "Top" or pile_name == "Bottom" then
+    cards2 = table.filter(cards2, function (id)
+      return not table.contains(handcards, id)
+    end)
+    local temp = table.simpleClone(cards1)
+    table.insertTable(temp, cards2)
+    self:moveCardTo(temp, Card.Processing, nil, fk.ReasonExchange, skillName, nil, visible, player, nil, proposer)
+    cards1 = table.filter(cards1, function (id)
+      return self:getCardArea(id) == Card.Processing
+    end)
+    local moveInfos = {}
+    if #cards1 > 0 then
+      local drawPilePosition = -1
+      if pile_name == "Top" then
+        cards1 = table.reverse(cards1)
+        drawPilePosition = 1
+      end
+      table.insert(moveInfos, {
+        ids = cards1,
+        toArea = Card.DrawPile,
+        moveReason = fk.ReasonExchange,
+        proposer = proposer,
+        skillName = skillName,
+        moveVisible = visible,
+        visiblePlayers = proposer,
+        drawPilePosition = drawPilePosition,
+      })
+    end
+    if player.dead then
+      table.insert(moveInfos, {
+        ids = cards2,
+        toArea = Card.DiscardPile,
+        moveReason = fk.ReasonPutIntoDiscardPile,
+      })
+    else
+      table.insert(moveInfos, {
+        ids = cards2,
+        to = player,
+        toArea = Card.PlayerHand,
+        moveReason = fk.ReasonExchange,
+        proposer = proposer,
+        skillName = skillName,
+        moveVisible = visible,
+        visiblePlayers = proposer,
+      })
+    end
+    if #moveInfos > 0 then
+      self:moveCards(table.unpack(moveInfos))
+    end
+  elseif pile_name == "discardPile" then
+    cards1 = table.filter(cards1, function (id)
+      return table.contains(handcards, id)
+    end)
+    cards2 = table.filter(cards2, function (id)
+      return not table.contains(handcards, id)
+    end)
+    local temp = table.simpleClone(cards1)
+    table.insertTable(temp, cards2)
+    self:moveCardTo(temp, Card.Processing, nil, fk.ReasonExchange, skillName, nil, visible, player, nil, proposer)
+    cards2 = table.filter(cards2, function (id)
+      return self:getCardArea(id) == Card.Processing
+    end)
+    local moveInfos = {}
+    temp = table.simpleClone(cards1)
+
+    if #cards2 > 0 then
+      if player.dead then
+        table.insertTable(temp, cards2)
+      else
+        table.insert(moveInfos, {
+          ids = cards2,
+          to = player,
+          toArea = Card.PlayerHand,
+          moveReason = fk.ReasonExchange,
+          proposer = proposer,
+          skillName = skillName,
+          moveVisible = visible,
+          visiblePlayers = proposer,
+        })
+      end
+    end
+    if #temp > 0 then
+      table.insert(moveInfos, {
+        ids = temp,
+        toArea = Card.DiscardPile,
+        moveReason = fk.ReasonPutIntoDiscardPile,
+      })
+    end
+    if #moveInfos > 0 then
+      self:moveCards(table.unpack(moveInfos))
+    end
+  else
+    cards1 = table.filter(cards1, function (id)
+      return table.contains(handcards, id)
+    end)
+    if #cards1 > 0 then
+      player:addToPile(pile_name, cards1, visible, skillName)
+      if player.dead then return end
+    end
+    cards2 = table.filter(player:getPile(pile_name), function (id)
+      return table.contains(cards2, id)
+    end)
+    if #cards2 > 0 then
+      self:moveCardTo(cards2, Card.PlayerHand, player, fk.ReasonExchange, skillName, nil, visible, proposer, nil, player)
+    end
+  end
+end
+
 --- 取消一些牌的移动。请仅用于BeforeCardsMove时机
 ---@param data MoveCardsData[]
 ---@param ids? integer[] @ 取消移动的牌的id列表，填nil则取消所有
