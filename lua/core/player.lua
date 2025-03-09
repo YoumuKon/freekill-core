@@ -134,6 +134,7 @@ end
 ---@param general General @ 角色类型
 ---@param setHp? boolean @ 是否设置体力
 ---@param addSkills? boolean @ 是否增加技能
+---@deprecated
 function Player:setGeneral(general, setHp, addSkills)
   self.general = general.name
   if setHp then
@@ -142,7 +143,7 @@ function Player:setGeneral(general, setHp, addSkills)
   end
 
   if addSkills then
-    table.insertTable(self.player_skills, general.skills)
+    table.insertTableIfNeed(self.player_skills, general:getSkillNameList())
   end
 end
 

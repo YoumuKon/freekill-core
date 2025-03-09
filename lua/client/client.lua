@@ -886,6 +886,7 @@ fk.client_callback["AddSkill"] = function(self, data)
     -- 添加假技能：服务器只会传一个主技能来。
     -- 若有主动技则添加按钮，若有触发技则添加预亮按钮。
     -- 无视状态技。
+    -- TODO：根据skel判断，是refresh和delay就不添加按钮
     local sks = { table.unpack(skill.related_skills) }
     table.insert(sks, skill)
     table.insert(target.player_skills, skill)

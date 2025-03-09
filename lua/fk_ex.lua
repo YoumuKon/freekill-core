@@ -120,6 +120,9 @@ end
 ---@field public addEffect fun(self: SkillSkeleton, key: "viewas", data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
 ---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean)
 ---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
+---@field public dynamicName fun(self: SkillSkeleton, player: Player, lang: string): string @ 动态名称函数
+---@field public dynamicDesc fun(self: UsableSkill, player: Player, lang: string): string @ 动态描述函数
+
 local SkillSkeleton = class("SkillSkeleton")
 
 ---@param spec SkillSkeletonSpec
@@ -686,6 +689,29 @@ function SkillSkeleton:addLoseEffect(fn)
   end
 end
 
+---@param player Player
+---@param lang? string
+---@return string?
+function SkillSkeleton:getDynamicName(player, lang)
+  return self.dynamicName and self:dynamicName(player, lang)
+end
+
+---@param player Player
+---@param lang? string
+---@return string?
+function SkillSkeleton:getDynamicDescription(player, lang)
+  if table.contains(self.tags, Skill.Switch) then
+    local skill_name = self.name
+    local switchState = player:getSwitchSkillState(skill_name)
+    local descKey = ":" .. skill_name .. (switchState == fk.SwitchYang and "_yang" or "_yin")
+    local translation = Fk:translate(descKey, lang)
+    if translation ~= descKey then
+      return translation
+    end
+  end
+  return self.dynamicDesc and self:dynamicDesc(player, lang)
+end
+
 ---@param spec SkillSkeletonSpec
 ---@return SkillSkeleton
 function fk.CreateSkill(spec)
@@ -792,7 +818,7 @@ end
 ---@field public card_filter? fun(self: ActiveSkill, player: Player, to_select: integer, selected: integer[]): any @ 判断卡牌能否选择
 ---@field public target_filter? fun(self: ActiveSkill, player: Player?, to_select: Player, selected: Player[], selected_cards: integer[]): any @ 判定目标能否选择
 ---@field public feasible? fun(self: ActiveSkill, player: Player, selected: Player[], selected_cards: integer[], card: Card): any @ 判断卡牌和目标是否符合技能限制
----@field public on_use? fun(self: ActiveSkill, room: Room, cardUseEvent: SkillUseData): any
+---@field public on_use? fun(self: ActiveSkill, room: Room, skillUseEvent: SkillUseData): any
 ---@field public prompt? string|fun(self: ActiveSkill, player: Player, selected_cards: integer[], selected_targets: Player[]): string @ 提示信息
 ---@field public interaction? fun(self: ActiveSkill, player: Player): table? @ 选项框
 ---@field public target_tip? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?

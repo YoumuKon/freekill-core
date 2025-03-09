@@ -72,15 +72,15 @@ function General:__tostring()
   return string.format("<General %s>", self.name)
 end
 
---- 为武将增加技能，需要注意增加其他武将技能时的处理方式。
+--- 为武将增加技能
 ---@param skill Skill|string @ （单个）武将技能
 function General:addSkill(skill)
   if (type(skill) == "string") then
-    table.insert(self.other_skills, skill)
-    table.insert(self.all_skills, {skill, false})
-  elseif (skill.class and skill.class:isSubclassOf(Skill)) then
+    table.insert(self.other_skills, skill) -- 0.5.4以前只有其他武将的技能会进来，现在是所有
+    table.insert(self.all_skills, {skill, false}) -- only for UI
+  elseif (skill.class and skill.class:isSubclassOf(Skill)) then -- 牢
     table.insert(self.skills, skill)
-    table.insert(self.all_skills, {skill.name, false})
+    table.insert(self.all_skills, {skill.name, false}) -- only for UI
     skill.package = self.package
   end
 end
@@ -92,11 +92,11 @@ function General:addSkills(skill_list)
   end
 end
 
---- 为武将增加相关技能，需要注意增加其他武将技能时的处理方式。
+--- 为武将增加相关技能
 ---@param skill Skill|string @ （单个）武将技能
 function General:addRelatedSkill(skill)
   if (type(skill) == "string") then
-    table.insert(self.related_other_skills, skill)
+    table.insert(self.related_other_skills, skill) -- 0.5.4以前只有其他角色的技能会进来，现在是所有
     table.insert(self.all_skills, {skill, true}) -- only for UI
   elseif (skill.class and skill.class:isSubclassOf(Skill)) then
     table.insert(self.related_skills, skill)

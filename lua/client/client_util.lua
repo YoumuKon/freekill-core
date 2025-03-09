@@ -246,21 +246,21 @@ function GetMySkills()
   end)
 end
 
--- TODO: 动态技能名
 function GetPlayerSkills(id)
   local p = ClientInstance:getPlayerById(id)
-  --FIXME:本体更新时记得优化此处
   if p == Self then
     return table.map(p.player_skills, function(s)
+      local skel = s:getSkeleton() or s
       return s.visible and {
-        name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
+        name = Fk:getSkillName(skel.name, nil, p, true),
         description = Fk:getDescription(s.name, nil, p),
       } or nil
     end)
   else
     return table.map(p.player_skills, function(s)
+      local skel = s:getSkeleton() or s
       return s.visible and not (s.attached_equip or s.name:endsWith("&")) and {
-        name = Fk:translate(s.name) .. (s:isEffectable(p) and "" or Fk:translate("skill_invalidity")),
+        name = Fk:getSkillName(skel.name, nil, p, true),
         description = Fk:getDescription(s.name, nil, p),
       } or nil
     end)
@@ -285,7 +285,7 @@ function GetSkillData(skill_name)
     frequency = "quest"
   end
   return {
-    skill = Fk:translate(skill_name),
+    skill = Fk:translate(skill_name), --Fk:getSkillName(skill_name, nil, Self, false), -- 需要配套更新技能面板
     orig_skill = skill_name,
     extension = skill.package.extensionName,
     freq = freq,
@@ -300,7 +300,7 @@ function GetSkillStatus(skill_name)
   local skill = Fk.skills[skill_name]
   return {
     locked = not skill:isEffectable(player),
-    times = skill:getTimes(Self)
+    times = skill:getTimes(player)
   }
 end
 

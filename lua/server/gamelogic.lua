@@ -234,7 +234,6 @@ end
 
 function GameLogic:attachSkillToPlayers()
   local room = self.room
-  local players = room.players
 
   local addRoleModSkills = function(player, skillName)
     local skill = Fk.skills[skillName]
@@ -254,12 +253,9 @@ function GameLogic:attachSkillToPlayers()
     self:trigger(fk.EventAcquireSkill, player, skill)
   end
   for _, p in ipairs(room.alive_players) do
-    local skills = Fk.generals[p.general].skills
+    local skills = Fk.generals[p.general]:getSkillNameList(true)
     for _, s in ipairs(skills) do
-      addRoleModSkills(p, s.name)
-    end
-    for _, sname in ipairs(Fk.generals[p.general].other_skills) do
-      addRoleModSkills(p, sname)
+      addRoleModSkills(p, s)
     end
 
     local deputy = Fk.generals[p.deputyGeneral]

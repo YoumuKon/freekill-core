@@ -2,6 +2,10 @@ local kurou = fk.CreateSkill {
   name = "kurou",
 }
 
+kurou.dynamicName = function (self, player, lang)
+  return Fk:translate(self.name) .. player:usedSkillTimes(self.name)
+end
+
 kurou:addEffect("active", {
   anim_type = "drawcard",
   prompt = "#kurou-active",

@@ -238,15 +238,14 @@ end
 --- 让一名玩家获得一张牌
 ---@param player ServerPlayer @ 要拿牌的玩家
 ---@param card integer|integer[]|Card|Card[] @ 要拿到的卡牌
----@param unhide? boolean @ 是否明着拿
+---@param visible? boolean @ 是否明着拿
 ---@param reason? CardMoveReason @ 卡牌移动的原因
 ---@param proposer? ServerPlayer @ 移动操作者的id
 ---@param skill_name? string @ 技能名
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
-function MoveEventWrappers:obtainCard(player, card, unhide, reason, proposer, skill_name, moveMark, visiblePlayers)
-  local pid = type(player) == "number" and player or player.id
-  self:moveCardTo(card, Card.PlayerHand, player, reason, skill_name, nil, unhide, proposer or pid, moveMark, visiblePlayers)
+function MoveEventWrappers:obtainCard(player, card, visible, reason, proposer, skill_name, moveMark, visiblePlayers)
+  self:moveCardTo(card, Card.PlayerHand, player, reason, skill_name, nil, visible, proposer or player, moveMark, visiblePlayers)
 end
 
 --- 让玩家摸牌

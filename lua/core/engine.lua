@@ -171,6 +171,7 @@ function Engine:reloadPackage(path)
     end
   end
 
+  ---@param p Package
   local function f(p)
     self.packages[p.name] = p
     local room = Fk:currentRoom()
@@ -840,9 +841,31 @@ function Engine:currentRoom()
   return ClientInstance
 end
 
---- 根据字符串获得这个技能或者这张牌的描述
----
---- 其实就是翻译了 ":" .. name 罢了
+---@param name string @ 要获得描述的名字
+---@param lang? string @ 要使用的语言，默认读取config
+---@param player Player @ 绑定角色，用于获取技能的动态描述
+---@param with_effectable? boolean @ 是否需要加上无效红字显示
+---@return string @ 描述
+function Engine:getSkillName(name, lang, player, with_effectable)
+  lang = lang or (Config.language or "zh_CN")
+  local skill = Fk.skills[name]
+  local _name
+  if skill.skeleton then -- 新框架
+    _name = skill.skeleton:getDynamicName(player, lang)
+  end
+  if type(_name) == "string" and _name ~= "" then
+    _name = self:translate(_name, lang)
+  else
+    _name = self:translate(name, lang)
+  end
+  if with_effectable then
+    return _name .. (skill:isEffectable(player) and "" or self:translate("skill_invalidity", lang)) -- 无效显示
+  else
+    return _name
+  end
+end
+
+--- 根据字符串获得这个技能或者这张牌的（动态）描述
 ---@param name string @ 要获得描述的名字
 ---@param lang? string @ 要使用的语言，默认读取config
 ---@param player? Player @ 绑定角色，用于获取技能的动态描述
@@ -850,14 +873,20 @@ end
 function Engine:getDescription(name, lang, player)
   local skill = Fk.skills[name]
   if player and skill then
-    local dynamicDesc = skill:getDynamicDescription(player, lang)
+    local dynamicDesc
+    if skill.skeleton then
+      dynamicDesc = skill.skeleton:getDynamicDescription(player, lang)
+    end
+    if type(dynamicDesc) ~= "string" or dynamicDesc == "" then
+      dynamicDesc = skill:getDynamicDescription(player, lang)
+    end
     if type(dynamicDesc) == "string" and dynamicDesc ~= "" then
       local descFormatter = function(desc)
-        local descSplited = desc:split(":")
-        local descFormatted = self:translate(":" .. descSplited[1], lang)
-        if descFormatted ~= ":" .. descSplited[1] then
-          for i = 2, #descSplited do
-            local curDesc = self:translate(descSplited[i], lang)
+        local descSplit = desc:split(":")
+        local descFormatted = self:translate(":" .. descSplit[1], lang)
+        if descFormatted ~= ":" .. descSplit[1] then
+          for i = 2, #descSplit do
+            local curDesc = self:translate(descSplit[i], lang)
             descFormatted = descFormatted:gsub("{" .. (i - 1) .. "}", curDesc)
           end
 
