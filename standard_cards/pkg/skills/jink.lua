@@ -21,13 +21,13 @@ skill:addTest(function (room, me)
   local card = room:printCard("jink")
   FkTest.setNextReplies(me, { json.encode {
     card = card.id,
-  }})
+  } })
   FkTest.runInRoom(function ()
     room:obtainCard(me, card)
     room:useVirtualCard("slash", nil, comp2, me)
   end)
   lu.assertEquals(me.hp, 3)
-  lu.assertIs(me:isKongcheng())
+  lu.assertIsTrue(me:isKongcheng())
 end)
 
 return skill

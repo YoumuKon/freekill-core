@@ -18,6 +18,7 @@ test2:addSkills {
   "damage_maker",
   "test_zhenggong",
   "change_hero",
+  "zhijian",
 }
 
 Fk:loadTranslationTable{

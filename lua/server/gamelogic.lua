@@ -713,7 +713,7 @@ function GameLogic:damageByCardEffect(is_exact)
   local effect = c_event.data
   if c_event == nil then return false end
   return damage.card == effect.card and
-  (not is_exact or (damage.from or {}).id == effect.from)
+  (not is_exact or (damage.from or {}) == effect.from)
 end
 
 function GameLogic:dumpEventStack()

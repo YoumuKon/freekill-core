@@ -100,7 +100,7 @@ analepticSkill:addTest(function(room, me)
   -- test3: 濒死时喝酒，改为回血
   FkTest.setNextReplies(me, { json.encode {
     card = analeptic.id,
-  }})
+  } })
   FkTest.runInRoom(function()
     room:obtainCard(me, analeptic)
     room:loseHp(me, 4)

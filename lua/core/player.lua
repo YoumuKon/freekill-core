@@ -838,7 +838,7 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     if self:isInstanceOf(ServerPlayer) then
       return not self:isFakeSkill(skill)
     else
-      return table.contains(self.player_skills, skill)
+      return true
     end
   end
 
