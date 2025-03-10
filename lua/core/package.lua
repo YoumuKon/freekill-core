@@ -109,8 +109,10 @@ function Package:loadSkillSkelsByPath(path)
       :gsub("/", ".")
   for _, filename in ipairs(FileIO.ls(path)) do
     if filename:sub(-4) == ".lua" and filename ~= "init.lua" then
-      local skel = require(normalized_dir .. "." .. filename:sub(1, -5))
-      table.insert(skels, skel)
+      local skel = Pcall(require, normalized_dir .. "." .. filename:sub(1, -5))
+      if skel then
+        table.insert(skels, skel)
+      end
     end
   end
   self:loadSkillSkels(skels)
