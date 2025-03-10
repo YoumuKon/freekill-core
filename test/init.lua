@@ -3,10 +3,10 @@
 local extension = Package:new("test_p_0")
 extension.extensionName = "test"
 
-local prefix = "packages."
-if UsingNewCore then prefix = "packages.freekill-core." end
+local prefix = "./packages/"
+if UsingNewCore then prefix = "./packages/freekill-core/" end
 
-extension:loadSkillSkels(require(prefix .. "test.skills"))
+extension:loadSkillSkelsByPath(prefix .. "test/skills")
 
 local test2 = General(extension, "mouxusheng", "wu", 4, 4, General.Female)
 test2.shield = 3
@@ -18,7 +18,7 @@ test2:addSkills {
   "damage_maker",
   "test_zhenggong",
   "change_hero",
-  "zhijian",
+  "test_zhijian",
 }
 
 Fk:loadTranslationTable{
