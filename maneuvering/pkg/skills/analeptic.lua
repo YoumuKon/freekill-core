@@ -36,10 +36,10 @@ analepticSkill:addEffect("cardskill", {
 
 analepticSkill:addEffect(fk.PreCardUse, {
   global = true,
-  can_trigger = function(self, event, target, player, data)
-    return target == player and data.card.trueName == "slash"
+  can_refresh = function(self, event, target, player, data)
+    return target == player and data.card.trueName == "slash" and player.drank > 0
   end,
-  on_trigger = function(self, event, target, player, data)
+  on_refresh = function(self, event, target, player, data)
     local room = player.room
     data.additionalDamage = (data.additionalDamage or 0) + player.drank
     data.extra_data = data.extra_data or {}
@@ -49,17 +49,15 @@ analepticSkill:addEffect(fk.PreCardUse, {
   end,
 })
 
-analepticSkill:addEffect(fk.AfterTurnEnd, {
+analepticSkill:addEffect(fk.TurnEnd, {
   global = true,
-  can_trigger = Util.TrueFunc,
-  on_trigger = function(self, event, target, player, data)
-    local room = player.room
-    for _, p in ipairs(room:getAlivePlayers(true)) do
-      if p.drank > 0 then
-        p.drank = 0
-        room:broadcastProperty(p, "drank")
-      end
-    end
+  late_refresh = true,
+  can_refresh = function(self, event, target, player, data)
+    return player.drank > 0
+  end,
+  on_refresh = function(self, event, target, player, data)
+    player.drank = 0
+    player.room:broadcastProperty(player, "drank")
   end,
 })
 

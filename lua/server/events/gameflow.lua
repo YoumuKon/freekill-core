@@ -161,7 +161,6 @@ function Round:main()
   logic:trigger(fk.RoundStart, room.current, data)
   self:action()
   logic:trigger(fk.RoundEnd, room.current, data)
-  logic:trigger(fk.AfterRoundEnd, room.current, data)
 end
 
 function Round:clear()
@@ -268,7 +267,6 @@ function Turn:clear()
   room:broadcastProperty(current, "phase")
 
   logic:trigger(fk.TurnEnd, current, data, self.interrupted)
-  logic:trigger(fk.AfterTurnEnd, current, data, self.interrupted)
 
   current.phase = Player.NotActive
   room:broadcastProperty(current, "phase")
@@ -455,7 +453,6 @@ function Phase:clear()
   local player = data.who
 
   logic:trigger(fk.EventPhaseEnd, player, data, self.interrupted)
-  logic:trigger(fk.AfterPhaseEnd, player, data, self.interrupted)
 
   player.phase = (room.current == player and Player.PhaseNone or Player.NotActive)
   room:broadcastProperty(player, "phase")
