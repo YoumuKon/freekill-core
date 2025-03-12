@@ -14,7 +14,7 @@ jijiu:addEffect("viewas", {
     if #cards ~= 1 then return end
     local c = Fk:cloneCard("peach")
     c.skillName = jijiu.name
-    c:addSubcard(jijiu[1])
+    c:addSubcard(cards[1])
     return c
   end,
   enabled_at_play = Util.FalseFunc,
