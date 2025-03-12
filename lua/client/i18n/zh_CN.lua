@@ -535,6 +535,8 @@ Fk:loadTranslationTable{
   ["loseMaxHp"] = "减1点体力上限",
   ["yes"] = "是",
   ["no"] = "否",
+  ["clockwise"] = "↻顺时针方向",
+  ["anticlockwise"] = "↺逆时针方向",
 }
 
 -- related to sendLog

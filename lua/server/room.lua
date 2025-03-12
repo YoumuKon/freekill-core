@@ -748,7 +748,7 @@ end
 ---@param player ServerPlayer @ 发动技能的那个玩家
 ---@param skill_name string @ 技能名
 ---@param skill_type? string | AnimationType @ 技能的动画效果，默认是那个技能的anim_type
----@param tos? table<integer> @ 技能目标，填空则不声明
+---@param tos? integer[] | ServerPlayer[] @ 技能目标，填空则不声明
 function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
   local bigAnim = false
   if not skill_type then
@@ -765,6 +765,13 @@ function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
   if skill_type == "big" then bigAnim = true end
 
   if tos and #tos > 0 then
+    tos = table.map(tos, function (to)
+      if type(to) == "table" then
+        return to.id
+      else
+        return to
+      end
+    end)
     self:sendLog{
       type = "#InvokeSkillTo",
       from = player.id,

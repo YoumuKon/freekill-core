@@ -25,7 +25,14 @@ function SkillEffect:main()
   if player and not skill.cardSkill then
     player:revealBySkillName(main_skill.name)
 
-    local tos = skill_data.tos and table.map(skill_data.tos, Util.IdMapper) or {}
+    local tos = skill_data.tos and
+      table.map(skill_data.tos, function (to)
+        if type(to) == "table" then
+          return to.id
+        else
+          return to
+        end
+      end) or {}
     local mute, no_indicate = skill.mute, skill.no_indicate
     if type(cost_data) == "table" then
       if cost_data.mute then mute = cost_data.mute end
@@ -63,7 +70,7 @@ function SkillEffect:main()
       room:doIndicate(player.id, tos)
     end
 
-    if skill:hasTag(Skill.Switch) then
+    if skill:hasTag(Skill.Switch) and not skill.is_delay_effect then
       local switchSkillName = skill:getSkeleton().name
       room:setPlayerMark(
         player,
