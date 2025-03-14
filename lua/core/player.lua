@@ -433,12 +433,12 @@ function Player:getEquipment(cardSubtype)
 end
 
 --- 检索玩家装备区是否存在对应类型的装备列表。
----@param cardSubtype CardSubtype @ 卡牌子类
+---@param cardSubtype? CardSubtype @ 卡牌子类，不填则返回所有装备
 ---@return integer[] @ 返回卡牌ID或空表
 function Player:getEquipments(cardSubtype)
   local cardIds = {}
   for _, cardId in ipairs(self.player_cards[Player.Equip]) do
-    if Fk:getCardById(cardId).sub_type == cardSubtype then
+    if cardSubtype == nil or Fk:getCardById(cardId).sub_type == cardSubtype then
       table.insert(cardIds, cardId)
     end
   end
@@ -1231,7 +1231,7 @@ end
 
 
 --- 获取角色未被废除的装备栏
----@param subtype? integer @ 指定的装备栏类型，填空为所有装备栏
+---@param subtype? CardSubtype @ 指定的装备栏类型，不填则判断所有类型
 ---@return string[]
 function Player:getAvailableEquipSlots(subtype)
   local tempSlots = table.simpleClone(self.equipSlots)
@@ -1256,6 +1256,9 @@ function Player:getAvailableEquipSlots(subtype)
   return tempSlots
 end
 
+--- 检索玩家是否有对应类型的空装备栏
+---@param subtype? CardSubtype @ 指定的装备栏类型，不填则判断所有类型
+---@return boolean
 function Player:hasEmptyEquipSlot(subtype)
   return #self:getAvailableEquipSlots(subtype) - #self:getEquipments(subtype) > 0
 end
