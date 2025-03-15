@@ -105,7 +105,7 @@ local function convertOldMoveInfo(info)
     info.proposer = room:getPlayerById(info.proposer)
   end
   if info.visiblePlayers then
-    if type(info.visiblePlayers) == "table" then
+    if type(info.visiblePlayers) == "table" and #info.visiblePlayers > 0 and type(info.visiblePlayers[1]) == "number" then
       info.visiblePlayers = table.map(info.visiblePlayers, Util.Id2PlayerMapper)
     elseif type(info.visiblePlayers) == "number" then
       info.visiblePlayers = room:getPlayerById(info.visiblePlayers)
@@ -489,10 +489,8 @@ end
 ---@param skillName string @ 技能名
 ---@param moveVisible? boolean @ 是否正面向上移动
 ---@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
----@return integer[] @ 返回卡牌id列表
 function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName, moveVisible, visiblePlayers )
   ---@cast self Room
-  visiblePlayers = moveVisible == false and visiblePlayers or { player }
   self:moveCards {
     ids = card_ids,
     toArea = Card.Processing,
@@ -500,9 +498,8 @@ function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName
     skillName = skillName,
     proposer = player,
     moveVisible = (moveVisible == nil or moveVisible == true),
-    --visiblePlayers = visiblePlayers,
+    visiblePlayers = visiblePlayers or (moveVisible == false and nil or { player }),
   }
-  return card_ids
 end
 
 --将处理区的卡牌返回牌堆
