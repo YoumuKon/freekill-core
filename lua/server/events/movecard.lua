@@ -498,7 +498,7 @@ function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName
     skillName = skillName,
     proposer = player,
     moveVisible = (moveVisible == nil or moveVisible == true),
-    visiblePlayers = visiblePlayers or (moveVisible == false and nil or { player }),
+    visiblePlayers = visiblePlayers or (moveVisible == false and { player } or nil),
   }
 end
 
@@ -518,7 +518,6 @@ function MoveEventWrappers:returnCardsToDrawPile(player, cards, skillName, toPla
   if toPlace == nil then
     toPlace = "top"
   end
-  visiblePlayers = moveVisible == false and visiblePlayers or { player }
   if toPlace == "top" then
     to_drawpile = table.reverse(to_drawpile)
   end
@@ -529,7 +528,7 @@ function MoveEventWrappers:returnCardsToDrawPile(player, cards, skillName, toPla
     skillName = skillName,
     proposer = player,
     moveVisible = (moveVisible == nil or moveVisible == true),
-    --visiblePlayers = visiblePlayers,
+    visiblePlayers = visiblePlayers or (moveVisible == false and { player } or nil),
     drawPilePosition = toPlace == "top" and 1 or -1
   }
 end
