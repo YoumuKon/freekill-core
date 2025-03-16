@@ -488,7 +488,7 @@ end
 ---@param card_ids integer[] @ 要亮出的牌，通常用getNCards获得
 ---@param skillName string @ 技能名
 ---@param moveVisible? boolean @ 是否正面向上移动
----@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+---@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（默认对自己可见，若想完全不可见则设为空表）
 function MoveEventWrappers:turnOverCardsFromDrawPile(player, card_ids, skillName, moveVisible, visiblePlayers )
   ---@cast self Room
   self:moveCards {
@@ -508,7 +508,7 @@ end
 ---@param skillName string @ 技能名
 ---@param toPlace? DrawPilePos @ 返回牌堆的位置，默认牌堆顶
 ---@param moveVisible? boolean @ 是否正面向上移动
----@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
+---@param visiblePlayers? ServerPlayer[] @ 控制移动对特定角色可见（默认对自己可见，若想完全不可见则设为空表）
 function MoveEventWrappers:returnCardsToDrawPile(player, cards, skillName, toPlace, moveVisible, visiblePlayers)
   ---@cast self Room
   local to_drawpile = table.filter(cards, function (id)
