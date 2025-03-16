@@ -23,7 +23,7 @@ function Judge:main()
   if not data.card then
     local card = Fk:getCardById(room:getNCards(1)[1])
     data.card = Fk:cloneCard(card.name)
-    card:addSubcard(card.id)
+    data.card:addSubcard(card.id)
     data.card = card
   end
 
