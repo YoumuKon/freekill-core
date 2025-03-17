@@ -99,6 +99,7 @@ end
 ---@field public attached_equip? string @ 属于什么装备的技能？
 ---@field public attached_kingdom? string[] @ 只有哪些势力可以获得，若为空则均可。用于势力技。
 ---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
+---@field public dynamic_desc? fun(self: UsableSkill, player: Player, lang: string): string @ 动态描述函数
 
 
 ---@class SkillSkeleton : Object, SkillSkeletonSpec
@@ -149,6 +150,8 @@ function SkillSkeleton:initialize(spec)
   self.attached_skill_name = spec.attached_skill_name
 
   self.attached_kingdom = spec.attached_kingdom or {}
+
+  self.dynamicDesc = spec.dynamic_desc
 
   --Notify智慧，当不存在main_skill时，用于创建main_skill。看上去毫无用处
   fk.readCommonSpecToSkill(self, spec)
