@@ -1086,6 +1086,7 @@ end
 ---@class AskToChooseCardsAndPlayersParams: AskToChoosePlayersParams
 ---@field min_card_num integer @ 选卡牌最小值
 ---@field max_card_num integer @ 选卡牌最大值
+---@field pattern? string @ 选牌规则，默认为"."
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 ---@field will_throw? boolean @ 选卡牌须能弃置
 
@@ -1140,6 +1141,7 @@ function Room:askToChooseCardsAndPlayers(player, params)
 end
 
 ---@class AskToYijiParams: AskToChoosePlayersParams
+---@field targets? ServerPlayer[] @ 可分配的目标角色，默认为所有存活角色
 ---@field cards? integer[] @ 要分配的卡牌。默认拥有的所有牌
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 ---@field single_max? integer|table @ 限制每人能获得的最大牌数。输入整数或(以角色id为键以整数为值)的表
