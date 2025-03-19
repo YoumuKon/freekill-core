@@ -163,18 +163,18 @@ function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skil
             }
           end
 
-          table.insert(losts, true)
-          table.insert(triggers, s)
           -- if s.derived_piles then
           --   for _, pile_name in ipairs(s.derived_piles) do
           --     table.insertTableIfNeed(lost_piles, player:getPile(pile_name))
           --   end
           -- end
+        end
 
-          self:validateSkill(player, actual_skill)
-          for _, suf in ipairs(MarkEnum.TempMarkSuffix) do
-            self:validateSkill(player, actual_skill, suf)
-          end
+        table.insert(losts, true)
+        table.insert(triggers, actual_skill)
+        self:validateSkill(player, actual_skill)
+        for _, suf in ipairs(MarkEnum.TempMarkSuffix) do
+          self:validateSkill(player, actual_skill, suf)
         end
       end
     else
@@ -197,10 +197,10 @@ function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skil
               arg = s.name
             }
           end
-
-          table.insert(losts, false)
-          table.insert(triggers, s)
         end
+
+        table.insert(losts, false)
+        table.insert(triggers, sk)
       end
     end
   end
