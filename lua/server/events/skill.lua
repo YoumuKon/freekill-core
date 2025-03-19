@@ -171,7 +171,7 @@ function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skil
         end
 
         table.insert(losts, true)
-        table.insert(triggers, actual_skill)
+        table.insert(triggers, Fk.skills[actual_skill])
         self:validateSkill(player, actual_skill)
         for _, suf in ipairs(MarkEnum.TempMarkSuffix) do
           self:validateSkill(player, actual_skill, suf)
