@@ -730,7 +730,7 @@ function ServerPlayer:hideGeneral(isDeputy)
   self.gender = General.Agender
   if Fk.generals[self.general].gender ~= General.Agender then
     self.gender = Fk.generals[self.general].gender
-  elseif self.deputyGeneral and Fk.generals[self.deputyGeneral].gender ~= General.Agender then
+  elseif self.deputyGeneral and self.deputyGeneral ~= "" and Fk.generals[self.deputyGeneral].gender ~= General.Agender then
     self.gender = Fk.generals[self.deputyGeneral].gender
   end
   room:broadcastProperty(self, "gender")

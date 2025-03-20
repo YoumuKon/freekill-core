@@ -67,7 +67,7 @@ function TriggerSkill:doCost(event, target, player, data)
   local ret = self:cost(event, target, player, data)
   local end_time = os.getms()
 
-  -- 对于那种cost直接返回true的锁定技，如果是预亮技，那么还是询问一下好
+  -- 对于那种cost直接返回true的锁定技，如果是预亮技，应询问
   if ret and player:isFakeSkill(self) and end_time - start_time < 1000 and
     (self.main_skill and self.main_skill or self).visible then
     ret = room:askToSkillInvoke(player, { skill_name = self.name })

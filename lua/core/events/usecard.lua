@@ -319,6 +319,13 @@ function AimData:addTarget(player, sub)
   RoomInstance:sortByAction(self.tos[AimData.Undone])
   table.insert(self.use.tos, player)
   table.insert(self.use.subTos, sub or self.subTargets)
+
+  RoomInstance:sendLog{
+    type = "#TargetAdded",
+    from = self.from.id,
+    to = {player.id},
+    arg = self.card:toLogString(),
+  }
 end
 
 ---@param player ServerPlayer
@@ -350,6 +357,13 @@ function AimData:cancelTarget(player)
       end
     end
   end
+
+  RoomInstance:sendLog{
+    type = "#TargetCancelled",
+    from = self.from.id,
+    to = {player.id},
+    arg = self.card:toLogString(),
+  }
 end
 
 function AimData:removeDeadTargets()
