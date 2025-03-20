@@ -73,8 +73,10 @@ fk.AreaResumed = AreaAbortResumeEvent:subclass("fk.AreaResumed")
 ---@field data ShowGeneralData
 local ShowGeneralEvent = TriggerEvent:subclass("ShowGeneralEvent")
 
+--- 武将牌明置时（注意不应该触发技能）
 ---@class fk.GeneralShown: ShowGeneralEvent
 fk.GeneralShown = ShowGeneralEvent:subclass("fk.GeneralShown")
+--- 武将牌明置后
 ---@class fk.GeneralRevealed: ShowGeneralEvent
 fk.GeneralRevealed = ShowGeneralEvent:subclass("fk.GeneralRevealed")
 

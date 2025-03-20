@@ -122,8 +122,10 @@ end
 ---@field data HpChangedData
 local HpChangedEvent = TriggerEvent:subclass("HpChangedEvent")
 
+--- 改变体力值前
 ---@class fk.BeforeHpChanged: HpChangedEvent
 fk.BeforeHpChanged = HpChangedEvent:subclass("fk.BeforeHpChanged")
+--- 改变体力值后
 ---@class fk.HpChanged: HpChangedEvent
 fk.HpChanged = HpChangedEvent:subclass("fk.HpChanged")
 
@@ -131,16 +133,22 @@ fk.HpChanged = HpChangedEvent:subclass("fk.HpChanged")
 ---@field data DamageData
 local DamageEvent = TriggerEvent:subclass("DamageEvent")
 
+--- 伤害结算开始前
 ---@class fk.PreDamage: DamageEvent
 fk.PreDamage = DamageEvent:subclass("fk.PreDamage")
+--- 造成伤害时
 ---@class fk.DamageCaused: DamageEvent
 fk.DamageCaused = DamageEvent:subclass("fk.DamageCaused")
+--- 受到伤害时
 ---@class fk.DamageInflicted: DamageEvent
 fk.DamageInflicted = DamageEvent:subclass("fk.DamageInflicted")
+--- 造成伤害后
 ---@class fk.Damage: DamageEvent
 fk.Damage = DamageEvent:subclass("fk.Damage")
+--- 受到伤害后
 ---@class fk.Damaged: DamageEvent
 fk.Damaged = DamageEvent:subclass("fk.Damaged")
+--- 伤害结算结束后
 ---@class fk.DamageFinished: DamageEvent
 fk.DamageFinished = DamageEvent:subclass("fk.DamageFinished")
 
@@ -148,8 +156,10 @@ fk.DamageFinished = DamageEvent:subclass("fk.DamageFinished")
 ---@field public data HpLostData
 local HpLostEvent = TriggerEvent:subclass("HpLostEvent")
 
+--- 失去体力结算开始前
 ---@class fk.PreHpLost: HpLostEvent
 fk.PreHpLost = HpLostEvent:subclass("fk.PreHpLost")
+--- 失去体力后
 ---@class fk.HpLost: HpLostEvent
 fk.HpLost = HpLostEvent:subclass("fk.HpLost")
 
@@ -157,8 +167,10 @@ fk.HpLost = HpLostEvent:subclass("fk.HpLost")
 ---@field public data RecoverData
 local RecoverEvent = TriggerEvent:subclass("RecoverEvent")
 
+--- 回复体力结算开始前
 ---@class fk.PreHpRecover: RecoverEvent
 fk.PreHpRecover = RecoverEvent:subclass("fk.PreHpRecover")
+--- 回复体力后
 ---@class fk.HpRecover: RecoverEvent
 fk.HpRecover = RecoverEvent:subclass("fk.HpRecover")
 
@@ -166,8 +178,10 @@ fk.HpRecover = RecoverEvent:subclass("fk.HpRecover")
 ---@field public data MaxHpChangedData
 local MaxHpChangedEvent = TriggerEvent:subclass("MaxHpChangedEvent")
 
+--- 改变体力上限前
 ---@class fk.BeforeMaxHpChanged: MaxHpChangedEvent
 fk.BeforeMaxHpChanged = MaxHpChangedEvent:subclass("fk.BeforeMaxHpChanged")
+--- 改变体力上限后
 ---@class fk.MaxHpChanged: MaxHpChangedEvent
 fk.MaxHpChanged = MaxHpChangedEvent:subclass("fk.MaxHpChanged")
 

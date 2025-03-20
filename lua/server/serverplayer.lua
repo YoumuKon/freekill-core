@@ -638,10 +638,10 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
   }
 
   local data = {[isDeputy and "d" or "m"] = generalName}
-  room.logic:trigger(fk.GeneralShown, self, data)
+  room.logic:trigger(fk.GeneralShown, self, data) -- 注意不应该使用这个时机发动技能
   if not no_trigger then
     local current_event = room.logic:getCurrentEvent()
-    if table.contains({GameEvent.Round, GameEvent.Turn, GameEvent.Phase}, current_event.event) then
+    if table.contains({GameEvent.Game, GameEvent.Round, GameEvent.Turn, GameEvent.Phase}, current_event.event) then
       room.logic:trigger(fk.GeneralRevealed, self, data)
     else
       if current_event.parent then
