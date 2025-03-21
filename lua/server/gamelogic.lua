@@ -712,6 +712,29 @@ function GameLogic:damageByCardEffect(is_exact)
   (not is_exact or (damage.from or {}) == effect.from)
 end
 
+--判定一些卡牌在此次移动事件发生之后没有再被移动过。根据规则集，如果需要在卡牌移动后对参与此事件的卡牌进行操作，是需要过一遍这个检测的（注意：由于洗牌的存在，若判定处在弃牌堆的卡牌需要手动判区域）
+---@param cards integer[] @ 待判定的卡牌
+---@param end_id? integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含），缺省值为当前移动事件的id
+---@return integer[] @ 返回满足条件的卡牌的id列表
+function GameLogic:moveCardsHoldingAreaCheck(cards, end_id)
+  if #cards == 0 then return {} end
+  if end_id == nil then
+    local move_event = self:getCurrentEvent():findParent(GameEvent.MoveCards, true)
+    if move_event == nil then return {} end
+    end_id = move_event.id
+  end
+  local ret = table.simpleClone(cards)
+  self:getEventsByRule(GameEvent.MoveCards, 1, function (e)
+    for _, move in ipairs(e.data) do
+      for _, info in ipairs(move.moveInfo) do
+        table.removeOne(ret, info.cardId)
+      end
+    end
+    return (#ret == 0)
+  end, end_id)
+  return ret
+end
+
 function GameLogic:dumpEventStack()
   local top = self:getCurrentEvent()
   local i = self.game_event_stack.p
