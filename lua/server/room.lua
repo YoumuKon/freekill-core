@@ -1534,6 +1534,145 @@ function Room:askToChoices(player, params)
   return result
 end
 
+---@class askToJointChoiceParams
+---@field players ServerPlayer[] @ 被询问的玩家
+---@field choices string[] @ 可选选项列表
+---@field skillName? string @ 技能名
+---@field prompt? string @ 提示信息
+---@field sendLog? boolean @ 是否发Log，默认否
+
+--- 同时询问多名玩家从众多选项中选择一个（要求所有玩家选项相同，不同的请自行构造request）
+---@param player ServerPlayer @ 发起者
+---@param params askToJointChoiceParams @ 各种变量
+---@return table<Player, string> @ 返回键值表，键为Player、值为选项
+function Room:askToJointChoice(player, params)
+  local skillName = params.skillName or "AskForChoice"
+  local prompt = params.prompt or "AskForChoice"
+  local players, choices = params.players, params.choices
+  local sendLog = params.sendLog or false
+
+  local req = Request:new(players, "AskForChoice")
+  req.focus_text = skillName
+  req.receive_decode = false
+  local data = {
+    choices,
+    choices,  --如果all_choices和choices不一样应该自行构造request
+    skillName,
+    prompt,
+  }
+  for _, p in ipairs(players) do
+    req:setData(p, data)
+    req:setDefaultReply(p, table.random(choices))  --默认项为随机选项
+  end
+  req:ask()
+  if sendLog then
+    for _, p in ipairs(players) do
+      p.room:sendLog{
+        type = "#Choice",
+        from = p.id,
+        arg = req:getResult(p),
+        toast = true,
+      }
+    end
+  end
+  local ret = {}
+  for _, p in ipairs(players) do
+    ret[p] = req:getResult(p)
+  end
+  return ret
+end
+
+---@class askToJointCardsParams
+---@field players ServerPlayer[] @ 被询问的玩家
+---@field minNum integer @ 最小值
+---@field maxNum integer @ 最大值
+---@field includeEquip? boolean @ 能不能选装备
+---@field skillName? string @ 技能名
+---@field cancelable? boolean @ 能否点取消
+---@field pattern? string @ 选牌规则
+---@field prompt? string @ 提示信息
+---@field expand_pile? string @ 可选私人牌堆名称
+---@field will_throw? boolean @ 是否是弃牌，默认否（在这个流程中牌不会被弃掉，仅用作禁止弃置技判断）
+
+--- 同时询问多名玩家选择一些牌（要求所有玩家选牌规则相同，不同的请自行构造request）
+---@param player ServerPlayer @ 发起者
+---@param params askToJointCardsParams @ 各种变量
+---@return table<Player, string> @ 返回键值表，键为Player、值为选项
+function Room:askToJointCards(player, params)
+  local skillName = params.skillName or "AskForCardChosen"
+  local cancelable = (params.cancelable == nil) and true or params.cancelable
+  local pattern = params.pattern or "."
+  local players, maxNum, minNum = params.players, params.maxNum, params.minNum
+  local includeEquip = params.includeEquip or false
+  local expand_pile = params.expand_pile or nil
+  local will_throw = params.will_throw or false
+  local prompt = params.prompt or ("#AskForCard:::" .. maxNum .. ":" .. minNum)
+
+  local toAsk = {}
+  local ret = {}
+  if cancelable then
+    toAsk = players
+  else
+    for _, p in ipairs(players) do
+      local cards = p:getCardIds("he&")
+      if type(expand_pile) == "string" then
+        table.insertTable(cards, p:getPile(expand_pile))
+      elseif type(expand_pile) == "table" then
+        table.insertTable(cards, expand_pile)
+      end
+      local exp = Exppattern:Parse(pattern)
+      cards = table.filter(cards, function(cid)
+        return exp:match(Fk:getCardById(cid)) and not (will_throw and p:prohibitDiscard(cid))
+      end)
+      if #cards > minNum then
+        table.insert(toAsk, p)
+      end
+      ret[p] = table.random(cards, minNum)
+    end
+    if #toAsk == 0 then
+      return ret
+    end
+  end
+
+  local req = Request:new(toAsk, "AskForUseActiveSkill")
+  req.focus_text = skillName
+  req.focus_players = players
+  local data = {
+    will_throw and "discard_skill" or "choose_cards_skill",
+    prompt,
+    cancelable,
+    {
+      num = maxNum,
+      min_num = minNum,
+      include_equip = includeEquip,
+      skillName = skillName,
+      pattern = pattern,
+      expand_pile = expand_pile,
+    },
+  }
+
+  for _, p in ipairs(toAsk) do
+    req:setData(p, data)
+    req:setDefaultReply(p, ret[p] or {})
+  end
+  req:ask()
+  for _, p in ipairs(toAsk) do
+    local ids = {}
+    local result = req:getResult(p)
+    if result ~= "" then
+      if result.card then
+        ids = result.card.subcards
+      else
+        ids = result
+      end
+    end
+    ret[p] = ids
+  end
+  return ret
+end
+
+
+
 ---@class AskToSkillInvokeParams
 ---@field skill_name string @ 询问技能名（烧条时显示）
 ---@field prompt? string @ 提示信息

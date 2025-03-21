@@ -39,6 +39,7 @@ Skill.DeputyPlace = "DeputyPlace" -- 副将技
 Skill.Hidden = "Hidden" -- 隐匿技
 Skill.AttachedKingdom = "AttachedKingdom" --势力技
 Skill.Charge = "Charge" --蓄力技
+Skill.Family = "Family" --宗族技
 
 
 --- 构造函数，不可随意调用。
