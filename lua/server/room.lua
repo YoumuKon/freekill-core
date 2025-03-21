@@ -2173,7 +2173,6 @@ function Room:askToUseCard(player, params)
   if type(askForUseCardData.result) == "table" then
     if event_data then
       askForUseCardData.result.responseToEvent = event_data
-      askForUseCardData.result.toCard = event_data.card
     end
   end
 
@@ -2250,7 +2249,6 @@ function Room:askToResponse(player, params)
     askForUseCardData.result.tos = nil
     if event_data then
       askForUseCardData.result.responseToEvent = event_data
-      askForUseCardData.result.toCard = event_data.card
     end
   end
 
