@@ -63,6 +63,19 @@ function Engine:initialize()
   self.extension_names = { "standard", "standard_cards", "maneuvering", "test" }
   self.packages = {}    -- name --> Package
   self.package_names = {}
+  self.skill_keys = {    -- key --> SkillSkeleton.createSkill
+    ["distance"] = SkillSkeleton.createDistanceSkill,
+    ["prohibit"] = SkillSkeleton.createProhibitSkill,
+    ["atkrange"] = SkillSkeleton.createAttackRangeSkill,
+    ["maxcards"] = SkillSkeleton.createMaxCardsSkill,
+    ["targetmod"] = SkillSkeleton.createTargetModSkill,
+    ["filter"] = SkillSkeleton.createFilterSkill,
+    ["invalidity"] = SkillSkeleton.createInvaliditySkill,
+    ["visibility"] = SkillSkeleton.createVisibilitySkill,
+    ["active"] = SkillSkeleton.createActiveSkill,
+    ["cardskill"] = SkillSkeleton.createCardSkill,
+    ["viewas"] = SkillSkeleton.createViewAsSkill,
+  }
   self.skills = {}    -- name --> Skill
   self.skill_skels = {}    -- name --> SkillSkeleton
   self.related_skills = {} -- skillName --> relatedSkill[]
@@ -416,6 +429,13 @@ function Engine:addSkills(skills)
   for _, skill in ipairs(skills) do
     self:addSkill(skill)
   end
+end
+
+--- 注册技能（effect）类型
+---@param key string @ 技能类型名
+---@param func function @ 技能类型创建函数
+function Engine:addSkillType(key, func)
+  self.skill_keys[key] = func
 end
 
 --- 加载一个武将到Engine中。

@@ -7,7 +7,7 @@
 --- Player类就是这两种玩家的基类，包含它们共用的部分。
 ---
 ---@class Player : Object
----@field public id integer @ 玩家的id，每名玩家的id是唯一的。机器人的id是负数。
+---@field public id integer @ 玩家的id，每名玩家的id是唯一的，为正数。机器人的id是负数。
 ---@field public hp integer @ 体力值
 ---@field public maxHp integer @ 体力上限
 ---@field public shield integer @ 护甲数
@@ -21,7 +21,7 @@
 ---@field public next Player @ 下家
 ---@field public phase Phase @ 当前阶段
 ---@field public faceup boolean @ 是否正面朝上
----@field public chained boolean @ 是否被横直
+---@field public chained boolean @ 是否处于连环状态
 ---@field public dying boolean @ 是否处于濒死
 ---@field public dead boolean @ 是否死亡
 ---@field public player_skills Skill[] @ 当前拥有的所有技能
@@ -31,7 +31,7 @@
 ---@field public mark table<string, integer> @ 当前拥有的所有标记，用烂了
 ---@field public player_cards table<integer, integer[]> @ 当前拥有的所有牌，键是区域，值是id列表
 ---@field public virtual_equips Card[] @ 当前的虚拟装备牌，其实也包含着虚拟延时锦囊这种
----@field public special_cards table<string, integer[]> @ 类似“屯田”这种的私人牌堆
+---@field public special_cards table<string, integer[]> @ 类似“屯田”的“田”的私人牌堆
 ---@field public cardUsedHistory table<string, integer[]> @ 用牌次数历史记录
 ---@field public skillUsedHistory table<string, integer[]> @ 发动技能次数的历史记录
 ---@field public fixedDistance table<Player, integer> @ 与其他玩家的固定距离列表

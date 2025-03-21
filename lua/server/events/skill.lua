@@ -25,7 +25,7 @@ function SkillEffect:main()
   if player and not skill.cardSkill then
     player:revealBySkillName(main_skill.name)
 
-    local tos = skill_data.tos and
+    local tos = skill_data.tos and ---@type integer[]
       table.map(skill_data.tos, function (to)
         if type(to) == "table" then
           return to.id
@@ -71,7 +71,7 @@ function SkillEffect:main()
     end
 
     if skill:hasTag(Skill.Switch) and not skill.is_delay_effect then
-      local switchSkillName = skill:getSkeleton().name
+      local switchSkillName = skill:getSkeleton().name ---@type string
       room:setPlayerMark(
         player,
         MarkEnum.SwithSkillPreName .. switchSkillName,
