@@ -2081,7 +2081,7 @@ function Room:askToUseVirtualCard(player, params)
 end
 
 ---@class AskToUseCardParams
----@field skill_name? string @ 烧条时显示的技能名
+---@field skill_name string @ 烧条时显示的技能名
 ---@field pattern string @ 使用牌的规则
 ---@field prompt? string @ 提示信息
 ---@field cancelable? boolean @ 是否可以取消。默认可以取消
