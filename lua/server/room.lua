@@ -2172,7 +2172,14 @@ function Room:askToUseCard(player, params)
 
   if type(askForUseCardData.result) == "table" then
     if event_data then
-      askForUseCardData.result.responseToEvent = event_data
+      local resultData = askForUseCardData.result
+      if not resultData.responseToEvent then
+        resultData.responseToEvent = event_data
+      end
+
+      if not resultData.toCard and resultData.card and resultData.card.is_passive then
+        resultData.toCard = event_data.card
+      end
     end
   end
 
@@ -2248,7 +2255,9 @@ function Room:askToResponse(player, params)
   if type(askForUseCardData.result) == "table" then
     askForUseCardData.result.tos = nil
     if event_data then
-      askForUseCardData.result.responseToEvent = event_data
+      if not askForUseCardData.result.responseToEvent then
+        askForUseCardData.result.responseToEvent = event_data
+      end
     end
   end
 
