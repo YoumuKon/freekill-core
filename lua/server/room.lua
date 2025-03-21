@@ -1584,8 +1584,8 @@ end
 
 ---@class askToJointCardsParams
 ---@field players ServerPlayer[] @ 被询问的玩家
----@field minNum integer @ 最小值
----@field maxNum integer @ 最大值
+---@field min_num integer @ 最小值
+---@field max_num integer @ 最大值
 ---@field includeEquip? boolean @ 能不能选装备
 ---@field skillName? string @ 技能名
 ---@field cancelable? boolean @ 能否点取消
@@ -1602,7 +1602,7 @@ function Room:askToJointCards(player, params)
   local skillName = params.skillName or "AskForCardChosen"
   local cancelable = (params.cancelable == nil) and true or params.cancelable
   local pattern = params.pattern or "."
-  local players, maxNum, minNum = params.players, params.maxNum, params.minNum
+  local players, maxNum, minNum = params.players, params.max_num, params.min_num
   local includeEquip = params.includeEquip or false
   local expand_pile = params.expand_pile or nil
   local will_throw = params.will_throw or false
