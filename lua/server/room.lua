@@ -1537,19 +1537,19 @@ end
 ---@class askToJointChoiceParams
 ---@field players ServerPlayer[] @ 被询问的玩家
 ---@field choices string[] @ 可选选项列表
----@field skillName? string @ 技能名
+---@field skill_name? string @ 技能名
 ---@field prompt? string @ 提示信息
----@field sendLog? boolean @ 是否发Log，默认否
+---@field send_log? boolean @ 是否发Log，默认否
 
 --- 同时询问多名玩家从众多选项中选择一个（要求所有玩家选项相同，不同的请自行构造request）
 ---@param player ServerPlayer @ 发起者
 ---@param params askToJointChoiceParams @ 各种变量
 ---@return table<Player, string> @ 返回键值表，键为Player、值为选项
 function Room:askToJointChoice(player, params)
-  local skillName = params.skillName or "AskForChoice"
+  local skillName = params.skill_name or "AskForChoice"
   local prompt = params.prompt or "AskForChoice"
   local players, choices = params.players, params.choices
-  local sendLog = params.sendLog or false
+  local sendLog = params.send_log or false
 
   local req = Request:new(players, "AskForChoice")
   req.focus_text = skillName
@@ -1587,7 +1587,7 @@ end
 ---@field min_num integer @ 最小值
 ---@field max_num integer @ 最大值
 ---@field includeEquip? boolean @ 能不能选装备
----@field skillName? string @ 技能名
+---@field skill_name? string @ 技能名
 ---@field cancelable? boolean @ 能否点取消
 ---@field pattern? string @ 选牌规则
 ---@field prompt? string @ 提示信息
@@ -1597,9 +1597,9 @@ end
 --- 同时询问多名玩家选择一些牌（要求所有玩家选牌规则相同，不同的请自行构造request）
 ---@param player ServerPlayer @ 发起者
 ---@param params askToJointCardsParams @ 各种变量
----@return table<Player, string> @ 返回键值表，键为Player、值为选项
+---@return table<Player, integer[]> @ 返回键值表，键为Player、值为选择的牌id列表
 function Room:askToJointCards(player, params)
-  local skillName = params.skillName or "AskForCardChosen"
+  local skillName = params.skill_name or "AskForCardChosen"
   local cancelable = (params.cancelable == nil) and true or params.cancelable
   local pattern = params.pattern or "."
   local players, maxNum, minNum = params.players, params.max_num, params.min_num
