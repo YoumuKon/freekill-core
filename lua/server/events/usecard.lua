@@ -604,7 +604,7 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
     end
 
     local target = useCardData.tos[1]
-    if not target.dead and aimEventCollaborators[target] and not aimEventCollaborators[target][1]:isNullified() then
+    if target and not target.dead and aimEventCollaborators[target] and not aimEventCollaborators[target][1]:isNullified() then
       local existingEquipId
       if useCardData.toPutSlot and useCardData.toPutSlot:startsWith("#EquipmentChoice") then
         local index = useCardData.toPutSlot:split(":")[2]
