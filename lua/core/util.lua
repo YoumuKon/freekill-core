@@ -136,7 +136,7 @@ Util.Id2CardMapper = function(id) return Fk:getCardById(id) end
 Util.Id2PlayerMapper = function(id)
   return Fk:currentRoom():getPlayerById(id)
 end
---- 返回武将名
+--- 返回名称
 ---@return string
 Util.NameMapper = function(e) return e.name end
 --- 根据武将名返回武将

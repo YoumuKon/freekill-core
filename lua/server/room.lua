@@ -1248,7 +1248,7 @@ end
 --- 询问玩家选择一名武将。
 ---@param player ServerPlayer @ 询问目标
 ---@param params AskToChooseGeneralParams @ 各种变量
----@return string|string[] @ 选择的武将
+---@return string|string[] @ 选择的武将，一个是string，多个是string[]
 function Room:askToChooseGeneral(player, params)
   local command = "AskForGeneral"
 

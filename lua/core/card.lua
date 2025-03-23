@@ -327,7 +327,7 @@ local function getNumberStr(num)
 end
 
 --- 获取卡牌点数并返回点数文字描述（仅限A/J/Q/K/X）。
----@param num integer @ 当你只想翻译点数为文字时(优先检查，请注意)
+---@param num? integer @ 当你只想翻译点数为文字时(优先检查，请注意)
 function Card:getNumberStr(num)
   return tostring(getNumberStr(num and num or self.number))
 end

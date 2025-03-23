@@ -27,8 +27,8 @@ fk.CardRespondFinished = RespondCardEvent:subclass("fk.CardRespondFinished")
 ---@class UseCardDataSpec
 ---@field public from ServerPlayer @ 使用/打出者
 ---@field public card Card @ 卡牌本牌
----@field public tos ServerPlayer[] 目标列表
----@field public subTos? ServerPlayer[][] 子目标列表，借刀最爱的一集
+---@field public tos ServerPlayer[] @ 目标列表
+---@field public subTos? ServerPlayer[][] @ 子目标列表，借刀最爱的一集
 ---@field public toCard? Card @ 卡牌目标
 ---@field public toPutSlot? string @ 使用的装备牌所置入的装备栏
 ---@field public responseToEvent? CardEffectData @ 响应事件目标
@@ -68,7 +68,7 @@ function UseCardData:removeTarget(player)
 end
 
 function UseCardData:removeAllTargets()
-  self.tos = {}
+  self.tos = {} ---@type ServerPlayer[] @ 目标列表
 end
 
 -- 获取使用牌的合法额外目标（为简化结算，不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用首个目标的副目标）

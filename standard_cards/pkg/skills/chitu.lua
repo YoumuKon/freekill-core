@@ -12,4 +12,13 @@ skill:addEffect("distance", {
   end,
 })
 
+skill:addTest(function (room, me)
+  local comp3 = room.players[3]
+  local card = room:printCard("chitu")
+  FkTest.runInRoom(function ()
+    room:useCard{from = me, tos = {me}, card = card}
+  end)
+  lu.assertEquals(me:distanceTo(comp3), 1)
+end)
+
 return skill

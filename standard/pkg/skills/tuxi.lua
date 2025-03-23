@@ -69,7 +69,7 @@ tuxi:addTest(function(room, me)
   FkTest.setNextReplies(me, { json.encode {
     card = { skill = "choose_players_skill", subcards = {} },
     targets = { comp2.id, comp3.id }
-  }})
+  } })
   FkTest.resumeRoom()
   lu.assertEquals(#me:getCardIds("h"), 2)
   lu.assertIsTrue(comp2:isKongcheng())

@@ -651,6 +651,12 @@ function Engine:addGameMode(game_mode)
   self.game_modes[game_mode.name] = game_mode
 end
 
+--- 向Engine中添加一个自定义事件。
+---@param name string @ 名称
+---@param pfunc? function @ prepare function
+---@param mfunc function @ (main) function
+---@param cfunc? function @ cleaner function
+---@param efunc? function @ exit function
 function Engine:addGameEvent(name, pfunc, mfunc, cfunc, efunc)
   table.insert(self._custom_events, { name = name, p = pfunc, m = mfunc, c = cfunc, e = efunc })
 end
