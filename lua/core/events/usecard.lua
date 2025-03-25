@@ -181,7 +181,7 @@ function RespondCardData:IsUsingHandcard(player)
   if #moveEvents == 0 then return false end
   local subcheck = table.simpleClone(cards)
   for _, move in ipairs(moveEvents[1].data) do
-    if move.moveReason == fk.ReasonResonpse then
+    if move.moveReason == fk.ReasonResponse then
       for _, info in ipairs(move.moveInfo) do
         if table.removeOne(subcheck, info.cardId) and info.fromArea ~= Card.PlayerHand then
           return false

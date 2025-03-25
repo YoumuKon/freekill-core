@@ -69,7 +69,7 @@ fk.ReasonPutIntoDiscardPile = 6
 fk.ReasonPrey = 7
 fk.ReasonExchange = 8
 fk.ReasonUse = 9
-fk.ReasonResonpse = 10
+fk.ReasonResponse = 10
 fk.ReasonJudge = 11
 fk.ReasonRecast = 12
 

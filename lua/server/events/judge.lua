@@ -128,7 +128,7 @@ function JudgeEventWrappers:ChangeJudge(params)
       ids = {newId},
       from = self:getCardOwner(newId),
       toArea = Card.Processing,
-      moveReason = params.response and fk.ReasonResonpse or fk.ReasonJustMove,
+      moveReason = params.response and fk.ReasonResponse or fk.ReasonJustMove,
       skillName = skillName,
     }
   end

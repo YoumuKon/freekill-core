@@ -372,7 +372,7 @@ function RespondCard:main()
     }
   end
 
-  room:moveCardTo(card, Card.Processing, nil, fk.ReasonResonpse)
+  room:moveCardTo(card, Card.Processing, nil, fk.ReasonResponse)
   if #cardIds > 0 then
     room:sendFootnote(cardIds, {
       type = "##ResponsePlayCard",
@@ -397,7 +397,7 @@ function RespondCard:clear()
     room:moveCards({
       ids = realCardIds,
       toArea = Card.DiscardPile,
-      moveReason = fk.ReasonResonpse,
+      moveReason = fk.ReasonResponse,
     })
   end
 end
