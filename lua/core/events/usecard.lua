@@ -71,6 +71,11 @@ function UseCardData:removeAllTargets()
   self.tos = {} ---@type ServerPlayer[] @ 目标列表
 end
 
+---@return ServerPlayer[]
+function UseCardData:getAllTargets()
+  return table.simpleClone(self.tos)
+end
+
 -- 获取使用牌的合法额外目标（为简化结算，不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用首个目标的副目标）
 ---@param extra_data? table
 ---@return ServerPlayer[]
@@ -190,6 +195,18 @@ function RespondCardData:IsUsingHandcard(player)
     end
   end
   return #subcheck == 0
+end
+
+--- 判断一名角色是否是该使用事件的唯一目标
+--- 其实这个应该是AimData的，但普通的使用牌有时也得用
+---@param target ServerPlayer
+---@return boolean
+function UseCardData:isOnlyTarget(target)
+  if self.tos == nil then return false end
+  local tos = self:getAllTargets()
+  return table.contains(tos, target) and not table.find(target.room.alive_players, function (p)
+    return p ~= target and table.contains(tos, p)
+  end)
 end
 
 ---@class UseCardEvent: TriggerEvent
