@@ -476,6 +476,21 @@ function CardEffectData:getSubTos(player)
   return {}
 end
 
+---@return ServerPlayer[]
+function CardEffectData:getAllTargets()
+  return table.simpleClone(self.tos)
+end
+
+---@param target ServerPlayer
+---@return boolean
+function CardEffectData:isOnlyTarget(target)
+  if self.tos == nil then return false end
+  local tos = self:getAllTargets()
+  return table.contains(tos, target) and not table.find(target.room.alive_players, function (p)
+    return p ~= target and table.contains(tos, p)
+  end)
+end
+
 --- 当前生效目标是否不可抵消此牌
 ---@param target? ServerPlayer
 ---@return boolean
