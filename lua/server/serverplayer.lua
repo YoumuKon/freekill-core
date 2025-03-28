@@ -11,7 +11,6 @@
 ---@field public reply_ready boolean
 ---@field public reply_cancel boolean
 ---@field public phases Phase[]
----@field public skipped_phases Phase[]
 ---@field public phase_state table[]
 ---@field public phase_index integer
 ---@field private _fake_skills Skill[]
@@ -31,7 +30,6 @@ function ServerPlayer:initialize(_self)
   self.room = nil
 
   self.phases = {}
-  self.skipped_phases = {}
   self.phase_state = {}
 
   self._fake_skills = {}

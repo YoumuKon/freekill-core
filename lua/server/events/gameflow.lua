@@ -271,8 +271,6 @@ function Turn:clear()
   current.phase = Player.NotActive
   room:broadcastProperty(current, "phase")
 
-  current.skipped_phases = {}
-
   for _, p in ipairs(room.players) do
     p:setCardUseHistory("", 0, Player.HistoryTurn)
     p:setSkillUseHistory("", 0, Player.HistoryTurn)
