@@ -177,7 +177,7 @@ end
 ---@param player Player @ 使用者
 Util.CardTargetFilter = function(skill, player, to_select, selected, selected_cards, card, extra_data)
   if not skill:modTargetFilter(player, to_select, selected, card, extra_data) then return end
-  local max_target_num = skill:getMaxTargetNum(player)
+  local max_target_num = skill:getMaxTargetNum(player, card)
   if max_target_num > 0 and #selected >= max_target_num then return end
   if player:isProhibited(to_select, card) then return end
   extra_data = extra_data or {}
