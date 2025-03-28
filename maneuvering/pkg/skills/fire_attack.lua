@@ -4,7 +4,6 @@ local fire_attack = fk.CreateSkill {
 
 fire_attack:addEffect("cardskill", {
   prompt = "#fire_attack_skill",
-  can_use = Util.CanUse,
   target_num = 1,
   mod_target_filter = function(self, _, to_select, _, _, _)
     return not to_select:isKongcheng()

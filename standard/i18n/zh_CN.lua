@@ -90,6 +90,7 @@ Fk:loadTranslationTable{
   ["$qingguo1"] = "凌波微步，罗袜生尘。",
   ["$qingguo2"] = "体迅飞凫，飘忽若神。",
   ["qingguo"] = "倾国",
+  ["#qingguo"] = "倾国：你可以将一张黑色手牌当【闪】使用或打出。",
   [":qingguo"] = "你可以将一张黑色手牌当【闪】使用或打出。",
 
   ["liubei"] = "刘备",

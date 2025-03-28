@@ -4,7 +4,6 @@ local skill = fk.CreateSkill {
 
 skill:addEffect("cardskill", {
   prompt = "#collateral_skill",
-  can_use = Util.CanUse,
   mod_target_filter = function(self, player, to_select, selected, card, extra_data)
     if #selected == 0 then
       return to_select ~= player and #to_select:getEquipments(Card.SubtypeWeapon) > 0

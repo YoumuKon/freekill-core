@@ -167,11 +167,6 @@ end
 
 -- for card preset
 
---- 指定目标卡牌的canUse
-Util.CanUse = function(self, player, card, extra_data)
-  return not player:prohibitUse(card)
-end
-
 --- 指定目标卡牌的targetFilter
 ---@param skill ActiveSkill @ 使用牌的CardSkill
 ---@param to_select Player @ 目标
@@ -182,7 +177,7 @@ end
 ---@param player Player @ 使用者
 Util.CardTargetFilter = function(skill, player, to_select, selected, selected_cards, card, extra_data)
   if not skill:modTargetFilter(player, to_select, selected, card, extra_data) then return end
-  local max_target_num = skill:getMaxTargetNum(player, card)
+  local max_target_num = skill:getMaxTargetNum(player)
   if max_target_num > 0 and #selected >= max_target_num then return end
   if player:isProhibited(to_select, card) then return end
   extra_data = extra_data or {}
@@ -205,7 +200,6 @@ end
 
 --- 全局卡牌(包括自己)的canUse
 Util.GlobalCanUse = function(self, player, card)
-  if player:prohibitUse(card) then return end
   local room = Fk:currentRoom()
   for _, p in ipairs(room.alive_players) do
     if not (card and player:isProhibited(p, card)) then
@@ -220,7 +214,6 @@ end
 ---@param card Card
 ---@param extra_data table?
 Util.CanUseToSelf = function(self, player, card, extra_data)
-  if player:prohibitUse(card) then return end
   local tos = (extra_data and extra_data.fix_targets) and extra_data.fix_targets or {player.id}
   return table.find(tos, function(pid)
     local p = Fk:currentRoom():getPlayerById(pid)
@@ -231,7 +224,6 @@ end
 
 --- AOE卡牌(不包括自己)的canUse
 Util.AoeCanUse = function(self, player, card)
-  if player:prohibitUse(card) then return end
   for _, p in ipairs(Fk:currentRoom().alive_players) do
     if p ~= player and not (card and player:isProhibited(p, card)) then
       return true

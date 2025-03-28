@@ -7,7 +7,7 @@ analepticSkill:addEffect("cardskill", {
   max_turn_use_time = 1,
   mod_target_filter = Util.TrueFunc,
   can_use = function(self, player, card, extra_data)
-    return not player:isProhibited(player, card) and
+    return Util.CanUseToSelf and
       ((extra_data and (extra_data.bypass_times or extra_data.analepticRecover)) or
       self:withinTimesLimit(player, Player.HistoryTurn, card, "analeptic", player))
   end,

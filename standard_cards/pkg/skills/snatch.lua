@@ -4,7 +4,6 @@ local skill = fk.CreateSkill {
 
 skill:addEffect("cardskill", {
   prompt = "#snatch_skill",
-  can_use = Util.CanUse,
   distance_limit = 1,
   mod_target_filter = function(self, player, to_select, selected, card, extra_data)
     return to_select ~= player and

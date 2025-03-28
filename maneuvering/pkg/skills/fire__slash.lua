@@ -8,7 +8,7 @@ skill:addEffect("cardskill", {
   prompt = function(self, player, selected_cards)
     local card = Fk:cloneCard("fire__slash")
     card:addSubcards(selected_cards)
-    local max_num = self:getMaxTargetNum(Self, card)
+    local max_num = self:getMaxTargetNum(player)
     if max_num > 1 then
       local num = #table.filter(Fk:currentRoom().alive_players, function (p)
         return p ~= player and not player:isProhibited(p, card)

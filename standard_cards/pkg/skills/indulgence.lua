@@ -4,7 +4,6 @@ local skill = fk.CreateSkill {
 
 skill:addEffect("cardskill", {
   prompt = "#indulgence_skill",
-  can_use = Util.CanUse,
   mod_target_filter = function(self, player, to_select, selected, card, distance_limited)
     return to_select ~= player
   end,

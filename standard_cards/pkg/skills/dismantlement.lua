@@ -4,7 +4,6 @@ local skill = fk.CreateSkill {
 
 skill:addEffect("cardskill", {
   prompt = "#dismantlement_skill",
-  can_use = Util.CanUse,
   target_num = 1,
   mod_target_filter = function(self, player, to_select, selected, card)
     return to_select ~= player and not to_select:isAllNude()
