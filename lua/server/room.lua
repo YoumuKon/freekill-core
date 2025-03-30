@@ -3041,8 +3041,8 @@ function Room:updateQuestSkillState(player, skillName, failed)
 end
 
 --- 废除区域
----@param player ServerPlayer
----@param playerSlots string | string[]
+---@param player ServerPlayer @ 被废除区域的玩家
+---@param playerSlots string | string[] @ 被废除区域的名称
 function Room:abortPlayerArea(player, playerSlots)
   assert(type(playerSlots) == "string" or type(playerSlots) == "table")
 
@@ -3056,7 +3056,7 @@ function Room:abortPlayerArea(player, playerSlots)
   for _, slot in ipairs(playerSlots) do
     if slot == Player.JudgeSlot then
       if not table.contains(player.sealedSlots, Player.JudgeSlot) then
-        table.insertIfNeed(slotsToSeal, slot)
+        table.insertIfNeed(slotsToSeal, Player.JudgeSlot)
 
         local delayedTricks = player:getCardIds(Player.Judge)
         if #delayedTricks > 0 then
@@ -3100,7 +3100,7 @@ function Room:abortPlayerArea(player, playerSlots)
       arg = s,
     }
   end
-  self.logic:trigger(fk.AreaAborted, player, { slots = slotsSealed })
+  self.logic:trigger(fk.AreaAborted, player, { slots = slotsToSeal })
 end
 
 --- 恢复区域

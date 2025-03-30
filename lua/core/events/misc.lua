@@ -55,7 +55,7 @@ fk.BeforeTriggerSkillUse = TriggerEvent:subclass("fk.BeforeTriggerSkillUse")
 fk.CardShown = TriggerEvent:subclass("fk.CardShown")
 
 ---@class AreaAbortResumeData
----@field slots string[]
+---@field slots string[] 被废除/恢复的区域名称
 
 ---@class AreaAbortResumeEvent: TriggerEvent
 local AreaAbortResumeEvent = TriggerEvent:subclass("AreaAbortResumeEvent")
