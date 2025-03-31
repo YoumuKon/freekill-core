@@ -229,6 +229,7 @@ end
 ---@param number integer @ 加减的点数
 ---@param skill_name string @ 技能名
 function PindianEventWrappers:changePindianNumber(pindianData, player, number, skill_name)
+  ---@cast self Room
   local orig_num, new_num
   if player == pindianData.from then
     orig_num = pindianData.fromCard.number

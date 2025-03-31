@@ -3,6 +3,7 @@ local wushuang = fk.CreateSkill {
   tags = { Skill.Compulsory },
 }
 
+---@type TrigSkelSpec<AimFunc>
 local wushuang_spec = {
   on_use = function(self, event, target, player, data)
     data.fixedResponseTimes = 2

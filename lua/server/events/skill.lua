@@ -133,6 +133,7 @@ end
 ---@param player ServerPlayer @ 玩家
 ---@param skill_names string[] | string @ 要获得/失去的技能
 ---@param source_skill? string | Skill @ 源技能
+---@param sendlog? boolean @ 是否发送战报，默认发送
 ---@param no_trigger? boolean @ 是否不触发相关时机
 function SkillEventWrappers:handleAddLoseSkills(player, skill_names, source_skill, sendlog, no_trigger)
   if type(skill_names) == "string" then

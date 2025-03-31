@@ -161,12 +161,14 @@ end
 
 --- 查询角色是否存在flag。
 ---@param flag string @ 一种标记
+---@deprecated @ 用mark代替
 function Player:hasFlag(flag)
   return table.contains(self.flag, flag)
 end
 
 --- 为角色赋予flag。
 ---@param flag string @ 一种标记
+---@deprecated @ 用mark代替
 function Player:setFlag(flag)
   if flag == "." then
     self:clearFlags()
@@ -243,6 +245,7 @@ function Player:getTableMark(mark)
 end
 
 --- 获取角色有哪些Mark。
+---@return string[]
 function Player:getMarkNames()
   local ret = {}
   for k, _ in pairs(self.mark) do
@@ -312,6 +315,7 @@ end
 
 --- 确认玩家是否存在虚拟装备。
 ---@param cid integer @ 卡牌ID，用来定位装备
+---@return boolean
 function Player:getVirualEquip(cid)
   for _, c in ipairs(self.virtual_equips) do
     for _, id in ipairs(c.subcards) do
@@ -323,6 +327,7 @@ function Player:getVirualEquip(cid)
 end
 
 --- 确认玩家判定区是否存在延迟锦囊牌。
+---@return boolean
 function Player:hasDelayedTrick(card_name)
   for _, id in ipairs(self:getCardIds(Player.Judge)) do
     local c = self:getVirualEquip(id)
@@ -373,8 +378,9 @@ function Player:getCardIds(playerAreas, specialName)
   return cardIds
 end
 
---- 通过名字检索获取玩家对应的私人牌堆。
+--- 通过名字检索获取玩家对应的私人牌堆。没有为{}。
 ---@param name string @ 私人牌堆名
+---@return integer[]
 function Player:getPile(name)
   return table.simpleClone(self.special_cards[name] or {})
 end
@@ -388,8 +394,8 @@ function Player:getPileNameOfId(id)
   end
 end
 
---- 返回所有“如手牌般使用或打出”的牌。
---- 或者说，返回所有名字以“&”结尾的pile的牌。
+--- 返回所有名字以“&”结尾（如手牌般使用或打出）的pile的牌。
+--- 提示：VSSkill中需要```handly_pile = true```才能使用这些牌。
 ---@param include_hand? boolean @ 是否包含真正的手牌，默认包含
 ---@return integer[]
 function Player:getHandlyIds(include_hand)
@@ -409,6 +415,8 @@ function Player:getHandlyIds(include_hand)
 end
 
 -- for fkp only
+--- 获取手牌数
+---@return integer
 function Player:getHandcardNum()
   return #self:getCardIds(Player.Hand)
 end
@@ -506,6 +514,7 @@ function Player:getAttackRange()
 end
 
 --- 获取角色是否被移除。
+---@return boolean
 function Player:isRemoved()
   for mark, _ in pairs(self.mark) do
     if mark == MarkEnum.PlayerRemoved then return true end
@@ -520,6 +529,8 @@ end
 --- 获取玩家与其他角色的实际距离。
 ---
 --- 通过 二者位次+距离技能之和 与 两者间固定距离 进行对比，更大的为实际距离。
+--- 
+--- 注意比较距离时使用```Player:compareDistance()```。
 ---@param other Player @ 其他玩家
 ---@param mode? string @ 计算模式(left/right/both)
 ---@param ignore_dead? boolean @ 是否忽略尸体
@@ -601,6 +612,7 @@ end
 --- 获取其他玩家是否在玩家的攻击范围内。
 ---@param other Player @ 其他玩家
 ---@param fixLimit? integer @ 卡牌距离限制增加专用
+---@return boolean
 function Player:inMyAttackRange(other, fixLimit)
   assert(other:isInstanceOf(Player))
   if self == other or (other and (other.dead or other:isRemoved())) or self:isRemoved() then
@@ -785,26 +797,31 @@ function Player:isAlive()
 end
 
 --- 获取玩家是否无手牌。
+---@return boolean
 function Player:isKongcheng()
   return #self:getCardIds(Player.Hand) == 0
 end
 
 --- 获取玩家是否没有牌（即无手牌及装备区牌）。
+---@return boolean
 function Player:isNude()
   return #self:getCardIds{Player.Hand, Player.Equip} == 0
 end
 
 --- 获取玩家所有区域是否无牌。
+---@return boolean
 function Player:isAllNude()
   return #self:getCardIds() == 0
 end
 
 --- 获取玩家是否受伤。
+---@return boolean
 function Player:isWounded()
   return self.hp < self.maxHp
 end
 
 --- 获取玩家已失去体力。
+---@return integer
 function Player:getLostHp()
   return math.min(self.maxHp - self.hp, self.maxHp)
 end
@@ -823,6 +840,7 @@ end
 ---@param skill string | Skill @ 技能名
 ---@param ignoreNullified? boolean @ 忽略技能是否被无效
 ---@param ignoreAlive? boolean @ 忽略角色在场与否
+---@return boolean
 function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
   if not ignoreAlive and self.dead then
     return false

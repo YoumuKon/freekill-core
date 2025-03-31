@@ -4,7 +4,6 @@ local skill = fk.CreateSkill {
 }
 
 skill:addEffect(fk.CardEffectCancelledOut, {
-  prompt = "#spear_skill",
   can_trigger = function(self, event, target, player, data)
     return player:hasSkill(skill.name) and data.from == player and data.card.trueName == "slash" and not data.to.dead
   end,
