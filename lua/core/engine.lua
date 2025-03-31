@@ -774,15 +774,16 @@ function Engine:getAllCardIds(except)
 end
 
 -- 获取加入游戏的卡的牌名（暂不考虑装备牌），常用于泛转化技能的interaction
----@param card_type string @ 卡牌的类别， b 基本牌, t - 普通锦囊牌, d - 延时锦囊牌, e - 装备牌
+---@param card_type string @ 卡牌的类别，b 基本牌，t - 普通锦囊牌，d - 延时锦囊牌，e - 装备牌
 ---@param true_name? boolean @ 是否使用真实卡名（即不区分【杀】、【无懈可击】等的具体种类）
+---@param is_derived? boolean @ 是否包括衍生牌，默认不包括
 ---@return string[] @ 返回牌名列表
-function Engine:getAllCardNames(card_type, true_name)
+function Engine:getAllCardNames(card_type, true_name, is_derived)
   local all_names = {}
   local basic, equip, normal_trick, delayed_trick = {}, {}, {}, {}
   for _, name in ipairs(self.all_card_names) do
     local card = self.all_card_types[name]
-    if not table.contains(self:currentRoom().disabled_packs, card.package.name) and not card.is_derived then
+    if not table.contains(self:currentRoom().disabled_packs, card.package.name) and not (card.is_derived and is_derived) then
       if card.type == Card.TypeBasic then
         table.insertIfNeed(basic, true_name and card.trueName or card.name)
       elseif card.type == Card.TypeEquip then
