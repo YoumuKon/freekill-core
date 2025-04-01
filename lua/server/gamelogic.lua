@@ -555,8 +555,8 @@ end
 ---@param eventType T @ 要查找的事件类型
 ---@param func fun(e: T): boolean? @ 过滤用的函数
 ---@param n integer @ 最多找多少个
----@param end_id integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含）
----@param scope? integer @ 查询历史范围，当有此参数时end_id参数失效，改为查找当前阶段/回合/轮次/游戏
+---@param end_id? integer @ 查询历史范围：从最后的事件开始逆序查找直到id为end_id的事件（不含），默认当前事件的id
+---@param scope? integer @ 查询历史范围：当有此参数时end_id参数失效，改为查找当前阶段/回合/轮次/游戏
 ---@return T[] @ 找到的符合条件的所有事件，最多n个但不保证有n个
 function GameLogic:getEventsByRule(eventType, n, func, end_id, scope)
   if scope then
@@ -573,6 +573,9 @@ function GameLogic:getEventsByRule(eventType, n, func, end_id, scope)
     if end_event then
       end_id = end_event.id
     end
+  end
+  if end_id == nil then
+    end_id = self:getCurrentEvent().id
   end
   local ret = {}
 	local events = self.event_recorder[eventType] or Util.DummyTable
