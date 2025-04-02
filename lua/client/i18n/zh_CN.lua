@@ -524,6 +524,8 @@ Fk:loadTranslationTable{
 
   ["skill"] = "技能",
   ["skill_invalidity"] = "<font color='red'>（失效）</font>",
+  ["dummyskill"] = "技能",
+  [":dummyskill"] = "无效果",
 
   --utility
   ["draw1"] = "摸一张牌",
@@ -537,6 +539,9 @@ Fk:loadTranslationTable{
   ["no"] = "否",
   ["clockwise"] = "↻顺时针方向",
   ["anticlockwise"] = "↺逆时针方向",
+  ["draw_card"] = "摸牌",
+  ["heal_hp"] = "回复体力",
+  ["damaged"] = "受到伤害",
 }
 
 -- related to sendLog
