@@ -525,7 +525,7 @@ Fk:loadTranslationTable{
   ["skill"] = "技能",
   ["skill_invalidity"] = "<font color='red'>（失效）</font>",
   ["dummyskill"] = "技能",
-  [":dummyskill"] = "无效果",
+  [":dummyskill"] = "无效果。",
 
   --utility
   ["draw1"] = "摸一张牌",
