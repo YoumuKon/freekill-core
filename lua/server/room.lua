@@ -2219,6 +2219,66 @@ function Room:askToUseVirtualCard(player, params)
   return use
 end
 
+---@class askToPlayCardParams
+---@field cards? integer[] @ 可以选择的卡牌，默认包括手牌和“如手牌”
+---@field skill_name string @ 烧条时显示的技能名
+---@field pattern string @ 选卡规则，与可用卡牌取交集
+---@field prompt? string @ 提示信息
+---@field extra_data? table @ 额外信息，因技能而异了
+---@field skip? boolean @ 是否跳过使用。默认不跳过
+---@field cancelable? boolean @ 是否可以取消。目前不支持无法取消
+---
+--- 询问玩家（如在空闲时间点一般）使用一张实体牌，支持转化技。
+---@param player ServerPlayer @ 要询问的玩家
+---@param params askToPlayCardParams @ 各种变量
+---@return UseCardDataSpec? @ 返回关于本次使用牌的数据，以便后续处理
+function Room:askToPlayCard(player, params)
+  local cards = params.cards or player:getHandlyIds()
+  local pattern = params.pattern or "."
+  local skillName =  params.skill_name or "#askForPlayCard"
+  local prompt =  params.prompt or ("##askForPlayCard:::"..skillName)
+  local extra_data = params.extra_data or {}
+
+  local useables = {} -- 可用牌名
+  local useableTrues = {} -- 可用牌名
+  for _, id in ipairs(Fk:getAllCardIds()) do
+    local card = Fk:getCardById(id)
+    if not player:prohibitUse(card) and card.skill:canUse(player, card, extra_data) then
+      table.insertIfNeed(useables, card.name)
+      table.insertIfNeed(useableTrues, card.trueName)
+    end
+  end
+  local cardIds = player:getCardIds("e")
+  for _, cid in ipairs(cards) do
+    local card = Fk:getCardById(cid)
+    if not (Exppattern:Parse(pattern):match(card) and
+      card.skill:canUse(player, card, extra_data) and
+      not player:prohibitUse(card)) then
+      table.insert(cardIds, cid)
+    end
+  end
+  local strid = table.concat(cardIds, ",")
+  local useable_pattern = table.concat(useableTrues, ",") ..
+    "|.|.|.|" .. table.concat(useables, ",") ..
+    "|.|" .. (strid == "" and "." or "^(" .. strid .. ")")
+  extra_data = extra_data or {}
+  local use = self:askToUseCard(player, {
+    skill_name = skillName,
+    pattern = useable_pattern,
+    prompt = prompt,
+    cancelable = true,
+    extra_data = extra_data,
+  })
+  if not use then return end
+  if extra_data.extraUse then
+    use.extraUse = true
+  end
+  if not params.skip then
+    self:useCard(use)
+  end
+  return use
+end
+
 ---@class AskToUseCardParams
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field pattern string @ 使用牌的规则
