@@ -783,7 +783,7 @@ function Engine:getAllCardNames(card_type, true_name, is_derived)
   local basic, equip, normal_trick, delayed_trick = {}, {}, {}, {}
   for _, name in ipairs(self.all_card_names) do
     local card = self.all_card_types[name]
-    if not table.contains(self:currentRoom().disabled_packs, card.package.name) and not (card.is_derived and is_derived) then
+    if not table.contains(self:currentRoom().disabled_packs, card.package.name) and (not card.is_derived or is_derived) then
       if card.type == Card.TypeBasic then
         table.insertIfNeed(basic, true_name and card.trueName or card.name)
       elseif card.type == Card.TypeEquip then
