@@ -24,8 +24,59 @@ function MoveCards:main()
   local room = self.room
   local moveCardsData = self.data
 
-  if room.logic:trigger(fk.BeforeCardsMove, nil, moveCardsData) then
-    room.logic:breakEvent(false)
+  room.logic:trigger(fk.BeforeCardsMove, nil, moveCardsData)
+
+  local new_data = {}
+  for _, data in ipairs(moveCardsData) do
+    local new_move = {}
+    if #data.moveInfo > 0 and data.toArea ~= Card.Void then
+      local orig_info, new_info = table.simpleClone(data.moveInfo), {}
+      for i = 1, #data.moveInfo do
+        local info = data.moveInfo[i]
+        local will_destruct = false
+        local card = Fk:getCardById(info.cardId)
+        if card:getMark(MarkEnum.DestructIntoDiscard) ~= 0 and data.toArea == Card.DiscardPile then
+          will_destruct = true
+        end
+        if card:getMark(MarkEnum.DestructOutMyEquip) ~= 0 and info.fromArea == Card.PlayerEquip then
+          will_destruct = info.fromArea == Card.PlayerEquip
+        end
+        if card:getMark(MarkEnum.DestructOutEquip) ~= 0 and
+          (info.fromArea == Card.PlayerEquip and data.toArea ~= Card.PlayerEquip and data.toArea ~= Card.Processing) then
+          will_destruct = true
+        end
+        if will_destruct then
+          room:setCardMark(card, MarkEnum.DestructIntoDiscard, 0)
+          room:setCardMark(card, MarkEnum.DestructOutMyEquip, 0)
+          room:setCardMark(card, MarkEnum.DestructOutEquip, 0)
+          room:sendLog{
+            type = "#DestructCards",
+            card = {info.cardId},
+          }
+          table.remove(orig_info, i)
+          table.insert(new_info, info)
+        end
+      end
+      data.moveInfo = orig_info
+      if #new_info > 0 then
+        new_move = {
+          moveInfo = new_info,
+          from = data.from,
+          to = nil,
+          toArea = Card.Void,
+          moveReason = fk.ReasonJustMove,
+          proposer = nil,
+          skillName = nil,
+          moveVisible = true,
+        }
+      end
+    end
+    if next(new_move) then
+      table.insert(new_data, new_move)
+    end
+  end
+  if next(new_data) then
+    table.insertTable(moveCardsData, new_data)
   end
 
   room:notifyMoveCards(nil, moveCardsData)

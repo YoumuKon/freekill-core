@@ -562,6 +562,7 @@ Fk:loadTranslationTable{
   ["$PreyCardsFromPile"] = "%from 获得了 %arg 张牌 %card",
   ["$GotCardBack"] = "%from 收回了 %arg 张牌 %card",
   ["$RecycleCard"] = "%from 从弃牌堆回收了 %arg 张牌 %card",
+  ["#DestructCards"] = "%card 被销毁了",
 
   ["$InstallEquip"] = "%from 装备了 %card",
   ["$UninstallEquip"] = "%from 卸载了 %card",

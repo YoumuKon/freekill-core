@@ -347,9 +347,7 @@ function MoveCards:exec()
   local logic = self.logic
   local moveCardsData = self.data
 
-  if logic:trigger(fk.BeforeCardsMove, nil, moveCardsData) then
-    return true
-  end
+  logic:trigger(fk.BeforeCardsMove, nil, moveCardsData)
 
   for _, data in ipairs(moveCardsData) do
     for _, info in ipairs(data.moveInfo or {}) do
