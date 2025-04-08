@@ -1586,7 +1586,7 @@ end
 ---@field players ServerPlayer[] @ 被询问的玩家
 ---@field min_num integer @ 最小值
 ---@field max_num integer @ 最大值
----@field includeEquip? boolean @ 能不能选装备
+---@field include_equip? boolean @ 能不能选装备
 ---@field skill_name? string @ 技能名
 ---@field cancelable? boolean @ 能否点取消
 ---@field pattern? string @ 选牌规则
@@ -1599,11 +1599,11 @@ end
 ---@param params askToJointCardsParams @ 各种变量
 ---@return table<Player, integer[]> @ 返回键值表，键为Player、值为选择的牌id列表
 function Room:askToJointCards(player, params)
-  local skillName = params.skill_name or "AskForCardChosen"
+  local skill_name = params.skill_name or "AskForCardChosen"
   local cancelable = (params.cancelable == nil) and true or params.cancelable
   local pattern = params.pattern or "."
   local players, maxNum, minNum = params.players, params.max_num, params.min_num
-  local includeEquip = params.includeEquip or false
+  local include_equip = params.include_equip or false
   local expand_pile = params.expand_pile or nil
   local will_throw = params.will_throw or false
   local prompt = params.prompt or ("#AskForCard:::" .. maxNum .. ":" .. minNum)
@@ -1635,7 +1635,7 @@ function Room:askToJointCards(player, params)
   end
 
   local req = Request:new(toAsk, "AskForUseActiveSkill")
-  req.focus_text = skillName
+  req.focus_text = skill_name
   req.focus_players = players
   local data = {
     will_throw and "discard_skill" or "choose_cards_skill",
@@ -1644,8 +1644,8 @@ function Room:askToJointCards(player, params)
     {
       num = maxNum,
       min_num = minNum,
-      include_equip = includeEquip,
-      skillName = skillName,
+      include_equip = include_equip,
+      skillName = skill_name,
       pattern = pattern,
       expand_pile = expand_pile,
     },
