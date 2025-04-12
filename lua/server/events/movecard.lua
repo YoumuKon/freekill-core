@@ -367,7 +367,7 @@ function MoveEventWrappers:moveCardTo(card, to_place, target, reason, skill_name
   local movesSplitedByOwner = {}
   for _, cardId in ipairs(ids) do
     local moveFound = table.find(movesSplitedByOwner, function(move)
-      return move.from == self.getCardOwner(cardId)
+      return move.from == self:getCardOwner(cardId)
     end)
 
     if moveFound then
