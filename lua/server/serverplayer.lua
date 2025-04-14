@@ -181,8 +181,6 @@ function ServerPlayer:showCards(cards)
   --   from = self.id,
   -- })
   self.room:showCards(cards, self)
-
-  room.logic:trigger(fk.CardShown, self, { cardIds = cards })
 end
 
 

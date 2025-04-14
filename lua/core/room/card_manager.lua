@@ -169,6 +169,8 @@ function CardManager:showCards(cards, from)
     type = "##ShowCard",
     from = from,
   })
+
+  self.logic:trigger(fk.CardShown, from, { cardIds = cards })
 end
 
 --- 准备房间牌堆

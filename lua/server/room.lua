@@ -1152,7 +1152,7 @@ end
 ---@param params AskToYijiParams @ 各种变量
 ---@return table<integer, integer[]> @ 返回一个表，键为角色id，值为分配给其的牌id数组
 function Room:askToYiji(player, params)
-  local targets = params.targets or self.alive_players
+  local targets = params.targets or self:getAlivePlayers(false)
   self:sortByAction(targets)
   targets = table.map(targets, Util.IdMapper)
   local cards = params.cards or player:getCardIds("he")
