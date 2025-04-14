@@ -5,17 +5,18 @@ local guicai = fk.CreateSkill {
 guicai:addEffect(fk.AskForRetrial, {
   guicai = "control",
   can_trigger = function(self, event, target, player, data)
-    return player:hasSkill(guicai.name) and not player:isKongcheng()
+    return player:hasSkill(guicai.name) and #player:getHandlyIds() > 0
   end,
   on_cost = function(self, event, target, player, data)
     local room = player.room
-    local pattern = tostring(Exppattern{ id = table.filter(player:getCardIds("h"),
-    function(id) return not player:prohibitDiscard(Fk:getCardById(id)) end) })
+    local ids = table.filter(player:getHandlyIds(), function (id)
+      return not player:prohibitResponse(Fk:getCardById(id))
+    end)
     local cards = room:askToCards(player, {
       min_num = 1,
       max_num = 1,
       skill_name = guicai.name,
-      pattern = pattern,
+      pattern = tostring(Exppattern{ id = ids}),
       prompt = "#guicai-ask::"..target.id,
       cancelable = true,
     })
