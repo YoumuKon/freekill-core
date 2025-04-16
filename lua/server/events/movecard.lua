@@ -347,6 +347,7 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）
 function MoveEventWrappers:moveCardTo(card, to_place, target, reason, skill_name, special_name, visible, proposer, moveMark, visiblePlayers)
+  ---@cast self Room
   reason = reason or fk.ReasonJustMove
   skill_name = skill_name or ""
   special_name = special_name or ""

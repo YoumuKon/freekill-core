@@ -116,7 +116,7 @@ end
 
 --- 改变判定牌
 ---@param params RetrialParams
-function JudgeEventWrappers:ChangeJudge(params)
+function JudgeEventWrappers:changeJudge(params)
   local card, player, data, skillName = params.card, params.player, params.data, params.skillName
   if not card then return end
   ---@cast self Room
@@ -163,12 +163,13 @@ end
 
 --- 改判。
 ---@param card Card @ 改判的牌
----@param player ServerPlayer @ 改判的玩家
----@param judge JudgeData @ 要被改判的判定数据
+---@param player ServerPlayer @ 改判者
+---@param judge JudgeData @ 被改判的判定数据
 ---@param skillName? string @ 技能名
----@param exchange? boolean @ 是否要替换原有判定牌（即类似鬼道那样）
+---@param exchange? boolean @ 是否替换原有判定牌（类似```鬼道```）
+---@deprecated @ 用changeJudge代替
 function JudgeEventWrappers:retrial(card, player, judge, skillName, exchange)
-  self:ChangeJudge{card = card, player = player, data = judge, skillName = skillName, exchange = exchange}
+  self:changeJudge{card = card, player = player, data = judge, skillName = skillName, exchange = exchange}
 end
 
 return { Judge, JudgeEventWrappers }

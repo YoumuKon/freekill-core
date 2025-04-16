@@ -14,14 +14,19 @@ DyingData = TriggerData:subclass("DyingData")
 ---@field data DyingData
 local DyingEvent = TriggerEvent:subclass("DyingEvent")
 
+--- 进入濒死状态时
 ---@class fk.EnterDying: DyingEvent
 fk.EnterDying = DyingEvent:subclass("fk.EnterDying")
+--- （已弃用）
 ---@class fk.Dying: DyingEvent
 fk.Dying = DyingEvent:subclass("fk.Dying")
+--- 濒死结算结束后
 ---@class fk.AfterDying: DyingEvent
 fk.AfterDying = DyingEvent:subclass("fk.AfterDying")
+--- 处于濒死状态时
 ---@class fk.AskForPeaches: DyingEvent
 fk.AskForPeaches = DyingEvent:subclass("fk.AskForPeaches")
+--- 于濒死状态求桃流程结束时
 ---@class fk.AskForPeachesDone: DyingEvent
 fk.AskForPeachesDone = DyingEvent:subclass("fk.AskForPeachesDone")
 

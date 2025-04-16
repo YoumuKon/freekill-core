@@ -315,7 +315,7 @@ end
 
 --- 确认玩家是否存在虚拟装备。
 ---@param cid integer @ 卡牌ID，用来定位装备
----@return boolean
+---@return Card?
 function Player:getVirualEquip(cid)
   for _, c in ipairs(self.virtual_equips) do
     for _, id in ipairs(c.subcards) do
@@ -324,6 +324,7 @@ function Player:getVirualEquip(cid)
       end
     end
   end
+  return nil
 end
 
 --- 确认玩家判定区是否存在延迟锦囊牌。
