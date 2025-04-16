@@ -30,7 +30,7 @@ function MoveCards:main()
   for _, data in ipairs(moveCardsData) do
     local new_move = {}
     if #data.moveInfo > 0 and data.toArea ~= Card.Void then
-      local orig_info, new_info = {}, {}
+      local orig_info, new_info = table.simpleClone(data.moveInfo), {}
       for i = 1, #data.moveInfo do
         local info = data.moveInfo[i]
         local will_destruct = false
@@ -53,12 +53,11 @@ function MoveCards:main()
             type = "#DestructCards",
             card = {info.cardId},
           }
+          table.remove(orig_info, i)
           table.insert(new_info, info)
-        else
-          table.insert(orig_info, info)
         end
-        data.moveInfo = orig_info
       end
+      data.moveInfo = orig_info
       if #new_info > 0 then
         new_move = {
           moveInfo = new_info,
