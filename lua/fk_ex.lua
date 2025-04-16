@@ -139,8 +139,7 @@ end
 ---@field public enabled_at_play? fun(self: ViewAsSkill, player: Player): any
 ---@field public enabled_at_response? fun(self: ViewAsSkill, player: Player, response: boolean): any
 ---@field public before_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardDataSpec): string? @ 使用/打出前执行的内容，返回字符串则取消此次使用，返回技能名则在本次询问中禁止使用此技能
----@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData): string? @ 使用此牌后执行的内容，注意打出不会执行
----@field public after_response? fun(self: ViewAsSkill, player: ServerPlayer, response: RespondCardData): string? @ 打出此牌后执行的内容
+---@field public after_use? fun(self: ViewAsSkill, player: ServerPlayer, use: UseCardData | RespondCardData): string? @ 使用/打出此牌后执行的内容
 ---@field public prompt? string|fun(self: ViewAsSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? fun(self: ViewAsSkill, player: Player): table? @ 选项框
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
