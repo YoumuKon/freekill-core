@@ -510,10 +510,7 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
 
   if spec.after_use and type(spec.after_use) == "function" then
     skill.afterUse = spec.after_use
-  end
-
-  if spec.after_response and type(spec.after_response) == "function" then
-    skill.afterResponse = spec.after_response
+    skill.afterResponse = spec.after_use
   end
 
   skill.handly_pile = spec.handly_pile
