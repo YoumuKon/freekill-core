@@ -1101,10 +1101,17 @@ function Room:askToChooseCardsAndPlayers(player, params)
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
   params.no_indicate = params.no_indicate or false
   params.pattern = params.pattern or "."
+  local expand_pile = params.expand_pile or (params.extra_data and params.extra_data.expand_pile)
 
-  local pcards = table.filter(player:getCardIds({ Player.Hand, Player.Equip }), function(id)
-    local c = Fk:getCardById(id)
-    return c:matchPattern(params.pattern) and not (params.will_throw and player:prohibitDiscard(c))
+  local pcards = player:getCardIds("he")
+  if type(expand_pile) == "string" then
+    table.insertTable(pcards, player:getPile(expand_pile))
+  elseif type(expand_pile) == "table" then
+    table.insertTable(pcards, expand_pile)
+  end
+  local exp = Exppattern:Parse(params.pattern)
+  pcards = table.filter(pcards, function(cid)
+    return exp:match(Fk:getCardById(cid)) and not (params.will_throw and player:prohibitDiscard(cid))
   end)
   if #pcards < minCardNum and not params.cancelable then return {}, {}, false end
 
