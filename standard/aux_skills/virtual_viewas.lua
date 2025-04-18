@@ -11,6 +11,7 @@ virtual_viewas:addEffect("viewas", {
         return not table.contains(player:getCardIds("he"), id)
       end)
     end
+    return {}
   end,
   card_filter = function (self, player, to_select, selected)
     if #self.subcards > 0 then
