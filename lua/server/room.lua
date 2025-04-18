@@ -2178,7 +2178,7 @@ function Room:askToUseVirtualCard(player, params)
   params.card_filter = params.card_filter or {}
   params.card_filter.n = params.card_filter.n or 0
   params.card_filter.pattern = params.card_filter.pattern or "."
-  params.card_filter.cards = params.card_filter.cards or table.connect(player:getCardIds("h"), player:getHandlyIds(false))
+  params.card_filter.cards = params.card_filter.cards or table.connect(player:getCardIds("he"), player:getHandlyIds(false))
 
   local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end

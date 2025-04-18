@@ -3,6 +3,15 @@ local virtual_viewas = fk.CreateSkill{
 }
 
 virtual_viewas:addEffect("viewas", {
+  expand_pile = function (self, player)
+    if #self.subcards > 0 then
+      return {}
+    elseif self.card_filter.n > 0 then
+      return table.filter(self.card_filter.cards, function (id)
+        return not table.contains(player:getCardIds("he"), id)
+      end)
+    end
+  end,
   card_filter = function (self, player, to_select, selected)
     if #self.subcards > 0 then
       return false
@@ -23,6 +32,7 @@ virtual_viewas:addEffect("viewas", {
     if #self.subcards > 0 then
       card:addSubcards(self.subcards)
     elseif #cards > 0 then
+      if #cards ~= self.card_filter.n then return end
       card:addSubcards(cards)
     end
     if player:prohibitUse(card) then return nil end -- FIXME: 修复合法性判断后删除此段
