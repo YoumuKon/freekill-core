@@ -2150,6 +2150,7 @@ end
 ---@class askToUseVirtualCardParams
 ---@field name string|string[] @ 可以选择的虚拟卡名
 ---@field subcards? integer[] @ 虚拟牌的子牌，默认空
+---@field card_filter? table[] @选牌规则，优先级低于subcards，可选参数：n（牌数）pattern（选牌规则）cards（可选牌的范围）
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
@@ -2174,6 +2175,11 @@ function Room:askToUseVirtualCard(player, params)
     end
   end
   if (params.cancelable == nil) then params.cancelable = true end
+  params.card_filter = params.card_filter or {}
+  params.card_filter.n = params.card_filter.n or 0
+  params.card_filter.pattern = params.card_filter.pattern or "."
+  params.card_filter.cards = params.card_filter.cards or table.connect(player:getCardIds("h"), player:getHandlyIds(false))
+
   local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   if extra_data.extraUse == nil then extra_data.extraUse = true end
@@ -2188,6 +2194,7 @@ function Room:askToUseVirtualCard(player, params)
   extra_data.choices = names
   extra_data.all_choices = all_names
   extra_data.subcards = subcards
+  extra_data.card_filter = params.card_filter
   local _, dat = self:askToUseActiveSkill(player, {
     skill_name = "virtual_viewas",
     prompt = prompt,
@@ -2198,13 +2205,24 @@ function Room:askToUseVirtualCard(player, params)
   if dat then
     tos = dat.targets
     card = Fk:cloneCard(#all_names == 1 and all_names[1] or dat.interaction)
-    card:addSubcards(subcards)
+    if #subcards > 0 then
+      card:addSubcards(subcards)
+    elseif #dat.cards > 0 then
+      card:addSubcards(dat.cards)
+    end
     card.skillName = skillName
   else
     if cancelable then return end
     for _, n in ipairs(names) do
       card = Fk:cloneCard(n)
-      card:addSubcards(subcards)
+      if #subcards > 0 then
+        card:addSubcards(subcards)
+      elseif params.card_filter.n > 0 then
+        local cards = table.filter(params.card_filter.cards, function (id)
+          return Fk:getCardById(id):matchPattern(params.card_filter.pattern)
+        end)
+        card:addSubcards(table.random(cards, params.card_filter.n))
+      end
       card.skillName = skillName
       local temp = card:getDefaultTarget(player, extra_data)
       if temp then
