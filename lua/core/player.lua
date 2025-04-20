@@ -1202,14 +1202,14 @@ function Player:canMoveCardInBoardTo(to, id)
     return
       not (
         table.find(to:getCardIds(Player.Judge), function(cardId)
-          return (to:getVirualEquip(cardId) or Fk:getCardById(cardId)).name == card.name
+          return ((to:getVirualEquip(cardId) or Fk:getCardById(cardId).name == card.name) and card.name ~= "premeditate")
         end) or
         table.contains(to.sealedSlots, Player.JudgeSlot)
       )
   end
 end
 
---- 是否能移动特定牌至特定角色
+--- 是否能移动特定区域牌至特定角色
 --- @param to Player @ 移动至的角色
 --- @param flag? string @ 移动的区域，`e`为装备区，`j`为判定区，`nil`为装备区和判定区
 --- @param excludeIds? integer[] @ 排除的牌
