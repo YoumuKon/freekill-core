@@ -857,7 +857,6 @@ function Room:askToUseActiveSkill(player, params)
 
   Fk.currentResponseReason = params.extra_data.skillName
   local req = Request:new(player, command)
-  req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
   req:setData(player, data)
   req.focus_text = params.extra_data.skillName or params.skill_name
   local result = req:getResult(player)
@@ -2372,16 +2371,17 @@ function Room:askToUseCard(player, params)
       local data = {skillName, pattern, prompt, cancelable, extra_data, disabledSkillNames}
 
       Fk.currentResponsePattern = pattern
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
+      self.logic:trigger(fk.HandleAskForPlayCard, player, askForUseCardData, true)
 
       local req = Request:new(player, command)
       req.focus_text = skillName or ""
-      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
+      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[tostring(player.id)] or self.timeout
       req:setData(player, data)
       local result = req:getResult(player)
 
       askForUseCardData.afterRequest = true
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
+      askForUseCardData.overtimes = req.overtimes
+      self.logic:trigger(fk.HandleAskForPlayCard, player, askForUseCardData, true)
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
@@ -2455,16 +2455,17 @@ function Room:askToResponse(player, params)
 
       Fk.currentResponsePattern = pattern
       askForUseCardData.isResponse = true
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
+      self.logic:trigger(fk.HandleAskForPlayCard, player, askForUseCardData, true)
 
       local req = Request:new(player, command)
       req.focus_text = skillName or ""
-      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
+      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[tostring(player.id)] or self.timeout
       req:setData(player, data)
       local result = req:getResult(player)
 
       askForUseCardData.afterRequest = true
-      self.logic:trigger(fk.HandleAskForPlayCard, nil, askForUseCardData, true)
+      askForUseCardData.overtimes = req.overtimes
+      self.logic:trigger(fk.HandleAskForPlayCard, player, askForUseCardData, true)
       Fk.currentResponsePattern = nil
 
       if result ~= "" then
@@ -2539,6 +2540,7 @@ function Room:askToNullification(players, params)
     local winner = req.winners[1]
 
     eventData.afterRequest = true
+    eventData.overtimes = req.overtimes
     self.logic:trigger(fk.HandleAskForPlayCard, nil, eventData, true)
 
     if winner then

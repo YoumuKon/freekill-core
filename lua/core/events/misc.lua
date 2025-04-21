@@ -101,6 +101,7 @@ fk.GameFinished = StringEvent:subclass("fk.GameFinished")
 ---@field result? any
 ---@field isResponse? boolean @ 是否为打出事件
 ---@field afterRequest? boolean @ 是否已询问
+---@field overtimes? ServerPlayer[] @ 此响应超时的玩家
 
 ---@class AskForCardEvent : TriggerEvent
 ---@field data AskForCardData
