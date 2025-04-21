@@ -857,6 +857,7 @@ function Room:askToUseActiveSkill(player, params)
 
   Fk.currentResponseReason = params.extra_data.skillName
   local req = Request:new(player, command)
+  req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
   req:setData(player, data)
   req.focus_text = params.extra_data.skillName or params.skill_name
   local result = req:getResult(player)
@@ -2375,6 +2376,7 @@ function Room:askToUseCard(player, params)
 
       local req = Request:new(player, command)
       req.focus_text = skillName or ""
+      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
       req:setData(player, data)
       local result = req:getResult(player)
 
@@ -2457,6 +2459,7 @@ function Room:askToResponse(player, params)
 
       local req = Request:new(player, command)
       req.focus_text = skillName or ""
+      req.timeout = self:getBanner("Timeout") and self:getBanner("Timeout")[player.id] or self.timeout
       req:setData(player, data)
       local result = req:getResult(player)
 

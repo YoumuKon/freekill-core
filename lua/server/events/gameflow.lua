@@ -408,7 +408,7 @@ function Phase:main()
       room:doBroadcastNotify("UpdateSkill", "", {player})
       while not player.dead do
         if data.phase_end then break end
-        local dat = { timeout = room.timeout }
+        local dat = { timeout = room:getBanner("Timeout") and room:getBanner("Timeout")[player.id] or room.timeout }
         logic:trigger(fk.StartPlayCard, player, dat, true)
 
         local req = Request:new(player, "PlayCard")
