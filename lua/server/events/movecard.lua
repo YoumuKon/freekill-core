@@ -308,6 +308,10 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
 function MoveEventWrappers:drawCards(player, num, skillName, fromPlace, moveMark)
+  if num < 1 then
+    return {}
+  end
+  
   local drawData = DrawData:new{
     who = player,
     num = num,
