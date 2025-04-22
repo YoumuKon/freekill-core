@@ -16,4 +16,28 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addAI({
+  on_effect = function(self, logic, effect)
+    local from = effect.from
+    local to = effect.to
+    if from.dead or to.dead or to:isAllNude() then return end
+    local _, val = self:thinkForCardChosen(from.ai, to, "hej")
+    logic.benefit = logic.benefit + val
+  end,
+
+  think_card_chosen = function(self, ai, target, _, __)
+    local cards = target:getCardIds("hej")
+    local cid, val = -1, -100000
+    for _, id in ipairs(cards) do
+      local v = ai:getBenefitOfEvents(function(logic)
+        logic:throwCard({id}, self.skill.name, target, ai.player)
+      end)
+      if v > val then
+        cid, val = id, v
+      end
+    end
+    return cid, val
+  end,
+}, "__card_skill")
+
 return skill

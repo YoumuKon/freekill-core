@@ -21,6 +21,9 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addAI(nil, "__card_skill")
+skill:addAI(nil, "default_card_skill")
+
 skill:addTest(function(room, me)
   local peach = room:printCard("peach")
   -- 客户端can_use测试：未受伤不能使用

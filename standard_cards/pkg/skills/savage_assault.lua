@@ -40,6 +40,15 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addAI({
+  on_use = function(self, logic, effect)
+    self.skill:onUse(logic, effect)
+  end,
+  on_effect = function(self, logic, effect)
+    Fk.skills["slash_skill"]:onEffect(logic, effect)
+  end,
+}, "__card_skill")
+
 skill:addTest(function(room, me)
   local comp2 = room.players[2]
   local card = room:printCard("slash")

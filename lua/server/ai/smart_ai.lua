@@ -207,13 +207,22 @@ function SmartAI.static:setCardSkillAI(key, spec, key2)
   end
 end
 
--- 等价于SmartAI:setCardSkillAI(key, spec, "__card_skill")
+-- 等价于SmartAI:setSkillAI(key, spec, "__card_skill")
 ---@param key string
 ---@param spec? SkillAISpec 表
 ---@param key2? string 要继承的
 function SmartAI:setCardSkillAI(key, spec, key2)
   error("This is a static method. Please use SmartAI:setCardSkillAI(...)")
 end
+
+SmartAI:setCardSkillAI("default_card_skill", {
+  on_use = function(self, logic, effect)
+    self.skill:onUse(logic, effect)
+  end,
+  on_effect = function(self, logic, effect)
+    self.skill:onEffect(logic, effect)
+  end,
+})
 
 ---@type table<string, TriggerSkillAI>
 fk.ai_trigger_skills = {}

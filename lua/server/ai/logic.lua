@@ -508,6 +508,8 @@ function AIGameLogic:doCardEffect(CardEffectData)
   return not CardEffect:new(self, CardEffectData):getBenefit()
 end
 
+---@param event CardEffectEvent
+---@param cardEffectEvent CardEffectData
 function AIGameLogic:handleCardEffect(event, cardEffectEvent)
   -- 不考虑闪与无懈 100%生效
   -- 闪和无懈早该重构重构了

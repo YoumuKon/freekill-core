@@ -12,7 +12,7 @@ local test2 = General(extension, "mouxusheng", "wu", 4, 4, General.Female)
 test2.shield = 3
 test2.hidden = true
 test2:addSkills {
-  "rende",
+  "test_rende",
   "cheat",
   "control",
   "damage_maker",

@@ -6,7 +6,16 @@ TrustAI = require "server.ai.trust_ai"
 
 SmartAI = require "server.ai.smart_ai"
 
--- load ai module from packages
+for _, pname in ipairs(Fk.package_names) do
+  local pack = Fk.packages[pname]
+  for _, skel in ipairs(pack.skill_skels) do
+    for _, sa in ipairs(skel.ai_list) do
+      SmartAI:setSkillAI(table.unpack(sa))
+    end
+  end
+end
+
+-- load ai module from packages (legacy)
 local directories = {}
 if UsingNewCore then
   require "standard_cards.ai"

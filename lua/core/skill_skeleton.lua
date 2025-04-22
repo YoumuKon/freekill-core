@@ -49,6 +49,7 @@ function SkillSkeleton:initialize(spec)
   self.effects = {}
   self.effect_names = {}
   self.effect_spec_list = {}
+  self.ai_list = {}
   self.tests = {}
 
   local name_splited = self.name:split("__")
@@ -114,8 +115,12 @@ function SkillSkeleton:addEffect(key, data, attribute)
   return self
 end
 
---- TODO
-function SkillSkeleton:addAI()
+---@param spec? SkillAISpec
+---@param inherit? string
+---@return SkillSkeleton
+function SkillSkeleton:addAI(spec, inherit)
+  table.insert(self.ai_list, { self.name, spec, inherit })
+  --SmartAI:setSkillAI(self.name, spec, inherit)
   return self
 end
 
