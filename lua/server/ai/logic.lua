@@ -38,10 +38,15 @@ function AIGameLogic:getCardOwner(id)
   return self.ai.room:getCardOwner(id)
 end
 
+---@param event TriggerEvent
+---@param target? ServerPlayer
+---@param data? any
+---@return boolean?
 function AIGameLogic:trigger(event, target, data)
   local ai = self.ai
   local logic = ai.room.logic
-  local skills, refresh_skills = {}, {}
+  local skills = logic.skill_table[event] or {}
+  --[[
   if logic.legacy_skill_table then
     skills = logic.legacy_skill_table[event]
   end
@@ -51,13 +56,13 @@ function AIGameLogic:trigger(event, target, data)
     refresh_skills = logic.legacy_refresh_skill_table[event]
   end
   table.insertTableIfNeed(refresh_skills, logic.legacy_refresh_skill_table[event] or {})
-
+  --]]
   local _target = ai.room.current -- for iteration
   local player = _target
   local exit
 
   repeat
-    for _, skill in ipairs(table.connectIfNeed(skills, refresh_skills)) do
+    for _, skill in ipairs(skills) do
       local skill_ai = fk.ai_trigger_skills[skill.name]
       if skill_ai then
         exit = skill_ai:getCorrect(self, event, target, player, data)

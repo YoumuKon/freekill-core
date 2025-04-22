@@ -21,17 +21,18 @@ cheat:addEffect("active", {
     cardType = card_types[table.indexOf(cardType, cardTypeName)]
 
     local allCardIds = Fk:getAllCardIds()
-    local allCardMapper = {}
+    local allCardMapper = {} ---@type table<string, integer[]>
     local allCardNames = {}
     for _, id in ipairs(allCardIds) do
       local card = Fk:getCardById(id)
       if card.type == cardType then
-        if allCardMapper[card.name] == nil then
+        if not allCardMapper[card.name] then
+          allCardMapper[card.name] = {}
           table.insert(allCardNames, card.name)
         end
-
-        allCardMapper[card.name] = allCardMapper[card.name] or {}
-        table.insert(allCardMapper[card.name], id)
+        if room:getCardOwner(id) ~= from then
+          table.insert(allCardMapper[card.name], id)
+        end
       end
     end
 
@@ -40,14 +41,10 @@ cheat:addEffect("active", {
     end
 
     local cardName = room:askToChoice(from, {choices = allCardNames, skill_name = "cheat"})
-    local toGain -- = room:printCard(cardName, Card.Heart, 1)
+    local toGain
     if #allCardMapper[cardName] > 0 then
-      toGain = allCardMapper[cardName][math.random(1, #allCardMapper[cardName])]
+      toGain = table.random(allCardMapper[cardName])
     end
-
-    -- from:addToPile(self.name, toGain, true, self.name)
-    -- room:setCardMark(Fk:getCardById(toGain), "@@test_cheat-phase", 1)
-    -- room:setCardMark(Fk:getCardById(toGain), "@@test_cheat-inhand", 1)
     room:obtainCard(effect.from, toGain, true, fk.ReasonPrey, effect.from, "cheat")
   end
 })

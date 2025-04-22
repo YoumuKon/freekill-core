@@ -232,11 +232,16 @@ end
 --- 获取触发技对收益评测的影响，通过基于logic触发更多模拟事件来模拟收益的变化
 ---
 --- 返回true表示打断后续收益判断逻辑
+---@param logic AIGameLogic
+---@param event TriggerEvent
+---@param target ServerPlayer?
+---@param player ServerPlayer
+---@param data any @ 事件数据
 ---@return boolean?
 function TriggerSkillAI:getCorrect(logic, event, target, player, data)
 end
 
 ---@class TriggerSkillAISpec
----@field correct_func fun(self: TriggerSkillAI, logic: AIGameLogic, event: Event, target: ServerPlayer?, player: ServerPlayer, data: any): boolean?
+---@field correct_func fun(self: TriggerSkillAI, logic: AIGameLogic, event: TriggerEvent, target: ServerPlayer?, player: ServerPlayer, data: any): boolean?
 
 return { SkillAI, TriggerSkillAI }
