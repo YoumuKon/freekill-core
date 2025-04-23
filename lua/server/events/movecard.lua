@@ -513,6 +513,7 @@ end
 ---@param skillName? string @ 技能名
 ---@param convert? boolean @ 是否可以替换装备（默认可以）
 ---@param proposer? ServerPlayer @ 操作者
+---@return integer[] @ 成功置入装备区的牌
 function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, proposer)
   ---@cast self Room
   convert = (convert == nil) and true or convert
@@ -521,6 +522,7 @@ function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, 
   ---@cast cards integer[]
   proposer = type(proposer) == "number" and self:getPlayerById(proposer) or proposer
   local moves = {}
+  local ids = {}
   for _, cardId in ipairs(cards) do
     local card = Fk:getCardById(cardId)
     local from = self:getCardOwner(cardId)
@@ -528,16 +530,44 @@ function MoveEventWrappers:moveCardIntoEquip(target, cards, skillName, convert, 
       if not target:hasEmptyEquipSlot(card.sub_type) then
         local existingEquip = target:getEquipments(card.sub_type)
         local throw = #existingEquip == 1 and existingEquip[1] or
-        self:askToChooseCard(proposer or target, { target = target, flag = { card_data = { { Util.convertSubtypeAndEquipSlot(card.sub_type),existingEquip } } }, skill_name = "replaceEquip", prompt = "#replaceEquip" })
-        table.insert(moves, { ids = { throw }, from = target, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile,
-        skillName = skillName, proposer = proposer })
+        self:askToChooseCard(proposer or target, {
+          target = target,
+          flag = { card_data = { { Util.convertSubtypeAndEquipSlot(card.sub_type),existingEquip } } },
+          skill_name = "replaceEquip",
+          prompt = "#replaceEquip",
+        })
+        table.insert(moves, {
+          ids = { throw },
+          from = target,
+          toArea = Card.DiscardPile,
+          moveReason = fk.ReasonPutIntoDiscardPile,
+          skillName = skillName,
+          proposer = proposer,
+        })
       end
-      table.insert(moves, { ids = { cardId }, from = from, to = target, toArea = Card.PlayerEquip, moveReason = fk.ReasonPut, skillName = skillName, proposer = proposer })
+      table.insert(moves, {
+        ids = { cardId },
+        from = from,
+        to = target,
+        toArea = Card.PlayerEquip,
+        moveReason = fk.ReasonPut,
+        skillName = skillName,
+        proposer = proposer,
+      })
+      table.insert(ids, cardId)
     else
-      table.insert(moves, { ids = { cardId }, from = from, toArea = Card.DiscardPile, moveReason = fk.ReasonPutIntoDiscardPile, skillName = skillName, proposer = proposer })
+      table.insert(moves, {
+        ids = { cardId },
+        from = from,
+        toArea = Card.DiscardPile,
+        moveReason = fk.ReasonPutIntoDiscardPile,
+        skillName = skillName,
+        proposer = proposer,
+      })
     end
   end
   self:moveCards(table.unpack(moves))
+  return ids
 end
 
 --- 从牌堆亮出一些牌移动到处理区
