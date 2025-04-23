@@ -17,7 +17,7 @@
 ---@field public game_modes_blacklist? string[] @ 拓展包关于游戏模式的黑名单
 ---@field public skill_skels SkillSkeleton[]
 ---@field public card_skels CardSkeleton[]
----@field public card_specs [string, integer, integer][]
+---@field public card_specs [string, integer, integer, table][]
 local Package = class("Package")
 
 ---@alias PackageType integer
@@ -37,7 +37,7 @@ function Package:initialize(name, _type)
   self.type = _type or Package.GeneralPack
 
   self.generals = {}
-  self.extra_skills = {}  -- skill not belongs to any generals, like "jixi"
+  self.extra_skills = {}
   self.related_skills = {}
   self.cards = {}
   self.game_modes = {}
@@ -133,8 +133,9 @@ end
 ---@param name string @ 牌名
 ---@param suit? Suit @ 花色
 ---@param number? integer @ 点数
-function Package:addCardSpec(name, suit, number)
-  table.insert(self.card_specs, { name, suit, number })
+---@param extra_data? table @ 额外数据
+function Package:addCardSpec(name, suit, number, extra_data)
+  table.insert(self.card_specs, { name, suit, number, extra_data })
 end
 
 return Package

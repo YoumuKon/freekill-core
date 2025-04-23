@@ -200,6 +200,7 @@ end
 ---@field public is_damage_card? boolean @ 是否为伤害类卡牌
 ---@field public multiple_targets? boolean @ 是否为多目标卡牌
 ---@field public is_passive? boolean @ 是否为被动使用的卡牌，如闪、无懈
+---@field public extra_data? table @ 保存其他信息的键值表，如“合纵”、“应变”、“赠予”等
 
 function fk.preprocessCardSpec(spec)
   assert(type(spec.name) == "string" or type(spec.class_name) == "string")
@@ -220,6 +221,7 @@ function fk.readCardSpecToCard(card, spec)
   card.is_damage_card = spec.is_damage_card
   card.multiple_targets = spec.multiple_targets
   card.is_passive = spec.is_passive
+  card.extra_data = spec.extra_data
 end
 
 ---@class EquipCardSpec: CardSpec

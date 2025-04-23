@@ -306,7 +306,9 @@ function Engine:loadPackages()
     end
 
     for _, tab in ipairs(pack.card_specs) do
-      pack:addCard(self:cloneCard(tab[1], tab[2], tab[3]))
+      local card = self:cloneCard(tab[1], tab[2], tab[3])
+      card.extra_data = tab[4]
+      pack:addCard(card)
     end
 
     -- add cards, generals and skills to Engine
