@@ -127,11 +127,19 @@ function UseCardData:getSubTos(player)
 end
 
 
--- 以锁视的方式改变使用的卡牌牌名
----@param name string
-function UseCardData:changeCardName(name)
-  if self.card.name == name then return end
-  local card = Fk:cloneCard(name, self.card.suit, self.card.number)
+-- 改变使用的卡牌
+---@param name? string
+---@param suit? Suit
+---@param number? integer
+---@param skill_name? string
+function UseCardData:changeCard(name, suit, number, skill_name)
+  if self.card.name == name and self.card.suit == suit and self.card.number == number then
+    return
+  end
+  name = name or self.card.name
+  suit = suit or self.card.suit
+  number = number or self.card.number
+  local card = Fk:cloneCard(name, suit, number)
   for k, v in pairs(self.card) do
     if card[k] == nil then
       card[k] = v
@@ -143,6 +151,9 @@ function UseCardData:changeCardName(name)
     card.id = self.card.id
   end
   card.skillNames = self.card.skillNames
+  if skill_name then
+    table.insertIfNeed(card.skillNames, skill_name)
+  end
   if RoomInstance then
     RoomInstance:sendCardVirtName(Card:getIdList(card), name)
   end
