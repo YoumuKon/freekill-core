@@ -8,20 +8,7 @@ fanSkill:addEffect(fk.AfterCardUseDeclared, {
     return target == player and player:hasSkill(fanSkill.name) and data.card.name == "slash"
   end,
   on_use = function(self, event, target, player, data)
-    local card = Fk:cloneCard("fire__slash", data.card.suit, data.card.number)
-    for k, v in pairs(data.card) do
-      if card[k] == nil then
-        card[k] = v
-      end
-    end
-    if data.card:isVirtual() then
-      card.subcards = data.card.subcards
-    else
-      card.id = data.card.id
-    end
-    card.skillNames = data.card.skillNames
-    card.skillName = "fan"
-    data.card = card
+    data:changeCard("fire__slash", data.card.suit, data.card.number, fanSkill.name)
   end,
 })
 

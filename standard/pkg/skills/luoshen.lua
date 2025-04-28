@@ -29,9 +29,8 @@ luoshen:addEffect(fk.FinishJudge, {
     return target == player and not player.dead and data.reason == luoshen.name and data.card.color == Card.Black and
       player.room:getCardArea(data.card) == Card.Processing
   end,
-  on_cost = Util.TrueFunc,
   on_use = function(self, event, target, player, data)
-    player.room:obtainCard(player.id, data.card, true, fk.ReasonJustMove, nil, luoshen.name)
+    player.room:obtainCard(player, data.card, true, fk.ReasonJustMove, nil, luoshen.name)
   end,
 })
 

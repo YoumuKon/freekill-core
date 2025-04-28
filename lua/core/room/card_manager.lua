@@ -155,19 +155,20 @@ end
 ---@param from? Player
 function CardManager:showCards(cards, from)
   cards = Card:getIdList(cards)
-  if from then from = from.id end
+  local src
+  if from then src = from.id end
   self:sendLog{
     type = "#ShowCard",
-    from = from,
+    from = src,
     card = cards,
   }
   self:doBroadcastNotify("ShowCard", json.encode{
-    from = from,
+    from = src,
     cards = cards,
   })
   self:sendFootnote(cards, {
     type = "##ShowCard",
-    from = from,
+    from = src,
   })
 
   self.logic:trigger(fk.CardShown, from, { cardIds = cards })
