@@ -32,9 +32,11 @@ virtual_viewas:addEffect("viewas", {
     if self.skillName then card.skillName = self.skillName end
     if #self.subcards > 0 then
       card:addSubcards(self.subcards)
-    elseif #cards > 0 then
+    else
       if #cards ~= self.card_filter.n then return end
-      card:addSubcards(cards)
+      if #cards > 0 then
+        card:addSubcards(cards)
+      end
     end
     if player:prohibitUse(card) then return nil end -- FIXME: 修复合法性判断后删除此段
     return card

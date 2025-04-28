@@ -2304,6 +2304,43 @@ function Room:askToPlayCard(player, params)
   return use
 end
 
+---@class askToNumberParams
+---@field skill_name string @ 烧条时显示的技能名
+---@field prompt? string @ 询问提示信息。默认为：请选择一个数字
+---@field min integer @ 最小值
+---@field max integer @ 最大值
+---@field cancelable? boolean @ 是否可以取消。默认不可取消
+
+--- 询问玩家选择一个数字
+---@param player ServerPlayer @ 要询问的玩家
+---@param params askToNumberParams @ 各种变量
+---@return integer? @ 返回选择的数字。取消则返回空
+function Room:askToNumber(player, params)
+  params.skill_name = params.skill_name or ""
+  params.prompt = params.prompt
+  if params.prompt == nil then
+    params.prompt = ("#AskForNumber:::"..params.skill_name)
+  end
+  local _, dat = self:askToUseActiveSkill(player, {
+    skill_name = "spin_skill",
+    prompt = params.prompt,
+    cancelable = params.cancelable,
+    extra_data = {
+      min = params.min,
+      max = params.max,
+    },
+  })
+  if dat then
+    return dat.interaction
+  else
+    if params.cancelable then
+      return nil
+    else
+      return math.random(params.min, params.max)
+    end
+  end
+end
+
 ---@class AskToUseCardParams
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field pattern string @ 使用牌的规则
