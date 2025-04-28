@@ -218,8 +218,9 @@ end
 ---@param player Player @ 使用者
 ---@param selected_cards integer[] @ 已选牌
 ---@param selected_targets Player[] @ 已选目标
+---@param extra_data? any
 ---@return string?
-function ActiveSkill:prompt(player, selected_cards, selected_targets) return "" end
+function ActiveSkill:prompt(player, selected_cards, selected_targets, extra_data) return "" end
 
 ------- }
 

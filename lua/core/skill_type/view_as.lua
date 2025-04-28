@@ -55,9 +55,10 @@ function ViewAsSkill:afterUse(player, cardUseStruct) end
 function ViewAsSkill:afterResponse(player, response) end
 
 
----@param player Player @ 你自己
+---@param player Player @ 使用者
 ---@param selected_cards integer[] @ ids of selected cards
----@param selected_targets Player[] @ ids of selected players
-function ViewAsSkill:prompt(player, selected_cards, selected_targets) return "" end
+---@param selected_targets Player[] @ selected players
+---@param extra_data any
+function ViewAsSkill:prompt(player, selected_cards, selected_targets, extra_data) return "" end
 
 return ViewAsSkill

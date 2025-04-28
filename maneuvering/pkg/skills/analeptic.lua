@@ -3,7 +3,9 @@ local analepticSkill = fk.CreateSkill {
 }
 
 analepticSkill:addEffect("cardskill", {
-  prompt = "#analeptic_skill",
+  prompt = function(self, _, _, _, extra_data)
+    return extra_data.analepticRecover and "#peach_skill" or "#analeptic_skill"
+  end,
   max_turn_use_time = 1,
   mod_target_filter = Util.TrueFunc,
   can_use = function(self, player, card, extra_data)

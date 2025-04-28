@@ -66,7 +66,7 @@ fk.IceDamage = 4
 ---@field public skillName? string @ 造成本次伤害的技能名
 ---@field public beginnerOfTheDamage? boolean @ 是否是本次铁索传导的起点
 ---@field public by_user? boolean @ 是否由卡牌直接生效造成的伤害
----@field public chain_table? ServerPlayer[] @ 铁索连环表
+---@field public chain_table? ServerPlayer[] @ 处于连环状态的角色表
 ---@field public isVirtualDMG? boolean @ 是否是虚拟伤害
 ---@field public dealtRecorderId integer? @ “实际造成的伤害”中对应的事件ID
 ---@field public prevented boolean? @ 伤害是否被防止

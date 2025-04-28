@@ -8,6 +8,10 @@ yingzi:addEffect(fk.DrawNCards, {
   end,
 })
 
+yingzi:addAI({
+  think_skill_invoke = Util.TrueFunc,
+})
+
 yingzi:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "yingzi")

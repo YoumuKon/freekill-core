@@ -45,6 +45,36 @@ tuxi:addEffect(fk.EventPhaseStart, {
   end,
 })
 
+tuxi:addAI({
+  think = function(self, ai)
+    local player = ai.player
+    -- 选出界面上所有可选的目标
+    local players = ai:getEnabledTargets()
+    -- 对所有目标计算他们被拿走一张手牌后对自己的收益
+    local benefits = table.map(players, function(p)
+      return { p, ai:getBenefitOfEvents(function(logic)
+        local c = p:getCardIds("h")[1]
+        logic:obtainCard(player.id, c, false, fk.ReasonPrey)
+      end)}
+    end)
+    -- 选择收益最高且大于0的两位 判断偷两位的收益加上放弃摸牌的负收益是否可以补偿
+    local total_benefit = -ai:getBenefitOfEvents(function(logic)
+      logic:drawCards(player, 2, self.skill.name)
+    end)
+    local targets = {}
+    table.sort(benefits, function(a, b) return a[2] > b[2] end)
+    for i, benefit in ipairs(benefits) do
+      local p, val = table.unpack(benefit)
+      if val < 0 then break end
+      table.insert(targets, p)
+      total_benefit = total_benefit + val
+      if i == 2 then break end
+    end
+    if #targets == 0 or total_benefit <= 0 then return "" end
+    return { targets = targets }, total_benefit
+  end,
+})
+
 tuxi:addTest(function(room, me)
   local comp2, comp3 = room.players[2], room.players[3]
 

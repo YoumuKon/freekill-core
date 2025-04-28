@@ -23,4 +23,6 @@ jijiu:addEffect("viewas", {
   end,
 })
 
+jijiu:addAI(nil, "vs_skill")
+
 return jijiu

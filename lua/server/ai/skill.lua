@@ -199,6 +199,7 @@ function SkillAI:onUse(logic, event) end
 function SkillAI:onEffect(logic, cardEffectEvent) end
 
 --- 最后效仿一下fk_ex故事
+
 ---@class SkillAISpec
 ---@field estimated_benefit? integer|fun(self: SkillAI, ai: SmartAI): integer?
 ---@field think? fun(self: SkillAI, ai: SmartAI): any?, integer?

@@ -15,4 +15,12 @@ jiuyuan:addEffect(fk.PreHpRecover, {
   end,
 })
 
+jiuyuan:addAI({
+  correct_func = function(self, logic, event, target, player, data)
+    if self.skill:triggerable(event, target, player, data) then
+      data.num = data.num + 1
+    end
+  end,
+}, nil, nil, true)
+
 return jiuyuan

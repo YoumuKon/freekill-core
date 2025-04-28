@@ -38,6 +38,14 @@ xiaoji:addEffect(fk.AfterCardsMove, {
   end,
 })
 
+xiaoji:addAI({
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    return ai:getBenefitOfEvents(function(logic)
+      logic:drawCards(ai.player, 2, self.skill.name)
+    end) > 0
+  end,
+})
+
 xiaoji:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, xiaoji.name)

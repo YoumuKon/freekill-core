@@ -34,6 +34,59 @@ ganglie:addEffect(fk.Damaged, {
   end,
 })
 
+ganglie:addAI({
+  think = function(self, ai)
+    local cards = ai:getEnabledCards()
+    if #cards < 2 then return "" end
+
+    local to_discard = ai:getChoiceCardsByKeepValue(cards, 2)
+    local cancel_val = ai:getBenefitOfEvents(function(logic)
+      logic:damage{
+        from = ai.room.logic:getCurrentEvent().data[2],
+        to = ai.player,
+        damage = 1,
+        skillName = self.skill.name,
+      }
+    end)
+    local discard_val = ai:getBenefitOfEvents(function(logic)
+      logic:throwCard(to_discard, self.skill.name, ai.player, ai.player)
+    end)
+
+    if discard_val > cancel_val then
+      return { cards = to_discard }
+    else
+      return ""
+    end
+  end,
+
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    ---@type DamageData
+    local dmg = ai.room.logic:getCurrentEvent().data
+    local from = dmg.from
+    if not from then return false end
+    local dmg_val = ai:getBenefitOfEvents(function(logic)
+      logic:damage{
+        from = ai.player,
+        to = from,
+        damage = 1,
+        skillName = self.skill.name,
+      }
+    end)
+    local discard_val = ai:getBenefitOfEvents(function(logic)
+      local cards = from:getCardIds("h")
+      if #cards < 2 then
+        logic.benefit = -1
+        return
+      end
+      logic:throwCard(table.random(cards, 2), self.skill.name, from, from)
+    end)
+    if dmg_val > 0 or discard_val > 0 then
+      return true
+    end
+    return false
+  end,
+})
+
 ganglie:addTest(function(room, me)
   local comp2 = room.players[2]
   FkTest.runInRoom(function()

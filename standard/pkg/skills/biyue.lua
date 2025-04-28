@@ -12,6 +12,8 @@ biyue:addEffect(fk.EventPhaseStart, {
   end,
 })
 
+biyue:addAI(nil, "jizhi")
+
 biyue:addTest(function(room, me)
   FkTest.runInRoom(function()
     room:handleAddLoseSkills(me, "biyue")

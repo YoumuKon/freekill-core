@@ -21,7 +21,7 @@
 ---@field public effects Skill[] 技能对应的所有效果
 ---@field public effect_names string[] 技能对应的效果名
 ---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
----@field public ai_list ([string, string, any])[]
+---@field public ai_list ([string, any, string, boolean?])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
 ---@field public addEffect fun(self: SkillSkeleton, key: "distance", data: DistanceSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: "prohibit", data: ProhibitSpec, attribute: nil): SkillSkeleton
@@ -115,12 +115,13 @@ function SkillSkeleton:addEffect(key, data, attribute)
   return self
 end
 
----@param spec? SkillAISpec
+---@param spec? SkillAISpec|TriggerSkillAISpec
 ---@param inherit? string
+---@param key? string
+---@param setTriggerSkillAI? boolean
 ---@return SkillSkeleton
-function SkillSkeleton:addAI(spec, inherit)
-  table.insert(self.ai_list, { self.name, spec, inherit })
-  --SmartAI:setSkillAI(self.name, spec, inherit)
+function SkillSkeleton:addAI(spec, inherit, key, setTriggerSkillAI)
+  table.insert(self.ai_list, { key or self.name, spec, inherit, setTriggerSkillAI })
   return self
 end
 

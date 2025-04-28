@@ -14,6 +14,12 @@ skill:addEffect(fk.PreCardEffect, {
   end
 })
 
+skill:addAI({
+  correct_func = function(self, logic, event, target, player, data)
+    return self.skill:triggerable(event, target, player, data)
+  end,
+}, nil, nil, true)
+
 skill:addTest(function(room, me)
   local nioh_shield = room:printCard("nioh_shield")
   local comp2 = room.players[2]

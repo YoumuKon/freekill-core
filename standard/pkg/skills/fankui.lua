@@ -26,6 +26,29 @@ fankui:addEffect(fk.Damaged, {
   end
 })
 
+fankui:addAI({
+  think_skill_invoke = function(self, ai, skill_name, prompt)
+    ---@type DamageData
+    local dmg = ai.room.logic:getCurrentEvent().data
+    local player = ai.player
+    local from = dmg.from
+    if not from then return false end
+    local val = ai:getBenefitOfEvents(function(logic)
+      local flag = from == player and "e" or "he"
+      local cards = from:getCardIds(flag)
+      if #cards < 1 then
+        logic.benefit = -1
+        return
+      end
+      logic:obtainCard(player, cards[1], false, fk.ReasonPrey)
+    end)
+    if val > 0 then
+      return true
+    end
+    return false
+  end,
+})
+
 fankui:addTest(function(room, me)
   local comp2 = room.players[2] ---@type ServerPlayer, ServerPlayer
   FkTest.runInRoom(function() room:handleAddLoseSkills(me, "fankui") end)

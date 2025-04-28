@@ -19,4 +19,6 @@ skill:addEffect("viewas", {
   end,
 })
 
+skill:addAI(nil, "vs_skill", "spear_skill")
+
 return skill
