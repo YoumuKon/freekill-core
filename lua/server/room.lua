@@ -2148,9 +2148,9 @@ function Room:askToUseRealCard(player, params)
 end
 
 ---@class askToUseVirtualCardParams
----@field name string|string[] @ 可以选择的虚拟卡名
+---@field name string|string[] @ 可以选择的虚拟卡名，可以多个
 ---@field subcards? integer[] @ 虚拟牌的子牌，默认空
----@field card_filter? table[] @选牌规则，优先级低于subcards，可选参数：n（牌数）pattern（选牌规则）cards（可选牌的范围）
+---@field card_filter? table @选牌规则，优先级低于```subcards```，可选参数：```n```（牌数）```pattern```（选牌规则）```cards```（可选牌的范围）
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了

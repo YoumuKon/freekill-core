@@ -27,7 +27,6 @@
 ---@field public is_passive? boolean @ 是否只能在响应时使用或打出
 ---@field public is_derived? boolean @ 判断是否为衍生牌
 ---@field public extra_data? table @ 保存其他信息的键值表，如“合纵”、“应变”、“赠予”等
-
 local Card = class("Card")
 
 ---@alias Suit integer
