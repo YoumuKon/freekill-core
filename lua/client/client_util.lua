@@ -137,6 +137,21 @@ function GetAllGeneralPack()
   return ret
 end
 
+function GetAllProperties()
+  local kingdoms = {"wei", "shu", "wu", "qun"}
+  local maxHps, hps = {}, {}
+  for _, g in pairs(Fk.generals) do
+    if not g.total_hidden then
+      table.insertIfNeed(kingdoms, g.kingdom)
+      table.insertIfNeed(maxHps, g.maxHp)
+      table.insertIfNeed(hps, g.hp)
+    end
+  end
+  table.sort(maxHps)
+  table.sort(hps)
+  return { kingdoms = kingdoms, maxHps = maxHps, hps = hps }
+end
+
 function GetGenerals(pack_name)
   if not Fk.packages[pack_name] then return {} end
   local ret = {}
@@ -164,6 +179,98 @@ function SearchGenerals(pack_name, word)
   for _, g in ipairs(Fk.packages[pack_name].generals) do
     if not g.total_hidden and string.find(Fk:translate(g.name), word) then
       table.insert(ret, g.name)
+    end
+  end
+  return ret
+end
+
+---@param a string
+---@param t string
+---@return boolean
+local findSkillAudio = function (a, t)
+  local au
+  for i = 0, 999 do
+    au = i == 0 and a or a .. i
+    if Fk:translate(au) ~= au then
+      if string.find(Fk:translate(au), t) then return true end
+    elseif i > 0 then break end
+  end
+  return false
+end
+
+---@param general General
+---@param text string
+---@return boolean
+local function findAudioText(general, text)
+  local audio
+  for _, prefix in ipairs{"~", "!"} do
+    audio = prefix .. general.name
+    if Fk:translate(audio) ~= audio and string.find(Fk:translate(audio), text) then return true end
+  end
+  for _, s in ipairs(general:getSkillNameList(true)) do
+    audio = "$" .. s .. "_" .. general.name
+    if findSkillAudio(audio, text) then return true end
+    audio = "$" .. s
+    if findSkillAudio(audio, text) then return true end
+  end
+  return false
+end
+
+---@param text string
+---@return string
+local translateInfo = function (text)
+  local ret = Fk:translate(text)
+  return ret == text and Fk:translate("Official") or ret
+end
+
+---@param general General
+---@param filter any
+---@return boolean
+local function filterGeneral(general, filter)
+  local genderMapper = {Fk:translate("male"), Fk:translate("female"), Fk:translate("bigender"), Fk:translate("agender")}
+
+  local name = filter.name ---@type string
+  local title = filter.title ---@type string
+  local kingdoms = filter.kingdoms ---@type string[]
+  local maxHps = filter.maxHps ---@type string[]
+  local hps = filter.hps ---@type string[]
+  local genders = filter.genders ---@type string[]
+  local skillName = filter.skillName ---@type string
+  local skillDesc = filter.skillDesc ---@type string
+  local designer = filter.designer ---@type string
+  local voiceActor = filter.voiceActor ---@type string
+  local illustrator = filter.illustrator ---@type string
+  local audioText = filter.audioText ---@type string
+  return not (
+    (name ~= "" and not string.find(Fk:translate(general.name), name)) or
+    (title ~= "" and not string.find(translateInfo("#" .. general.name), title)) or
+    (#kingdoms > 0 and not table.contains(kingdoms, Fk:translate(general.kingdom)) and
+      not table.contains(kingdoms, Fk:translate(general.subkingdom))) or
+    (#maxHps > 0 and not table.contains(maxHps, tostring(general.maxHp))) or
+    (#hps > 0 and not table.contains(hps, tostring(general.hp))) or
+    (#genders > 0 and not table.contains(genders, genderMapper[general.gender])) or
+    (skillName ~= "" and not table.find(general:getSkillNameList(true), function (s) return
+      not not string.find(Fk:translate(s), skillName)
+    end)) or
+    (skillDesc ~= "" and not table.find(general:getSkillNameList(true), function (s) return
+      not not string.find(Fk:getDescription(s), skillDesc)
+    end)) or
+    (designer ~= "" and not string.find(translateInfo("designer:" .. general.name), designer)) or
+    (voiceActor ~= "" and not string.find(translateInfo("cv:" .. general.name), voiceActor)) or
+    (illustrator ~= "" and not string.find(translateInfo("illustrator:" .. general.name), illustrator)) or
+    (audioText ~= "" and not findAudioText(general, audioText))
+  )
+end
+
+function FilterAllGenerals(filter)
+  local ret = {}
+  for _, name in ipairs(Fk.package_names) do
+    if Fk.packages[name].type == Package.GeneralPack then
+      for _, g in ipairs(Fk.packages[name].generals) do
+        if not g.total_hidden and filterGeneral(g, filter) then
+          table.insert(ret, g.name)
+        end
+      end
     end
   end
   return ret
@@ -906,6 +1013,23 @@ function RefreshStatusSkills()
   Self:filterHandcards()
   -- 刷技能状态
   self:notifyUI("UpdateSkill", nil)
+end
+
+function GetPlayersAndObservers()
+  local self = ClientInstance
+  local players = table.connect(self.observers, self.players)
+  local ret = {}
+  for _, p in ipairs(players) do
+    table.insert(ret, {
+      id = table.contains(self.players, p) and p.id or p.player:getId(),
+      general = p.general,
+      deputy = p.deputyGeneral,
+      name = p.player:getScreenName(),
+      observing = table.contains(self.observers, p),
+      avatar = p.player:getAvatar(),
+    })
+  end
+  return ret
 end
 
 dofile "lua/client/i18n/init.lua"

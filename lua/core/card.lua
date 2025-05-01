@@ -31,44 +31,71 @@ local Card = class("Card")
 
 ---@alias Suit integer
 
+--- 黑桃
 Card.Spade = 1
+--- 梅花
 Card.Club = 2
+--- 红桃
 Card.Heart = 3
+--- 方块
 Card.Diamond = 4
+--- 无花色
 Card.NoSuit = 5
 
 ---@alias Color integer
 
+--- 黑色
 Card.Black = 1
+--- 红色
 Card.Red = 2
+--- 无色
 Card.NoColor = 3
 
 ---@alias CardType integer
 
+--- 基本牌
 Card.TypeBasic = 1
+--- 锦囊牌
 Card.TypeTrick = 2
+--- 装备牌
 Card.TypeEquip = 3
 
 ---@alias CardSubtype integer
 
+--- 无子类型
 Card.SubtypeNone = 1
+--- 延时锦囊牌
 Card.SubtypeDelayedTrick = 2
+--- 武器牌
 Card.SubtypeWeapon = 3
+--- 防具牌
 Card.SubtypeArmor = 4
+--- 防御坐骑牌
 Card.SubtypeDefensiveRide = 5
+--- 进攻坐骑牌
 Card.SubtypeOffensiveRide = 6
+--- 宝物牌
 Card.SubtypeTreasure = 7
 
 ---@alias CardArea integer
 
+--- 未知区域
 Card.Unknown = 0
+--- 手牌区
 Card.PlayerHand = 1
+--- 装备区
 Card.PlayerEquip = 2
+--- 判定区
 Card.PlayerJudge = 3
+--- 武将牌上/旁
 Card.PlayerSpecial = 4
+--- 处理区
 Card.Processing = 5
+--- 牌堆
 Card.DrawPile = 6
+--- 弃牌堆
 Card.DiscardPile = 7
+--- 移出游戏区
 Card.Void = 8
 
 --- Card的构造函数。具体负责构建Card实例的函数，请参见fk_ex部分。
@@ -422,7 +449,7 @@ function Card:getMarkNames()
   return ret
 end
 
---- 比较两张卡牌的花色是否相同
+--- 比较两张卡牌的花色是否相同（无花色牌不与其他任何牌相同）
 ---@param anotherCard Card @ 另一张卡牌
 ---@param diff? boolean @ 比较二者不同
 ---@return boolean @ 返回比较结果
@@ -441,7 +468,7 @@ function Card:compareSuitWith(anotherCard, diff)
   end
 end
 
---- 比较两张卡牌的颜色是否相同
+--- 比较两张卡牌的颜色是否相同（无颜色牌不与其他任何牌相同）
 ---@param anotherCard Card @ 另一张卡牌
 ---@param diff? boolean @ 比较二者不同
 ---@return boolean @ 返回比较结果
@@ -465,7 +492,7 @@ end
 ---@param diff? boolean @ 比较二者不同
 ---@return boolean @ 返回比较结果
 function Card:compareNumberWith(anotherCard, diff)
-  if self ~= anotherCard and self.number < 1 or anotherCard.number < 1 then
+  if self ~= anotherCard and (self.number < 1 or anotherCard.number < 1) then
     return false
   end
 
