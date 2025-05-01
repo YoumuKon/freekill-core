@@ -3419,6 +3419,7 @@ function Room:addSkill(skill)
     -- add status_skill to cilent room
     self:doBroadcastNotify("AddStatusSkill", json.encode{ skill.name })
   elseif skill:isInstanceOf(TriggerSkill) then
+    ---@cast skill TriggerSkill
     self.logic:addTriggerSkill(skill)
   end
   for _, s in ipairs(skill.related_skills) do
@@ -3439,6 +3440,7 @@ function Room:hasSkill(skill)
       return table.contains(self.status_skills[skill.class], skill)
     end
   elseif skill:isInstanceOf(TriggerSkill) then
+    ---@cast skill TriggerSkill
     local event = skill.event
     if type(self.logic.skill_table[event]) == "table" then
       return table.contains(self.logic.skill_table[event], skill)
