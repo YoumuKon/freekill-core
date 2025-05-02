@@ -48,7 +48,10 @@ function Pindian:main()
   if pindianData.fromCard then
     virtualize(pindianData.fromCard)
     local cid = pindianData.fromCard:getEffectiveId()
-    if cid and room:getCardArea(cid) ~= Card.Processing then
+    if cid and room:getCardArea(cid) ~= Card.Processing and
+      not table.find(moveInfos, function (info)
+        return table.contains(info.ids, cid)
+      end) then
       table.insert(moveInfos, {
         ids = { cid },
         from = room.owner_map[cid],
@@ -66,7 +69,10 @@ function Pindian:main()
       virtualize(results[to].toCard)
 
       local cid = results[to].toCard:getEffectiveId()
-      if cid and room:getCardArea(cid) ~= Card.Processing then
+      if cid and room:getCardArea(cid) ~= Card.Processing and
+        not table.find(moveInfos, function (info)
+          return table.contains(info.ids, cid)
+        end) then
         table.insert(moveInfos, {
           ids = { cid },
           from = room.owner_map[cid],
@@ -111,14 +117,18 @@ function Pindian:main()
         pindianData.results[to].toCard = card
       end
 
-      table.insert(moveInfos, {
-        ids = { card:getEffectiveId() },
-        from = to,
-        toArea = Card.Processing,
-        moveReason = fk.ReasonPut,
-        skillName = pindianData.reason,
-        moveVisible = true,
-      })
+      if not table.find(moveInfos, function (info)
+        return table.contains(info.ids, card:getEffectiveId())
+      end) then
+        table.insert(moveInfos, {
+          ids = { card:getEffectiveId() },
+          from = to,
+          toArea = Card.Processing,
+          moveReason = fk.ReasonPut,
+          skillName = pindianData.reason,
+          moveVisible = true,
+        })
+      end
 
       room:sendLog{
         type = "#ShowPindianCard",
@@ -196,7 +206,7 @@ function Pindian:clear()
   local toThrow = {}
   local cid = data.fromCard and data.fromCard:getEffectiveId()
   if cid and room:getCardArea(cid) == Card.Processing then
-    table.insert(toThrow, cid)
+    table.insertIfNeed(toThrow, cid)
   end
 
   for _, result in pairs(data.results) do
