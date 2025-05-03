@@ -225,7 +225,7 @@ function Player:setMark(mark, count)
   end
 end
 
---- 获取角色对应Mark的数量。
+--- 获取角色对应Mark的数量。注意初始为0
 ---@param mark string @ 标记
 ---@return any
 function Player:getMark(mark)

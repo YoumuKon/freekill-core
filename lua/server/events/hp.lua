@@ -272,6 +272,18 @@ function Damage:exit()
   end
 end
 
+function Damage:desc()
+  local damageData = self.data
+  local ret = {
+    type = damageData.from and "#GameEventDamage" or "#GameEventDamageNoFrom",
+    from = damageData.to.id,
+    arg = damageData.damage,
+    arg2 = Fk:getDamageNatureName(damageData.damageType)
+  }
+  if damageData.from then ret.to = {damageData.from.id} end
+  return ret
+end
+
 --- 根据伤害数据造成伤害。
 ---@param damageData DamageDataSpec
 ---@return boolean

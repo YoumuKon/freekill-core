@@ -18,12 +18,14 @@ function SkillEffect:main()
   local effect_cb, player, skill, skill_data = data.skill_cb, data.who, data.skill, data.skill_data
   local room = self.room
   local logic = room.logic
-  local main_skill = skill.main_skill and skill.main_skill or skill
   skill_data = skill_data or Util.DummyTable
   local cost_data = skill_data.cost_data or Util.DummyTable
 
   if player and not skill.cardSkill then
-    player:revealBySkillName(main_skill.name)
+    if not skill.is_delay_effect then -- 延迟效果不亮将
+      local main_skill = skill.main_skill and skill.main_skill or skill
+      player:revealBySkillName(main_skill.name)
+    end
 
     local tos = skill_data.tos and ---@type integer[]
       table.map(skill_data.tos, function (to)
@@ -91,6 +93,20 @@ function SkillEffect:main()
 
   local ret = effect_cb and effect_cb() or false
   logic:trigger(fk.AfterSkillEffect, player, data)
+  return ret
+end
+
+function SkillEffect:desc()
+  local effectData = self.data
+  local useData = effectData.skill_data
+  local ret = {
+    type = (useData.tos and #useData.tos > 0) and "#GameEventSkillTos" or "#GameEventSkill",
+    from = effectData.who.id,
+    arg = effectData.skill.name,
+  }
+  if useData.tos and #useData.tos > 0 then
+    ret.to = table.map(useData.tos, Util.IdMapper)
+  end
   return ret
 end
 

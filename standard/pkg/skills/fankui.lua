@@ -16,7 +16,7 @@ fankui:addEffect(fk.Damaged, {
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
-    local flag =  data.from == player and "e" or "he"
+    local flag = data.from == player and "e" or "he"
     local card = room:askToChooseCard(player, {
       target = data.from,
       flag = flag,

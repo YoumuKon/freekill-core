@@ -542,7 +542,7 @@ function Room:prepareGeneral(player, general, deputy, broadcast)
   if Fk.generals[deputy] then
     table.insertTable(skills, Fk.generals[deputy]:getSkillNameList())
   end
-  if table.find(skills, function (s) return Fk.skills[s].isHiddenSkill end) then
+  if table.find(skills, function (s) return Fk.skills[s]:hasTag(Skill.Hidden) end) then
     self:setPlayerMark(player, "__hidden_general", general)
     if Fk.generals[deputy] then
       self:setPlayerMark(player, "__hidden_deputy", deputy)
@@ -3018,6 +3018,7 @@ end
 function Room:gameOver(winner)
   if not self.game_started then return end
   self.room:destroyRequestTimer()
+  self:setBanner("GameSummary", self:getGameSummary())
 
   if table.contains(
     { "running", "normal" },
@@ -3029,7 +3030,6 @@ function Room:gameOver(winner)
   self.game_started = false
   self.game_finished = true
 
-  self:setBanner("GameSummary", self:getGameSummary())
   for _, p in ipairs(self.players) do
     -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
@@ -3083,34 +3083,63 @@ end
 function Room:getGameSummary()
   local summary = {}
   for _, p in ipairs(self.players) do
-    summary[p.seat] = { turn = 0, recover = 0, damage = 0, damaged = 0, kill = 0, scname = p._splayer:getScreenName()} -- 回合，回血，伤害，受伤，击杀
+    summary[p.seat] = { turn = 0, recover = 0, recoverBy = 0,
+      damage = 0, damaged = 0, kill = 0, killList = {}, draw = 0,
+      control = 0, scname = p._splayer:getScreenName()}
+      -- 回合，回血，给人回血，伤害，受伤，击杀，击杀列表，获得牌，控制
   end
 
-  self.logic:getEventsOfScope(GameEvent.Turn, 1, function (e)
-    if e.data.who then
-      summary[e.data.who.seat].turn = summary[e.data.who.seat].turn + 1 -- 回合
+  local function incrementSummary(seat, key, value)
+    summary[seat][key] = summary[seat][key] + (value or 1)
+  end
+
+  self.logic:getEventsOfScope(GameEvent.Turn, 1, function(e)
+    incrementSummary(e.data.who.seat, "turn") -- 回合
+    return false
+  end, Player.HistoryGame)
+
+  self.logic:getEventsOfScope(GameEvent.Recover, 1, function(e)
+    local recover = e.data
+    incrementSummary(recover.who.seat, "recover", recover.num) -- 回血
+    if recover.recoverBy then
+      incrementSummary(recover.recoverBy.seat, "recoverBy", recover.num) -- 回血
     end
     return false
   end, Player.HistoryGame)
-  self.logic:getEventsOfScope(GameEvent.Recover, 1, function (e)
-    local recover = e.data.who
-    summary[recover.seat].recover = summary[recover.seat].recover + e.data.num -- 回血
-    return false
-  end, Player.HistoryGame)
-  self.logic:getEventsOfScope(GameEvent.Death, 1, function (e)
-    local damage = e.data.damage
-    if damage and damage.from then
-      summary[damage.from.seat].kill = summary[damage.from.seat].kill + 1 -- 击杀
+
+  self.logic:getEventsOfScope(GameEvent.Death, 1, function(e)
+    local killer = e.data.killer
+    if killer then
+      incrementSummary(killer.seat, "kill") -- 击杀
+      table.insert(summary[killer.seat].killList, e.data.who.id)
     end
     return false
   end, Player.HistoryGame)
-  self.logic:getActualDamageEvents(1, function (e)
+
+  self.logic:getActualDamageEvents(1, function(e)
     local damage = e.data
-    local from, to = damage.from, damage.to
-    if from then summary[from.seat].damage = summary[from.seat].damage + damage.damage end -- 伤害
-    summary[to.seat].damaged = summary[to.seat].damaged + damage.damage -- 受伤
+    if damage.from then
+      incrementSummary(damage.from.seat, "damage", damage.damage) -- 伤害
+    end
+    incrementSummary(damage.to.seat, "damaged", damage.damage) -- 受伤
     return false
   end, nil, 1)
+
+  self.logic:getEventsOfScope(GameEvent.MoveCards, 1, function(e)
+    for _, move in ipairs(e.data) do
+      if move.to and move.toArea == Card.PlayerHand then
+        incrementSummary(move.to.seat, "draw", #move.moveInfo) -- 获得牌
+      end
+      if move.from and move.proposer and move.from ~= move.proposer then
+        for _, info in ipairs(move.moveInfo) do
+          if info.fromArea == Card.PlayerHand or info.fromArea == Card.PlayerEquip then
+            incrementSummary(move.proposer.seat, "control") -- 使其他角色失去
+          end
+        end
+      end
+    end
+    return false
+  end, Player.HistoryGame)
   return summary
 end
 

@@ -33,7 +33,7 @@
 ---@field public printed_cards table<integer, Card> @ 被某些房间现场打印的卡牌，id都是负数且从-2开始
 ---@field private kingdoms string[] @ 总势力
 ---@field private kingdom_map table<string, string[]> @ 势力映射表
----@field private damage_nature table<any, table> @ 伤害映射表
+---@field private damage_nature table<any, [string, boolean]> @ 伤害映射表
 ---@field private _custom_events any[] @ 自定义事件列表
 ---@field public poxi_methods table<string, PoxiSpec> @ “魄袭”框操作方法表
 ---@field public qml_marks table<string, QmlMarkSpec> @ 自定义Qml标记的表
@@ -512,7 +512,7 @@ end
 --- 注册一个伤害
 ---@param nature string | number @ 伤害ID
 ---@param name string @ 属性伤害名
----@param can_chain boolean? @ 是否可传导
+---@param can_chain boolean? @ 是否可传导，默认可
 function Engine:addDamageNature(nature, name, can_chain)
   assert(table.contains({ "string", "number" }, type(nature)), "Must use string or number as nature!")
   assert(type(name) == "string", "Must use string as this damage nature's name!")
@@ -521,13 +521,9 @@ function Engine:addDamageNature(nature, name, can_chain)
 end
 
 --- 返回伤害列表
----@return table @ 具体信息（伤害ID => {伤害名，是否可传导}）
+---@return table<any, [string, boolean]> @ 具体信息（伤害ID => {伤害名，是否可传导}）
 function Engine:getDamageNatures()
-  local ret = {}
-  for k, v in pairs(self.damage_nature) do
-    ret[k] = v
-  end
-  return ret
+  return table.simpleClone(self.damage_nature)
 end
 
 --- 由伤害ID获得伤害属性

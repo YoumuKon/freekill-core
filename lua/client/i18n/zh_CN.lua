@@ -628,6 +628,8 @@ Fk:loadTranslationTable{
   -- skill
   ["#InvokeSkill"] = "%from 发动了〖%arg〗",
   ["#InvokeSkillTo"] = "%from 对 %to 发动了〖%arg〗",
+  ["#GameEventSkill"] = "技能事件：%from 发动了〖%arg〗",
+  ["#GameEventSkillTos"] = "技能事件：%from 对 %to 发动了〖%arg〗",
 
   -- judge
   ["#StartJudgeReason"] = "%from 开始了 %arg 的判定",
@@ -644,6 +646,8 @@ Fk:loadTranslationTable{
   -- damage, heal and lose HP
   ["#Damage"] = "%to 对 %from 造成了 %arg 点 %arg2 伤害",
   ["#DamageWithNoFrom"] = "%from 受到了 %arg 点 %arg2 伤害",
+  ["#GameEventDamage"] = "伤害事件：%to 对 %from 造成 %arg 点 %arg2 伤害",
+  ["#GameEventDamageNoFrom"] = "伤害事件：%from 受到 %arg 点 %arg2 伤害",
   ["#LoseHP"] = "%from 失去了 %arg 点体力",
   ["#HealHP"] = "%from 回复了 %arg 点体力",
   ["#ShowHPAndMaxHP"] = "%from 的体力值为 %arg，体力上限为 %arg2",

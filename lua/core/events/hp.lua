@@ -47,7 +47,6 @@ function MaxHpChangedData:preventMaxHpChange()
   self.prevented = true
 end
 
---- DamageType 伤害的属性
 ---@alias DamageType integer
 
 fk.NormalDamage = 1
@@ -62,7 +61,7 @@ fk.IceDamage = 4
 ---@field public damage integer @ 伤害值
 ---@field public card? Card @ 造成伤害的牌
 ---@field public chain? boolean @ 伤害是否是铁索传导的伤害
----@field public damageType? DamageType @ 伤害的属性
+---@field public damageType? DamageType @ 伤害属性
 ---@field public skillName? string @ 造成本次伤害的技能名
 ---@field public beginnerOfTheDamage? boolean @ 是否是本次铁索传导的起点
 ---@field public by_user? boolean @ 是否由卡牌直接生效造成的伤害
