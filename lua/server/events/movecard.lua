@@ -221,6 +221,7 @@ local function moveInfoTranslate(room, ...)
         drawPilePosition = cardsMoveInfo.drawPilePosition,
         moveMark = cardsMoveInfo.moveMark,
         visiblePlayers = cardsMoveInfo.visiblePlayers,
+        extra_data = cardsMoveInfo.extra_data,
       })
     end
 
