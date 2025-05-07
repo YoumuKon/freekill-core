@@ -287,6 +287,7 @@ function CardSkill:preEffect(room, cardEffectData)
     local cardCloned = Fk:cloneCard("nullification")
     for _, p in ipairs(room.alive_players) do
       if not p:prohibitUse(cardCloned) then
+        p:filterHandcards() -- 手动刷新手牌
         local cards = p:getHandlyIds()
         for _, cid in ipairs(cards) do
           if

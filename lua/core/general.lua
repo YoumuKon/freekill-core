@@ -146,6 +146,7 @@ function General:isCompanionWith(other)
   return table.contains(self.companions, other.name) or table.contains(other.companions, self.name)
     or (string.find(self.name, "lord") and (other.kingdom == self.kingdom or other.subkingdom == self.kingdom))
     or (string.find(other.name, "lord") and (self.kingdom == other.kingdom or self.subkingdom == other.kingdom))
+    or (string.find(self.name, "all_comp") or string.find(other.name, "all_comp")) -- all_comp 所有都珠联璧合
 end
 
 return General

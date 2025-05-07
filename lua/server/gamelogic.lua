@@ -339,6 +339,7 @@ function GameLogic:addTriggerSkill(skill)
   if skill.visible then
     for _, s in ipairs(skill.related_skills) do
       if (s.class == TriggerSkill) then
+        ---@cast s TriggerSkill
         self:addTriggerSkill(s)
       end
     end

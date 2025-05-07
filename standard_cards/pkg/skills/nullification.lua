@@ -11,4 +11,23 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addTest(function (room, me)
+  local comp2 = room.players[2]
+  FkTest.runInRoom(function ()
+    room:useVirtualCard("duel", nil, comp2, me)
+  end)
+  lu.assertEquals(me.hp, 3)
+
+  local card = room:printCard("nullification")
+  FkTest.setNextReplies(me, { json.encode {
+    card = card.id,
+  } })
+  FkTest.runInRoom(function ()
+    room:obtainCard(me, card)
+    room:useVirtualCard("duel", nil, comp2, me)
+  end)
+  lu.assertEquals(me.hp, 3)
+  lu.assertIsTrue(me:isKongcheng())
+end)
+
 return skill
