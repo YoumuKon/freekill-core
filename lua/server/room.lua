@@ -2184,6 +2184,7 @@ function Room:askToUseVirtualCard(player, params)
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   if extra_data.extraUse == nil then extra_data.extraUse = true end
   local all_names, subcards, skillName, prompt, cancelable, skipUse = params.name, params.subcards, params.skill_name, params.prompt, params.cancelable, params.skip
+  extra_data.skillName = skillName
   local names = table.filter(all_names, function (name)
     local card = Fk:cloneCard(name)
     card:addSubcards(subcards)
