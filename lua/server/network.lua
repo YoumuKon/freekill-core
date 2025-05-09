@@ -157,7 +157,7 @@ function Request:_checkReply(player, use_ai)
             local pdata = luck_data[player.id]
             pdata.luckTime = pdata.luckTime - 1
             luck_data.discardInit(room, player)
-            luck_data.drawInit(room, player, pdata.num)
+            luck_data.drawInit(room, player, pdata.num, pdata.fix_ids)
             if pdata.luckTime > 0 then
               self:setData(player, { "AskForLuckCard", "#AskForLuckCard:::" .. pdata.luckTime })
               self:_sendPacket(player)

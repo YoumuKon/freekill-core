@@ -2,6 +2,7 @@
 --- DrawInitialData 关于摸起始手牌的数据
 ---@class DrawInitialDataSpec
 ---@field public num integer @ 摸牌数
+---@field public fix_ids integer[]? @ 起始手牌固定牌池，若数量不足则从牌堆补至num
 
 --- 关于摸起始手牌的数据
 ---@class DrawInitialData: DrawInitialDataSpec, TriggerData

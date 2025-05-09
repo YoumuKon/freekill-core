@@ -1,8 +1,14 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
-local function drawInit(room, player, n)
+local function drawInit(room, player, n, fix_ids)
   -- TODO: need a new function to call the UI
   local cardIds = room:getNCards(n)
+  if fix_ids then
+    cardIds = table.random(fix_ids, n)
+    if #cardIds < n then
+      table.insertTable(cardIds, table.random(room.void, n - #cardIds))
+    end
+  end
   player:addCards(Player.Hand, cardIds)
   for _, id in ipairs(cardIds) do
     Fk:filterCard(id, player)
@@ -16,7 +22,7 @@ local function drawInit(room, player, n)
   }
   for _, id in ipairs(cardIds) do
     table.insert(move_to_notify.moveInfo,
-    { cardId = id, fromArea = Card.DrawPile })
+    { cardId = id, fromArea = room:getCardArea(id) })
   end
   room:notifyMoveCards(nil, {move_to_notify})
 
@@ -29,10 +35,6 @@ end
 local function discardInit(room, player)
   local cardIds = player:getCardIds(Player.Hand)
   player:removeCards(Player.Hand, cardIds)
-  table.insertTable(room.draw_pile, cardIds)
-  for _, id in ipairs(cardIds) do
-    Fk:filterCard(id, nil)
-  end
 
   local move_to_notify = { ---@type MoveCardsDataSpec
     moveInfo = {},
@@ -40,14 +42,39 @@ local function discardInit(room, player)
     toArea = Card.DrawPile,
     moveReason = fk.ReasonJustMove
   }
+  local move_to_void_notify = { ---@type MoveCardsDataSpec
+    moveInfo = {},
+    from = player,
+    toArea = Card.Void,
+    moveReason = fk.ReasonJustMove
+  }
   for _, id in ipairs(cardIds) do
-    table.insert(move_to_notify.moveInfo,
-    { cardId = id, fromArea = Card.PlayerHand })
+    if id > 0 then
+      table.insert(move_to_notify.moveInfo,
+      { cardId = id, fromArea = Card.PlayerHand })
+      table.insert(room.draw_pile, id)
+    else
+      table.insert(move_to_void_notify.moveInfo,
+      { cardId = id, fromArea = Card.PlayerHand })
+      table.insert(room.void, id)
+    end
   end
-  room:notifyMoveCards(nil, {move_to_notify})
 
   for _, id in ipairs(cardIds) do
-    room:setCardArea(id, Card.DrawPile, nil)
+    Fk:filterCard(id, nil)
+  end
+
+  local moves = {}
+  if #move_to_notify.moveInfo > 0 then
+    table.insert(moves, move_to_notify)
+  end
+  if #move_to_void_notify.moveInfo > 0 then
+    table.insert(moves, move_to_void_notify)
+  end
+  room:notifyMoveCards(nil, moves)
+
+  for _, id in ipairs(cardIds) do
+    room:setCardArea(id, table.contains(room.draw_pile, id) and Card.DrawPile or Card.Void, nil)
   end
 end
 
@@ -71,7 +98,7 @@ function DrawInitial:main()
       luck_data[player.id].luckTime = 0
     end
     if draw_data.num > 0 then
-      drawInit(room, player, draw_data.num)
+      drawInit(room, player, draw_data.num, luck_data[player.id].fix_ids)
     end
   end
 
