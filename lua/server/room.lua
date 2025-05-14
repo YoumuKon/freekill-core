@@ -2049,7 +2049,7 @@ function Room:handleUseCardReply(player, data)
         end
 
         self:useSkill(player, skill, Util.DummyFunc)
-        use.attachedSkillAndUser = { skillName = skill.name, user = player.id }
+        use.attachedSkillAndUser = { skillName = skill.name, user = player.id, muteCard = skill.mute_card }
 
         local rejectSkillName = skill:beforeUse(player, use)
         if type(rejectSkillName) == "string" then

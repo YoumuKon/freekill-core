@@ -143,6 +143,7 @@ end
 ---@field public prompt? string|fun(self: ViewAsSkill, player: Player, selected_cards: integer[], selected: Player[]): string
 ---@field public interaction? fun(self: ViewAsSkill, player: Player): table? @ 选项框
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
+---@field public mute_card? boolean @ 是否不播放卡牌特效和语音
 
 ---@class DistanceSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: DistanceSkill, from: Player, to: Player): integer?

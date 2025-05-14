@@ -520,6 +520,7 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   end
 
   skill.handly_pile = spec.handly_pile
+  skill.mute_card = spec.mute_card
 
   return skill
 end
