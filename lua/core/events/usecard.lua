@@ -252,7 +252,7 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
 ---@field public fixedResponseTimes? integer @ 响应此事件需要的牌张数（如杀之于决斗），默认1张
----@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双），为nil则应用所有角色
+---@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双决斗），为nil则应用所有角色
 ---@field public extraData? UseExtraData | any @ 额外数据
 
 --- 使用牌的数据
