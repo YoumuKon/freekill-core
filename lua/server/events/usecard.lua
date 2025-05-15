@@ -456,10 +456,7 @@ end
 
 function CardEffect:clear()
   local cardEffectData = self.data
-  if cardEffectData.to then
-    local room = self.room
-    room.logic:trigger(fk.CardEffectFinished, cardEffectData.to, cardEffectData)
-  end
+  self.room.logic:trigger(fk.CardEffectFinished, cardEffectData.to, cardEffectData)
 end
 
 
