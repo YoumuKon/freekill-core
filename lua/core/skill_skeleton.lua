@@ -448,6 +448,7 @@ function SkillSkeleton:createActiveSkill(_skill, idx, key, attr, spec)
   if spec.prompt then skill.prompt = spec.prompt end
   if spec.target_tip then skill.targetTip = spec.target_tip end
   if spec.handly_pile then skill.handly_pile = spec.handly_pile end
+  if spec.click_count then skill.click_count = spec.click_count end
 
   fk.readInteractionToSkill(skill, spec)
   return skill
@@ -518,6 +519,8 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
     skill.afterUse = spec.after_use
     skill.afterResponse = spec.after_use
   end
+
+  if spec.click_count then skill.click_count = spec.click_count end
 
   skill.handly_pile = spec.handly_pile
   skill.mute_card = spec.mute_card

@@ -63,7 +63,7 @@ function SkillEffect:main()
           end
           room:setEmotion(player, pkgPath .. "/image/anim/" .. equip.name)
         end
-      else
+      elseif not skill.click_count then
         player:broadcastSkillInvoke(skill:getSkeleton().name)
         room:notifySkillInvoked(player, skill.name, skill.anim_type, no_indicate and {} or tos)
       end

@@ -76,6 +76,7 @@ function fk.readUsableSpecToSkill(skill, spec)
   skill.times = spec.times or skill.times
   skill.is_delay_effect = not not spec.is_delay_effect
   skill.late_refresh = not not spec.late_refresh
+  skill.click_count = not not spec.click_count
 end
 
 function fk.readStatusSpecToSkill(skill, spec)
@@ -114,6 +115,7 @@ end
 ---@field public interaction? fun(self: ActiveSkill, player: Player): table? @ 选项框
 ---@field public target_tip? fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card?: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
+---@field public click_count? boolean @ 是否在点击按钮瞬间就计数并播放特效和语音
 
 
 ---@class CardSkillSpec: UsableSkillSpec
@@ -144,6 +146,7 @@ end
 ---@field public interaction? fun(self: ViewAsSkill, player: Player): table? @ 选项框
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 ---@field public mute_card? boolean @ 是否不播放卡牌特效和语音
+---@field public click_count? boolean @ 是否在点击按钮瞬间就计数并播放特效和语音
 
 ---@class DistanceSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: DistanceSkill, from: Player, to: Player): integer?
