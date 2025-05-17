@@ -193,7 +193,7 @@ function Room:run()
   local mode = Fk.game_modes[self.settings.gameMode]
   local logic = (mode.logic and mode.logic() or GameLogic):new(self)
   self.logic = logic
-  if mode.rule then logic:addTriggerSkill(mode.rule) end
+  if mode.rule then self:addSkill(mode.rule) end
   logic:start()
 end
 
