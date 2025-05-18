@@ -1086,6 +1086,7 @@ end
 ---@class AskToChooseCardsAndPlayersParams: AskToChoosePlayersParams
 ---@field min_card_num integer @ 选卡牌最小值
 ---@field max_card_num integer @ 选卡牌最大值
+---@field equal? boolean @ 是否要求牌数和目标数相等，默认否
 ---@field pattern? string @ 选牌规则，默认为"."
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 ---@field will_throw? boolean @ 选卡牌须能弃置
@@ -1101,6 +1102,7 @@ function Room:askToChooseCardsAndPlayers(player, params)
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
   params.no_indicate = params.no_indicate or false
   params.pattern = params.pattern or "."
+  params.equal = params.equal or false
   local expand_pile = params.expand_pile or (params.extra_data and params.extra_data.expand_pile)
 
   local pcards = player:getCardIds("he")
@@ -1121,6 +1123,7 @@ function Room:askToChooseCardsAndPlayers(player, params)
     min_t_num = minTargetNum,
     max_c_num = maxCardNum,
     min_c_num = minCardNum,
+    equal = params.equal,
     pattern = params.pattern,
     skillName = params.skill_name,
     targetTipName = params.target_tip_name,
