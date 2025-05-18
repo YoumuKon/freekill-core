@@ -134,4 +134,16 @@ function GameMode:deathRewardAndPunish (victim, killer)
   end
 end
 
+-- 敌友身份判断
+---@param targetOne ServerPlayer | Player @ 待判断角色1
+---@param targetTwo ServerPlayer | Player @ 待判断角色2
+function GameMode:friendEnemyJudge (targetOne, targetTwo)
+  if targetOne == targetTwo then return true end
+  if table.contains({"lord", "loyalist"}, targetOne.role) and
+    table.contains({"lord", "loyalist"}, targetTwo.role) then
+    return true
+  end
+  return targetOne.role == targetTwo.role
+end
+
 return GameMode

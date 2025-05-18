@@ -1409,6 +1409,47 @@ function Player:isFemale()
   return self.gender == General.Female or self.gender == General.Bigender
 end
 
+--- 是否为友方
+---@param to Player @ 待判断的角色
+---@return boolean
+function Player:isFriend(to)
+  return Fk.game_modes[Fk:currentRoom().settings.gameMode]:friendEnemyJudge(self, to)
+end
+
+--- 是否为敌方
+---@param to Player @ 待判断的角色
+---@return boolean
+function Player:isEnemy(to)
+  return not Fk.game_modes[Fk:currentRoom().settings.gameMode]:friendEnemyJudge(self, to)
+end
+
+--- 获得队友
+---@param include_self? boolean @ 是否包括自己。默认是
+---@param include_dead? boolean @ 是否包括死亡角色。默认否
+---@return Player[]
+function Player:getFriends(include_self, include_dead)
+  if include_self == nil then include_self = true end
+  local players = include_dead and Fk:currentRoom().players or Fk:currentRoom().alive_players
+  local friends = table.filter(players, function (p)
+    return self:isFriend(p)
+  end)
+  if not include_self then
+    table.removeOne(friends, self)
+  end
+  return friends
+end
+
+--- 获得敌人
+---@param include_dead? boolean @ 是否包括死亡角色。默认否
+---@return Player[]
+function Player:getEnemies(include_dead)
+  local players = include_dead and Fk:currentRoom().players or Fk:currentRoom().alive_players
+  local enemies = table.filter(players, function (p)
+    return self:isEnemy(p)
+  end)
+  return enemies
+end
+
 function Player:toJsonObject()
   local ptable = {}
   for _, k in ipairs(self.property_keys) do

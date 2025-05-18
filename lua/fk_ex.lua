@@ -281,6 +281,7 @@ end
 ---@field public is_counted? fun(self: GameMode, room: Room): boolean @ 是否计入胜率统计
 ---@field public get_adjusted? fun(self: GameMode, player: ServerPlayer): table @ 调整玩家初始属性
 ---@field public reward_punish? fun(self: GameMode, victim: ServerPlayer, killer?: ServerPlayer) @ 死亡奖惩
+---@field public friend_enemy_judge? fun(self: GameMode, targetOne: ServerPlayer | Player, targetTwo: ServerPlayer | Player): boolean? @ 敌友判断
 ---@field public build_draw_pile? fun(self: GameMode): integer[], integer[]
 
 ---@param spec GameModeSpec
@@ -321,6 +322,10 @@ function fk.CreateGameMode(spec)
   if spec.build_draw_pile then
     assert(type(spec.build_draw_pile) == "function")
     ret.buildDrawPile = spec.build_draw_pile
+  end
+  if spec.friend_enemy_judge then
+    assert(type(spec.winner_getter) == "function")
+    ret.friendEnemyJudge = spec.friend_enemy_judge
   end
   return ret
 end
