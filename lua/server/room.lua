@@ -2228,9 +2228,17 @@ function Room:askToUseVirtualCard(player, params)
         card:addSubcards(table.random(cards, params.card_filter.n))
       end
       card.skillName = skillName
-      local temp = card:getDefaultTarget(player, extra_data)
-      if temp then
-        tos = temp
+      local targets = card:getDefaultTarget(player, extra_data)
+      if #targets > 0 then
+        if card.skill.min_target_num == 0 then
+          if card.multiple_targets then
+            tos = card:getAvailableTargets(player, extra_data)
+          else
+            tos = {player}
+          end
+        else
+          tos = targets
+        end
         break
       end
     end
