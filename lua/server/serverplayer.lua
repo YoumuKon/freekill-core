@@ -139,9 +139,20 @@ function ServerPlayer:reconnect()
   room:broadcastProperty(self, "state")
 end
 
-function ServerPlayer:turnOver()
-  if self.room.logic:trigger(fk.BeforeTurnOver, self) then
-    return
+--- 翻面
+---@param data any? 额外数据
+function ServerPlayer:turnOver(data)
+  if data == nil then
+    data = {
+      who = self,
+      reason = self.room.logic:getCurrentSkillName() or "game_rule",
+    }
+  end
+
+  self.room.logic:trigger(fk.BeforeTurnOver, self, data)
+
+  if data.prevented then
+    return false
   end
 
   self.faceup = not self.faceup
@@ -153,7 +164,7 @@ function ServerPlayer:turnOver()
     arg = self.faceup and "face_up" or "face_down",
   }
 
-  self.room.logic:trigger(fk.TurnedOver, self)
+  self.room.logic:trigger(fk.TurnedOver, self, data)
 end
 
 --- 令一名角色展示一些牌
@@ -441,10 +452,19 @@ end
 
 --- 设置连环状态
 ---@param chained boolean @ true为横置，false为重置
-function ServerPlayer:setChainState(chained)
+---@param data any? @ 额外数据
+function ServerPlayer:setChainState(chained, data)
   local room = self.room
-  if room.logic:trigger(fk.BeforeChainStateChange, self) then
-    return
+  if data == nil then
+    data = {
+      who = self,
+      reason = self.room.logic:getCurrentSkillName() or "game_rule",
+    }
+  end
+
+  room.logic:trigger(fk.BeforeChainStateChange, self, data)
+  if data.prevented then
+    return false
   end
 
   self.chained = chained
@@ -457,7 +477,7 @@ function ServerPlayer:setChainState(chained)
   }
   room:delay(150)
   room:broadcastPlaySound("./audio/system/chain")
-  room.logic:trigger(fk.ChainStateChanged, self)
+  room.logic:trigger(fk.ChainStateChanged, self, data)
 end
 
 --- 复原武将牌（翻至正面、解除连环状态）
