@@ -1156,6 +1156,7 @@ end
 ---@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 ---@field single_max? integer|table @ 限制每人能获得的最大牌数。输入整数或(以角色id为键以整数为值)的表
 ---@field skip? boolean @ 是否跳过移动。默认不跳过
+---@field moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 
 --- 询问将卡牌分配给任意角色。
 ---@param player ServerPlayer @ 要询问的玩家
@@ -1244,7 +1245,7 @@ function Room:askToYiji(player, params)
     end
   end
   if not params.skip then
-    self:doYiji(list, player, skillName)
+    self:doYiji(list, player, skillName, moveMark)
   end
 
   return list
