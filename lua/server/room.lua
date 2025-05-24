@@ -3030,8 +3030,8 @@ end
 ---@param winner string @ 获胜的身份，空字符串表示平局
 function Room:gameOver(winner)
   if not self.game_started then return end
-  self.room:destroyRequestTimer()
   self:setBanner("GameSummary", self:getGameSummary())
+  self.room:destroyRequestTimer()
 
   if table.contains(
     { "running", "normal" },
@@ -3049,6 +3049,7 @@ function Room:gameOver(winner)
     for _, _p in ipairs(self.players) do -- 偷懒！
       if _p ~= p then p:addBuddy(_p) end
     end
+    p:control(p)
   end
   self:doBroadcastNotify("GameOver", winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
