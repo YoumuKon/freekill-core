@@ -8,8 +8,8 @@
 ---@field public name string @ 游戏模式名
 ---@field public minPlayer integer @ 最小玩家数
 ---@field public maxPlayer integer @ 最大玩家数
----@field public minComp? integer @ 最小电脑数
----@field public maxComp? integer @ 最大电脑数
+---@field public minComp integer @ 最小电脑数
+---@field public maxComp integer @ 最大电脑数
 ---@field public rule? string @ 规则（通过技能完成，通常用来为特定角色及特定时机提供触发事件）
 ---@field public logic? fun(): GameLogic @ 逻辑（通过function完成，通常用来初始化、分配身份及座次）
 ---@field public whitelist? string[] | fun(self: GameMode, pkg: Package): boolean? @ 白名单
