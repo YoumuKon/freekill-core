@@ -3030,20 +3030,15 @@ end
 ---@param winner string @ 获胜的身份，空字符串表示平局
 function Room:gameOver(winner)
   if not self.game_started then return end
-  print "[DEBUG] Room:gameOver - send summary"
   self:setBanner("GameSummary", self:getGameSummary())
   self.room:destroyRequestTimer()
 
-  print "[DEBUG] Room:gameOver - trigger"
   if table.contains(
     { "running", "normal" },
     coroutine.status(self.main_co)
   ) then
     self.logic:trigger(fk.GameFinished, nil, winner)
   end
-
-  self.game_started = false
-  self.game_finished = true
 
   local needResetController = false
   for _, p in ipairs(self.players) do
@@ -3063,6 +3058,9 @@ function Room:gameOver(winner)
   end
   self:doBroadcastNotify("GameOver", winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
+
+  self.game_started = false
+  self.game_finished = true
 
   if shouldUpdateWinRate(self) then
     local record = self:getBanner("InitialGeneral")
