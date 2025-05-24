@@ -312,7 +312,7 @@ function MoveEventWrappers:drawCards(player, num, skillName, fromPlace, moveMark
   if num < 1 then
     return {}
   end
-  
+
   local drawData = DrawData:new{
     who = player,
     num = num,

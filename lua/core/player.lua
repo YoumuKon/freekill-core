@@ -530,7 +530,7 @@ end
 --- 获取玩家与其他角色的实际距离。
 ---
 --- 通过 二者位次+距离技能之和 与 两者间固定距离 进行对比，更大的为实际距离。
---- 
+---
 --- 注意比较距离时使用```Player:compareDistance()```。
 ---@param other Player @ 其他玩家
 ---@param mode? string @ 计算模式(left/right/both)
