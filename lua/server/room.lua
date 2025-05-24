@@ -3030,9 +3030,11 @@ end
 ---@param winner string @ 获胜的身份，空字符串表示平局
 function Room:gameOver(winner)
   if not self.game_started then return end
+  print "[DEBUG] Room:gameOver - send summary"
   self:setBanner("GameSummary", self:getGameSummary())
   self.room:destroyRequestTimer()
 
+  print "[DEBUG] Room:gameOver - trigger"
   if table.contains(
     { "running", "normal" },
     coroutine.status(self.main_co)
@@ -3043,6 +3045,7 @@ function Room:gameOver(winner)
   self.game_started = false
   self.game_finished = true
 
+  print "[DEBUG] Room:gameOver - show role and cards"
   for _, p in ipairs(self.players) do
     -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
@@ -3051,9 +3054,11 @@ function Room:gameOver(winner)
     end
     p:control(p)
   end
+  print "[DEBUG] Room:gameOver - show box"
   self:doBroadcastNotify("GameOver", winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
 
+  print "[DEBUG] Room:gameOver - update winRate DB"
   if shouldUpdateWinRate(self) then
     local record = self:getBanner("InitialGeneral")
     for _, p in ipairs(self.players) do
@@ -3089,6 +3094,7 @@ function Room:gameOver(winner)
     end
   end
 
+  print "[DEBUG] Room:gameOver - shutdown C++ Room and coroutine"
   self.room:gameOver()
 
   if table.contains(
