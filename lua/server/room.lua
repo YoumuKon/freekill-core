@@ -3046,7 +3046,10 @@ function Room:gameOver(winner)
   self.game_finished = true
 
   print "[DEBUG] Room:gameOver - show role and cards"
+  print("Code Stack:\n" .. debug.traceback())
+  print(self.logic:dumpEventStack())
   for _, p in ipairs(self.players) do
+    printf("[DEBUG] Room:gameOver - looping for player<id=%d, seat=%d>", p.id, p.seat)
     -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
     for _, _p in ipairs(self.players) do -- 偷懒！
