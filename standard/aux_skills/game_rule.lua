@@ -105,6 +105,7 @@ gameRule:addEffect(fk.GameOverJudge, {
     local winner = Fk.game_modes[room.settings.gameMode]:getWinner(player)
     if winner ~= "" then
       room:gameOver(winner)
+      print ('Room:gameOver returned. winner = "%s"', winner)
       return true
     end
   end,

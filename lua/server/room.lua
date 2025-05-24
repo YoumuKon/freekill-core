@@ -3054,6 +3054,7 @@ function Room:gameOver(winner)
     -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
     for idx2, _p in ipairs(self.players) do -- 偷懒！
+      printf("    [DEBUG] Room:gameOver - buddy looping for player2<id=%d, seat=%d>", _p.id, _p.seat)
       if idx2 ~= idx then p:addBuddy(_p) end
     end
     p:control(p)
