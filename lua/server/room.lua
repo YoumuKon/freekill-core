@@ -3055,9 +3055,9 @@ function Room:gameOver(winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
 
   if shouldUpdateWinRate(self) then
+    local record = self:getBanner("InitialGeneral")
     for _, p in ipairs(self.players) do
       local id = p.id
-      local general = p.general
       local mode = self.settings.gameMode
       local result
 
@@ -3070,10 +3070,20 @@ function Room:gameOver(winner)
           result = 2
         end
 
+        local general, deputyGeneral = p.general, p.deputyGeneral
+        if record then
+          for _, info in ipairs(record) do
+            if info[1] == p.id then
+              general, deputyGeneral = info[2], info[3]
+            end
+          end
+        end
+
         self.room:updatePlayerWinRate(id, mode, p.role, result)
         self.room:updateGeneralWinRate(general, mode, p.role, result)
-        if p.deputyGeneral and p.deputyGeneral ~= "" then
-          self.room:updateGeneralWinRate(p.deputyGeneral, mode, p.role, result)
+
+        if deputyGeneral ~= "" then
+          self.room:updateGeneralWinRate(deputyGeneral, mode, p.role, result)
         end
       end
     end
