@@ -384,6 +384,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["#NoEventDraw"] = "没有可执行的事件",
   ["#NoEnoughGeneralDraw"] = "武将数不足！(%arg/%arg2)",
   ["#TimeOutDraw"] = "轮数已经突破极限！",
+  ["#ResetControllerAtGameOver"] = "游戏已结束，正在重新调整视角",
 
   ["$GameOver"] = "游戏结束",
   ["$Winner"] = "%1 获胜",

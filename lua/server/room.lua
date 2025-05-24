@@ -3045,26 +3045,25 @@ function Room:gameOver(winner)
   self.game_started = false
   self.game_finished = true
 
-  print "[DEBUG] Room:gameOver - show role and cards"
-  print("Code Stack:\n" .. debug.traceback())
-  print(self.logic:dumpEventStack())
-  print("Players: " .. json.encode(table.map(self.players, Util.IdMapper)))
-  for idx, p in ipairs(self.players) do
-    printf("[DEBUG] Room:gameOver - looping for player<id=%d, seat=%d>", p.id, p.seat)
+  local needResetController = false
+  for _, p in ipairs(self.players) do
     -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
-    for idx2, _p in ipairs(self.players) do -- 偷懒！
-      printf("    [DEBUG] Room:gameOver - buddy looping for player2<id=%d, seat=%d>", _p.id, _p.seat)
-      if idx2 ~= idx then p:addBuddy(_p) end
+    if p.serverplayer ~= p._splayer then
+      p.serverplayer = p._splayer
+      needResetController = true
     end
-    p:control(p)
-    printf("[DEBUG] Room:gameOver - loop done")
   end
-  print "[DEBUG] Room:gameOver - show box"
+  if needResetController then
+    self:sendLog{
+      type = "#ResetControllerAtGameOver",
+      toast = true,
+    }
+    self:animDelay(1)
+  end
   self:doBroadcastNotify("GameOver", winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
 
-  print "[DEBUG] Room:gameOver - update winRate DB"
   if shouldUpdateWinRate(self) then
     local record = self:getBanner("InitialGeneral")
     for _, p in ipairs(self.players) do
@@ -3100,7 +3099,6 @@ function Room:gameOver(winner)
     end
   end
 
-  print "[DEBUG] Room:gameOver - shutdown C++ Room and coroutine"
   self.room:gameOver()
 
   if table.contains(
