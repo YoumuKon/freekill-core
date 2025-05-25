@@ -37,6 +37,8 @@ Fk:loadTranslationTable({
   ["Disable Extension"] = "Please ignore this checkbox",
   -- ["Filter"] = "筛选",
   -- ["Room ID"] = "房间ID",
+  ["RefreshRoomHelp"] = "Click to refresh filtered rooms, long press to refresh all rooms without clearing filters",
+  ["FilterHelp"] = "Long press to clear filter",
   -- ["Create Room"] = "创建房间",
   -- ["Room Name"] = "房间名字",
   ["$RoomName"] = "%1's room",

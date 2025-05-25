@@ -43,6 +43,8 @@ Fk:loadTranslationTable{
 
   ["Disable Extension"] = "禁用Lua拓展 (重启后生效)",
   ["Filter"] = "筛选",
+  ["RefreshRoomHelp"] = "单击据筛选刷新，长按刷新全部房间但不清除刷新",
+  ["FilterHelp"] = "长按以清除筛选",
   ["Create Room"] = "创建房间",
   ["Room ID"] = "房间ID",
   ["Room Name"] = "房间名字",

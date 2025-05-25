@@ -40,6 +40,8 @@ Fk:loadTranslationTable({
 
   ["Disable Extension"] = "Vô hiệu tất cả mở rộng",
   ["Filter"] = "Lọc",
+  -- ["RefreshRoomHelp"] = "单击据筛选刷新，长按刷新全部房间但不清除刷新",
+  -- ["FilterHelp"] = "长按以清除筛选",
   ["Create Room"] = "Tạo phòng",
   ["Room ID"] = "ID phòng",
   ["Room Name"] = "Tên phòng",
