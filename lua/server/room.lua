@@ -2979,17 +2979,15 @@ function Room:swapSeat(a, b, arrange_turn)
 
   self:arrangeSeats()
 
-    if arrange_turn == nil or arrange_turn then
+  if (arrange_turn == nil or arrange_turn) then
     local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
     if round_event then
       local turn_table = round_event.data.turn_table
       if turn_table and #turn_table > 0 then
         local new_turn_table = {}
-        for _, i in ipairs(turn_table) do
-          if i == ai then
-            i = bi
-          elseif i == bi then
-            i = ai
+        for i = self.current.seat, #players do
+          if table.contains(turn_table, i) or (i > self.current.seat and i < math.max(ai, bi)) then
+            table.insert(new_turn_table, i)
           end
         end
         round_event.data.turn_table = new_turn_table

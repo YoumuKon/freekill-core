@@ -132,20 +132,19 @@ end
 local Round = GameEvent:subclass("GameEvent.Round")
 
 function Round:action()
+  local room = self.room
   local data = self.data
   if data == nil then
     data = {}
   end
-  data.turn_table = {}
-
-  local room = self.room
+  data.turn_table = data.turn_table or {}
+  if #data.turn_table == 0 then
+    for i = 1, #room.players do
+      table.insert(data.turn_table, i)
+    end
+  end
 
   while true do
-    if #data.turn_table == 0 then
-      for i = 1, #room.players do
-        table.insert(data.turn_table, i)
-      end
-    end
 
     data.to = room:getPlayerBySeat(data.turn_table[1])
     room.logic:trigger(fk.EventTurnChanging, data.to, data, true)
