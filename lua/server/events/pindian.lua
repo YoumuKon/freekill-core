@@ -34,19 +34,20 @@ function Pindian:main()
   end
 
   -- 将拼点牌变为虚拟牌
+  ---@param card Card
   local virtualize = function (card)
     local _card = card:clone(card.suit, card.number)
     if card:getEffectiveId() then
       _card.subcards = { card:getEffectiveId() }
     end
-    card = _card
+    return _card
   end
 
   ---@type ServerPlayer[]
   local targets = {}
   local moveInfos = {}
   if pindianData.fromCard then
-    virtualize(pindianData.fromCard)
+    pindianData.fromCard = virtualize(pindianData.fromCard)
     local cid = pindianData.fromCard:getEffectiveId()
     if cid and room:getCardArea(cid) ~= Card.Processing and
       not table.find(moveInfos, function (info)
@@ -66,7 +67,7 @@ function Pindian:main()
   end
   for _, to in ipairs(pindianData.tos) do
     if results[to] and results[to].toCard then
-      virtualize(results[to].toCard)
+      results[to].toCard = virtualize(results[to].toCard)
 
       local cid = results[to].toCard:getEffectiveId()
       if cid and room:getCardArea(cid) ~= Card.Processing and
@@ -109,7 +110,7 @@ function Pindian:main()
       local result = req:getResult(to)
       local card = Fk:getCardById(result.card.subcards[1])
 
-      virtualize(card)
+      card = virtualize(card)
 
       if to == from then
         pindianData.fromCard = card
