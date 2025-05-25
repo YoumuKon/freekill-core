@@ -309,6 +309,7 @@ function CardSkill:preEffect(room, cardEffectData)
             if
               s.pattern and
               Exppattern:Parse("nullification"):matchExp(s.pattern) and
+              not (s.enabledAtResponse and not s:enabledAtResponse(p)) and
               (
                 cardEffectData.use == nil or
                 not (
