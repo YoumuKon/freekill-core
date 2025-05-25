@@ -84,7 +84,7 @@ Item {
             if (data && data.qml_path) {
               params.data = JSON.parse(_data);
               params.owner = root.parent?.playerid;
-              roomScene.startCheatByPath(data.qml_path + ".qml", params);
+              roomScene.startCheatByPath(data.qml_path, params);
             }
             return;
           } else {

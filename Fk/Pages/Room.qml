@@ -1321,7 +1321,7 @@ Item {
   }
 
   function startCheatByPath(path, data) {
-    cheatLoader.sourceComponent = Qt.createComponent(AppPath + '/' + path);
+    cheatLoader.sourceComponent = Qt.createComponent(`${AppPath}/${path}.qml`);
     cheatLoader.item.extra_data = data;
     cheatDrawer.open();
   }
