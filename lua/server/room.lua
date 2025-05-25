@@ -2985,11 +2985,14 @@ function Room:swapSeat(a, b, arrange_turn)
       local turn_table = round_event.data.turn_table
       if turn_table and #turn_table > 0 then
         local new_turn_table = {}
-        for i = self.current.seat, #players do
-          if table.contains(turn_table, i) or i == ai or i == bi then
-            table.insert(new_turn_table, i)
+        for _, i in ipairs(turn_table) do
+          if i == ai then
+            i = bi
+          elseif i == bi then
+            i = ai
           end
         end
+        round_event.data.turn_table = new_turn_table
       end
     end
   end
@@ -3017,6 +3020,7 @@ function Room:moveSeatTo(a, seat, arrange_turn)
               table.insert(new_turn_table, i)
             end
           end
+          round_event.data.turn_table = new_turn_table
         end
       end
     end
