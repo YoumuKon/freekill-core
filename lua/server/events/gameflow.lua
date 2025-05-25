@@ -132,35 +132,34 @@ end
 local Round = GameEvent:subclass("GameEvent.Round")
 
 function Round:action()
-  -- local data = self.data
+  local data = self.data
+  if data == nil then
+    data = {}
+  end
+  data.turn_table = {}
+
   local room = self.room
-  -- local currentPlayer
 
   while true do
-    GameEvent.Turn:create(TurnData:new(room.current)):exec()
-    if room.game_finished then break end
-
-    local changingData = { from = room.current, to = room.current.next, skipRoundPlus = false }
-    room.logic:trigger(fk.EventTurnChanging, room.current, changingData, true)
-
-    local nextTurnOwner = changingData.to
-    if room.current.seat > nextTurnOwner.seat and not changingData.skipRoundPlus then
-      break
-    else
-      room:setCurrent(nextTurnOwner)
+    if #data.turn_table == 0 then
+      for i = 1, #room.players do
+        table.insert(data.turn_table, i)
+      end
     end
+
+    data.to = room:getPlayerBySeat(data.turn_table[1])
+    room.logic:trigger(fk.EventTurnChanging, data.to, data, true)
+
+    table.remove(data.turn_table, 1)
+    room:setCurrent(data.to)
+
+    if data.skipped then
+      data.skipped = false
+    else
+      GameEvent.Turn:create(TurnData:new(room.current)):exec()
+    end
+    if #data.turn_table == 0 or room.game_finished then break end
   end
-  -- for _, seat in ipairs(data.turn_table) do
-  --   local current_player = table.find(room.alive_players, function(p) return p.seat == seat end)
-  --   if current_player then
-  --     GameEvent.Turn:create(current_player):exec()
-
-  --     local changingData = { from = room.current, to = room.current.next, skipRoundPlus = false }
-  --     room.logic:trigger(fk.EventTurnChanging, current_player, changingData, true)
-
-  --     --- TODO: 给我整不会了
-  --   end
-  -- end
 end
 
 function Round:main()

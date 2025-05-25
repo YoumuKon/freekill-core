@@ -17,21 +17,12 @@ fk.DrawInitialCards = DrawInitialEvent:subclass("fk.DrawInitialCards")
 ---@class fk.AfterDrawInitialCards: DrawInitialEvent
 fk.AfterDrawInitialCards = DrawInitialEvent:subclass("fk.AfterDrawInitialCards")
 
----@class EventTurnChangingDataSpec
----@field public from ServerPlayer
----@field public to ServerPlayer
----@field public skipRoundPlus boolean?
-
----@class EventTurnChangingData: EventTurnChangingDataSpec, TriggerData
-EventTurnChangingData = TriggerData:subclass("EventTurnChangingData")
-
----@class fk.EventTurnChanging: TriggerEvent
----@field data EventTurnChangingData
-fk.EventTurnChanging = TriggerEvent:subclass("fk.EventTurnChanging")
-
 --- RoundData 轮次的数据
----@class RoundDataSpec -- TODO: 发挥想象力，填写这个Spec吧
----@field turn_table? integer[] @ 额定回合表，填空则为正常流程
+---@class RoundDataSpec
+---@field public from ServerPlayer @ 上个执行额定回合的角色（几乎无用的参数）
+---@field public to ServerPlayer @ 即将执行额定回合的角色
+---@field public turn_table? integer[] @ 额定回合表，对于通常模式是座位表
+---@field public skipped? boolean @ 是否跳过额定回合
 
 --- 轮次的数据
 ---@class RoundData: RoundDataSpec, TriggerData
@@ -48,6 +39,8 @@ fk.RoundStart = RoundEvent:subclass("fk.RoundStart")
 fk.RoundEnd = RoundEvent:subclass("fk.RoundEnd")
 ---@class fk.GameStart: RoundEvent
 fk.GameStart = RoundEvent:subclass("fk.GameStart")
+---@class fk.EventTurnChanging: RoundEvent
+fk.EventTurnChanging = RoundEvent:subclass("fk.EventTurnChanging")
 
 --- TurnData 回合的数据
 ---@class TurnDataSpec -- TODO: 发挥想象力，填写这个Spec吧

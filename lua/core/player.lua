@@ -507,7 +507,7 @@ function Player:getAttackRange(excludeIds, excludeSkills)
       if equip == nil and table.contains(self:getCardIds("e"), id) and Fk:getCardById(id).type == Card.TypeEquip then
         equip = Fk:getCardById(id) --[[@as EquipCard]]
       end
-      if equip then
+      if equip and equip.type == Card.TypeEquip then
         for _, skill in ipairs(equip:getEquipSkills(self)) do
           table.insertIfNeed(excludeSkills, skill.name)
         end
@@ -568,7 +568,7 @@ function Player:distanceTo(other, mode, ignore_dead, excludeIds, excludeSkills)
       if equip == nil and table.contains(self:getCardIds("e"), id) and Fk:getCardById(id).type == Card.TypeEquip then
         equip = Fk:getCardById(id) --[[@as EquipCard]]
       end
-      if equip then
+      if equip and equip.type == Card.TypeEquip then
         for _, skill in ipairs(equip:getEquipSkills(self)) do
           table.insertIfNeed(excludeSkills, skill.name)
         end
@@ -669,7 +669,7 @@ function Player:inMyAttackRange(other, fixLimit, excludeIds, excludeSkills)
       if equip == nil and table.contains(self:getCardIds("e"), id) and Fk:getCardById(id).type == Card.TypeEquip then
         equip = Fk:getCardById(id) --[[@as EquipCard]]
       end
-      if equip then
+      if equip and equip.type == Card.TypeEquip then
         for _, skill in ipairs(equip:getEquipSkills(self)) do
           table.insertIfNeed(excludeSkills, skill.name)
         end

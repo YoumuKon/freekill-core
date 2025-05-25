@@ -2965,7 +2965,8 @@ end
 --- 令两名角色交换座位
 ---@param a ServerPlayer
 ---@param b ServerPlayer
-function Room:swapSeat(a, b)
+---@param arrange_turn? boolean @ 是否更新本轮额定回合，默认是
+function Room:swapSeat(a, b, arrange_turn)
   local ai, bi
   local players = self.players
   for i, v in ipairs(self.players) do
@@ -2977,6 +2978,49 @@ function Room:swapSeat(a, b)
   players[bi] = a
 
   self:arrangeSeats()
+
+    if arrange_turn == nil or arrange_turn then
+    local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
+    if round_event then
+      local turn_table = round_event.data.turn_table
+      if turn_table and #turn_table > 0 then
+        local new_turn_table = {}
+        for i = self.current.seat, #players do
+          if table.contains(turn_table, i) or i == ai or i == bi then
+            table.insert(new_turn_table, i)
+          end
+        end
+      end
+    end
+  end
+end
+
+--- 将一名角色移动至指定座位
+---@param a ServerPlayer
+---@param seat integer @ 目标座位
+---@param arrange_turn? boolean @ 是否更新本轮额定回合，默认是
+function Room:moveSeatTo(a, seat, arrange_turn)
+  if a.seat ~= seat then
+    local players = table.simpleClone(self.players)
+    table.removeOne(players, a)
+    table.insert(players, seat, a)
+    self:arrangeSeats(players)
+
+    if arrange_turn == nil or arrange_turn then
+      local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
+      if round_event then
+        local turn_table = round_event.data.turn_table
+        if turn_table and #turn_table > 0 then
+          local new_turn_table = {}
+          for i = self.current.seat, #players do
+            if table.contains(turn_table, i) or i == seat then
+              table.insert(new_turn_table, i)
+            end
+          end
+        end
+      end
+    end
+  end
 end
 
 --- 按输入的角色表重新改变座位。若无输入，仅更新角色座位UI
