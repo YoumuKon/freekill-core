@@ -2978,21 +2978,8 @@ function Room:swapSeat(a, b, arrange_turn)
   players[bi] = a
 
   self:arrangeSeats()
-
-  if (arrange_turn == nil or arrange_turn) then
-    local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
-    if round_event then
-      local turn_table = round_event.data.turn_table
-      if turn_table and #turn_table > 0 then
-        local new_turn_table = {}
-        for i = self.current.seat, #players do
-          if table.contains(turn_table, i) or (i > self.current.seat and i < math.max(ai, bi)) then
-            table.insert(new_turn_table, i)
-          end
-        end
-        round_event.data.turn_table = new_turn_table
-      end
-    end
+  if arrange_turn == nil or arrange_turn then
+    self:arrangeTurn()
   end
 end
 
@@ -3008,19 +2995,31 @@ function Room:moveSeatTo(a, seat, arrange_turn)
     self:arrangeSeats(players)
 
     if arrange_turn == nil or arrange_turn then
-      local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
-      if round_event then
-        local turn_table = round_event.data.turn_table
-        if turn_table and #turn_table > 0 then
-          local new_turn_table = {}
-          for i = self.current.seat, #players do
-            if table.contains(turn_table, i) or i == seat then
-              table.insert(new_turn_table, i)
-            end
+      self:arrangeTurn()
+    end
+  end
+end
+
+--- 按输入的角色表重新改变本轮额定回合。若无输入则更新本轮剩余额定回合
+---@param players? ServerPlayer[]
+function Room:arrangeTurn(players)
+  local current = self.current
+  if current == nil or current:insideExtraTurn() then return end
+  local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
+  if round_event then
+    local turn_table = round_event.data.turn_table
+    if turn_table then
+      local new_turn_table = {}
+      if players then
+        new_turn_table = table.map(players, Util.IdMapper)
+      else
+        if current.seat < #self.players then
+          for i = self.current.seat + 1, #self.players do
+            table.insert(new_turn_table, i)
           end
-          round_event.data.turn_table = new_turn_table
         end
       end
+      round_event.data.turn_table = new_turn_table
     end
   end
 end

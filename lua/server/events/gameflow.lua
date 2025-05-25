@@ -157,6 +157,13 @@ function Round:action()
     else
       GameEvent.Turn:create(TurnData:new(room.current)):exec()
     end
+
+    for i = 1, #room.players do
+      if i <= room.current.seat then
+        table.removeOne(data.turn_table, i)
+      end
+    end
+
     if #data.turn_table == 0 or room.game_finished then break end
   end
 end
