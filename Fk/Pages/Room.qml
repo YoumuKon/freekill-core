@@ -1169,9 +1169,9 @@ Item {
       return;
 
     msg = msg.replace(/\{emoji([0-9]+)\}/g,
-      '<img src="../../image/emoji/$1.png" height="24" width="24" />');
+      `<img src="${AppPath}/image/emoji/$1.png" height="24" width="24" />`);
     raw.msg = raw.msg.replace(/\{emoji([0-9]+)\}/g,
-      '<img src="../../image/emoji/$1.png" height="24" width="24" />');
+      `<img src="${AppPath}/image/emoji/$1.png" height="24" width="24" />`);
 
     if (raw.msg.startsWith("$")) {
       if (specialChat(pid, raw, raw.msg.slice(1))) return; // 蛋花、语音
@@ -1316,6 +1316,12 @@ Item {
 
   function startCheat(type, data) {
     cheatLoader.sourceComponent = Qt.createComponent(`../Cheat/${type}.qml`);
+    cheatLoader.item.extra_data = data;
+    cheatDrawer.open();
+  }
+
+  function startCheatByPath(path, data) {
+    cheatLoader.sourceComponent = Qt.createComponent(path);
     cheatLoader.item.extra_data = data;
     cheatDrawer.open();
   }
