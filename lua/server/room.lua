@@ -3040,22 +3040,13 @@ function Room:gameOver(winner)
     self.logic:trigger(fk.GameFinished, nil, winner)
   end
 
-  local needResetController = false
   for _, p in ipairs(self.players) do
-    -- self:broadcastProperty(p, "role")
     self:setPlayerProperty(p, "role_shown", true)
-    if p.serverplayer ~= p._splayer then
-      p.serverplayer = p._splayer
-      needResetController = true
-    end
+
+    -- 不知道某个C++ ServerPlayer此时的视角 只好都转回来
+    p._splayer:doNotify("ChangeSelf", tostring(p._splayer:getId()))
   end
-  if needResetController then
-    self:sendLog{
-      type = "#ResetControllerAtGameOver",
-      toast = true,
-    }
-    self:animDelay(1)
-  end
+
   self:doBroadcastNotify("GameOver", winner)
   fk.qInfo(string.format("[GameOver] %d, %s, %s, in %ds", self.id, self.settings.gameMode, winner, os.time() - self.start_time))
 
