@@ -752,13 +752,13 @@ end
 function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
   local bigAnim = false
   local skill = Fk.skills[skill_name]
-  if not skill then skill_type = "" end
-
-  if skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
-    bigAnim = true -- 优先大招特效
-  end
-  if not skill_type then
-    skill_type = skill.anim_type
+  if not skill then skill_type = "" else
+    if skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
+      bigAnim = true -- 优先大招特效
+    end
+    if not skill_type then
+      skill_type = skill.anim_type
+    end
   end
 
   if skill_type == "big" then bigAnim = true end

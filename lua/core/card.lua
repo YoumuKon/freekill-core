@@ -449,6 +449,23 @@ function Card:getMarkNames()
   return ret
 end
 
+--- 检索角色是否拥有指定Mark，考虑后缀(find)。返回检索到的的第一个标记值与标记名
+---@param mark string @ 标记名
+---@param suffixes? string[] @ 后缀，默认为```MarkEnum.CardTempMarkSuffix```
+---@return [any, integer]|nil @ 返回一个表，包含标记值与标记名，或nil
+function Card:hasMark(mark, suffixes)
+  if suffixes == nil then suffixes = MarkEnum.CardTempMarkSuffix end
+  for m, _ in pairs(self.mark) do
+    if m == mark then return {self.mark[m], m} end
+    if m:startsWith(mark .. "-") then
+      for _, suffix in ipairs(suffixes) do
+        if m:find(suffix, 1, true) then return {self.mark[m], m} end
+      end
+    end
+  end
+  return nil
+end
+
 --- 比较两张卡牌的花色是否相同（无花色牌不与其他任何牌相同）
 ---@param anotherCard Card @ 另一张卡牌
 ---@param diff? boolean @ 比较二者不同

@@ -254,6 +254,23 @@ function Player:getMarkNames()
   return ret
 end
 
+--- 检索角色是否拥有指定Mark，考虑后缀(find)。返回检索到的的第一个标记值与标记名
+---@param mark string @ 标记名
+---@param suffixes? string[] @ 后缀，默认为```MarkEnum.TempMarkSuffix```
+---@return [any, integer]|nil @ 返回一个表，包含标记值与标记名，或nil
+function Player:hasMark(mark, suffixes)
+  if suffixes == nil then suffixes = MarkEnum.TempMarkSuffix end
+  for m, _ in pairs(self.mark) do
+    if m == mark then return {self.mark[m], m} end
+    if m:startsWith(mark .. "-") then
+      for _, suffix in ipairs(suffixes) do
+        if m:find(suffix, 1, true) then return {self.mark[m], m} end
+      end
+    end
+  end
+  return nil
+end
+
 --- 将指定数量的牌加入玩家的对应区域。
 ---@param playerArea PlayerCardArea @ 玩家牌所在的区域
 ---@param cardIds integer[] @ 牌的ID，返回唯一牌
@@ -813,7 +830,7 @@ function Player:usedCardTimes(cardName, scope)
 end
 
 --- 获取玩家使用特定技能的历史次数。
----@param skill_name string @ 技能名
+---@param skill_name string @ 技能(skill skeleton)名
 ---@param scope? integer @ 查询历史范围，默认Turn
 function Player:usedSkillTimes(skill_name, scope)
   if not self.skillUsedHistory[skill_name] then
@@ -824,7 +841,7 @@ function Player:usedSkillTimes(skill_name, scope)
 end
 
 --- 获取玩家使用特定技能效果的历史次数。
----@param skill_name string @ 技能名
+---@param skill_name string @ 效果(skill effect)名
 ---@param scope? integer @ 查询历史范围，默认Turn
 function Player:usedEffectTimes(skill_name, scope)
   if not self.skillUsedHistory[skill_name] then
@@ -903,31 +920,30 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
   end
 
   skill = getActualSkill(skill)
+  local skel = skill:getSkeleton()
+  local effect = skill
+  if skel then
+    skill = Fk.skills[skel.name]
+  end
 
   if not (ignoreNullified or skill:isEffectable(self)) then
     return false
   end
 
-  if table.contains(self.player_skills, skill) then
-    if not skill:isInstanceOf(StatusSkill) then return true end
-    if self:isInstanceOf(ServerPlayer) then
+  if table.contains(self.player_skills, skill) then -- shownSkill
+    if not effect:isInstanceOf(StatusSkill) then return true
+    elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
       return not self:isFakeSkill(skill)
     else
-      return true
+      return false
     end
   end
 
-  if self:isInstanceOf(ServerPlayer) and -- isInstanceOf(nil) will return false
+  if self:isInstanceOf(ServerPlayer) and ---@cast self ServerPlayer
     table.contains(self._fake_skills, skill) and
-    table.contains(self.prelighted_skills, skill) then
+    table.contains(self.prelighted_skills, skill) then -- 预亮的技能
 
-    return true
-  end
-
-  for _, v in pairs(self.derivative_skills) do
-    if table.contains(v, skill) then
-      return true
-    end
+    return not effect:isInstanceOf(StatusSkill) -- 预亮技能的effect状态技为false
   end
 
   return false
@@ -939,7 +955,7 @@ end
 function Player:hasShownSkill(skill, ignoreNullified, ignoreAlive)
   if not self:hasSkill(skill, ignoreNullified, ignoreAlive) then return false end
 
-  if self:isInstanceOf(ServerPlayer) then
+  if self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
     return not self:isFakeSkill(skill)
   else
     if type(skill) == "string" then skill = Fk.skills[skill] end
