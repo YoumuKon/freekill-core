@@ -2154,7 +2154,7 @@ end
 ---@class askToUseVirtualCardParams
 ---@field name string|string[] @ 可以选择的虚拟卡名，可以多个
 ---@field subcards? integer[] @ 虚拟牌的子牌，默认空
----@field card_filter? table @选牌规则，优先级低于```subcards```，可选参数：```n```（牌数）```pattern```（选牌规则）```cards```（可选牌的范围）
+---@field card_filter? table @选牌规则，优先级低于```subcards```，可选参数：```n```（牌数，填数字表示此只能此数量，填{a, b}表示至少为a至多为b）```pattern```（选牌规则）```cards```（可选牌的范围）
 ---@field skill_name string @ 烧条时显示的技能名
 ---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
@@ -2180,7 +2180,10 @@ function Room:askToUseVirtualCard(player, params)
   end
   if (params.cancelable == nil) then params.cancelable = true end
   params.card_filter = params.card_filter or {}
-  params.card_filter.n = params.card_filter.n or 0
+  params.card_filter.n = params.card_filter.n or {0, 0}
+  if type(params.card_filter.n) == "number" then
+    params.card_filter.n = {params.card_filter.n, params.card_filter.n}
+  end
   params.card_filter.pattern = params.card_filter.pattern or "."
   params.card_filter.cards = params.card_filter.cards or table.connect(player:getCardIds("he"), player:getHandlyIds(false))
 
@@ -2222,11 +2225,14 @@ function Room:askToUseVirtualCard(player, params)
       card = Fk:cloneCard(n)
       if #subcards > 0 then
         card:addSubcards(subcards)
-      elseif params.card_filter.n > 0 then
+      elseif params.card_filter.n[1] > 0 then
         local cards = table.filter(params.card_filter.cards, function (id)
           return Fk:getCardById(id):matchPattern(params.card_filter.pattern)
         end)
-        card:addSubcards(table.random(cards, params.card_filter.n))
+        if #cards < params.card_filter.n[1] then
+          return nil
+        end
+        card:addSubcards(table.random(cards, params.card_filter.n[1]))
       end
       card.skillName = skillName
       local targets = card:getDefaultTarget(player, extra_data)

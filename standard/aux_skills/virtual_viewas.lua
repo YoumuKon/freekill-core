@@ -6,7 +6,7 @@ virtual_viewas:addEffect("viewas", {
   expand_pile = function (self, player)
     if #self.subcards > 0 then
       return {}
-    elseif self.card_filter.n > 0 then
+    elseif self.card_filter.n[1] > 0 then
       return table.filter(self.card_filter.cards, function (id)
         return not table.contains(player:getCardIds("he"), id)
       end)
@@ -17,7 +17,7 @@ virtual_viewas:addEffect("viewas", {
     if #self.subcards > 0 then
       return false
     else
-      return #selected < self.card_filter.n and table.contains(self.card_filter.cards, to_select) and
+      return #selected < self.card_filter.n[2] and table.contains(self.card_filter.cards, to_select) and
         Fk:getCardById(to_select):matchPattern(self.card_filter.pattern)
     end
   end,
@@ -33,7 +33,7 @@ virtual_viewas:addEffect("viewas", {
     if #self.subcards > 0 then
       card:addSubcards(self.subcards)
     else
-      if #cards ~= self.card_filter.n then return end
+      if #cards < self.card_filter.n[1] or #cards > self.card_filter.n[2] then return end
       if #cards > 0 then
         card:addSubcards(cards)
       end
