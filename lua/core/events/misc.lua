@@ -60,8 +60,10 @@ fk.CardShown = TriggerEvent:subclass("fk.CardShown")
 ---@class AreaAbortResumeEvent: TriggerEvent
 local AreaAbortResumeEvent = TriggerEvent:subclass("AreaAbortResumeEvent")
 
+--- 区域被废除后
 ---@class fk.AreaAborted: AreaAbortResumeEvent
 fk.AreaAborted = AreaAbortResumeEvent:subclass("fk.AreaAborted")
+--- 区域被恢复后
 ---@class fk.AreaResumed: AreaAbortResumeEvent
 fk.AreaResumed = AreaAbortResumeEvent:subclass("fk.AreaResumed")
 

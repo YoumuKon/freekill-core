@@ -260,12 +260,9 @@ function GameLogic:attachSkillToPlayers()
 
     local deputy = Fk.generals[p.deputyGeneral]
     if deputy then
-      skills = deputy.skills
+      skills = deputy:getSkillNameList(true)
       for _, s in ipairs(skills) do
-        addRoleModSkills(p, s.name)
-      end
-      for _, sname in ipairs(deputy.other_skills) do
-        addRoleModSkills(p, sname)
+        addRoleModSkills(p, s)
       end
     end
   end

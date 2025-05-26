@@ -93,7 +93,7 @@ function MoveCards:main()
           room:doBroadcastNotify("UpdateDrawPile", #room.draw_pile)
         end
 
-        local beforeCard = Fk:getCardById(info.cardId)
+        local beforeCard = Fk:getCardById(info.cardId) --[[@as EquipCard]]
         if
           realFromArea == Player.Equip and
           beforeCard.type == Card.TypeEquip and
@@ -105,7 +105,7 @@ function MoveCards:main()
 
         Fk:filterCard(info.cardId, data.to)
 
-        local currentCard = Fk:getCardById(info.cardId)
+        local currentCard = Fk:getCardById(info.cardId) --[[@as EquipCard]]
         for name, value in pairs(currentCard.mark) do
           if name:find("-inhand", 1, true) and
           realFromArea == Player.Hand and
@@ -244,6 +244,7 @@ end
 ---@param ... CardsMoveInfo
 ---@return boolean?
 function MoveEventWrappers:moveCards(...)
+  ---@cast self Room
   local datas = moveInfoTranslate(self, ...)
   if #datas == 0 then
     return false
@@ -255,6 +256,7 @@ end
 ---@param players? ServerPlayer[] @ 要被告知的玩家列表，默认为全员
 ---@param moveDatas MoveCardsData[] @ 要告知的移牌信息列表
 function MoveEventWrappers:notifyMoveCards(players, moveDatas)
+  ---@cast self Room
   if players == nil or #players == 0 then players = self.players end
   for _, p in ipairs(players) do
     local arg = {}
@@ -309,6 +311,7 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
 function MoveEventWrappers:drawCards(player, num, skillName, fromPlace, moveMark)
+  ---@cast self Room
   if num < 1 then
     return {}
   end
@@ -424,6 +427,7 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return integer[] @ 摸到的牌
 function MoveEventWrappers:recastCard(card_ids, who, skillName, moveMark)
+  ---@cast self Room
   if type(card_ids) == "number" then
     card_ids = {card_ids}
   end
@@ -457,6 +461,7 @@ end
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@return table<integer[]> @ 返回成功分配的卡牌
 function MoveEventWrappers:doYiji(list, proposer, skillName, moveMark)
+  ---@cast self Room
   skillName = skillName or "distribution_skill"
   local moveInfos = {}
   local move_ids = {}

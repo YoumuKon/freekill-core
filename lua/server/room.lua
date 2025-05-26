@@ -751,14 +751,13 @@ end
 ---@param tos? integer[] | ServerPlayer[] @ 技能目标，填空则不声明
 function Room:notifySkillInvoked(player, skill_name, skill_type, tos)
   local bigAnim = false
+  local skill = Fk.skills[skill_name]
+  if not skill then skill_type = "" end
+
+  if skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
+    bigAnim = true -- 优先大招特效
+  end
   if not skill_type then
-    local skill = Fk.skills[skill_name]
-    if not skill then skill_type = "" end
-
-    if skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
-      bigAnim = true
-    end
-
     skill_type = skill.anim_type
   end
 
