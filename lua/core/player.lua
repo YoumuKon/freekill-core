@@ -930,6 +930,13 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     return false
   end
 
+  if self:isInstanceOf(ServerPlayer) and ---@cast self ServerPlayer
+    self:isFakeSkill(skill) and
+    table.contains(self.prelighted_skills, skill) then -- 预亮的技能
+
+    return not effect:isInstanceOf(StatusSkill) -- 预亮技能的effect状态技为false
+  end
+
   if table.contains(self.player_skills, skill) then -- shownSkill
     if not effect:isInstanceOf(StatusSkill) then return true
     elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
@@ -937,13 +944,6 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     else
       return false
     end
-  end
-
-  if self:isInstanceOf(ServerPlayer) and ---@cast self ServerPlayer
-    table.contains(self._fake_skills, skill) and
-    table.contains(self.prelighted_skills, skill) then -- 预亮的技能
-
-    return not effect:isInstanceOf(StatusSkill) -- 预亮技能的effect状态技为false
   end
 
   return false

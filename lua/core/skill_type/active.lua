@@ -170,37 +170,11 @@ function ActiveSkill:withinDistanceLimit(player, isattack, card, to)
   local temp_suf = table.simpleClone(MarkEnum.TempMarkSuffix)
   local card_temp_suf = table.simpleClone(MarkEnum.CardTempMarkSuffix)
 
-  ---@param object Card|Player
-  ---@param markname string
-  ---@param suffixes string[]
-  ---@return boolean
-  local function hasMark(object, markname, suffixes)
-    if not object then return false end
-    for mark, _ in pairs(object.mark) do
-      if mark == markname then return true end
-      if mark:startsWith(markname .. "-") then
-        for _, suffix in ipairs(suffixes) do
-          if mark:find(suffix, 1, true) then return true end
-        end
-      end
-    end
-    return false
-  end
-
   return (isattack and player:inMyAttackRange(to, nil, Card:getIdList(card))) or
   (player:distanceTo(to, nil, nil, Card:getIdList(card)) <= self:getDistanceLimit(player, card, to)) or
-  hasMark(card, MarkEnum.BypassDistancesLimit, card_temp_suf) or
-  hasMark(player, MarkEnum.BypassDistancesLimit, temp_suf) or
-  hasMark(to, MarkEnum.BypassDistancesLimitTo, temp_suf)
-  -- (card and table.find(card_temp_suf, function(s)
-  --   return card:getMark(MarkEnum.BypassDistancesLimit .. s) ~= 0
-  -- end)) or
-  -- (table.find(temp_suf, function(s)
-  --   return player:getMark(MarkEnum.BypassDistancesLimit .. s) ~= 0
-  -- end)) or
-  -- (to and (table.find(temp_suf, function(s)
-  --   return to:getMark(MarkEnum.BypassDistancesLimitTo .. s) ~= 0
-  -- end)))
+  not not card:hasMark(MarkEnum.BypassDistancesLimit, card_temp_suf) or
+  not not player:hasMark(MarkEnum.BypassDistancesLimit, temp_suf) or
+  not not to:hasMark(MarkEnum.BypassDistancesLimitTo, temp_suf)
 end
 
 -- 判断一个技能是否可发动（也就是确认键是否可点击）。默认值为选择卡牌数和选择目标数均在允许范围内
