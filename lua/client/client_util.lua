@@ -392,7 +392,7 @@ function GetSkillData(skill_name)
     frequency = "quest"
   end
   return {
-    skill = Fk:translate(skill_name), --Fk:getSkillName(skill_name, nil, Self, false), -- 需要配套更新技能面板
+    skill = Fk:getSkillName(skill_name, nil, Self),
     orig_skill = skill_name,
     extension = skill.package.extensionName,
     freq = freq,

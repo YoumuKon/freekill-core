@@ -81,12 +81,10 @@ function SkillSkeleton:addEffect(key, data, attribute)
   -- 'active' 和 'viewas' 必须唯一
 
   local function getTypePriority(k)
-    if k == 'active' or k == 'viewas' or k == 'cardskill' then
-      return 5
-    elseif type(k) == 'table' then -- 触发技
+    if type(k) == 'table' then -- 触发技
       return 3
     else
-      return 1
+      return Fk.skill_keys[k][2] or 1
     end
   end
   local main_effect = self.effect_spec_list[1]
@@ -139,7 +137,7 @@ function SkillSkeleton:createSkill()
     attr = attr or Util.DummyTable
     local sk
     if type(k) == "string" then
-      local createSkillFunc = Fk.skill_keys[k]
+      local createSkillFunc = Fk.skill_keys[k][1]
       if createSkillFunc then
         sk = createSkillFunc(self, self, i, k, attr, data)
       end
