@@ -673,7 +673,7 @@ function Entitle(data, seat, winner)
     table.insert(honor, Fk:translate(honorName))
   end
   if data.turn == 0 and player.dead then addHonor("Soy") end -- 打酱油的：没有回合就死
-  if data.turn <= 1 and result == 1 then addHonor("Rapid Victory") end -- 旗开得胜：一回合内胜利
+  if data.turn <= 1 and result == 1 and ClientInstance:getBanner("RoundCount") == 1 then addHonor("Rapid Victory") end -- 旗开得胜：一回合内胜利
   if mostDamage and mostDamaged then addHonor("Burning Soul") end -- 血战：最多伤害，最多受伤
   if mostDamage and data.kill == 0 and result == 2 then addHonor("Regretful Lose") end-- 含恨而终：伤害最多，没有击杀并失败
   if data.kill >= #ClientInstance.players - 2 and data.kill > 0 and result == 2 then addHonor("Close But No Cigar") end -- 功亏一篑：杀死X-2个角色（X为玩家数）但失败

@@ -942,7 +942,7 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
       return not self:isFakeSkill(skill)
     else
-      return false
+      return true
     end
   end
 
