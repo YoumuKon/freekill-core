@@ -79,7 +79,7 @@ function ReqResponseCard:cardValidity(cid)
   if self.skill_name then return ReqActiveSkill.cardValidity(self, cid) end
   local card = cid
   if type(cid) == "number" then card = Fk:getCardById(cid) end
-  return self:cardFeasible(card)
+  return not not self:cardFeasible(card)
 end
 
 function ReqResponseCard:cardFeasible(card)
@@ -99,7 +99,7 @@ end
 
 function ReqResponseCard:isCancelable()
   if self.skill_name then return true end
-  return self.cancelable
+  return not not self.cancelable
 end
 
 function ReqResponseCard:updateSkillButtons()

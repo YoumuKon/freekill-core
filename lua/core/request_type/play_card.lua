@@ -51,7 +51,7 @@ function ReqPlayCard:cardValidity(cid)
       end
     end
   end
-  return ret
+  return not not ret
 end
 
 function ReqPlayCard:skillButtonValidity(name)
@@ -78,9 +78,9 @@ function ReqPlayCard:skillButtonValidity(name)
         if ret then break end
       end
     end
-    return ret
+    return not not ret
   elseif skill:isInstanceOf(ActiveSkill) then
-    return skill:canUse(player, nil)
+    return not not skill:canUse(player, nil)
   end
 end
 
@@ -104,10 +104,10 @@ function ReqPlayCard:feasible()
     local skill = card.skill
     ret = skill:feasible(player, table.map(self.selected_targets, Util.Id2PlayerMapper), { card.id }, card)
     if ret then
-      ret = not not skill:canUse(player, card, self.extra_data)
+      ret = skill:canUse(player, card, self.extra_data)
     end
   end
-  return ret
+  return not not ret
 end
 
 function ReqPlayCard:isCancelable()

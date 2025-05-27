@@ -228,6 +228,8 @@ function ReqActiveSkill:expandPiles()
   self:expandPile(pile, ids, self.extra_data and self.extra_data.skillName)
 end
 
+--- 判断确认键是否可用
+---@return boolean
 function ReqActiveSkill:feasible()
   local player = self.player
   local skill = Fk.skills[self.skill_name]
@@ -245,21 +247,25 @@ function ReqActiveSkill:feasible()
       ret = card_skill:feasible(player, targets, { card.id }, card)
     end
   end
-  return ret
+  return not not ret
 end
 
 function ReqActiveSkill:isCancelable()
-  return self.cancelable
+  return not not self.cancelable
 end
 
 --- 判断一张牌是否能被主动技或转化技点亮（注，使用实体牌不用此函数判断
 ---@param cid integer @ 待选卡牌id
+---@return boolean
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
-  return skill:cardFilter(self.player, cid, self.pendings)
+  return not not skill:cardFilter(self.player, cid, self.pendings)
 end
 
+--- 判断一个角色是否能被主动技或转化技点亮
+---@param pid integer @ 待选角色id
+---@return boolean
 function ReqActiveSkill:targetValidity(pid)
   local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
@@ -273,13 +279,13 @@ function ReqActiveSkill:targetValidity(pid)
   local room = Fk:currentRoom()
   local p = room:getPlayerById(pid)
   local selected = table.map(self.selected_targets, Util.Id2PlayerMapper)
-  return skill:targetFilter(self.player, p, selected, self.pendings, card, self.extra_data)
+  return not not skill:targetFilter(self.player, p, selected, self.pendings, card, self.extra_data)
 end
 
 function ReqActiveSkill:updateButtons()
   local scene = self.scene
-  scene:update("Button", "OK", { enabled = not not self:feasible() })
-  scene:update("Button", "Cancel", { enabled = not not self:isCancelable() })
+  scene:update("Button", "OK", { enabled = self:feasible() })
+  scene:update("Button", "Cancel", { enabled = self:isCancelable() })
 end
 
 function ReqActiveSkill:updateUnselectedCards()
@@ -287,7 +293,7 @@ function ReqActiveSkill:updateUnselectedCards()
 
   for cid, item in pairs(scene:getAllItems("CardItem")) do
     if not item.selected then
-      scene:update("CardItem", cid, { enabled = not not self:cardValidity(cid) })
+      scene:update("CardItem", cid, { enabled = self:cardValidity(cid) })
     end
   end
 end

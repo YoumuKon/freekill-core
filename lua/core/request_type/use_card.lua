@@ -31,7 +31,7 @@ function ReqUseCard:cardValidity(cid)
   if self.skill_name then return ReqActiveSkill.cardValidity(self, cid) end
   local card = cid
   if type(cid) == "number" then card = Fk:getCardById(cid) end
-  return self:cardFeasible(card)
+  return not not self:cardFeasible(card)
 end
 
 function ReqUseCard:targetValidity(pid)
@@ -40,7 +40,7 @@ function ReqUseCard:targetValidity(pid)
   local p = Fk:currentRoom():getPlayerById(pid)
   local selected = table.map(self.selected_targets, Util.Id2PlayerMapper)
   local ret = card and card.skill:targetFilter(self.player, p, selected, { card.id }, card, self.extra_data)
-  return ret
+  return not not ret
 end
 
 ---@param card Card
@@ -64,7 +64,7 @@ function ReqUseCard:feasible()
     ret = card.skill:feasible(self.player, table.map(self.selected_targets, Util.Id2PlayerMapper),
       skill and self.pendings or { card.id }, card)
   end
-  return ret
+  return not not ret
 end
 
 function ReqUseCard:initiateTargets()
