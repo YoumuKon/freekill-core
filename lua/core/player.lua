@@ -959,7 +959,7 @@ function Player:hasShownSkill(skill, ignoreNullified, ignoreAlive)
     return not self:isFakeSkill(skill)
   else
     if type(skill) == "string" then skill = Fk.skills[skill] end
-    return table.contains(self.player_skills, skill)
+    return table.contains(self.player_skills, skill) and self.derivative_skills[skill] ~= nil
   end
 end
 
