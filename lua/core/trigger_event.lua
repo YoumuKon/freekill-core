@@ -50,6 +50,7 @@ function TriggerEvent:getSkillData(skill, k)
 end
 
 ---@param skill Skill
+---@param v any @ cost_data，建议为键值表，```tos```(ServerPlayer[])为目标、```cards```(integer[])为牌
 function TriggerEvent:setCostData(skill, v)
   self:setSkillData(skill, "cost_data", v)
 end

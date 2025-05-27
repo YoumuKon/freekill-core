@@ -523,7 +523,12 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   skill.enabledAtNullification = spec.enabled_at_nullification
 
   skill.handly_pile = spec.handly_pile
-  skill.mute_card = spec.mute_card
+
+  if spec.mute_card ~= nil then
+    skill.mute_card = spec.mute_card
+  else
+    skill.mute_card = not string.find(skill.pattern, "|") or skill.pattern ~= "."
+  end
 
   return skill
 end
