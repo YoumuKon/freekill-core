@@ -295,6 +295,10 @@ function UseCard:main()
 
     logic:trigger(event, useCardData.from, useCardData)
     if event == fk.CardUsing then
+      if not useCardData.toCard and #useCardData.tos == 0 then
+        break
+      end
+
       room:doCardUseEffect(useCardData)
     end
   end
