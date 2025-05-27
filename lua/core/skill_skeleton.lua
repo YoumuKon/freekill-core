@@ -520,6 +520,8 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
 
   if spec.click_count then skill.click_count = spec.click_count end
 
+  skill.enabledAtNullification = spec.enabled_at_nullification
+
   skill.handly_pile = spec.handly_pile
   skill.mute_card = spec.mute_card
 

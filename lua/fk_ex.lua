@@ -147,6 +147,7 @@ end
 ---@field public handly_pile? boolean @ 是否能够选择“如手牌使用或打出”的牌
 ---@field public mute_card? boolean @ 是否不播放卡牌特效和语音
 ---@field public click_count? boolean @ 是否在点击按钮瞬间就计数并播放特效和语音
+---@field public enabled_at_nullification? fun(self: ViewAsSkill, player: Player, data: CardEffectData): boolean? @ 判断一张牌是否能被此技能转化无懈来响应
 
 ---@class DistanceSpec: StatusSkillSpec
 ---@field public correct_func? fun(self: DistanceSkill, from: Player, to: Player): integer?

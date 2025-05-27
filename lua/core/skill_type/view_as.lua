@@ -63,4 +63,12 @@ function ViewAsSkill:afterResponse(player, response) end
 ---@param extra_data any
 function ViewAsSkill:prompt(player, selected_cards, selected_targets, extra_data) return "" end
 
+--- 转化无懈是否对特定的牌有效
+---@param player Player
+---@param data CardEffectData @ 被响应的牌的数据
+---@return boolean?
+function ViewAsSkill:enabledAtNullification(player, data)
+  return true
+end
+
 return ViewAsSkill
