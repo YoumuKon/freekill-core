@@ -2126,7 +2126,12 @@ function Room:askToUseRealCard(player, params)
   extra_data.skillName = skillName
   if #cardIds == 0 and not cancelable then return end
   extra_data.cardIds = cardIds
-  local _, dat = self:askToUseActiveSkill(player, { skill_name = "userealcard_skill", prompt = prompt, cancelable = cancelable, extra_data = extra_data })
+  local _, dat = self:askToUseActiveSkill(player, {
+    skill_name = "userealcard_skill",
+    prompt = prompt,
+    cancelable = cancelable,
+    extra_data = extra_data,
+  })
   if (not cancelable) and (not dat) then
     for _, cid in ipairs(cardIds) do
       local card = Fk:getCardById(cid)
@@ -2198,6 +2203,31 @@ function Room:askToUseVirtualCard(player, params)
     return #card:getAvailableTargets(player, extra_data) > 0
   end)
   if #names == 0 then return end
+  if not cancelable then
+    local card
+    for _, n in ipairs(names) do
+      card = Fk:cloneCard(n)
+      if #subcards > 0 then
+        card:addSubcards(subcards)
+      elseif params.card_filter.n[1] > 0 then
+        local cards = table.filter(params.card_filter.cards, function (id)
+          return Fk:getCardById(id):matchPattern(params.card_filter.pattern)
+        end)
+        if #cards < params.card_filter.n[1] then
+          return nil
+        end
+        card:addSubcards(table.random(cards, params.card_filter.n[1]))
+      end
+      card.skillName = skillName
+      if #card:getDefaultTarget(player, extra_data) > 0 then
+        break
+      end
+      if n == names[#names] then
+        return nil
+      end
+    end
+  end
+
   extra_data.choices = names
   extra_data.all_choices = all_names
   extra_data.subcards = subcards
@@ -2234,22 +2264,10 @@ function Room:askToUseVirtualCard(player, params)
         card:addSubcards(table.random(cards, params.card_filter.n[1]))
       end
       card.skillName = skillName
-      local targets = card:getDefaultTarget(player, extra_data)
-      if #targets > 0 then
-        if card.skill.min_target_num == 0 then
-          if card.multiple_targets then
-            tos = card:getAvailableTargets(player, extra_data)
-          else
-            tos = {player}
-          end
-        else
-          tos = targets
-        end
-        break
-      end
+      tos = card:getDefaultTarget(player, extra_data)
     end
   end
-  if not tos then return end
+  if not tos or #tos == 0 then return end
   local use = {
     from = player,
     tos = tos,
