@@ -6,7 +6,7 @@ local function drawInit(room, player, n, fix_ids)
   if fix_ids then
     cardIds = table.random(fix_ids, n)
     if #cardIds < n then
-      table.insertTable(cardIds, table.random(room.void, n - #cardIds))
+      table.insertTable(cardIds, table.random(room.draw_pile, n - #cardIds))
     end
   end
   player:addCards(Player.Hand, cardIds)
@@ -30,6 +30,7 @@ local function drawInit(room, player, n, fix_ids)
     table.removeOne(room.draw_pile, id)
     room:setCardArea(id, Card.PlayerHand, player.id)
   end
+  room:syncDrawPile()
 end
 
 local function discardInit(room, player)
@@ -76,6 +77,7 @@ local function discardInit(room, player)
   for _, id in ipairs(cardIds) do
     room:setCardArea(id, table.contains(room.draw_pile, id) and Card.DrawPile or Card.Void, nil)
   end
+  room:syncDrawPile()
 end
 
 ---@class GameEvent.DrawInitial : GameEvent
