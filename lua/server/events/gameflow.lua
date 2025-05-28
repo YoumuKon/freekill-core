@@ -2,7 +2,7 @@
 
 local function drawInit(room, player, n, fix_ids)
   -- TODO: need a new function to call the UI
-  local cardIds = room:getNCards(n)
+  local cardIds = table.random(room.draw_pile, n)
   if fix_ids then
     cardIds = table.random(fix_ids, n)
     if #cardIds < n then
