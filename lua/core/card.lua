@@ -596,8 +596,9 @@ function Card:getFixedTargets(player, extra_data)
 end
 
 
---- 获得一张牌在出牌阶段空闲时可以正常选择的目标角色表
---- 用于判断一张牌能否使用，或用于添加默认使用目标
+--- 获得使用一张牌的所有合法目标角色表。用于判断一张必须使用的牌能否使用
+---
+--- eg.杀返回攻击范围内***所有***角色，桃返回自己，濒死桃返回目标濒死角色，借刀杀人***返回目标角色不返回子目标***
 ---@param player Player @ 使用者
 ---@param extra_data? table
 ---@return Player[] @ 返回目标角色表
@@ -605,27 +606,36 @@ function Card:getAvailableTargets (player, extra_data)
   if not player:canUse(self, extra_data) or player:prohibitUse(self) then return {} end
   extra_data = extra_data or Util.DummyTable
   local room = Fk:currentRoom()
-  local ret = extra_data.fix_targets or self:getFixedTargets(player, extra_data)
-  or extra_data.exclusive_targets or extra_data.must_targets or extra_data.include_targets
-  or room.alive_players
+  local ret = extra_data.fix_targets or
+    self:getFixedTargets(player, extra_data) or
+    extra_data.exclusive_targets or
+    extra_data.must_targets or
+    extra_data.include_targets or
+    room.alive_players
   if #ret == 0 then return {} end
   local tos = table.simpleClone(ret)
   if type(tos[1]) == "number" then
     tos = table.map(tos, Util.Id2PlayerMapper)
   end
   tos = table.filter(tos, function(p)
-    return not player:isProhibited(p, self)
-    and self.skill:modTargetFilter(player, p, {}, self, extra_data)
+    return not player:isProhibited(p, self) and self.skill:modTargetFilter(player, p, {}, self, extra_data)
   end)
-  if self.skill:getMinTargetNum(player) == 2 then  -- for collateral
-    for i = #tos, 1, -1 do
-      local from = tos[i]
-      if table.every(room.alive_players, function (p)
-        return p == from or not self.skill:targetFilter(player, p,
-          { from },
-          self.subcards, self, extra_data)
-      end) then
-        table.remove(tos, i)
+  local n = self.skill:getMinTargetNum(player)
+  if n > 1 then
+    if n == 2 then
+      for i = #tos, 1, -1 do
+        if not table.find(room.alive_players, function (p)
+          return p ~= tos[i] and self.skill:targetFilter(player, p, {tos[i]}, {}, self, extra_data)
+        end) then
+          table.remove(tos, i)
+        end
+      end
+    else
+      --最小目标过多则直接当作没有复杂规则，每个目标平权。eg.荆襄盛世
+      if #tos >= n then
+        return table.random(tos, n)
+      else
+        return {}
       end
     end
   end
@@ -633,24 +643,32 @@ function Card:getAvailableTargets (player, extra_data)
 end
 
 
---- 返回强制使用一张牌的默认目标
+-- 获得使用一张牌的一个可能的指定方式。
+---
+---用于判断一张必须使用的牌能否使用，或给一张必须使用的牌添加默认目标。
+---
+--- eg.杀返回攻击范围内***一个***合法目标，借刀杀人返回***一对***角色，南蛮入侵返回***所有***其他角色
 ---@param player Player @ 使用者
 ---@param extra_data? table
----@return Player[] @ 目标角色表。一般只返回1个值，若牌需要副目标，则返回2个。返回空表则表示无合法目标
+---@return Player[] @ 目标角色表。返回空表表示无合法目标
 function Card:getDefaultTarget (player, extra_data)
-  local targets = self:getAvailableTargets(player, extra_data)
-  if #targets == 0 then return {} end
-  local to = table.random(targets)
-  local ret = {to}
-  if self.skill:getMinTargetNum(player) == 2 then  -- for collateral
-    local subtarget = table.find(Fk:currentRoom().alive_players, function (p)
-      return p.id ~= to and self.skill:targetFilter(player, p,
-        { to }, self.subcards, self, extra_data)
-    end)
-    if subtarget == nil then return {} end
-    table.insert(ret, subtarget)
+  extra_data = extra_data or Util.DummyTable
+  local tos = self:getAvailableTargets(player, extra_data)
+  if #tos == 0 then return {} end
+  local n = self.skill:getMinTargetNum(player)
+  if n == 0 then
+    return tos
+  elseif n == 2 then
+    for i = #tos, 1, -1 do
+      for _, p in ipairs(Fk:currentRoom().alive_players) do
+        if p ~= tos[i] and self.skill:targetFilter(player, p, {tos[i]}, {}, self, extra_data) then
+          return {tos[i], p}
+        end
+      end
+    end
+  else
+    return table.random(tos, n)
   end
-  return ret
 end
 
 return Card
