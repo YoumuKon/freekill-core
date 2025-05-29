@@ -830,6 +830,7 @@ end
 ---类〖青釭剑〗的无视防具效果（注意仅能在onAim的四个时机中使用）
 ---@param data AimData
 function ServerPlayer:addQinggangTag(data)
+  self.room:addSkill("#qinggang_sword_skill")
   if not data.qinggang_used then
     data.qinggang_used = true
     self.room:addPlayerMark(self, MarkEnum.MarkArmorNullified)
