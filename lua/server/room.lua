@@ -2143,10 +2143,11 @@ function Room:askToUseRealCard(player, params)
     end
   end
   if not dat then return end
+  local card = Fk:getCardById(dat.cards[1])
   local use = {
     from = player,
-    tos = dat.targets,
-    card = Fk:getCardById(dat.cards[1]),
+    tos = #dat.targets > 0 and dat.targets or card:getDefaultTarget(player, extra_data),
+    card = card,
     extraUse = extra_data.extraUse,
   }
   if not skipUse then
@@ -2240,7 +2241,6 @@ function Room:askToUseVirtualCard(player, params)
   })
   local card, tos
   if dat then
-    tos = dat.targets
     card = Fk:cloneCard(#all_names == 1 and all_names[1] or dat.interaction)
     if #subcards > 0 then
       card:addSubcards(subcards)
@@ -2248,6 +2248,7 @@ function Room:askToUseVirtualCard(player, params)
       card:addSubcards(dat.cards)
     end
     card.skillName = skillName
+    tos = #dat.targets > 0 and dat.targets or card:getDefaultTarget(player, extra_data)
   else
     if cancelable then return end
     for _, n in ipairs(names) do

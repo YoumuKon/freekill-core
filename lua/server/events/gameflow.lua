@@ -105,6 +105,11 @@ function DrawInitial:main()
   end
 
   if room.settings.luckTime <= 0 then
+    table.shuffle(room.draw_pile)
+    for _, id in ipairs(room.draw_pile) do
+      room:setCardArea(id, Card.DrawPile, nil)
+    end
+    room:syncDrawPile()
     for _, player in ipairs(room.alive_players) do
       local draw_data = luck_data[player.id]
       draw_data.luckTime = nil
@@ -122,6 +127,11 @@ function DrawInitial:main()
   request.accept_cancel = true
   request:ask()
 
+  table.shuffle(room.draw_pile)
+  for _, id in ipairs(room.draw_pile) do
+    room:setCardArea(id, Card.DrawPile, nil)
+  end
+  room:syncDrawPile()
   for _, player in ipairs(room.alive_players) do
     local draw_data = luck_data[player.id]
     draw_data.luckTime = nil
