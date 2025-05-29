@@ -529,7 +529,7 @@ function SkillSkeleton:createViewAsSkill(_skill, idx, key, attr, spec)
   if spec.mute_card ~= nil then
     skill.mute_card = spec.mute_card
   else
-    skill.mute_card = not string.find(skill.pattern, "|") or skill.pattern ~= "."
+    skill.mute_card = not (string.find(skill.pattern, "|") or skill.pattern == "." or string.find(skill.pattern, ","))
   end
 
   return skill

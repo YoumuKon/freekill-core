@@ -207,7 +207,7 @@ end
 
 --- 判断技能是否有某标签
 ---@param tag SkillTag  待判断的标签
----@param compulsory_expand boolean?  是否“拓展”锁定技标签的含义，包括觉醒技。默认是
+---@param compulsory_expand boolean?  是否“拓展”锁定技和限定技标签的含义，包括觉醒技。默认是
 ---@return boolean
 function Skill:hasTag(tag, compulsory_expand)
   local expand = (compulsory_expand == nil or compulsory_expand)
@@ -215,16 +215,24 @@ function Skill:hasTag(tag, compulsory_expand)
   if self.frequency == tag then
     return true
   end
-  if expand and tag == Skill.Compulsory and table.contains({Skill.Compulsory, Skill.Wake}, self.frequency) then
-    return true
+  if expand then
+    if tag == Skill.Compulsory and table.contains({Skill.Compulsory, Skill.Wake}, self.frequency) then
+      return true
+    elseif tag == Skill.Limited and table.contains({Skill.Limited, Skill.Wake}, self.frequency) then
+      return true
+    end
   end
   if self.relate_to_place == "m" and tag == Skill.MainPlace then return true end
   if self.relate_to_place == "d" and tag == Skill.DeputyPlace then return true end
 
   local skel = self:getSkeleton()
   if skel == nil then return false end
-  if expand and tag == Skill.Compulsory then
-    return table.contains(skel.tags, Skill.Compulsory) or table.contains(skel.tags, Skill.Wake)
+  if expand then
+    if tag == Skill.Compulsory then
+      return table.contains(skel.tags, Skill.Compulsory) or table.contains(skel.tags, Skill.Wake)
+    elseif tag == Skill.Limited then
+      return table.contains(skel.tags, Skill.Limited) or table.contains(skel.tags, Skill.Wake)
+    end
   end
   return table.contains(skel.tags, tag)
 end
