@@ -295,7 +295,7 @@ end
 ---@param card integer|integer[]|Card|Card[] @ 要拿到的卡牌
 ---@param visible? boolean @ 是否明着拿
 ---@param reason? CardMoveReason @ 卡牌移动的原因
----@param proposer? ServerPlayer @ 移动操作者的id
+---@param proposer? ServerPlayer @ 移动操作者
 ---@param skill_name? string @ 技能名
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
 ---@param visiblePlayers? integer|integer[] @ 控制移动对特定角色可见（在moveVisible为false时生效）

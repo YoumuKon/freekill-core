@@ -52,8 +52,8 @@ function SkillSkeleton:initialize(spec)
   self.ai_list = {}
   self.tests = {}
 
-  local name_splited = self.name:split("__")
-  self.trueName = name_splited[#name_splited]
+  local name_split = self.name:split("__")
+  self.trueName = name_split[#name_split]
 
   self.tags = spec.tags or {}
 

@@ -2929,6 +2929,8 @@ end
 ---@class AskToChooseToMoveCardInBoardParams: AskToUseActiveSkillParams
 ---@field flag? "e" | "j" @ 限定可移动的区域，值为nil（装备区和判定区）、‘e’或‘j’
 ---@field exclude_ids? integer[] @ 本次不可移动的卡牌id
+---@field froms? ServerPlayer[] @ 移动来源角色列表
+---@field tos? ServerPlayer[] @ 移动目标角色列表
 
 --- 询问一名玩家选择两名角色，在这两名角色之间移动场上一张牌
 ---@param player ServerPlayer @ 要做选择的玩家
@@ -2941,6 +2943,8 @@ function Room:askToChooseToMoveCardInBoard(player, params)
   params.cancelable = (params.cancelable == nil) and true or params.cancelable
   params.no_indicate = (params.no_indicate == nil) and true or params.no_indicate
   params.exclude_ids = type(params.exclude_ids) == "table" and params.exclude_ids or {}
+  params.froms = params.froms or self.alive_players
+  params.tos = params.tos or self.alive_players
   params.prompt = params.prompt or ""
 
   if #self:canMoveCardInBoard(params.flag, nil, params.exclude_ids) == 0 and not params.cancelable then return {} end
@@ -2949,6 +2953,8 @@ function Room:askToChooseToMoveCardInBoard(player, params)
     flag = params.flag,
     skillName = params.skill_name,
     excludeIds = params.exclude_ids,
+    froms = table.map(params.froms, Util.IdMapper),
+    tos = table.map(params.tos, Util.IdMapper),
   }
   local activeParams = { ---@type AskToUseActiveSkillParams
     skill_name = "choose_players_to_move_card_in_board",
@@ -3237,19 +3243,21 @@ end
 
 --- 获取可以移动场上牌的第一对目标。用于判断场上是否可以移动的牌
 ---@param flag? "e"|"j" @ 判断移动的区域
----@param players? ServerPlayer[] @ 可移动的玩家
+---@param players? ServerPlayer[] @ 可被移动的玩家列表
 ---@param excludeIds? integer[] @ 不能移动的卡牌id
----@return ServerPlayer[] @ 玩家列表 可能为空表
-function Room:canMoveCardInBoard(flag, players, excludeIds)
+---@param targets? ServerPlayer[] @ 可移动至的玩家列表，默认为```players```
+---@return ServerPlayer[] @ 第一对玩家列表，第一个是来源，第二个是目标 可能为空表
+function Room:canMoveCardInBoard(flag, players, excludeIds, targets)
   if flag then
     assert(flag == "e" or flag == "j")
   end
 
   players = players or self.alive_players
+  targets = targets or players
   excludeIds = type(excludeIds) == "table" and excludeIds or {}
 
   for _, from in ipairs(players) do
-    local to = table.find(players, function(p)
+    local to = table.find(targets, function(p)
       return p ~= from and from:canMoveCardsInBoardTo(p, flag, excludeIds)
     end)
     if to then

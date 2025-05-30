@@ -523,6 +523,7 @@ function ServerPlayer:addFakeSkill(skill)
   assert(type(skill) == "string" or skill:isInstanceOf(Skill))
   if type(skill) == "string" then
     skill = Fk.skills[skill]
+    assert(skill, "Skill not found")
   end
   if table.contains(self._fake_skills, skill) then return end
 
