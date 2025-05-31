@@ -251,8 +251,7 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
----@field public fixedResponseTimes? integer @ 响应此事件需要的牌张数（如杀之于决斗），默认1张
----@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双决斗），为nil则应用所有角色
+---@field public fixedResponseTimesList? table<ServerPlayer, integer> @ 某角色响应此事件需要的牌张数（如杀响应决斗），键为角色，值为响应张数
 ---@field public extraData? UseExtraData | any @ 额外数据
 
 --- 使用牌的数据
@@ -469,6 +468,14 @@ function AimData:isNullified()
   return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
 end
 
+--- 设置某角色响应当前牌需要的牌张数
+---@param num? integer @ 响应需要牌张数
+---@param target? ServerPlayer @ 需要响应的角色，默认为生效目标
+function AimData:setResponseTimes(num, target)
+  self.fixedResponseTimesList = self.fixedResponseTimesList or {}
+  self.fixedResponseTimesList[target or self.to] = num
+end
+
 ---@class AimEvent: TriggerEvent
 ---@field data AimData
 local AimEvent = TriggerEvent:subclass("AimData")
@@ -499,7 +506,7 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
 ---@field public isCancellOut? boolean @ 是否被抵消
----@field public fixedResponseTimes? integer @ 响应此事件需要的牌张数（如杀之于决斗），默认1张
+---@field public fixedResponseTimesList? table<ServerPlayer, integer> @ 某角色响应此事件需要的牌张数（如杀响应决斗），键为角色，值为响应张数
 ---@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双），为nil则应用所有角色
 ---@field public prohibitedCardNames? string[] @ 这些牌名的牌不可响应此牌
 
@@ -561,12 +568,18 @@ end
 ---@param target? ServerPlayer @ 需要响应的角色，默认为生效目标
 ---@return integer
 function CardEffectData:getResponseTimes(target)
-  if self.fixedResponseTimes then
-    if self.fixedAddTimesResponsors == nil or table.contains(self.fixedAddTimesResponsors, target or self.to) then
-      return self.fixedResponseTimes
-    end
+  if self.fixedResponseTimesList then
+    return self.fixedResponseTimesList[target or self.to] or 1
   end
   return 1
+end
+
+--- 设置某角色响应当前牌需要的牌张数
+---@param num? integer @ 响应需要牌张数
+---@param target? ServerPlayer @ 需要响应的角色，默认为生效目标
+function CardEffectData:setResponseTimes(num, target)
+  self.fixedResponseTimesList = self.fixedResponseTimesList or {}
+  self.fixedResponseTimesList[target or self.to] = num
 end
 
 ---@class CardEffectEvent: TriggerEvent
