@@ -12,6 +12,7 @@ local wushuang_spec = {
 }
 
 wushuang:addEffect(fk.TargetSpecified, {
+  anim_type = "offensive",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(wushuang.name) and
       table.contains({ "slash", "duel" }, data.card.trueName)
@@ -20,6 +21,7 @@ wushuang:addEffect(fk.TargetSpecified, {
 })
 
 wushuang:addEffect(fk.TargetConfirmed, {
+  anim_type = "offensive",
   can_trigger = function(self, event, target, player, data)
     return target == player and player:hasSkill(wushuang.name) and data.card.trueName == "duel"
   end,

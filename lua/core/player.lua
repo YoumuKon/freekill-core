@@ -28,7 +28,7 @@
 ---@field public derivative_skills table<Skill, Skill[]> @ 当前拥有的派生技能
 ---@field public flag string[] @ 当前拥有的flag，不过好像没用过
 ---@field public tag table<string, any> @ 当前拥有的所有tag，好像也没用过
----@field public mark table<string, integer> @ 当前拥有的所有标记，用烂了
+---@field public mark table<string, any> @ 当前拥有的所有标记，用烂了
 ---@field public player_cards table<integer, integer[]> @ 当前拥有的所有牌，键是区域，值是id列表
 ---@field public virtual_equips Card[] @ 当前的虚拟装备牌，其实也包含着虚拟延时锦囊这种
 ---@field public special_cards table<string, integer[]> @ 类似“屯田”的“田”的私人牌堆
@@ -254,10 +254,10 @@ function Player:getMarkNames()
   return ret
 end
 
---- 检索角色是否拥有指定Mark，考虑后缀(find)。返回检索到的的第一个标记值与标记名
+--- 检索角色是否拥有指定Mark，考虑后缀(find)。返回检索到的的第一个标记名与标记值
 ---@param mark string @ 标记名
 ---@param suffixes? string[] @ 后缀，默认为```MarkEnum.TempMarkSuffix```
----@return [any, integer]|nil @ 返回一个表，包含标记值与标记名，或nil
+---@return [string, any]|nil @ 返回一个表，包含标记名与标记值，或nil
 function Player:hasMark(mark, suffixes)
   if suffixes == nil then suffixes = MarkEnum.TempMarkSuffix end
   for m, _ in pairs(self.mark) do

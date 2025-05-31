@@ -29,7 +29,7 @@ MarkEnum.BypassTimesLimitTo = "BypassTimesLimitTo"
 MarkEnum.BypassDistancesLimitTo = "BypassDistancesLimitTo"
 ---非锁定技失效
 MarkEnum.UncompulsoryInvalidity = "UncompulsoryInvalidity"
----失效技能表（用``Room:invalidateSkill``和``Room:validateSkill``控制）
+---失效技能键值表，键为失效技能，值为控制技能表（用``Room:invalidateSkill``和``Room:validateSkill``控制）
 MarkEnum.InvalidSkills = "InvalidSkills"
 ---不可明置（值为表，m - 主将, d - 副将）
 MarkEnum.RevealProhibited = "RevealProhibited"

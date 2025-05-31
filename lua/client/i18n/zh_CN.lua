@@ -168,7 +168,7 @@ Fk:loadTranslationTable{
 
 开发者： RalphR Nyutanislavsky xxyheaven 妖梦厨
 
-贡献者： 假象 deepskybird 板蓝根 s1134s 喑黒毀灭емо公主
+贡献者： 假象 deepskybird 板蓝根 s1134s 喑黒毀灭емо公主 影月
 
 鸣谢： Mogara
 

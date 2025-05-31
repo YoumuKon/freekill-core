@@ -163,7 +163,7 @@ Tác giả： Notify Ho-spair
 
 Developer： RalphR Nyutanislavsky xxyheaven 妖梦厨
 
-Đóng góp： 假象 deepskybird 板蓝根 s1134s 喑黒毀灭емо公主
+Đóng góp： 假象 deepskybird 板蓝根 s1134s 喑黒毀灭емо公主 影月
 
 Việt hóa: Lãng Khách
 

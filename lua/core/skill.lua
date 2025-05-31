@@ -140,10 +140,10 @@ function Skill:isEffectable(player)
 
   for mark, value in pairs(player.mark) do -- 耦合 MarkEnum.InvalidSkills ！
     if mark == MarkEnum.InvalidSkills then
-      if table.contains(value, self.name) then
+      if value[self.name] then
         return false
       end
-    elseif mark:startsWith(MarkEnum.InvalidSkills .. "-") and table.contains(value, self.name) then
+    elseif mark:startsWith(MarkEnum.InvalidSkills .. "-") and value[self.name] then
       for _, suffix in ipairs(MarkEnum.TempMarkSuffix) do
         if mark:find(suffix, 1, true) then
           return false

@@ -3516,22 +3516,35 @@ function Room:removeTableMark(sth, mark, value)
   return true
 end
 
+---@alias TempMarkSuffix "-round" | "-turn" | "-phase"
+
 --- 无效化技能
----@param player ServerPlayer
----@param skill_name string
----@param temp? string @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
-function Room:invalidateSkill(player, skill_name, temp)
-  temp = temp and temp or ""
-  self:addTableMark(player, MarkEnum.InvalidSkills .. temp, skill_name)
+---@param player ServerPlayer @ 技能被无效的角色
+---@param skill_name string @ 被无效的技能
+---@param temp? TempMarkSuffix|"" @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
+---@param source_skill? string @ 控制失效与否的技能。（保证不会与其他控制技能互相干扰）
+function Room:invalidateSkill(player, skill_name, temp, source_skill)
+  temp = temp or ""
+  source_skill = source_skill or skill_name
+  local record = player:getTableMark(MarkEnum.InvalidSkills .. temp)
+  record[skill_name] = record[skill_name] or {}
+  table.insert(record[skill_name], source_skill)
+  self:setPlayerMark(player, MarkEnum.InvalidSkills .. temp, record)
 end
 
 --- 有效化技能
----@param player ServerPlayer
----@param skill_name string
----@param temp? string @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
-function Room:validateSkill(player, skill_name, temp)
-  temp = temp and temp or ""
-  self:removeTableMark(player, MarkEnum.InvalidSkills .. temp, skill_name)
+---@param player ServerPlayer @ 技能被有效的角色
+---@param skill_name string @ 被有效的技能
+---@param temp? TempMarkSuffix|"" @ 作用范围，``-round`` ``-turn`` ``-phase``或不填
+---@param source_skill? string @ 控制生效与否的技能。（保证不会与其他控制技能互相干扰）
+function Room:validateSkill(player, skill_name, temp, source_skill)
+  temp = temp or ""
+  source_skill = source_skill or skill_name
+  local record = player:getTableMark(MarkEnum.InvalidSkills .. temp)
+  record[skill_name] = record[skill_name] or {}
+  table.removeOne(record[skill_name], source_skill)
+  if #record[skill_name] == 0 then record[skill_name] = nil end
+  self:setPlayerMark(player, MarkEnum.InvalidSkills .. temp, record)
 end
 
 
