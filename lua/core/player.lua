@@ -1120,6 +1120,30 @@ function Player:isProhibited(to, card)
   return false
 end
 
+--- 确认角色是否被禁止成为特定牌的目标（目前仅用于移动场上的延时锦囊）
+---@param card Card @ 特定牌
+function Player:isProhibitedTarget(card)
+  local r = Fk:currentRoom()
+
+  if card.type == Card.TypeEquip and #self:getAvailableEquipSlots(card.sub_type) == 0 then
+    return true
+  end
+
+  if card.sub_type == Card.SubtypeDelayedTrick and
+      (table.contains(self.sealedSlots, Player.JudgeSlot) or (self:hasDelayedTrick(card.name) and not card.stackable_delayed)) then
+    return true
+  end
+
+  local status_skills = r.status_skills[ProhibitSkill] or Util.DummyTable
+  for _, skill in ipairs(status_skills) do
+    if skill:isProhibited(nil, self, card) then
+      return true
+    end
+  end
+  return false
+end
+
+
 --- 确认玩家是否被禁止使用特定牌。
 ---@param card Card @ 特定的牌
 function Player:prohibitUse(card)
@@ -1272,10 +1296,11 @@ function Player:canMoveCardInBoardTo(to, id)
   else
     return
       not (
-        table.find(to:getCardIds(Player.Judge), function(cardId)
-          return ((to:getVirualEquip(cardId) or Fk:getCardById(cardId).name == card.name) and card.name ~= "premeditate")
-        end) or
-        table.contains(to.sealedSlots, Player.JudgeSlot)
+        table.contains(to.sealedSlots, Player.JudgeSlot) or
+        to:isProhibitedTarget(card) or
+        (not card.stackable_delayed and table.find(to:getCardIds(Player.Judge), function(cardId)
+          return (to:getVirualEquip(cardId) or Fk:getCardById(cardId)).name == card.name
+        end))
       )
   end
 end
