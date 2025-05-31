@@ -468,9 +468,19 @@ function AimData:isNullified()
   return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
 end
 
+--- 响应当前牌需要的牌张数，默认1
+---@param target? ServerPlayer @ 需要响应的角色，默认为目标角色
+---@return integer
+function AimData:getResponseTimes(target)
+  if self.fixedResponseTimesList then
+    return self.fixedResponseTimesList[target or self.to] or 1
+  end
+  return 1
+end
+
 --- 设置某角色响应当前牌需要的牌张数
 ---@param num? integer @ 响应需要牌张数
----@param target? ServerPlayer @ 需要响应的角色，默认为生效目标
+---@param target? ServerPlayer @ 需要响应的角色，默认为目标角色
 function AimData:setResponseTimes(num, target)
   self.fixedResponseTimesList = self.fixedResponseTimesList or {}
   self.fixedResponseTimesList[target or self.to] = num
