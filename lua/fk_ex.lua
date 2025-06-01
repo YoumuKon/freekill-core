@@ -191,6 +191,7 @@ end
 ---@class InvaliditySpec: StatusSkillSpec
 ---@field public invalidity_func? fun(self: InvaliditySkill, from: Player, skill: Skill): any @ 判定角色的技能是否无效
 ---@field public invalidity_attackrange? fun(self: InvaliditySkill, player: Player, card: Weapon): any @ 判定武器的攻击范围是否无效
+---@field public recheck_invalidity? boolean @ 是否涉及其他技能的失效性
 
 ---@class VisibilitySpec: StatusSkillSpec
 ---@field public card_visible? fun(self: VisibilitySkill, player: Player, card: Card): any

@@ -392,6 +392,7 @@ function SkillSkeleton:createInvaliditySkill(_skill, idx, key, attr, spec)
   if spec.invalidity_attackrange then
     skill.getInvalidityAttackRange = spec.invalidity_attackrange
   end
+  skill.recheck_invalidity = not not spec.recheck_invalidity
 
   return skill
 end

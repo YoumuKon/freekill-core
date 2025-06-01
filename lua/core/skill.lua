@@ -131,11 +131,25 @@ function Skill:isEffectable(player)
     return true
   end
 
-  local nullifySkills = Fk:currentRoom().status_skills[InvaliditySkill] or Util.DummyTable
+  local room = Fk:currentRoom()
+  local recheck_skills = {}
+
+  local nullifySkills = room.status_skills[InvaliditySkill] or Util.DummyTable---@type InvaliditySkill[]
   for _, nullifySkill in ipairs(nullifySkills) do
-    if self:getSkeleton().name ~= nullifySkill:getSkeleton().name and nullifySkill:getInvalidity(player, self) then
+    if nullifySkill.recheck_invalidity then
+      if not room.invalidity_rechecking then
+        table.insert(recheck_skills, nullifySkill)
+      end
+    elseif nullifySkill:getInvalidity(player, self) then
       return false
     end
+  end
+
+  if #recheck_skills > 0 then
+    room.invalidity_rechecking = true
+    local ret = table.find(recheck_skills, function(s) return s:getInvalidity(player, self) end)
+    room.invalidity_rechecking = false
+    if ret then return false end
   end
 
   for mark, value in pairs(player.mark) do -- 耦合 MarkEnum.InvalidSkills ！

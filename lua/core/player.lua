@@ -28,7 +28,7 @@
 ---@field public derivative_skills table<Skill, Skill[]> @ 当前拥有的派生技能
 ---@field public flag string[] @ 当前拥有的flag，不过好像没用过
 ---@field public tag table<string, any> @ 当前拥有的所有tag，好像也没用过
----@field public mark table<string, any> @ 当前拥有的所有标记，用烂了
+---@field public mark table<string, any> @ 当前拥有的所有标记，键为标记名，值为标记值
 ---@field public player_cards table<integer, integer[]> @ 当前拥有的所有牌，键是区域，值是id列表
 ---@field public virtual_equips Card[] @ 当前的虚拟装备牌，其实也包含着虚拟延时锦囊这种
 ---@field public special_cards table<string, integer[]> @ 类似“屯田”的“田”的私人牌堆
@@ -354,6 +354,7 @@ function Player:hasDelayedTrick(card_name)
       return true
     end
   end
+  return false
 end
 
 --- 获取玩家特定区域所有牌的ID。
@@ -1044,6 +1045,7 @@ end
 
 --- 获取对应玩家所有技能。
 -- return all skills that xxx:hasSkill() == true
+---@return Skill[]
 function Player:getAllSkills()
   local ret = {table.unpack(self.player_skills)}
   for _, t in pairs(self.derivative_skills) do
@@ -1294,14 +1296,7 @@ function Player:canMoveCardInBoardTo(to, id)
   if card.type == Card.TypeEquip then
     return to:hasEmptyEquipSlot(card.sub_type)
   else
-    return
-      not (
-        table.contains(to.sealedSlots, Player.JudgeSlot) or
-        to:isProhibitedTarget(card) or
-        (not card.stackable_delayed and table.find(to:getCardIds(Player.Judge), function(cardId)
-          return (to:getVirualEquip(cardId) or Fk:getCardById(cardId)).name == card.name
-        end))
-      )
+    return not to:isProhibitedTarget(card)
   end
 end
 
