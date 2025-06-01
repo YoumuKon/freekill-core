@@ -437,15 +437,22 @@ function ChangeMaxHp:main()
   if diff > 0 then
     if not room:changeHp(player, -diff) then
       player.hp = player.hp - diff
-    end
-  end
 
-  room:sendLog{
-    type = "#ShowHPAndMaxHP",
-    from = player.id,
-    arg = player.hp,
-    arg2 = player.maxHp,
-  }
+      room:sendLog{
+        type = "#ShowHPAndMaxHP",
+        from = player.id,
+        arg = player.hp,
+        arg2 = player.maxHp,
+      }
+    end
+  else
+    room:sendLog{
+      type = "#ShowHPAndMaxHP",
+      from = player.id,
+      arg = player.hp,
+      arg2 = player.maxHp,
+    }
+  end
 
   room.logic:trigger(fk.MaxHpChanged, player, data)
   return true
