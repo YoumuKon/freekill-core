@@ -920,7 +920,10 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     return false
   end
 
-  skill = getActualSkill(skill)
+  if type(skill) == "string" then
+    skill = Fk.skills[skill]
+    if skill == nil then return false end
+  end
   local skel = skill:getSkeleton()
   local effect = skill
   if skel then

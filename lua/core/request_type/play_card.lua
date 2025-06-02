@@ -3,6 +3,10 @@ local ReqUseCard = require 'lua.core.request_type.use_card'
 local SpecialSkills = require 'ui_emu.specialskills'
 local Button = (require 'ui_emu.control').Button
 
+--[[
+  负责处理出牌阶段空闲时使用牌（包括转化牌）
+--]]
+
 ---@class ReqPlayCard: ReqUseCard
 local ReqPlayCard = ReqUseCard:subclass("ReqPlayCard")
 
@@ -70,11 +74,12 @@ function ReqPlayCard:skillButtonValidity(name)
           table.insertTable(cnames, m.trueName)
         end
       end
+      --- FIXME: 使用无子卡（无花色）的虚拟牌判定合法性吗？不太严谨，会导致许攸成略不生效的问题
       local extra_data = self.extra_data
       for _, n in ipairs(cnames) do
         local c = Fk:cloneCard(n)
         c.skillName = name
-        ret = c.skill:canUse(player, c, extra_data)
+        ret = c.skill:canUse(player, c, extra_data) and not player:prohibitUse(c)
         if ret then break end
       end
     end
@@ -103,9 +108,8 @@ function ReqPlayCard:feasible()
   if card then
     local skill = card.skill
     ret = skill:feasible(player, table.map(self.selected_targets, Util.Id2PlayerMapper), { card.id }, card)
-    if ret then
-      ret = skill:canUse(player, card, self.extra_data)
-    end
+    and skill:canUse(player, card, self.extra_data)
+    and not player:prohibitUse(card)
   end
   return not not ret
 end
