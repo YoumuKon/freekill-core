@@ -287,11 +287,8 @@ function ServerPlayer:gainAnExtraTurn(delay, skillName, phases)
   delay = (delay == nil) and true or delay
   skillName = skillName or room.logic:getCurrentSkillName() or "game_rule"
   if delay then
-    local turn = room.logic:getCurrentEvent():findParent(GameEvent.Turn, true)
-    if turn then
-      turn:prependExitFunc(function() self:gainAnExtraTurn(false, skillName, phases) end)
-      return
-    end
+    table.insert(room.extra_turn_list, 1, {who = self, reason = skillName, phases = phases})
+    return
   end
 
   room:sendLog{

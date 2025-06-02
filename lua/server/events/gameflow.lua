@@ -170,6 +170,8 @@ function Round:action()
       GameEvent.Turn:create(TurnData:new(room.current)):exec()
     end
 
+    room:ActExtraTurn()
+
     for i = 1, #room.players do
       if i <= room.current.seat then
         table.removeOne(data.turn_table, i)
@@ -200,11 +202,14 @@ function Round:main()
 
   if roundCount == 1 then
     logic:trigger(fk.GameStart, room.current, data)
+    room:ActExtraTurn()
   end
 
   logic:trigger(fk.RoundStart, room.current, data)
+  room:ActExtraTurn()
   self:action()
   logic:trigger(fk.RoundEnd, room.current, data)
+  room:ActExtraTurn()
 end
 
 function Round:clear()

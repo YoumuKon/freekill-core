@@ -13,6 +13,7 @@
 ---@field public current ServerPlayer @ 当前回合玩家
 ---@field public game_started boolean @ 游戏是否已经开始
 ---@field public game_finished boolean @ 游戏是否已经结束
+---@field public extra_turn_list table @ 待执行的额外回合表
 ---@field public tag table<string, any> @ Tag清单，其实跟Player的标记是差不多的东西
 ---@field public general_pile string[] @ 武将牌堆，这是可用武将名的数组
 ---@field public logic GameLogic @ 这个房间使用的游戏逻辑，可能根据游戏模式而变动
@@ -75,6 +76,7 @@ function Room:initialize(_room)
 
   self.game_started = false
   self.game_finished = false
+  self.extra_turn_list = {}
   self.timeout = _room:getTimeout()
   self.tag = {}
   self.general_pile = {}
@@ -3640,6 +3642,16 @@ function Room:filterCard(id, player, JudgeEvent)
   end
   return card
 end
+
+
+--- 进行待执行的额外回合
+function Room:ActExtraTurn()
+  while #self.extra_turn_list > 0 do
+    local data = table.remove(self.extra_turn_list, 1)
+    data.who:gainAnExtraTurn(false, data.skillName, data.phases)
+  end
+end
+
 
 
 return Room
