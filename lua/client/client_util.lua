@@ -384,7 +384,7 @@ function GetSkillData(skill_name)
     freq = "active"
   end
   local frequency
-  if skill:hasTag(Skill.Limited) then
+  if skill:hasTag(Skill.Limited, false) then
     frequency = "limit"
   elseif skill:hasTag(Skill.Wake) then
     frequency = "wake"

@@ -147,12 +147,13 @@ Item {
         clip: true
         leftPadding: 5
         rightPadding: 5
-        /* onEditingFinished: {
+        focus: true
+        onEditingFinished: {
           if (text !== "") {
             pkgList.currentIndex = 0;
             vanishAnim.start();
           }
-        } */
+        }
         ToolButton {
           text: "🔍"
           anchors.right: parent.right

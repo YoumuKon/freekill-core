@@ -917,7 +917,7 @@ fk.client_callback["AddSkill"] = function(self, data)
     end
   end
 
-  if skill:hasTag(Skill.Quest) then
+  if skill:hasTag(Skill.Quest) or skill:hasTag(Skill.Wake) then
     return
   end
 

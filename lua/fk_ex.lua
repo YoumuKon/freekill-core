@@ -125,7 +125,7 @@ end
 ---@field public can_use? fun(self: CardSkill, player: Player, card: Card, extra_data: any): any @ 判断主动技能否发动
 ---@field public on_use? fun(self: CardSkill, room: Room, cardUseEvent: UseCardData): any
 ---@field public fix_targets? fun(self: CardSkill, player: Player, card: Card, extra_data: any): Player[]? @ 设置固定目标
----@field public on_action? fun(self: CardSkill, room: Room, cardUseEvent: UseCardData | SkillUseData, finished: boolean): any
+---@field public on_action? fun(self: CardSkill, room: Room, cardUseEvent: UseCardData, finished: boolean): any
 ---@field public about_to_effect? fun(self: CardSkill, room: Room, effect: CardEffectData): boolean? @ 生效前判断，返回true则取消效果
 ---@field public on_effect? fun(self: CardSkill, room: Room, effect: CardEffectData): any
 ---@field public on_nullified? fun(self: CardSkill, room: Room, effect: CardEffectData): any @ (仅用于延时锦囊)被抵消时执行内容
