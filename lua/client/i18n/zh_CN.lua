@@ -307,6 +307,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["replaceEquip"] = "替换装备",
   ["PlayCard"] = "出牌",
 
+  ["#AskForChooseGenerals"] = "%1：请选择%2名武将",
   ["#AskForChooseCard"] = "%1：请选择%src的一张卡牌",
   ["#AskForChooseCards"] = "%1：请选择%src的%2至%3张卡牌",
   ["$ChooseCard"] = "请选择一张卡牌",

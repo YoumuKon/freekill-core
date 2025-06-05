@@ -367,3 +367,10 @@ end
 ---@class TargetTipSpec
 ---@field name string
 ---@field target_tip fun(self: ActiveSkill, player: Player, to_select: Player, selected: Player[], selected_cards: integer[], card: Card, selectable: boolean, extra_data: any): string|TargetTipDataSpec?
+
+---@class ChooseGeneralSpec
+---@field name string
+---@field card_filter fun(to_select: string, selected: string[], data: string[], extra_data: any): boolean?
+---@field feasible fun(selected: string[], data: string[], extra_data: any): boolean?
+---@field default_choice? fun(data: string[], extra_data: any): string[]
+---@field prompt? string | fun(data: string[], extra_data: any): string

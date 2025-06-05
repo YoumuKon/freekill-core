@@ -510,6 +510,7 @@ end
 ---@param self T[]
 ---@param begin? integer
 ---@param _end? integer
+---@return T[]
 function table.slice(self, begin, _end)
   local len = #self
   begin = begin or 1

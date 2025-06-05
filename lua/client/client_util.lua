@@ -846,6 +846,25 @@ function CanSortHandcards(pid)
   return ClientInstance:getPlayerById(pid):getMark(MarkEnum.SortProhibited) == 0
 end
 
+function ChooseGeneralPrompt(rule_name, data, extra_data)
+  local rule = Fk.choose_general_rule[rule_name]
+  if not rule or not rule.prompt then return "" end
+  if type(rule.prompt) == "string" then return Fk:translate(rule.prompt) end
+  return Fk:translate(rule.prompt(data, extra_data))
+end
+
+function ChooseGeneralFilter(rule_name, to_select, selected, data, extra_data)
+  local rule = Fk.choose_general_rule[rule_name]
+  if not rule then return false end
+  return rule.card_filter(to_select, selected, data, extra_data)
+end
+
+function ChooseGeneralFeasible(rule_name, selected, data, extra_data)
+  local rule = Fk.choose_general_rule[rule_name]
+  if not rule then return false end
+  return rule.feasible(selected, data, extra_data)
+end
+
 function PoxiPrompt(poxi_type, data, extra_data)
   local poxi = Fk.poxi_methods[poxi_type]
   if not poxi or not poxi.prompt then return "" end

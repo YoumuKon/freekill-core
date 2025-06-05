@@ -237,6 +237,7 @@ Fk:loadTranslationTable({
   ["replaceEquip"] = "Replacing Equip",
   ["PlayCard"] = "Playing card",
 
+  ["#AskForChooseGenerals"] = "%1：please choose %2 character(s)",
   ["AskForCardChosen"] = "Choosing card",
   ["AskForCardsChosen"] = "Choosing card",
   ["#AskForChooseCard"] = "%1: please choose a card from %src",

@@ -1254,8 +1254,11 @@ end
 
 ---@class AskToChooseGeneralParams
 ---@field generals string[] @ 可选武将
----@field n integer @ 可选数量，默认为1
+---@field n? integer @ 可选数量，默认为1
 ---@field no_convert? boolean @ 可否同名替换，默认可
+---@field rule? string @ 选将规则名（使用```Fk:addChooseGeneralRule```定义），默认为askForGeneralsChosen
+---@field extra_data? table @ 额外信息，键值表。预留：```skill_name```技能名
+---@field heg? boolean @ 是否应用国战ui（提示珠联璧合和主副将调整阴阳鱼）。默认选将规则为heg_general_choose
 
 --- 询问玩家选择一名武将。
 ---@param player ServerPlayer @ 询问目标
@@ -1263,14 +1266,25 @@ end
 ---@return string|string[] @ 选择的武将，一个是string，多个是string[]
 function Room:askToChooseGeneral(player, params)
   local command = "AskForGeneral"
+  local rule_type = params.rule or "askForGeneralsChosen"
+  local rule = Fk.choose_general_rule[rule_type]
+  if not rule then return {} end
 
-  params.n = params.n or 1
-  local n, generals = params.n, params.generals
+  local n, generals = params.n or 1, params.generals
   if #generals == n then return n == 1 and generals[1] or generals end
-  local defaultChoice = table.random(generals, n)
+  local extra_data = params.extra_data or {}
+  extra_data.n = extra_data.n or n
+  local defaultChoice = rule.default_choice(generals, extra_data)
 
   local req = Request:new(player, command)
-  local data = { generals, n, params.no_convert }
+  local data = {
+    generals,
+    n,
+    params.no_convert or false,
+    params.heg or false,
+    rule_type,
+    extra_data,
+  }
   req:setData(player, data)
   req:setDefaultReply(player, defaultChoice)
   local choices = req:getResult(player)
@@ -1362,9 +1376,9 @@ end
 ---@field extra_data any @ 额外信息
 ---@field cancelable? boolean @ 是否可取消
 
---- 谋askForCardsChosen，需使用Fk:addPoxiMethod定义好方法
+--- 谋askForCardsChosen，需使用```Fk:addPoxiMethod```定义好方法
 ---
---- 选卡规则和返回值啥的全部自己想办法解决，data填入所有卡的列表（类似ui.card_data）
+--- 选卡规则和返回值啥的全部自己想办法解决，```data```填入所有卡的列表（类似```ui.card_data```）
 ---
 --- 注意一定要返回一个表，毕竟本质上是选卡函数
 ---@param player ServerPlayer @ 要被询问的人
@@ -1455,7 +1469,7 @@ function Room:askToChooseCards(player, params)
     end
   end
 
-  local poxiParams = { ---@type askToPoxiParams
+  local poxiParams = { ---@type AskToPoxiParams
     poxi_type = "AskForCardsChosen",
     data = cards_data,
     extra_data = data,

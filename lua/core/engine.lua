@@ -40,6 +40,7 @@
 ---@field public mini_games table<string, MiniGameSpec> @ 自定义多人交互表
 ---@field public request_handlers table<string, RequestHandler> @ 请求处理程序
 ---@field public target_tips table<string, TargetTipSpec> @ 选择目标提示对应表
+---@field public choose_general_rule table<string, ChooseGeneralSpec> @ 选将框操作方法表
 local Engine = class("Engine")
 
 --- Engine的构造函数。
@@ -101,6 +102,7 @@ function Engine:initialize()
   self.mini_games = {}
   self.request_handlers = {}
   self.target_tips = {}
+  self.choose_general_rule = {}
 
   self:loadPackages()
   self:setLords()
@@ -698,6 +700,20 @@ function Engine:addTargetTip(spec)
     fk.qCritical("Warning: duplicated target tip type " .. spec.name)
   end
   self.target_tips[spec.name] = spec
+end
+
+---@param spec ChooseGeneralSpec
+function Engine:addChooseGeneralRule(spec)
+  assert(type(spec.name) == "string")
+  assert(type(spec.card_filter) == "function")
+  assert(type(spec.feasible) == "function")
+  if self.choose_general_rule[spec.name] then
+    fk.qCritical("Warning: duplicated choose_general_rule " .. spec.name)
+  end
+  self.choose_general_rule[spec.name] = spec
+  --spec.card_filter = spec.card_filter or function() return {} end
+  --spec.feasible = spec.feasible or Util.TrueFunc
+  spec.default_choice = spec.default_choice or function() return {} end
 end
 
 --- 从已经开启的拓展包中，随机选出若干名武将。

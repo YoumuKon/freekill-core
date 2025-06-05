@@ -298,6 +298,7 @@ Trang chủ: https://libgit2.org
   ["replaceEquip"] = "Thay thế trang bị",
   ["PlayCard"] = "Đánh lá",
 
+  -- ["#AskForChooseGenerals"] = "%1：请选择%2名武将",
   ["AskForCardChosen"] = "Chọn lá",
   ["AskForCardsChosen"] = "Chọn lá",
   ["#AskForChooseCard"] = "%1: hãy chọn 1 lá từ %src",

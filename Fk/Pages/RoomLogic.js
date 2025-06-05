@@ -800,11 +800,15 @@ callbacks["PlayerRunned"] = (data) => {
 }
 
 callbacks["AskForGeneral"] = (data) => {
-  // jsonData: string[] Generals
+  // jsonData: string[] generals, integer n, boolean no_convert, boolean heg, string rule, table extra_data
+  //const {generals, n, no_convert, heg, rule, extra_data } = data;
   const generals = data[0];
   const n = data[1];
-  const convert = data[2];
+  const no_convert = data[2];
   const heg = data[3];
+  const rule = data[4];
+  const extra_data = data[5];
+
   roomScene.setPrompt(luatr("#AskForGeneral"), true);
   roomScene.activate();
   roomScene.popupBox.sourceComponent =
@@ -813,12 +817,16 @@ callbacks["AskForGeneral"] = (data) => {
   box.accepted.connect(() => {
     replyToServer(JSON.stringify(box.choices));
   });
-  box.choiceNum = n;
-  box.convertDisabled = !!convert;
+  box.generals = generals;
+  box.choiceNum = n ?? 1;
+  box.convertDisabled = !!no_convert;
   box.hegemony = !!heg;
+  box.rule_type = rule ?? (heg? "heg_general_choose" : "askForGeneralsChosen"); // 若heg为true，默认应用国战选将
+  box.extra_data = extra_data ?? { n : n };
   for (let i = 0; i < generals.length; i++)
     box.generalList.append({ "name": generals[i] });
   box.updatePosition();
+  box.refreshPrompt();
 }
 
 callbacks["AskForSkillInvoke"] = (data) => {
