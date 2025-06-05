@@ -17,6 +17,7 @@
 ---@field public area CardArea @ 卡牌所在区域（例如手牌区，判定区，装备区，牌堆，弃牌堆···）
 ---@field public mark table<string, integer> @ 当前拥有的所有标记，用烂了
 ---@field public subcards integer[] @ 子卡ID表
+---@field public fake_subcards integer[] @ 伪子卡ID表，用于活墨类转化和飞刀判定
 ---@field public skillName string @ 虚拟牌的技能名 for virtual cards
 ---@field private _skillName string
 ---@field public skillNames string[] @ 虚拟牌的技能名们（一张虚拟牌可能有多个技能名，如芳魂、龙胆、朱雀羽扇）
@@ -131,6 +132,7 @@ function Card:initialize(name, suit, number, color)
   self.sub_type = Card.SubtypeNone
   -- self.skill = nil
   self.subcards = {}
+  self.fake_subcards = {}
   -- self.skillName = nil
   self._skillName = ""
   self.skillNames = {}
@@ -256,6 +258,30 @@ end
 function Card:addSubcards(cards)
   for _, c in ipairs(cards) do
     self:addSubcard(c)
+  end
+end
+
+--- 将一张子卡加入某张牌的虚拟子卡，用于活墨类转化和飞刀判定
+---@param card integer|Card @ 要加入的虚拟子卡
+function Card:addFakeSubcard(card)
+  -- assert(self:isVirtual(), "")
+  if type(card) == "number" then
+    table.insert(self.fake_subcards, card)
+  else
+    assert(card:isInstanceOf(Card))
+    if card:isVirtual() then
+      table.insertTable(self.fake_subcards, card.fake_subcards)
+    else
+      table.insert(self.fake_subcards, card.id)
+    end
+  end
+end
+
+--- 将一批子卡加入某张牌的虚拟子卡，用于活墨类转化和飞刀判定
+---@param cards integer[] | Card[] @ 要加入的虚拟子卡列表
+function Card:addFakeSubcards(cards)
+  for _, c in ipairs(cards) do
+    self:addFakeSubcard(c)
   end
 end
 

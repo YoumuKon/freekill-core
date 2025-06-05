@@ -23,13 +23,15 @@ virtual_viewas:addEffect("viewas", {
   end,
   interaction = function(self)
     if #self.all_choices == 1 then return end
-    return UI.ComboBox {choices = self.choices, all_choices = self.all_choices }
+    return UI.CardNameBox {choices = self.choices, all_choices = self.all_choices }
   end,
   view_as = function(self, player, cards)
     local name = (#self.all_choices == 1) and self.all_choices[1] or self.interaction.data
     if not name then return nil end
     local card = Fk:cloneCard(name)
-    if self.skillName then card.skillName = self.skillName end
+    if self.skillName then
+      card.skillName = self.skillName
+    end
     if #self.subcards > 0 then
       card:addSubcards(self.subcards)
     else
