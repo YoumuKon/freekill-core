@@ -94,6 +94,15 @@ Item {
 
         Button {
           Layout.fillWidth: true
+          text: qsTr("管理资源包")
+          onClicked: {
+            mainStack.push(resourcePackManage);
+            // 资源包管理界面后续实现
+          }
+        }
+
+        Button {
+          Layout.fillWidth: true
           text: qsTr("Quit Game")
           onClicked: {
             config.saveConf();

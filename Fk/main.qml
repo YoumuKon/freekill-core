@@ -51,6 +51,7 @@ Window {
 
     Component { id: init; Init {} }
     Component { id: packageManage; PackageManage {} }
+    Component { id: resourcePackManage; ResourcePackManage {} }
     Component { id: lobby; Lobby {} }
     Component { id: generalsOverview; GeneralsOverview {} }
     Component { id: cardsOverview; CardsOverview {} }

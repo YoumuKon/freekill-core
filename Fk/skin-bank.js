@@ -21,6 +21,14 @@ var LOBBY_IMG_DIR = AppPath + "/image/lobby/";
 var MISC_DIR = AppPath + "/image/misc/";
 
 const searchPkgResource = function(path, name, suffix) {
+
+  if (typeof config !== "undefined" && config.enabledResourcePacks) {
+    for (let packName of config.enabledResourcePacks) {
+      let resPath = AppPath + "/resource_pak/" + packName + "/packages/" + path + name + suffix;
+      if (Backend.exists(resPath)) return resPath;
+    }
+  }
+
   let ret;
   for (let dir of Backend.ls(AppPath + "/packages/")) {
     if (Pacman.getDisabledPacks().includes(dir) ||
@@ -44,11 +52,21 @@ function getGeneralExtraPic(name, extra) {
 function getGeneralPicture(name) {
   const data = lcall("GetGeneralData", name);
   const extension = data.extension;
-  const path = AppPath + "/packages/" + extension + "/image/generals/"
-             + name + ".jpg";
+
+  if (typeof config !== "undefined" && config.enabledResourcePacks) {
+    for (let packName of config.enabledResourcePacks) {
+      let path = AppPath + "/resource_pak/" + packName + "/packages/" + extension + "/image/generals/" + name + ".jpg";
+      if (Backend.exists(path)) return path;
+    }
+  }
+
+
+  const path = AppPath + "/packages/" + extension + "/image/generals/" + name + ".jpg";
   if (Backend.exists(path)) {
     return path;
   }
+
+
   return GENERAL_DIR + "0.jpg";
 }
 
@@ -59,19 +77,28 @@ function getCardPicture(cidOrName) {
     name = cidOrName;
     extension = lcall("GetCardExtensionByName", cidOrName);
   } else {
-    const data = lcall("GetCardData", cid);
+    const data = lcall("GetCardData", cidOrName);
     extension = data.extension;
     name = data.name;
   }
 
-  let path = AppPath + "/packages/" + extension + "/image/card/"
-           + name + ".png";
+
+  if (typeof config !== "undefined" && config.enabledResourcePacks) {
+    for (let packName of config.enabledResourcePacks) {
+      let path = AppPath + "/resource_pak/" + packName + "/packages/" + extension + "/image/card/" + name + ".png";
+      if (Backend.exists(path)) return path;
+    }
+  }
+
+
+  let path = AppPath + "/packages/" + extension + "/image/card/" + name + ".png";
   if (Backend.exists(path)) {
     return path;
   } else {
     let ret = searchPkgResource("/image/card/", name, ".png");
     if (ret) return ret;
   }
+
   return CARD_DIR + "unknown.png";
 }
 
@@ -125,7 +152,7 @@ function getGeneralCardDir(kingdom) {
     return GENERALCARD_DIR;
   }
 }
-
+//身份和死亡嘛先算了吧
 function getRolePic(role) {
   let path = ROLE_DIR + role + ".png";
   if (Backend.exists(path)) {
@@ -147,9 +174,11 @@ function getRoleDeathPic(role) {
   }
   return DEATH_DIR + "hidden.png";
 }
-
+//mark嘛先算了吧
 function getMarkPic(mark) {
   let ret = searchPkgResource("/image/mark/", mark, ".png");
   if (ret) return ret;
   return "";
 }
+
+

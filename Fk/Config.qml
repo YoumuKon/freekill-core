@@ -36,6 +36,7 @@ QtObject {
   property var curScheme
   property list<string> shownPkg: []
   property list<string> favoriteGenerals: []
+  property list<string> enabledResourcePacks: []
 
   property int preferredTimeout
   property int preferredLuckTime
@@ -167,6 +168,7 @@ QtObject {
     shownPkg = conf.shownPkg ?? [];
     favoriteGenerals = conf.favoriteGenerals ?? [];
     blockedUsers = conf.blockedUsers ?? [];
+    enabledResourcePacks = conf.enabledResourcePacks ?? [];
   }
 
   function saveConf() {
@@ -206,6 +208,7 @@ QtObject {
     conf.currentDisableIdx = currentDisableIdx;
     conf.favoriteGenerals = favoriteGenerals;
     conf.blockedUsers = blockedUsers;
+    conf.enabledResourcePacks = enabledResourcePacks;
 
     Backend.saveConf(JSON.stringify(conf, undefined, 2));
   }
