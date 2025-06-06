@@ -94,7 +94,7 @@ function ReqResponseCard:feasible()
   if skill then
     card = skill:viewAs(self.player, self.pendings)
   end
-  return card and self:cardFeasible(card)
+  return (card ~= nil) and self:cardFeasible(card)
 end
 
 function ReqResponseCard:isCancelable()
