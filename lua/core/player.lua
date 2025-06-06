@@ -1544,6 +1544,15 @@ function Player:getEnemies(include_dead)
   return enemies
 end
 
+--- 判断角色是否可以排序手牌
+---@return boolean
+function Player:canSortHandcards()
+  for m, _ in pairs(self.mark) do
+    if m == MarkEnum.SortProhibited or m:startsWith(MarkEnum.SortProhibited .. "-") then return false end
+  end
+  return true
+end
+
 function Player:toJsonObject()
   local ptable = {}
   for _, k in ipairs(self.property_keys) do
