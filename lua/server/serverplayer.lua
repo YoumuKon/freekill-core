@@ -604,9 +604,14 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
   end
 
   local general = Fk.generals[generalName] or Fk.generals["blank_shibing"]
+  local tolose = {}
   for _, s in ipairs(general:getSkillNameList(true)) do
     local skill = Fk.skills[s]
-    self:loseFakeSkill(skill)
+    if self:isFakeSkill(skill) then
+      self:loseFakeSkill(skill)
+    else
+      table.insert(tolose, skill.name)
+    end
   end
 
   local ret = true
@@ -614,7 +619,7 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
     local other = Fk.generals[self:getMark(isDeputy and "__heg_general" or "__heg_deputy")] or Fk.generals["blank_shibing"]
     for _, sname in ipairs(other:getSkillNameList(true)) do
       local s = Fk.skills[sname]
-      if s:hasTag(Skill.Compulsory) and not s:hasTag(isDeputy and Skill.MainPlace or Skill.DeputyPlace) then
+      if s:hasTag(Skill.Compulsory) and not s:hasTag(isDeputy and Skill.DeputyPlace or Skill.MainPlace) and self:isFakeSkill(s) then
         ret = false
         break
       end
@@ -626,6 +631,9 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
 
   local oldKingdom = self.kingdom
   room:changeHero(self, generalName, false, isDeputy, false, false, false)
+  if #tolose > 0 then
+    room:handleAddLoseSkills(self, "-"..table.concat(tolose, "-|"), nil, false)
+  end
   if oldKingdom ~= "wild" then
     local kingdom = (self:getMark("__heg_wild") == 1 and not isDeputy) and "wild" or self:getMark("__heg_kingdom")
     self.kingdom = kingdom
@@ -731,13 +739,15 @@ function ServerPlayer:hideGeneral(isDeputy)
   local general = Fk.generals[generalName]
   local place = isDeputy and Skill.MainPlace or Skill.DeputyPlace
   for _, sname in ipairs(general:getSkillNameList()) do
-    room:handleAddLoseSkills(self, "-" .. sname, nil, false, false)
-    local s = Fk.skills[sname]
-    if not s:hasTag(place) then
-      if s:hasTag(Skill.Compulsory) then
-        self:addFakeSkill("reveal_skill&")
+    if self:hasSkill(sname, true, true) then
+      room:handleAddLoseSkills(self, "-" .. sname, nil, false, false)
+      local s = Fk.skills[sname]
+      if not s:hasTag(place) then
+        if s:hasTag(Skill.Compulsory) then
+          self:addFakeSkill("reveal_skill&")
+        end
+        self:addFakeSkill(s)
       end
-      self:addFakeSkill(s)
     end
   end
 

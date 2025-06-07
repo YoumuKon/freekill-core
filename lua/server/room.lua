@@ -1505,8 +1505,23 @@ function Room:askToChoice(player, params)
   params.prompt = params.prompt or ""
   params.all_choices = params.all_choices or params.choices
 
+  local hide = false -- 是否隐藏读条，用于国战同时机技能选择
+  if params.skill_name == "trigger" then
+    for _, s in ipairs(params.choices) do
+      local skill_name = s
+      if skill_name:startsWith("#skill_muti_trigger") then
+        local strSplited = skill_name:split(":")
+        skill_name = strSplited[#strSplited - 1]
+      end
+      if player:isFakeSkill(skill_name) then
+        hide = true
+        break
+      end
+    end
+  end
   local req = Request:new(player, command)
-  req.focus_text = params.skill_name
+  req.focus_text = hide and "" or params.skill_name
+  req.focus_players = hide and self.alive_players or nil
   req.receive_decode = false -- 这个不用decode
   req:setData(player, {
     params.choices, params.all_choices, params.skill_name, params.prompt, params.detailed

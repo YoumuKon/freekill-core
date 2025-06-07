@@ -893,7 +893,7 @@ fk.client_callback["AddSkill"] = function(self, data)
     table.insert(target.player_skills, skill)
     local chk = false
 
-    if table.find(sks, function(s) return s:isInstanceOf(TriggerSkill) end) then
+    if table.find(sks, function(s) return s:isInstanceOf(TriggerSkill) and not s.is_delay_effect end) then
       chk = true
       self:notifyUI("AddSkill", data)
     end

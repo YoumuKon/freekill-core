@@ -248,26 +248,25 @@ function Damage:exit()
   logic:trigger(fk.DamageFinished, damageData.to, damageData)
 
   if damageData.chain_table and #damageData.chain_table > 0 then
-    damageData.chain_table = table.filter(damageData.chain_table, function(p)
-      return p:isAlive() and p.chained
-    end)
     for _, p in ipairs(damageData.chain_table) do
-      room:sendLog{
-        type = "#ChainDamage",
-        from = p.id
-      }
+      if p:isAlive() and p.chained then
+        room:sendLog{
+          type = "#ChainDamage",
+          from = p.id
+        }
 
-      local dmg = {
-        from = damageData.from,
-        to = p,
-        damage = damageData.damage,
-        damageType = damageData.damageType,
-        card = damageData.card,
-        skillName = damageData.skillName,
-        chain = true,
-      }
+        local dmg = {
+          from = damageData.from,
+          to = p,
+          damage = damageData.damage,
+          damageType = damageData.damageType,
+          card = damageData.card,
+          skillName = damageData.skillName,
+          chain = true,
+        }
 
-      room:damage(dmg)
+        room:damage(dmg)
+      end
     end
   end
 end
