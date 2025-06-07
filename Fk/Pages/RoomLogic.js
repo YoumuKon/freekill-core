@@ -758,6 +758,9 @@ callbacks["UpdateCard"] = (j) => {
 }
 
 callbacks["UpdateSkill"] = (j) => {
+  const sortable = lcall("CanSortHandcards", Self.id);
+  dashboard.sortable = sortable;
+  dashboard.handcardArea.sortable = sortable;
   const all_skills = [roomScene.dashboard.skillButtons, roomScene.dashboard.notActiveButtons];
   for (const skills of all_skills) {
     for (let i = 0; i < skills.count; i++) {
