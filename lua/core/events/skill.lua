@@ -28,14 +28,12 @@ fk.SkillEffect = SkillEffectEvent:subclass("fk.SkillEffect")
 ---@class fk.AfterSkillEffect: SkillEffectEvent
 fk.AfterSkillEffect = SkillEffectEvent:subclass("fk.AfterSkillEffect")
 
---- SkillModifyData 技能作用目标的数据
+--- SkillModifyData 技能获取或移除的数据
 ---@class SkillModifyDataSpec
----@field public skill_cb fun():any @ 实际技能函数
----@field public who ServerPlayer @ 技能发动者
----@field public skill Skill @ 发动的技能
----@field public skill_data SkillUseData @ 技能数据
+---@field public who ServerPlayer @ 技能拥有者
+---@field public skill Skill @ 有关的技能
 
---- 技能效果的数据
+--- 技能获取或移除的数据
 ---@class SkillModifyData: SkillModifyDataSpec, TriggerData
 SkillModifyData = TriggerData:subclass("SkillModifyData")
 

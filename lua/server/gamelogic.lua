@@ -250,7 +250,7 @@ function GameLogic:attachSkillToPlayers()
     end
 
     room:handleAddLoseSkills(player, skillName, nil, false, true)
-    self:trigger(fk.EventAcquireSkill, player, skill)
+    self:trigger(fk.EventAcquireSkill, player, {skill = skill, who = player})
   end
   for _, p in ipairs(room.alive_players) do
     local skills = Fk.generals[p.general]:getSkillNameList(true)
