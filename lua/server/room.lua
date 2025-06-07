@@ -3681,6 +3681,59 @@ function Room:ActExtraTurn()
   end
 end
 
+local function isSame(table1, table2)
+  if #table1 ~= #table2 then return false end
+  local tabledup = table.simpleClone(table2)
+  for _, j in ipairs(table1) do
+    if not table.removeOne(tabledup, j) then return false end
+  end
+  return #tabledup == 0
+end
 
+--- 获得一名角色的客户端手牌顺序
+--- 本bug由玄蝶提供
+---@param player ServerPlayer @ 角色
+---@return integer[] @ 卡牌ID，有元素检测就是了……
+function Room:getPlayerClientCards(player)
+  local req = Request:new({player}, "GetPlayerHandcards")
+  local cards = player.player_cards[Player.Hand]
+  req:setDefaultReply(player, cards)
+  local result = req:getResult(player)
+  -- printf("客户端返回组合：%s", table.map(result, function(e) return tostring(Fk:getCardById(e)) end))
+  -- assert(isSame(cards, result), "客户端和服务端信息不符！")
+  return result
+end
+
+--- 同步一名角色的客户端手牌顺序
+--- 本bug由玄蝶提供
+---@param player ServerPlayer @ 角色
+---@return integer[] @ 卡牌ID，有元素检测就是了……
+function Room:syncPlayerClientCards(player)
+  local cards = player.player_cards[Player.Hand]
+  local result = self:getPlayerClientCards(player)
+  -- printf("服务端此时组合：%s", table.concat(table.map(cards, function(e) return tostring(Fk:getCardById(e)) end), ","))
+  -- printf("客户端返回组合：%s", table.concat(table.map(result, function(e) return tostring(Fk:getCardById(e)) end), ","))
+  assert(isSame(cards, result), "客户端和服务端信息不符！")
+  player.player_cards[Player.Hand] = result
+  return result
+end
+
+--- 禁止排序手牌，在此时点，客户端手牌顺序将应用于服务端手牌顺序
+---@param player ServerPlayer @ 角色
+---@param suffix string? @ 后缀，如“-turn”
+function Room:banSortingHandcards(player, suffix)
+  suffix = suffix or ""
+  self:setPlayerMark(player, MarkEnum.SortProhibited .. suffix, 1)
+  self:syncPlayerClientCards(player)
+  --FIXME: 需要一个假request
+end
+
+--- 解禁排序手牌，配合banSortingHandcards使用。
+---@param player ServerPlayer @ 角色
+---@param suffix string? @ 后缀，如“-turn”，一般是你用banSortingHandcards时填入的后缀
+function Room:unbanSortingHandcards(player, suffix)
+  suffix = suffix or ""
+  self:setPlayerMark(player, MarkEnum.SortProhibited .. suffix, 0)
+end
 
 return Room

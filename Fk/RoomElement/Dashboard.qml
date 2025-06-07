@@ -12,6 +12,7 @@ RowLayout {
   property alias handcardArea: handcardAreaItem
 
   property string pending_skill: ""
+  property bool sortable: true
   property var pending_card
   property var pendings: [] // int[], store cid
   property int selected_card: -1
@@ -137,6 +138,7 @@ RowLayout {
   function update() {
     unSelectAll();
     disableSkills();
+    sortable = handcardAreaItem.sortable;
 
     let cards = handcardAreaItem.cards;
     const toRemove = [];
@@ -187,6 +189,7 @@ RowLayout {
       }
     });
     handcardAreaItem.applyChange(uiUpdate);
+    sortable = handcardAreaItem.sortable;
     // skillBtn - SkillArea
     const skDatas = uiUpdate["SkillButton"]
     skDatas?.forEach(skdata => {

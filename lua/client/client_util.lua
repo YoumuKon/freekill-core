@@ -843,7 +843,14 @@ function GetTargetTip(pid)
 end
 
 function CanSortHandcards(pid)
-  return ClientInstance:getPlayerById(pid):getMark(MarkEnum.SortProhibited) == 0
+  local cplayer = ClientInstance:getPlayerById(pid)
+  if cplayer then
+    -- for m, _ in pairs(cplayer.mark) do
+    --   if m == MarkEnum.SortProhibited or m:startsWith(MarkEnum.SortProhibited .. "-") then return false end
+    -- end
+    return cplayer:canSortHandcards()
+  end
+  return true
 end
 
 function ChooseGeneralPrompt(rule_name, data, extra_data)
@@ -1045,7 +1052,7 @@ function RefreshStatusSkills()
   end
   -- 刷自己的手牌
   for _, cid in ipairs(Self:getCardIds("h")) do
-    self:notifyUI("UpdateCard", cid)
+    self:notifyUI("UpdateHandcard", cid)
   end
   Self:filterHandcards()
   -- 刷技能状态

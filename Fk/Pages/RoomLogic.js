@@ -259,14 +259,27 @@ function sortHandcards(sortMethods) {
     ["treasure"]: Card.SubtypeTreasure,
   }
 
-  const hand = dashboard.handcardArea.cards.map(c => {
+  const others = [];
+  const hands = [];
+  const orignal_hands = lcall("GetPlayerHandcards", Self.id); // 不计入expand_pile
+
+  dashboard.handcardArea.cards.forEach(c => {
+    if (orignal_hands.includes(c.cid)) {
+      hands.push(c);
+    } else {
+      others.push(c);
+    }
+  })
+
+  const orignal = hands.map(c => {
     return c.cid;
   })
+
 
   let sortedByType = true;
   let handcards
   if (cardType) {
-    handcards = dashboard.handcardArea.cards.slice(0);
+    handcards = hands.slice(0);
     handcards.sort((prev, next) => {
       if (prev.footnote === next.footnote) {
         if (prev.type === next.type) {
@@ -297,7 +310,7 @@ function sortHandcards(sortMethods) {
     // Check if the cards are sorted by type
     let i = 0;
     handcards.every(c => {
-      if (hand[i] !== c.cid) {
+      if (orignal[i] !== c.cid) {
         sortedByType = false;
         return false;
       }
@@ -310,7 +323,7 @@ function sortHandcards(sortMethods) {
 
   let sortedByNum = true;
   if (cardNum) {
-    handcards = dashboard.handcardArea.cards.slice(0);
+    handcards = hands.slice(0);
     handcards.sort((prev, next) => {
       if (prev.footnote === next.footnote) {
         if (prev.number === next.number) {
@@ -329,7 +342,7 @@ function sortHandcards(sortMethods) {
 
     let i = 0;
     handcards.every(c => {
-      if (hand[i] !== c.cid) {
+      if (orignal[i] !== c.cid) {
         sortedByNum = false;
         return false;
       }
@@ -342,7 +355,7 @@ function sortHandcards(sortMethods) {
 
   let sortedBySuit = true;
   if (cardSuit) {
-    handcards = dashboard.handcardArea.cards.slice(0);
+    handcards = hands.slice(0);
     handcards.sort((prev, next) => {
       if (prev.footnote === next.footnote) {
         if (suitInteger[prev.suit] === suitInteger[next.suit]) {
@@ -361,7 +374,7 @@ function sortHandcards(sortMethods) {
 
     let i = 0;
     handcards.every(c => {
-      if (hand[i] !== c.cid) {
+      if (orignal[i] !== c.cid) {
         sortedBySuit = false;
         return false;
       }
@@ -380,6 +393,7 @@ function sortHandcards(sortMethods) {
     }
   }
   if (!output) output = sortOutputs[0];
+  output.concat(others);
   dashboard.handcardArea.cards = output;
   dashboard.handcardArea.updateCardPosition(true);
 }
@@ -687,6 +701,34 @@ callbacks["PropertyUpdate"] = (data) => {
     let item = getPhoto(uid);
     item.playing = value < 8; // Player.NotActive
   }
+}
+
+callbacks["UpdateHandcard"] = (j) => {
+  const id = parseInt(j);
+  const sortable = lcall("CanSortHandcards", Self.id);
+  let card;
+  roomScene.tableCards.forEach((v) => {
+    if (v.cid === id) {
+      card = v;
+      return;
+    }
+  });
+
+  if (!card) {
+    roomScene.dashboard.handcardArea.cards.forEach((v) => {
+      if (v.cid === id) {
+        card = v;
+        return;
+      }
+    });
+  }
+
+  if (!card) {
+    return;
+  }
+
+  card.setData(lcall("GetCardData", id));
+  card.draggable = sortable;
 }
 
 callbacks["UpdateCard"] = (j) => {
@@ -1525,6 +1567,14 @@ callbacks["UpdateRequestUI"] = (uiUpdate) => {
   if (uiUpdate._type == "Room") {
     roomScene.applyChange(uiUpdate);
   }
+}
+
+// 蒋琬
+callbacks["GetPlayerHandcards"] = (data) => {
+  const hand = dashboard.handcardArea.cards.map(c => {
+    return c.cid;
+  })
+  replyToServer(JSON.stringify(hand));
 }
 
 callbacks["ReplyToServer"] = (data) => {

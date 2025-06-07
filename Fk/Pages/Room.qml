@@ -501,10 +501,12 @@ Item {
       //   text: luatr("Trust")
       // }
       MetroButton {
+        id: sortBtn
         text: luatr("Sort Cards")
         textFont.pixelSize: 28
+        enabled: dashboard.sortable// lcall("CanSortHandcards", Self.id)
         onClicked: {
-          if (lcall("CanSortHandcards", Self.id)) {
+          if (dashboard.sortable) {
             let sortMethods = [];
             for (let index = 0; index < sortMenuRepeater.count; index++) {
               var tCheckBox = sortMenuRepeater.itemAt(index)
