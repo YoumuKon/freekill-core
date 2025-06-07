@@ -82,6 +82,12 @@ end
 
 ---@class GameEvent.DrawInitial : GameEvent
 local DrawInitial = GameEvent:subclass("GameEvent.DrawInitial")
+
+function DrawInitial:__tostring()
+  return string.format("<DrawInitial : #%d>",
+    self.id)
+end
+
 function DrawInitial:main()
   local room = self.room
 
@@ -142,6 +148,11 @@ end
 ---@class GameEvent.Round : GameEvent
 ---@field public data RoundData
 local Round = GameEvent:subclass("GameEvent.Round")
+
+function Round:__tostring()
+  return string.format("<Round : %d #%d>",
+    Fk:currentRoom():getBanner("RoundCount"), self.id)
+end
 
 function Round:action()
   local room = self.room
@@ -253,6 +264,13 @@ end
 ---@class GameEvent.Turn : GameEvent
 ---@field public data TurnData
 local Turn = GameEvent:subclass("GameEvent.Turn")
+
+function Turn:__tostring()
+  local data = self.data
+  return string.format("<Turn : %s by %s #%d>",
+    data.who, data.reason, self.id)
+end
+
 function Turn:prepare()
   local room = self.room
   local logic = room.logic
@@ -358,6 +376,12 @@ end
 ---@class GameEvent.Phase : GameEvent
 ---@field public data PhaseData
 local Phase = GameEvent:subclass("GameEvent.Phase")
+
+function Phase:__tostring()
+  local data = self.data
+  return string.format("<Phase %s : %s by %s #%d>",
+    Util.PhaseStrMapper(data.phase), data.who, data.reason, self.id)
+end
 
 function Phase:prepare()
   local room = self.room

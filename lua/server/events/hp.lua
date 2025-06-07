@@ -45,6 +45,13 @@ end
 ---@class GameEvent.ChangeHp : GameEvent
 ---@field public data HpChangedData
 local ChangeHp = GameEvent:subclass("GameEvent.ChangeHp")
+
+function ChangeHp:__tostring()
+  local data = self.data
+  return string.format("<ChangeHp %d : %s <= %s %s #%d>",
+    data.num, data.who, data.reason, data.skillName, self.id)
+end
+
 function ChangeHp:main()
   local data = self.data
   local room = self.room
@@ -157,6 +164,13 @@ end
 ---@class GameEvent.Damage : GameEvent
 ---@field public data DamageData
 local Damage = GameEvent:subclass("GameEvent.Damage")
+
+function Damage:__tostring()
+  local data = self.data
+  return string.format("<Damage %d %s : %s <= %s #%d>",
+    data.damage, Fk:getDamageNatureName(data.damageType), data.to, data.from, self.id)
+end
+
 function Damage:main()
   local damageData = self.data
   local room = self.room
@@ -294,6 +308,13 @@ end
 ---@class GameEvent.LoseHp : GameEvent
 ---@field public data HpLostData
 local LoseHp = GameEvent:subclass("GameEvent.LoseHp")
+
+function LoseHp:__tostring()
+  local data = self.data
+  return string.format("<LoseHp %d : %s #%d>",
+    data.num, data.who, self.id)
+end
+
 function LoseHp:main()
   local data = self.data
   local room = self.room
@@ -338,6 +359,13 @@ end
 ---@class GameEvent.Recover : GameEvent
 ---@field public data RecoverData
 local Recover = GameEvent:subclass("GameEvent.Recover")
+
+function Recover:__tostring()
+  local data = self.data
+  return string.format("<Recover %d : %s <= %s #%d>",
+    data.num, data.who, data.recoverBy, self.id)
+end
+
 function Recover:prepare()
   local recoverData = self.data
   -- local room = self.room
@@ -394,6 +422,13 @@ end
 ---@class GameEvent.ChangeMaxHp : GameEvent
 ---@field public data MaxHpChangedData
 local ChangeMaxHp = GameEvent:subclass("GameEvent.ChangeMaxHp")
+
+function ChangeMaxHp:__tostring()
+  local data = self.data
+  return string.format("<ChangeMaxHp %d : %s #%d>",
+    data.num, data.who, self.id)
+end
+
 function ChangeMaxHp:main()
   local data = self.data
   local room = self.room

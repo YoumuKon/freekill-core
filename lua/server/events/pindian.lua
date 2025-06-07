@@ -13,6 +13,14 @@ end
 ---@class GameEvent.Pindian : GameEvent
 ---@field public data PindianData
 local Pindian = GameEvent:subclass("GameEvent.Pindian")
+
+function Pindian:__tostring()
+  local data = self.data
+  return string.format("<Pindian %s: %s => [%s] #%d>",
+    data.reason, data.from, table.concat(
+      table.map(data.tos or {}, ServerPlayer.__tostring), ", "), self.id)
+end
+
 function Pindian:main()
   local pindianData = self.data
   local room = self.room

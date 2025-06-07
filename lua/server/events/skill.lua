@@ -13,6 +13,15 @@ end
 ---@class GameEvent.SkillEffect : GameEvent
 ---@field public data SkillEffectData
 local SkillEffect = GameEvent:subclass("GameEvent.SkillEffect")
+
+function SkillEffect:__tostring()
+  local effectData = self.data
+  local useData = effectData.skill_data
+  return string.format("<UseSkill %s: %s => [%s] #%d>",
+    effectData.skill.name, effectData.who, table.concat(
+      table.map(useData.tos or {}, ServerPlayer.__tostring), ", "), self.id)
+end
+
 function SkillEffect:main()
   local data = self.data
   local effect_cb, player, skill, skill_data = data.skill_cb, data.who, data.skill, data.skill_data

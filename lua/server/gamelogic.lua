@@ -785,7 +785,7 @@ function GameLogic:dumpEventStack()
   local ret = "===== Start of event stack dump =====\n"
 
   repeat
-    ret = ret .. "Stack level #" .. i .. ": " .. tostring(top) .. "\n"
+    ret = ret .. tostring(top) .. "\n"
 
     top = top.parent
     i = i - 1

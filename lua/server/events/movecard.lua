@@ -20,6 +20,28 @@ end
 ---@class GameEvent.MoveCards : GameEvent
 ---@field public data MoveCardsData[]
 local MoveCards = GameEvent:subclass("GameEvent.MoveCards")
+
+function MoveCards:__tostring()
+  local data = self.data
+  local ret = "<MoveCards "
+  for _, move in ipairs(data) do
+    local r = string.format(" of %s => %s of %s", move.from, move.toArea, move.to)
+    local cards = {} ---@type table<CardArea, integer[]>
+    for _, info in ipairs(move.moveInfo) do
+      cards[info.fromArea] = cards[info.fromArea] or {}
+      table.insert(cards[info.fromArea], info.cardId)
+    end
+    for area, cs in pairs(cards) do
+      ret = ret .. string.format("[%s]: %s",
+        table.concat(table.map(cs, function(id)
+          return Fk:getCardById(id):__tostring()
+        end), ", "), area) .. r
+    end
+  end
+  ret = ret .. string.format(" #%d>", self.id)
+  return ret
+end
+
 function MoveCards:main()
   local room = self.room
   local moveCardsData = self.data

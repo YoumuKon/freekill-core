@@ -323,6 +323,13 @@ end
 ---@class GameEvent.RespondCard : GameEvent
 ---@field public data RespondCardData
 local RespondCard = GameEvent:subclass("GameEvent.RespondCard")
+
+function RespondCard:__tostring()
+  local data = self.data
+  return string.format("<RespondCard %s: %s #%d>",
+    data.card, data.from, self.id)
+end
+
 function RespondCard:main()
   local respondCardData = self.data
   local room = self.room
@@ -412,6 +419,14 @@ end
 ---@class GameEvent.CardEffect : GameEvent
 ---@field public data CardEffectData
 local CardEffect = GameEvent:subclass("GameEvent.CardEffect")
+
+function CardEffect:__tostring()
+  local data = self.data
+  return string.format("<CardEffect %s: %s => [%s] #%d>",
+    data.card, data.from, table.concat(
+      table.map(data.tos or {}, ServerPlayer.__tostring), ", "), self.id)
+end
+
 function CardEffect:main()
   local cardEffectData = self.data
   local room = self.room
