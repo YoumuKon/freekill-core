@@ -403,7 +403,11 @@ end
 function Engine:addSkill(skill)
   assert(skill:isInstanceOf(Skill))
   if self.skills[skill.name] ~= nil then
-    fk.qWarning(string.format("Duplicate skill %s detected", skill.name))
+    local old = self.skills[skill.name]
+    fk.qWarning(string.format("Duplicate skill %s detected[package exist %s, new package %s ]",
+    skill.name,
+    old.package and old.package.name or "unknown_pack",
+    skill.package and skill.package.name or "unknown_pack"))
   end
   self.skills[skill.name] = skill
 
@@ -450,7 +454,12 @@ end
 function Engine:addGeneral(general)
   assert(general:isInstanceOf(General))
   if self.generals[general.name] ~= nil then
-    error(string.format("Duplicate general %s detected", general.name))
+    local old = self.generals[general.name]
+    error(string.format("Duplicate general %s detected[package exist %s, new package %s ]",
+    general.name,
+    old.package and old.package.name or "unknown_pack",
+    general.package and general.package.name or "unknown_pack"
+    ))
   end
   self.generals[general.name] = general
 
