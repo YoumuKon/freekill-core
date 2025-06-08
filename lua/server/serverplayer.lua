@@ -632,7 +632,7 @@ function ServerPlayer:revealGeneral(isDeputy, no_trigger)
   local oldKingdom = self.kingdom
   room:changeHero(self, generalName, false, isDeputy, false, false, false)
   if #tolose > 0 then
-    room:handleAddLoseSkills(self, "-"..table.concat(tolose, "-|"), nil, false)
+    room:handleAddLoseSkills(self, "-"..table.concat(tolose, "|-"), nil, false)
   end
   if oldKingdom ~= "wild" then
     local kingdom = (self:getMark("__heg_wild") == 1 and not isDeputy) and "wild" or self:getMark("__heg_kingdom")
