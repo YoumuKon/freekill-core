@@ -52,7 +52,7 @@ function MoveCards:main()
   for _, data in ipairs(moveCardsData) do
     local new_move = {}
     if #data.moveInfo > 0 and data.toArea ~= Card.Void then
-      local orig_info, new_info = {}, {}
+      local orig_info, new_info, destruct_ids = {}, {}, {}
       for i = 1, #data.moveInfo do
         local info = data.moveInfo[i]
         local will_destruct = false
@@ -71,10 +71,7 @@ function MoveCards:main()
           room:setCardMark(card, MarkEnum.DestructIntoDiscard, 0)
           room:setCardMark(card, MarkEnum.DestructOutMyEquip, 0)
           room:setCardMark(card, MarkEnum.DestructOutEquip, 0)
-          room:sendLog{
-            type = "#DestructCards",
-            card = {info.cardId},
-          }
+          table.insert(destruct_ids, info.cardId)
           table.insert(new_info, info)
         else
           table.insert(orig_info, info)
@@ -93,6 +90,12 @@ function MoveCards:main()
           moveVisible = true,
         }
       end
+      if #destruct_ids > 0 then
+        room:sendLog{
+          type = "#DestructCards",
+          card = destruct_ids,
+        }
+      end
     end
     if next(new_move) then
       table.insert(new_data, new_move)
@@ -100,6 +103,16 @@ function MoveCards:main()
   end
   if next(new_data) then
     table.insertTable(moveCardsData, new_data)
+  end
+
+  for i = #moveCardsData, 1, -1 do
+    local data = moveCardsData[i]
+    if #data.moveInfo == 0 then
+      table.remove(moveCardsData, i)
+    end
+  end
+  if #moveCardsData == 0 then
+    room.logic:breakEvent()
   end
 
   room:notifyMoveCards(nil, moveCardsData)
@@ -432,6 +445,9 @@ end
 function MoveEventWrappers:throwCard(card_ids, skillName, who, thrower)
   skillName = skillName or ""
   thrower = thrower or who
+  assert(table.every(Card:getIdList(card_ids), function(id)
+    return self:getCardOwner(id) == who
+  end), "Attempt to throw card from false owner!")
   self:moveCards({
     ids = Card:getIdList(card_ids),
     from = who,
@@ -454,6 +470,9 @@ function MoveEventWrappers:recastCard(card_ids, who, skillName, moveMark)
     card_ids = {card_ids}
   end
   skillName = skillName or "recast"
+  assert(table.every(Card:getIdList(card_ids), function(id)
+    return self:getCardOwner(id) == who
+  end), "Attempt to recast card from false owner!")
   self:moveCards({
     ids = card_ids,
     from = who,
