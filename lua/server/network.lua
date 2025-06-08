@@ -212,6 +212,7 @@ function Request:ask()
 
   -- 1. 向所有人发送询问请求
   for _, p in ipairs(players) do
+    self.room.logic:trigger(fk.BeforeRequestAsk, p, self, true)
     self:_sendPacket(p)
   end
 
@@ -294,6 +295,10 @@ function Request:ask()
   self:_finish()
 
   self._asked = true
+
+  for _, p in ipairs(players) do
+    self.room.logic:trigger(fk.AfterRequestAsk, p, self, true)
+  end
 end
 
 local function surrenderCheck(room)
