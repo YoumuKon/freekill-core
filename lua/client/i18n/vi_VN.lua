@@ -348,6 +348,7 @@ Trang chủ: https://libgit2.org
   ["seat#11"] = "#11",
   ["seat#12"] = "#12",
   ["@ControledBy"] = "Bị kiểm soát bởi",
+  --["playerstr_self"] = "(你)",
 
   ["Menu"] = "Menu",
   ["Surrender"] = "Đầu hàng",

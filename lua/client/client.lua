@@ -178,6 +178,9 @@ local function parseMsg(msg, nocolor, visible_data)
     if p.general == "anjiang" and (p.deputyGeneral == "anjiang"
       or not p.deputyGeneral) then
       local ret = Fk:translate("seat#" .. p.seat)
+      if pid == Self.id then
+        ret = ret .. Fk:translate("playerstr_self")
+      end
       return string.format(str, color, ret)
     end
 
@@ -191,6 +194,9 @@ local function parseMsg(msg, nocolor, visible_data)
         ret = ret .. ("[%d]"):format(p.seat)
         break
       end
+    end
+    if pid == Self.id then
+      ret = ret .. Fk:translate("playerstr_self")
     end
     ret = string.format(str, color, ret)
     return ret

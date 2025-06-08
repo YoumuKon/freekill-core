@@ -362,6 +362,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["seat#11"] = "十一号位",
   ["seat#12"] = "十二号位",
   ["@ControledBy"] = "控制者",
+  ["playerstr_self"] = "(你)",
 
   ["Menu"] = "菜单",
   ["Surrender"] = "投降",

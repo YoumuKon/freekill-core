@@ -293,6 +293,7 @@ Fk:loadTranslationTable({
   ["seat#11"] = "Seat#11",
   ["seat#12"] = "Seat#12",
   ["@ControledBy"] = "Controller",
+  ["playerstr_self"] = "(you)",
 
   -- ["Menu"] = "菜单",
   -- ["Surrender"] = "投降",
