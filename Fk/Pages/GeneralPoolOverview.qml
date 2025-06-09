@@ -219,7 +219,7 @@ Item {
       height: parent.height / mainWindow.scale
       anchors.centerIn: parent
       scale: mainWindow.scale
-      source: AppPath + "/Fk/Pages/GeneralDetailPage.qml"
+      source: "GeneralDetailPage.qml"
     }
   }
 

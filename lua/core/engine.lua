@@ -420,7 +420,7 @@ function Engine:addSkill(skill)
       else
         local t = self.global_status_skill
         t[sk.class] = t[sk.class] or {}
-        table.insert(t[sk.class], sk)
+        table.insertIfNeed(t[sk.class], sk)
       end
     end
   end

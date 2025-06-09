@@ -37,7 +37,9 @@ function GetGeneralDetail(name)
     deputyMaxHp = general.deputyMaxHpAdjustedValue,
     gender = general.gender,
     skill = {},
-    companions = general.companions
+    companions = general.companions,
+    headnote = general.headnote,
+    endnote = general.endnote,
   }
   for _, s in ipairs(general.all_skills) do
     table.insert(ret.skill, {
