@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// TODO 这排var都得不能让外部直接调用了 改成基于函数调用
+// SkinBank.getSystemPic(PHOTO_DIR, path)之类的
+// 这样美化包就可以把path拐到resource_pak/xxx/packages/freekill-core/...下面
+// 由于要全改SkinBank.XXX 留给后来人
 //var AppPath = "file:///home/notify/develop/FreeKill";
 var PHOTO_BACK_DIR = AppPath + "/image/photo/back/";
 var PHOTO_DIR = AppPath + "/image/photo/";
@@ -21,52 +25,51 @@ var LOBBY_IMG_DIR = AppPath + "/image/lobby/";
 var MISC_DIR = AppPath + "/image/misc/";
 
 const searchPkgResource = function(path, name, suffix) {
-
+  const dirs = Backend.ls(AppPath + "/packages/").filter(dir =>
+    !Pacman.getDisabledPacks().includes(dir) &&
+      !dir.endsWith(".disabled")
+  );
   if (typeof config !== "undefined" && config.enabledResourcePacks) {
-    for (let packName of config.enabledResourcePacks) {
-      let resPath = AppPath + "/resource_pak/" + packName + "/packages/" + path + name + suffix;
-      if (Backend.exists(resPath)) return resPath;
+    for (const packName of config.enabledResourcePacks) {
+      for (const dir of dirs) {
+        const resPath = AppPath + "/resource_pak/" + packName + "/packages/" + dir + path + name + suffix;
+        if (Backend.exists(resPath)) return resPath;
+      }
     }
   }
 
   let ret;
-  for (let dir of Backend.ls(AppPath + "/packages/")) {
-    if (Pacman.getDisabledPacks().includes(dir) ||
-      dir.endsWith(".disabled") // in case
-    ) continue;
+  for (const dir of dirs) {
     ret = AppPath + "/packages/" + dir + path + name + suffix;
     if (Backend.exists(ret)) return ret;
   }
 }
 
+const searchPkgResourceWithExtension = function(extension, path, name, suffix) {
+  if (typeof config !== "undefined" && config.enabledResourcePacks) {
+    for (const packName of config.enabledResourcePacks) {
+      const resPath = AppPath + "/resource_pak/" + packName + "/packages/" + extension + path + name + suffix;
+      if (Backend.exists(resPath)) return resPath;
+    }
+  }
+
+  const ret = AppPath + "/packages/" + extension + path + name + suffix;
+  if (Backend.exists(ret)) return ret;
+}
+
 function getGeneralExtraPic(name, extra) {
   const data = lcall("GetGeneralData", name);
   const extension = data.extension;
-  const path = AppPath + "/packages/" + extension + "/image/generals/"
-             + extra + name + ".jpg";
-  if (Backend.exists(path)) {
-    return path;
-  }
+  const ret = searchPkgResourceWithExtension(extension, "/image/generals/" + extra, name, ".jpg");
+  return ret;
 }
 
 function getGeneralPicture(name) {
   const data = lcall("GetGeneralData", name);
   const extension = data.extension;
+  const ret = searchPkgResourceWithExtension(extension, "/image/generals/", name, ".jpg");
 
-  if (typeof config !== "undefined" && config.enabledResourcePacks) {
-    for (let packName of config.enabledResourcePacks) {
-      let path = AppPath + "/resource_pak/" + packName + "/packages/" + extension + "/image/generals/" + name + ".jpg";
-      if (Backend.exists(path)) return path;
-    }
-  }
-
-
-  const path = AppPath + "/packages/" + extension + "/image/generals/" + name + ".jpg";
-  if (Backend.exists(path)) {
-    return path;
-  }
-
-
+  if (ret) return ret;
   return GENERAL_DIR + "0.jpg";
 }
 
@@ -82,37 +85,23 @@ function getCardPicture(cidOrName) {
     name = data.name;
   }
 
-
-  if (typeof config !== "undefined" && config.enabledResourcePacks) {
-    for (let packName of config.enabledResourcePacks) {
-      let path = AppPath + "/resource_pak/" + packName + "/packages/" + extension + "/image/card/" + name + ".png";
-      if (Backend.exists(path)) return path;
-    }
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/", name, ".png");
+  if (!ret) {
+    ret = searchPkgResource("/image/card/", name, ".png");
   }
 
-
-  let path = AppPath + "/packages/" + extension + "/image/card/" + name + ".png";
-  if (Backend.exists(path)) {
-    return path;
-  } else {
-    let ret = searchPkgResource("/image/card/", name, ".png");
-    if (ret) return ret;
-  }
-
+  if (ret) return ret;
   return CARD_DIR + "unknown.png";
 }
 
 function getDelayedTrickPicture(name) {
   const extension = lcall("GetCardExtensionByName", name);
-
-  let path = AppPath + "/packages/" + extension + "/image/card/delayedTrick/"
-           + name + ".png";
-  if (Backend.exists(path)) {
-    return path;
-  } else {
-    let ret = searchPkgResource("/image/card/delayedTrick/", name, ".png");
-    if (ret) return ret;
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/delayedTrick/", name, ".png");
+  if (!ret) {
+    ret = searchPkgResource("/image/card/delayedTrick/", name, ".png");
   }
+
+  if (ret) return ret;
   return DELAYED_TRICK_DIR + "unknown.png";
 }
 
@@ -121,17 +110,16 @@ function getEquipIcon(cid, icon) {
   const data = lcall("GetCardData", cid);
   const extension = data.extension;
   const name = icon || data.name;
-  let path = AppPath + "/packages/" + extension + "/image/card/equipIcon/"
-           + name + ".png";
-  if (Backend.exists(path)) {
-    return path;
-  } else {
-    let ret = searchPkgResource("/image/card/equipIcon/", name, ".png");
-    if (ret) return ret;
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/equipIcon/", name, ".png");
+  if (!ret) {
+    ret = searchPkgResource("/image/card/equipIcon/", name, ".png");
   }
+
+  if (ret) return ret;
   return EQUIP_ICON_DIR + "unknown.png";
 }
 
+// TODO
 function getPhotoBack(kingdom) {
   let path = PHOTO_BACK_DIR + kingdom + ".png";
   if (!Backend.exists(path)) {
@@ -152,6 +140,7 @@ function getGeneralCardDir(kingdom) {
     return GENERALCARD_DIR;
   }
 }
+
 //身份和死亡嘛先算了吧
 function getRolePic(role) {
   let path = ROLE_DIR + role + ".png";
@@ -174,11 +163,10 @@ function getRoleDeathPic(role) {
   }
   return DEATH_DIR + "hidden.png";
 }
+
 //mark嘛先算了吧
 function getMarkPic(mark) {
   let ret = searchPkgResource("/image/mark/", mark, ".png");
   if (ret) return ret;
   return "";
 }
-
-
