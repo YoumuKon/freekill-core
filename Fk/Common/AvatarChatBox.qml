@@ -45,7 +45,7 @@ Rectangle {
 
           if (Backend.exists(fname)) {
             ret = true;
-            skills.append({ name: t.name, idx: i, specific: true });
+            skills.append({ name: t.name, idx: i, specific: true, general: general });
           } else {
             if (i > 0) break;
           }
@@ -59,7 +59,7 @@ Rectangle {
             t.name + (i !== 0 ? i.toString() : "") + ".mp3";
 
             if (Backend.exists(fname)) {
-              skills.append({ name: t.name, idx: i, specific: false});
+              skills.append({ name: t.name, idx: i, specific: false, general: general});
             } else {
               if (i > 0) break;
             }
@@ -277,7 +277,11 @@ Rectangle {
       delegate: ItemDelegate {
         width: soundSelector.width
         height: 30
-        text: luatr((name.startsWith("~") || name.startsWith("!")) ? name : "$" + name + (idx ? idx.toString() : ""))
+        text: {
+          luatr((name.startsWith("~") || name.startsWith("!")) ? name :
+            "$" + name + (specific ? '_' + general : "") + 
+            (idx ? idx.toString() : ""))
+        }
 
         onClicked: {
           opTimer.start();
@@ -295,7 +299,9 @@ Rectangle {
             "Chat",
             JSON.stringify({
               type: isLobby ? 1 : 2,
-              msg: (name.startsWith("~") || name.startsWith("!")) ? "$" + name : "$" + name + ":" + (idx ? idx.toString() : "")
+              msg: (name.startsWith("~") || name.startsWith("!")) ?
+                "$" + name :
+                "$" + name + ":" + (idx ? idx.toString() : "") + (specific ? ":" + general : "")
             })
           );
           soundSelector.visible = false;
