@@ -25,6 +25,7 @@ var LOBBY_IMG_DIR = AppPath + "/image/lobby/";
 var MISC_DIR = AppPath + "/image/misc/";
 
 const searchPkgResource = function(path, name, suffix) {
+  suffix = suffix ?? ".png";
   const dirs = Backend.ls(AppPath + "/packages/").filter(dir =>
     !Pacman.getDisabledPacks().includes(dir) &&
       !dir.endsWith(".disabled")
@@ -46,6 +47,7 @@ const searchPkgResource = function(path, name, suffix) {
 }
 
 const searchPkgResourceWithExtension = function(extension, path, name, suffix) {
+  suffix = suffix ?? ".png";
   if (typeof config !== "undefined" && config.enabledResourcePacks) {
     for (const packName of config.enabledResourcePacks) {
       const resPath = AppPath + "/resource_pak/" + packName + "/packages/" + extension + path + name + suffix;
@@ -54,6 +56,18 @@ const searchPkgResourceWithExtension = function(extension, path, name, suffix) {
   }
 
   const ret = AppPath + "/packages/" + extension + path + name + suffix;
+  if (Backend.exists(ret)) return ret;
+}
+
+function searchBuiltinPic(path, name, suffix) {
+  suffix = suffix ?? ".png";
+  if (typeof config !== "undefined" && config.enabledResourcePacks) {
+    for (const packName of config.enabledResourcePacks) {
+      const resPath = AppPath + "/resource_pak/" + packName + path + name + suffix;
+      if (Backend.exists(resPath)) return resPath;
+    }
+  }
+  let ret = AppPath + path + name + suffix;
   if (Backend.exists(ret)) return ret;
 }
 
@@ -70,7 +84,7 @@ function getGeneralPicture(name) {
   const ret = searchPkgResourceWithExtension(extension, "/image/generals/", name, ".jpg");
 
   if (ret) return ret;
-  return GENERAL_DIR + "0.jpg";
+  return searchBuiltinPic("/image/generals/", "0");
 }
 
 function getCardPicture(cidOrName) {
@@ -85,24 +99,24 @@ function getCardPicture(cidOrName) {
     name = data.name;
   }
 
-  let ret = searchPkgResourceWithExtension(extension, "/image/card/", name, ".png");
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/", name);
   if (!ret) {
-    ret = searchPkgResource("/image/card/", name, ".png");
+    ret = searchPkgResource("/image/card/", name);
   }
 
   if (ret) return ret;
-  return CARD_DIR + "unknown.png";
+  return searchBuiltinPic("/image/card/", "unknown");
 }
 
 function getDelayedTrickPicture(name) {
   const extension = lcall("GetCardExtensionByName", name);
-  let ret = searchPkgResourceWithExtension(extension, "/image/card/delayedTrick/", name, ".png");
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/delayedTrick/", name);
   if (!ret) {
-    ret = searchPkgResource("/image/card/delayedTrick/", name, ".png");
+    ret = searchPkgResource("/image/card/delayedTrick/", name);
   }
 
   if (ret) return ret;
-  return DELAYED_TRICK_DIR + "unknown.png";
+  return searchBuiltinPic("/image/card/delayedTrick/", "unknown");
 }
 
 
@@ -110,63 +124,60 @@ function getEquipIcon(cid, icon) {
   const data = lcall("GetCardData", cid);
   const extension = data.extension;
   const name = icon || data.name;
-  let ret = searchPkgResourceWithExtension(extension, "/image/card/equipIcon/", name, ".png");
+  let ret = searchPkgResourceWithExtension(extension, "/image/card/equipIcon/", name);
   if (!ret) {
-    ret = searchPkgResource("/image/card/equipIcon/", name, ".png");
+    ret = searchPkgResource("/image/card/equipIcon/", name);
   }
 
   if (ret) return ret;
-  return EQUIP_ICON_DIR + "unknown.png";
+  return searchBuiltinPic("/image/card/equipIcon/", "unknown");
 }
 
-// TODO
 function getPhotoBack(kingdom) {
-  let path = PHOTO_BACK_DIR + kingdom + ".png";
-  if (!Backend.exists(path)) {
+  let path = searchBuiltinPic("/image/photo/back/", kingdom);
+  if (!path) {
     let ret = searchPkgResource("/image/kingdom/", kingdom, "-back.png");
     if (ret) return ret;
   } else {
     return path;
   }
-  return PHOTO_BACK_DIR + "unknown";
+  return searchBuiltinPic("/image/photo/back/", "unknown");
 }
 
 function getGeneralCardDir(kingdom) {
-  let path = GENERALCARD_DIR + kingdom + ".png";
-  if (!Backend.exists(path)) {
+  let path = searchBuiltinPic("/image/card/general/", kingdom);
+  if (!path) {
     let ret = searchPkgResource("/image/kingdom/", kingdom, "-back.png");
     if (ret) return ret.slice(0, ret.lastIndexOf('/')) + "/";
   } else {
-    return GENERALCARD_DIR;
+    return path.slice(0, path.lastIndexOf('/')) + "/";
   }
 }
 
-//身份和死亡嘛先算了吧
 function getRolePic(role) {
-  let path = ROLE_DIR + role + ".png";
-  if (Backend.exists(path)) {
+  let path = searchBuiltinPic("/image/photo/role/", role);
+  if (path) {
     return path;
   } else {
-    let ret = searchPkgResource("/image/role/", role, ".png");
+    let ret = searchPkgResource("/image/role/", role);
     if (ret) return ret;
   }
-  return ROLE_DIR + "unknown.png";
+  return searchBuiltinPic("/image/photo/role/", "unknown");
 }
 
 function getRoleDeathPic(role) {
-  let path = DEATH_DIR + role + ".png";
-  if (Backend.exists(path)) {
+  let path = searchBuiltinPic("/image/photo/death/", role);
+  if (path) {
     return path;
   } else {
-    let ret = searchPkgResource("/image/role/death/", role, ".png");
+    let ret = searchPkgResource("/image/role/death/", role);
     if (ret) return ret;
   }
-  return DEATH_DIR + "hidden.png";
+  return searchBuiltinPic("/image/photo/death/", "hidden");
 }
 
-//mark嘛先算了吧
 function getMarkPic(mark) {
-  let ret = searchPkgResource("/image/mark/", mark, ".png");
+  let ret = searchPkgResource("/image/mark/", mark);
   if (ret) return ret;
   return "";
 }

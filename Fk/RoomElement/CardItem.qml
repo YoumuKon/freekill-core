@@ -95,7 +95,7 @@ Item {
   Image {
     id: cardItem
     source: known ? SkinBank.getCardPicture(cid || name)
-            : (SkinBank.CARD_DIR + "card-back")
+            : (SkinBank.searchBuiltinPic("/image/card/", "card-back"))
     anchors.fill: parent
     fillMode: Image.PreserveAspectCrop
   }
@@ -103,8 +103,8 @@ Item {
   Image {
     id: suitItem
     visible: known
-    source: (suit !== "" && suit !== "nosuit") ? SkinBank.CARD_SUIT_DIR + suit
-                                               : ""
+    source: (suit !== "" && suit !== "nosuit") ?
+      SkinBank.searchBuiltinPic("/image/card/suit/", suit) : ""
     x: 3
     y: 19
     width: 21
@@ -114,8 +114,8 @@ Item {
   Image {
     id: numberItem
     visible: known
-    source: (suit != "" && number > 0) ? SkinBank.CARD_DIR
-      + "number/" + root.getColor() + "/" + number : ""
+    source: (suit != "" && number > 0) ?
+      SkinBank.searchBuiltinPic(`/image/card/number/${root.getColor()}/`, number) : ""
     x: 0
     y: 0
     width: 27
