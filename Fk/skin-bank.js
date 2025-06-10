@@ -84,7 +84,7 @@ function getGeneralPicture(name) {
   const ret = searchPkgResourceWithExtension(extension, "/image/generals/", name, ".jpg");
 
   if (ret) return ret;
-  return searchBuiltinPic("/image/generals/", "0");
+  return searchBuiltinPic("/image/generals/", "0", ".jpg");
 }
 
 function getCardPicture(cidOrName) {
