@@ -22,7 +22,7 @@ virtual_viewas:addEffect("viewas", {
     end
   end,
   interaction = function(self)
-    if #self.all_choices == 1 then return end
+    if #self.all_choices == 1 and not self.namebox then return end
     return UI.CardNameBox {choices = self.choices, all_choices = self.all_choices }
   end,
   view_as = function(self, player, cards)

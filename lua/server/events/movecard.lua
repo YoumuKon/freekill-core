@@ -470,9 +470,6 @@ function MoveEventWrappers:recastCard(card_ids, who, skillName, moveMark)
     card_ids = {card_ids}
   end
   skillName = skillName or "recast"
-  assert(table.every(Card:getIdList(card_ids), function(id)
-    return self:getCardOwner(id) == who
-  end), "Attempt to recast card from false owner!")
   self:moveCards({
     ids = card_ids,
     from = who,

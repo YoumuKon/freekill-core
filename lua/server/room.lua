@@ -2203,7 +2203,13 @@ end
 ---@param params askToUseVirtualCardParams @ 各种变量
 ---@return UseCardDataSpec? @ 返回卡牌使用框架。取消使用则返回空
 function Room:askToUseVirtualCard(player, params)
-  params.name = type(params.name) == "table" and params.name or {params.name}
+  local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
+  params.name = params.name
+  if type(params.name) == "table" then
+    extra_data.namebox = true
+  else
+    params.name = {params.name}
+  end
   params.subcards = params.subcards or {}
   params.skill_name = params.skill_name or ""
   params.prompt = params.prompt
@@ -2223,7 +2229,6 @@ function Room:askToUseVirtualCard(player, params)
   params.card_filter.pattern = params.card_filter.pattern or "."
   params.card_filter.cards = params.card_filter.cards or table.connect(player:getCardIds("he"), player:getHandlyIds(false))
 
-  local extra_data = params.extra_data and table.simpleClone(params.extra_data) or {}
   if extra_data.bypass_times == nil then extra_data.bypass_times = true end
   if extra_data.extraUse == nil then extra_data.extraUse = true end
   local all_names, subcards, skillName, prompt, cancelable, skipUse = params.name, params.subcards, params.skill_name, params.prompt, params.cancelable, params.skip
