@@ -469,6 +469,12 @@ Fk:loadTranslationTable{
   ["rebel"] = "反贼",
   ["renegade"] = "内奸",
   ["lord+loyalist"] = "主忠",
+  ["rebel_chief"] = "贼首",
+  ["civilian"] = "平民",
+  ["rebel+rebel_chief"] = "反贼",
+  ["rebel+rebel_chief+civilian"] = "反贼",
+  ["renegade+civilian"] = "内奸",
+  ["lord+loyalist+civilian"] = "主忠",
 
   ["normal_damage"] = "无属性",
   ["fire_damage"] = "火属性",

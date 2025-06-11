@@ -15,6 +15,7 @@ Fk:loadTranslationTable{
   ["heal_hp"] = "回复体力",
   ["lose_max_hp"] = "减体力上限",
   ["heal_max_hp"] = "加体力上限",
+  ["shield"] = "护甲",
   ["kill"] = "杀死",
   ["revive"] = "复活",
 }
@@ -45,7 +46,7 @@ damage_maker:addEffect("active", {
       end
       player:setMark("damageNatures", damageNatures)
     end
-    local choices = table.connect(damageNatures, {"lose_hp", "heal_hp", "lose_max_hp", "heal_max_hp", "kill", "revive"})
+    local choices = table.connect(damageNatures, {"lose_hp", "heal_hp", "lose_max_hp", "heal_max_hp", "shield", "kill", "revive"})
     return UI.ComboBox {
       choices = choices
     }
@@ -80,6 +81,8 @@ damage_maker:addEffect("active", {
       room:changeMaxHp(victim, -number)
     elseif choice == "lose_hp" then
       room:loseHp(victim, number, damage_maker.name)
+    elseif choice == "shield" then
+      room:changeShield(victim, number)
     elseif choice == "kill" then
       room:killPlayer{
         who = victim,
