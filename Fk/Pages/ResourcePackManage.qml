@@ -17,7 +17,13 @@ Item {
   Component.onCompleted: {
     availablePackModel.clear();
     enabledPackModel.clear();
-    let allPacks = Backend.ls(AppPath + "/resource_pak/").filter(dir => Backend.isDir(AppPath + "/resource_pak/" + dir));
+    let allPacks = Backend.ls(AppPath + "/resource_pak/").filter(dir => {
+      let full_dir = AppPath + "/resource_pak/" + dir
+      if (Qt.platform.os === "windows"){
+        full_dir = full_dir.replace("file:///", "file://");
+      }
+      return Backend.isDir(full_dir);
+    });
     currentEnabled = config.enabledResourcePacks || [];
     let enabledSet = new Set(currentEnabled.filter(p => allPacks.indexOf(p) !== -1));
     let available = allPacks.filter(p => !enabledSet.has(p));
