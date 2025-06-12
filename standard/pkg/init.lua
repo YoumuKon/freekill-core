@@ -191,11 +191,12 @@ local role_mode = fk.CreateGameMode{
         if #alive_players < 3 then
           roleCheck = true
         else
-          local left_rebel, left_renegade = false, false
+          roleText = "left you alive"
+          local left_loyalist, left_rebel, left_renegade = false, false, false
           for _, p in ipairs(alive_players) do
             if p ~= Self then
               if table.contains({"lord", "loyalist"}, p.role) then
-                roleCheck = false
+                left_loyalist = true
                 break
               else
                 if table.contains({"rebel", "rebel_chief"}, p.role) then
@@ -206,11 +207,13 @@ local role_mode = fk.CreateGameMode{
               end
             end
           end
-          roleCheck = not (left_rebel and left_renegade)
+          if left_loyalist then
+            roleCheck = false
+          else
+            roleCheck = not (left_rebel and left_renegade)
+          end
         end
       end
-
-      roleText = "left you alive"
     end
 
     return {
