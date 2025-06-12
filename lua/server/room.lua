@@ -2144,6 +2144,9 @@ function Room:askToUseRealCard(player, params)
   elseif type(pile) == "table" then
     table.insertTable(cards, pile)
   end
+  if pile and extra_data.expand_pile == nil then
+    extra_data.expand_pile = pile
+  end
 
   local cardIds = {}
   for _, cid in ipairs(cards) do

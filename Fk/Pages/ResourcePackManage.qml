@@ -19,7 +19,7 @@ Item {
     enabledPackModel.clear();
     let allPacks = Backend.ls(AppPath + "/resource_pak/").filter(dir => {
       let full_dir = AppPath + "/resource_pak/" + dir
-      if (Qt.platform.os === "windows"){
+      if (OS === "Win"){
         full_dir = full_dir.replace("file:///", "file://");
       }
       return Backend.isDir(full_dir);
