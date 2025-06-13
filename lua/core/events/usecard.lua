@@ -439,6 +439,7 @@ function AimData:removeDeadTargets()
   end
 end
 
+--- 当前目标是否为唯一目标
 ---@param target ServerPlayer
 ---@return boolean
 function AimData:isOnlyTarget(target)
@@ -449,6 +450,7 @@ function AimData:isOnlyTarget(target)
   end)
 end
 
+--- 当前目标是否不可响应此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function AimData:isDisresponsive(target)
@@ -456,6 +458,7 @@ function AimData:isDisresponsive(target)
   return self.disresponsive or (target and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
 end
 
+--- 当前目标是否不可抵消此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function AimData:isUnoffsetable(target)
@@ -463,9 +466,28 @@ function AimData:isUnoffsetable(target)
   return self.unoffsetable or (target and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
 end
 
+--- 判断此牌是否对当前目标无效
 ---@return boolean
 function AimData:isNullified()
   return self.nullified or (self.to and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
+end
+
+--- 令一名角色不可响应此牌
+---@param target? ServerPlayer
+function AimData:setDisresponsive(target)
+  target = target or self.to
+  if not target then return end
+  self.use.disresponsiveList = self.use.disresponsiveList or {}
+  table.insert(self.use.disresponsiveList, target)
+end
+
+--- 令一名角色不可抵消此牌
+---@param target? ServerPlayer
+function AimData:setUnoffsetable(target)
+  target = target or self.to
+  if not target then return end
+  self.use.unoffsetableList = self.use.unoffsetableList or {}
+  table.insert(self.use.unoffsetableList, target)
 end
 
 --- 响应当前牌需要的牌张数，默认1
@@ -519,11 +541,14 @@ fk.TargetConfirmed = AimEvent:subclass("fk.TargetConfirmed")
 ---@field public fixedResponseTimesList? table<ServerPlayer, integer> @ 某角色响应此事件需要的牌张数（如杀响应决斗），键为角色，值为响应张数
 ---@field public fixedAddTimesResponsors? ServerPlayer[] @ 需要应用额外响应的角色们，用于单向多次响应（无双），为nil则应用所有角色
 ---@field public prohibitedCardNames? string[] @ 这些牌名的牌不可响应此牌
+---@field public disresponsiveList? ServerPlayer[] @ 这些角色不可响应此牌（晚于use.disresponsiveList）
+---@field public unoffsetableList? ServerPlayer[] @ 这些角色不可抵消此牌（晚于use.unoffsetableList）
 
 --- 卡牌效果的数据
 ---@class CardEffectData: CardEffectDataSpec, TriggerData
 CardEffectData = TriggerData:subclass("CardEffectData")
 
+--- 当前数据的所有子目标（如借刀）
 ---@param player ServerPlayer
 ---@return ServerPlayer[]
 function CardEffectData:getSubTos(player)
@@ -537,11 +562,13 @@ function CardEffectData:getSubTos(player)
   return {}
 end
 
+--- 当前数据的所有目标
 ---@return ServerPlayer[]
 function CardEffectData:getAllTargets()
   return table.simpleClone(self.tos)
 end
 
+--- 当前目标是否为唯一目标
 ---@param target ServerPlayer
 ---@return boolean
 function CardEffectData:isOnlyTarget(target)
@@ -552,26 +579,66 @@ function CardEffectData:isOnlyTarget(target)
   end)
 end
 
---- 当前生效目标是否不可抵消此牌
+--- 当前生效目标是否不可响应此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function CardEffectData:isDisresponsive(target)
   target = target or self.to
-  return self.disresponsive or (target and self.use ~= nil and table.contains((self.use.disresponsiveList or Util.DummyTable), target))
+  if not target then return false end
+  if self.disresponsive then return true end
+  if self.use ~= nil then
+    return table.contains((self.use.disresponsiveList or Util.DummyTable), target)
+  else
+    return table.contains((self.disresponsiveList or Util.DummyTable), target)
+  end
 end
 
---- 当前生效目标是否不可响应此牌
+--- 当前生效目标是否不可抵消此牌
 ---@param target? ServerPlayer
 ---@return boolean
 function CardEffectData:isUnoffsetable(target)
   target = target or self.to
-  return self.unoffsetable or (target and self.use ~= nil and table.contains((self.use.unoffsetableList or Util.DummyTable), target))
+  if not target then return false end
+  if self.unoffsetable then return true end
+  if self.use ~= nil then
+    return table.contains((self.use.unoffsetableList or Util.DummyTable), target)
+  else
+    return table.contains((self.unoffsetableList or Util.DummyTable), target)
+  end
 end
 
 --- 判断此牌是否对当前目标无效
 ---@return boolean
 function CardEffectData:isNullified()
   return self.nullified or (self.to and self.use ~= nil and table.contains((self.use.nullifiedTargets or Util.DummyTable), self.to))
+end
+
+--- 令一名角色不可响应此牌
+---@param target? ServerPlayer
+function CardEffectData:setDisresponsive(target)
+  target = target or self.to
+  if not target then return end
+  if self.use ~= nil then
+    self.use.disresponsiveList = self.use.disresponsiveList or {}
+    table.insert(self.use.disresponsiveList, target)
+  else
+    self.disresponsiveList = self.disresponsiveList or {}
+    table.insert(self.disresponsiveList, target)
+  end
+end
+
+--- 令一名角色不可抵消此牌
+---@param target? ServerPlayer
+function CardEffectData:setUnoffsetable(target)
+  target = target or self.to
+  if not target then return end
+  if self.use ~= nil then
+    self.use.unoffsetableList = self.use.unoffsetableList or {}
+    table.insert(self.use.unoffsetableList, target)
+  else
+    self.unoffsetableList = self.unoffsetableList or {}
+    table.insert(self.unoffsetableList, target)
+  end
 end
 
 --- 响应当前牌需要的牌张数，默认1

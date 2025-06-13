@@ -265,10 +265,9 @@ function CardSkill:preEffect(room, cardEffectData)
           if
             Fk:getCardById(cid).trueName == "nullification" and
             (
-              cardEffectData.use == nil or
               not (
-                table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
-                table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+                cardEffectData:isDisresponsive(p) or
+                cardEffectData:isUnoffsetable(p)
               )
             )
           then
@@ -286,10 +285,9 @@ function CardSkill:preEffect(room, cardEffectData)
               s:enabledAtNullification(p, cardEffectData) and
               s:enabledAtResponse(p) and
               (
-                cardEffectData.use == nil or
                 not (
-                  table.contains(cardEffectData.use.disresponsiveList or Util.DummyTable, p) or
-                  table.contains(cardEffectData.use.unoffsetableList or Util.DummyTable, p)
+                  cardEffectData:isDisresponsive(p) or
+                  cardEffectData:isUnoffsetable(p)
                 )
               )
             then
