@@ -1827,6 +1827,7 @@ end
 ---@field cards integer[] @ 可以被观星的卡牌id列表
 ---@field top_limit? integer[] @ 置于牌堆顶的牌的限制(下限,上限)，不填写则不限
 ---@field bottom_limit? integer[] @ 置于牌堆底的牌的限制(下限,上限)，不填写则不限
+---@field skill_name? string @ 烧条时显示的技能名
 ---@field title? string @ 观星框的标题
 ---@field skip? boolean @ 是否进行放置牌操作
 ---@field area_names? string[] @ 左侧提示信息
@@ -1839,7 +1840,7 @@ end
 ---@return table<"top"|"bottom", integer[]> @ 观星后的牌堆结果
 function Room:askToGuanxing(player, params)
   -- 这一大堆都是来提前报错的
-  local cards, top_limit, bottom_limit, customNotify, noPut = params.cards, params.top_limit, params.bottom_limit, params.prompt, params.skip
+  local cards, top_limit, bottom_limit, customNotify, noPut = params.cards, params.top_limit, params.bottom_limit, params.skill_name, params.skip
   local leng = #cards
   top_limit = top_limit or { 0, leng }
   bottom_limit = bottom_limit or { 0, leng }
