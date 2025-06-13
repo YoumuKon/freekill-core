@@ -1823,11 +1823,10 @@ function Room:askToArrangeCards(player, params)
   return result
 end
 
----@class AskToGuanxingParams
+---@class AskToGuanxingParams : AskToSkillInvokeParams
 ---@field cards integer[] @ 可以被观星的卡牌id列表
 ---@field top_limit? integer[] @ 置于牌堆顶的牌的限制(下限,上限)，不填写则不限
 ---@field bottom_limit? integer[] @ 置于牌堆底的牌的限制(下限,上限)，不填写则不限
----@field skill_name? string @ 烧条时显示的技能名
 ---@field title? string @ 观星框的标题
 ---@field skip? boolean @ 是否进行放置牌操作
 ---@field area_names? string[] @ 左侧提示信息
