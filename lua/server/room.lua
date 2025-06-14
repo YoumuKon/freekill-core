@@ -421,6 +421,19 @@ function Room:removePlayerMark(player, mark, count)
   self:setPlayerMark(player, mark, math.max(num - count, 0))
 end
 
+--清除一名角色手牌中的某种标记
+---@param player ServerPlayer @ 要清理标记的角色
+---@param name string @ 要清理的标记名
+function Room:clearHandMark(player, name)
+  local card = nil
+  for _, id in ipairs(player:getCardIds("h")) do
+    card = Fk:getCardById(id)
+    if card:getMark(name) > 0 then
+      self:setCardMark(card, name, 0)
+    end
+  end
+end
+
 --- 将一张卡牌的某种标记数量相应的值。
 ---
 --- 在设置之后，会通知所有客户端也更新一下标记的值。之后的两个相同
@@ -1084,6 +1097,60 @@ function Room:askToCards(player, params)
   return chosenCards
 end
 
+---@class AskToChooseCardsAndChoiceParams: AskToSkillInvokeParams
+---@field cards integer[] @ 待选卡牌
+---@field all_cards? integer[]  @ 会显示的所有卡牌
+---@field min_num? integer  @ 最小选牌数（默认为1）
+---@field max_num? integer  @ 最大选牌数（默认为1）
+---@field default_choice string @ 始终可用的分支，会置于最左侧
+---@field choices string[] @ 可选选项列表，受```filter_skel_name```的审查
+---@field filter_skel_name? string @ 带```choice_filter```的技能**骨架**名，无则所有选项均可用
+---@field cancel_choices? string[] @ 可选选项列表（不选择牌时的选项）
+---@field extra_data? table @ 额外信息，因技能而异了
+
+--- 询问玩家选择牌和选项，但是选项有额外的点亮标准
+---@param player ServerPlayer @ 要询问的玩家
+---@param params AskToChooseCardsAndChoiceParams @ 参数列表
+---@return integer[], string
+function Room:askToChooseCardsAndChoice(player, params)
+  local cards, choices, skillname, prompt, cancel_choices, min, max, all_cards =
+    params.cards, params.choices, params.skill_name, params.prompt,
+    params.cancel_choices, params.min_num, params.max_num, params.all_cards
+  local default_choice = params.default_choice
+  table.insert(choices, 1, default_choice)
+  cancel_choices = cancel_choices or {}
+  min = min or 1
+  max = max or 1
+  assert(min <= max, "limits error: The upper limit should be less than the lower limit")
+  assert(#cards >= min or #cancel_choices > 0, "limits Error: No enough cards")
+  assert(#choices > 0 or #cancel_choices > 0, "should have choice to choose")
+  local data = {
+    cards = all_cards or cards,
+    choices = choices,
+    prompt = prompt,
+    cancel_choices = cancel_choices,
+    min = min,
+    max = max,
+    filter_skel = params.filter_skel_name,
+    disabled = all_cards and table.filter(all_cards, function (id)
+      return not table.contains(cards, id)
+    end) or {},
+    extra_data = params.extra_data
+  }
+  local command = "AskForCardsAndChoice"
+  local req = Request:new(player, command)
+  req.focus_text = skillname
+  req:setData(player, data)
+  local result = req:getResult(player)
+  if result ~= "" then
+    return result.cards, result.choice
+  end
+  if #cancel_choices > 0 then
+    return {}, cancel_choices[1]
+  end
+  return table.random(cards, min), default_choice
+end
+
 ---@class AskToChooseCardsAndPlayersParams: AskToChoosePlayersParams
 ---@field min_card_num integer @ 选卡牌最小值
 ---@field max_card_num integer @ 选卡牌最大值
@@ -1246,7 +1313,7 @@ function Room:askToYiji(player, params)
     end
   end
   if not params.skip then
-    self:doYiji(list, player, skillName, moveMark)
+    self:doYiji(list, player, skillName, params.moveMark)
   end
 
   return list
@@ -1297,7 +1364,7 @@ end
 function Room:askToChooseKingdom(players)
   players = players or self.alive_players
   local specialKingdomPlayers = table.filter(players, function(p)
-    return Fk.generals[p.general].subkingdom or #Fk:getKingdomMap(p.kingdom) > 0
+    return (Fk.generals[p.general].subkingdom ~= nil) or #Fk:getKingdomMap(p.kingdom) > 0
   end)
 
   if #specialKingdomPlayers > 0 then

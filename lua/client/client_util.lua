@@ -913,6 +913,14 @@ function GetMiniGame(gtype, p, data)
   }
 end
 
+function GetSkelChoiceFilter(skel_name, cards, choices, extra_data)
+  local skel = Fk.skill_skels[skel_name]
+  if skel and type(skel.choiceFilter) == "function" then
+    return skel:choiceFilter(cards, choices, extra_data)
+  end
+  return false
+end
+
 function ReloadPackage(path)
   Fk:reloadPackage(path)
 end
