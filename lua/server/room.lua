@@ -1104,7 +1104,7 @@ end
 ---@field max_num? integer  @ 最大选牌数（默认为1）
 ---@field default_choice string @ 始终可用的分支，会置于最左侧
 ---@field choices string[] @ 可选选项列表，受```filter_skel_name```的审查
----@field filter_skel_name? string @ 带```extra.choiceFilter```的技能**骨架**名，无则所有选项均可用
+---@field filter_skel_name? string @ 带```extra.choiceFilter(cards: integer[], choice: string, extra_data: table?): boolean?```的技能**骨架**名，无则所有选项均可用
 ---@field cancel_choices? string[] @ 可选选项列表（不选择牌时的选项）
 ---@field extra_data? table @ 额外信息，因技能而异了
 
