@@ -7,6 +7,7 @@
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string? @ 动态描述函数
+---@field public extra? table @ 塞进技能里的各种数据
 
 ---@class SkillSkeletonSpec
 ---@field public name? string @ 骨架名，即此技能集合的外在名称
@@ -16,7 +17,7 @@
 ---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
 ---@field public dynamic_name? fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
 ---@field public dynamic_desc? fun(self: SkillSkeleton, player: Player, lang?: string): string? @ 动态描述函数
----@field public choice_filter? fun(self: SkillSkeleton, cards: integer[], choice: string, extra_data: table?): boolean? @ 用以过滤choice的函数
+---@field public extra? table @ 塞进技能里的各种数据
 
 ---@class SkillSkeleton : Object, SkillSkeletonSpec
 ---@field public effects Skill[] 技能对应的所有效果
@@ -40,7 +41,6 @@
 ---@field public dynamicName fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
 ---@field public dynamicDesc fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态描述函数
 ---@field public addTest fun(self: SkillSkeleton, fn: fun(room: Room, me: ServerPlayer)) @ 测试函数
----@field public choiceFilter fun(self: SkillSkeleton, cards: integer[], choice: string, extra_data: table?): boolean? @ 用以过滤choice的函数
 local SkillSkeleton = class("SkillSkeleton")
 
 
@@ -72,7 +72,7 @@ function SkillSkeleton:initialize(spec)
 
   self.dynamicName = spec.dynamic_name
   self.dynamicDesc = spec.dynamic_desc
-  self.choiceFilter = spec.choice_filter
+  self.extra = spec.extra or {}
 
   --Notify智慧，当不存在main_skill时，用于创建main_skill。看上去毫无用处
   fk.readCommonSpecToSkill(self, spec)

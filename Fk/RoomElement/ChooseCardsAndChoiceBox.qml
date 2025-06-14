@@ -118,7 +118,9 @@ GraphicsBox {
             if (index === 0) return true;
             const cards = root.selected_ids;
             if (filter_skel != "" && cards && cards.length >= root.min && cards.length <= root.max) {
-              return lcall("GetSkelChoiceFilter", filter_skel, cards, modelData, extra_data);
+              const func = `Fk.skill_skels["${filter_skel}"].extra.choiceFilter({${cards}}, "${modelData}", json.decode('${JSON.stringify(extra_data)}'))`;
+              console.log(func);
+              return leval(func);
             }
             return false;
           }
