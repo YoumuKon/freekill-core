@@ -436,38 +436,39 @@ function CardEffect:main()
     logic:breakEvent()
   end
   for _, event in ipairs({ fk.PreCardEffect, fk.BeforeCardEffect, fk.CardEffecting }) do
-    if cardEffectData.isCancellOut then
-      logic:trigger(fk.CardEffectCancelledOut, cardEffectData.from, cardEffectData)
-      if cardEffectData.isCancellOut then
+
+    local function effectCancellOutCheck(effect)
+      if effect.isCancellOut then
+        logic:trigger(fk.CardEffectCancelledOut, effect.from, effect)
+        if effect.isCancellOut then
+          logic:breakEvent()
+        end
+      end
+
+      if
+        not effect.toCard and
+        (
+          not (effect.to and effect.to:isAlive())
+          or #room:deadPlayerFilter(effect.tos) == 0
+        )
+      then
+        logic:breakEvent()
+      end
+
+      if effect:isNullified() then
         logic:breakEvent()
       end
     end
 
-    if
-      not cardEffectData.toCard and
-      (
-        not (cardEffectData.to and cardEffectData.to:isAlive())
-        or #room:deadPlayerFilter(cardEffectData.tos) == 0
-      )
-    then
-      logic:breakEvent()
-    end
-
-    if cardEffectData:isNullified() then
-      logic:breakEvent()
-    end
+    effectCancellOutCheck(cardEffectData)
 
     if event == fk.PreCardEffect then
       logic:trigger(event, cardEffectData.from, cardEffectData)
-      if cardEffectData:isNullified() then
-        logic:breakEvent()
-      end
     else
       logic:trigger(event, cardEffectData.to, cardEffectData)
-      if cardEffectData:isNullified() then
-        logic:breakEvent()
-      end
     end
+
+    effectCancellOutCheck(cardEffectData)
 
     room:handleCardEffect(event, cardEffectData)
   end
