@@ -2073,7 +2073,7 @@ function Room:returnToGeneralPile(g, position)
     end
   elseif position == "random" then
     while #g > 0 do
-      table.insert(self.general_pile, math.random(1, #self.general_pile),
+      table.insert(self.general_pile, math.random(math.max(#self.general_pile - 1, 1)),
                    table.remove(g))
     end
   end
