@@ -37,7 +37,7 @@ skill:addEffect("cardskill", {
       if from.dead then return end
       local weapons = to:getEquipments(Card.SubtypeWeapon)
       if #weapons > 0 then
-        room:moveCardTo(weapons, Card.PlayerHand, from, fk.ReasonGive, skill.name, nil, true, to.id)
+        room:moveCardTo(weapons, Card.PlayerHand, from, fk.ReasonGive, skill.name, nil, true, to)
       end
     end
     if #(effect.subTargets or {}) == 0 then

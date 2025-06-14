@@ -6,7 +6,7 @@
 ---@field public no_indicate? boolean @ 决定是否关闭技能指示线
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
----@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string @ 动态描述函数
+---@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string? @ 动态描述函数
 
 ---@class SkillSkeletonSpec
 ---@field public name? string @ 骨架名，即此技能集合的外在名称
@@ -15,7 +15,7 @@
 ---@field public attached_kingdom? string[] @ 只有哪些势力可以获得，若为空则均可。用于势力技。
 ---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
 ---@field public dynamic_name? fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
----@field public dynamic_desc? fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态描述函数
+---@field public dynamic_desc? fun(self: SkillSkeleton, player: Player, lang?: string): string? @ 动态描述函数
 
 ---@class SkillSkeleton : Object, SkillSkeletonSpec
 ---@field public effects Skill[] 技能对应的所有效果
