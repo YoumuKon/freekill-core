@@ -393,7 +393,24 @@ function sortHandcards(sortMethods) {
     }
   }
   if (!output) output = sortOutputs[0];
-  output.concat(others);
+  others.forEach(c => {
+    output.push(c);
+  });
+  /*
+  console.log("----------------------");
+  dashboard.handcardArea.cards.forEach(c => {
+    console.log("handcards: " + c.cid);
+  });
+  console.log("----------------------");
+  others.forEach(c => {
+    console.log("others: " + c.cid);
+  });
+  console.log("----------------------");
+  output.forEach(c => {
+    console.log("output: " + c.cid);
+  });
+  console.log("----------------------");
+  */
   dashboard.handcardArea.cards = output;
   dashboard.handcardArea.updateCardPosition(true);
 }
