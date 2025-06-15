@@ -646,7 +646,7 @@ function Card:getAvailableTargets (player, extra_data)
     tos = table.map(tos, Util.Id2PlayerMapper)
   end
   tos = table.filter(tos, function(p)
-    return not player:isProhibited(p, self) and self.skill:targetFilter(player, p, {}, {}, self, extra_data)
+    return not player:isProhibited(p, self) and self.skill:modTargetFilter(player, p, {}, self, extra_data)
   end)
   local n = self.skill:getMinTargetNum(player)
   if n > 1 then
