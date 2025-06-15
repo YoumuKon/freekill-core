@@ -1081,7 +1081,7 @@ function Room:askToCards(player, params)
     chosenCards = ret.cards
   else
     if params.cancelable then return {} end
-    local cards = player:getCardIds("he")
+    local cards = player:getCardIds(params.include_equip and "he" or "h")
     if type(expand_pile) == "string" then
       table.insertTable(cards, player:getPile(expand_pile))
     elseif type(expand_pile) == "table" then
@@ -3141,7 +3141,9 @@ function Room:arrangeTurn(players)
     if turn_table then
       local new_turn_table = {}
       if players then
-        new_turn_table = table.map(players, Util.IdMapper)
+        new_turn_table = table.map(players, function (p)
+          return p.seat
+        end)
       else
         if current.seat < #self.players then
           for i = self.current.seat + 1, #self.players do
