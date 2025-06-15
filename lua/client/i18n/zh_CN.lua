@@ -465,6 +465,11 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
 
 -- Game concepts
 Fk:loadTranslationTable{
+  ["you"] = "你",
+  ["anyone"] = "一名",
+  ["characters"] = "角色",
+  ["others"] = "其他角色",
+
   ["lord"] = "主公",
   ["loyalist"] = "忠臣",
   ["rebel"] = "反贼",
