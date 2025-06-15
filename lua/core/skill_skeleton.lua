@@ -7,6 +7,7 @@
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string? @ 动态描述函数
+---@field public derived_piles? string|string[] @ 与某效果联系起来的私人牌堆名，失去该效果时将之置入弃牌堆 --- FIXME: 这应该是Skel的属性吧？
 ---@field public extra? table @ 塞进技能里的各种数据
 
 ---@class SkillSkeletonSpec
