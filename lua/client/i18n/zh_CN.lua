@@ -566,6 +566,9 @@ Fk:loadTranslationTable{
   ["draw1"] = "摸一张牌",
   ["draw2"] = "摸两张牌",
   ["draw3"] = "摸三张牌",
+  ["discard1"] = "弃一张牌",
+  ["discard2"] = "弃两张牌",
+  ["discard3"] = "弃三张牌",
   ["recover"] = "回复1点体力",
   ["loseHp"] = "失去1点体力",
   ["damage1"] = "造成1点伤害",
@@ -577,6 +580,14 @@ Fk:loadTranslationTable{
   ["draw_card"] = "摸牌",
   ["heal_hp"] = "回复体力",
   ["damaged"] = "受到伤害",
+
+  --numberic(need gsub)
+  ["drawX"] = "摸{num}张牌",
+  ["discardX"] = "弃{num}张牌",
+  ["recoverX"] = "回复{num}点体力",
+  ["loseHpX"] = "失去{num}点体力",
+  ["damageX"] = "造成{num}点伤害",
+  ["loseMaxHpX"] = "减{num}点体力上限",
 }
 
 -- related to sendLog
