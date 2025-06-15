@@ -123,7 +123,7 @@ GraphicsBox {
               console.log(func);
               return leval(func);
             }
-            return false;
+            return true;
           }
 
           onClicked: {
