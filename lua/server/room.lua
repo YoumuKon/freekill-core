@@ -1097,16 +1097,38 @@ function Room:askToCards(player, params)
   return chosenCards
 end
 
----@class AskToChooseCardsAndChoiceParams: AskToSkillInvokeParams
+---@class AskToViewCardsAndChoiceParams: AskToSkillInvokeParams
 ---@field cards integer[] @ 待选卡牌
----@field all_cards? integer[]  @ 会显示的所有卡牌
----@field min_num? integer  @ 最小选牌数（默认为1）
----@field max_num? integer  @ 最大选牌数（默认为1）
----@field default_choice string @ 始终可用的分支，会置于最左侧
+---@field default_choice? string @ 始终可用的分支，会置于最左侧且始终可用，若为空则choice的第一项始终可用。当需要```filter_skel_name```审查时**建议填入**
 ---@field choices string[] @ 可选选项列表，受```filter_skel_name```的审查
 ---@field filter_skel_name? string @ 带```extra.choiceFilter(cards: integer[], choice: string, extra_data: table?): boolean?```的技能**骨架**名，无则所有选项均可用
 ---@field cancel_choices? string[] @ 可选选项列表（不选择牌时的选项）
 ---@field extra_data? table @ 额外信息，因技能而异了
+
+--- 询问玩家观看一些牌并做出选项，但是选项有额外的点亮标准
+---@param player ServerPlayer @ 要询问的玩家
+---@param params AskToChooseCardsAndChoiceParams @ 参数列表
+---@return string
+function Room:askToViewCardsAndChoice(player, params)
+  local _, result = Room:askToChooseCardsAndChoice(player, {
+    cards = params.cards,
+    default_choice = params.default_choice,
+    choices = params.choices,
+    filter_skel_name = params.filter_skel_name,
+    cancel_choices = params.cancel_choices,
+    skill_name = params.skill_name,
+    prompt = params.prompt,
+    extra_data = params.extra_data,
+    min_num = 0,
+    max_num = 0
+  })
+  return result
+end
+
+---@class AskToChooseCardsAndChoiceParams: AskToViewCardsAndChoiceParams
+---@field all_cards? integer[]  @ 会显示的所有卡牌
+---@field min_num? integer  @ 最小选牌数（默认为1）
+---@field max_num? integer  @ 最大选牌数（默认为1）
 
 --- 询问玩家选择牌和选项，但是选项有额外的点亮标准
 ---@param player ServerPlayer @ 要询问的玩家
@@ -1117,7 +1139,9 @@ function Room:askToChooseCardsAndChoice(player, params)
     params.cards, params.choices, params.skill_name, params.prompt,
     params.cancel_choices, params.min_num, params.max_num, params.all_cards
   local default_choice = params.default_choice
-  table.insert(choices, 1, default_choice)
+  if default_choice ~= nil then
+    table.insert(choices, 1, default_choice)
+  end
   cancel_choices = cancel_choices or {}
   min = min or 1
   max = max or 1
