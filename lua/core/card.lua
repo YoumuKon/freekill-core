@@ -628,7 +628,7 @@ end
 ---
 --- eg.杀返回攻击范围内***所有***角色，桃返回自己，濒死桃返回目标濒死角色，借刀杀人***返回目标角色不返回子目标***
 ---@param player Player @ 使用者
----@param extra_data? table
+---@param extra_data? UseExtraData|table
 ---@return Player[] @ 返回目标角色表
 function Card:getAvailableTargets (player, extra_data)
   if not player:canUse(self, extra_data) or player:prohibitUse(self) then return {} end
@@ -677,7 +677,7 @@ end
 ---
 --- eg.杀返回攻击范围内***一个***合法目标，借刀杀人返回***一对***角色，南蛮入侵返回***所有***其他角色
 ---@param player Player @ 使用者
----@param extra_data? table
+---@param extra_data? UseExtraData|table
 ---@return Player[] @ 目标角色表。返回空表表示无合法目标
 function Card:getDefaultTarget (player, extra_data)
   extra_data = extra_data or Util.DummyTable

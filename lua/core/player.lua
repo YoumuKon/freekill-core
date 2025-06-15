@@ -1083,7 +1083,7 @@ end
 ---@param card_names string[] @ 待判定的牌名列表
 ---@param subcards? integer[] @ 子卡（某些技能可以提前确定子卡，如奇策、妙弦）
 ---@param ban_cards? string[] @ 被排除的卡名
----@param extra_data? table @ 用于使用的额外信息
+---@param extra_data? UseExtraData|table @ 用于使用的额外信息
 ---@return string[] @ 返回牌名列表
 function Player:getViewAsCardNames(skill_name, card_names, subcards, ban_cards, extra_data)
   ban_cards = ban_cards or Util.DummyTable

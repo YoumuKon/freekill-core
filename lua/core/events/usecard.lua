@@ -77,7 +77,7 @@ function UseCardData:getAllTargets()
 end
 
 -- 获取使用牌的合法额外目标（为简化结算，不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用首个目标的副目标）
----@param extra_data? table
+---@param extra_data? UseExtraData|table
 ---@return ServerPlayer[]
 function UseCardData:getExtraTargets(extra_data)
   if self.card.type == Card.TypeEquip or self.card.sub_type == Card.SubtypeDelayedTrick then return {} end
@@ -310,7 +310,7 @@ function AimData:setTargetDone(player)
 end
 
 -- 获取使用牌的合法额外目标（为简化结算，不允许与已有目标重复、且【借刀杀人】等带副目标的卡牌使用当前目标的副目标）
----@param extra_data? table
+---@param extra_data? UseExtraData|table
 ---@return ServerPlayer[]
 function AimData:getExtraTargets(extra_data)
   if self.card.type == Card.TypeEquip or self.card.sub_type == Card.SubtypeDelayedTrick then return {} end
