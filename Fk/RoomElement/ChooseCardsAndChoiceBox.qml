@@ -115,9 +115,9 @@ GraphicsBox {
           Layout.fillWidth: true
           text: Util.processPrompt(modelData)
           enabled: {
+            const cards = root.selected_ids;
             if (!(cards && cards.length >= root.min && cards.length <= root.max)) return false;
             if (index === 0) return true;
-            const cards = root.selected_ids;
             if (filter_skel != "") {
               const func = `Fk.skill_skels["${filter_skel}"].extra.choiceFilter({${cards}}, "${modelData}", json.decode('${JSON.stringify(extra_data)}'))`;
               console.log(func);
