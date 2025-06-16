@@ -55,20 +55,25 @@ function UseCardData:hasTarget(player)
   return table.contains(self.tos, player)
 end
 
+--- 取消指定目标
 ---@param player ServerPlayer
+---@return boolean @ 成功删除目标，返回假则无此目标
 function UseCardData:removeTarget(player)
   self.subTos = self.subTos or {}
   for index, target in ipairs(self.tos) do
     if (target == player) then
       table.remove(self.tos, index)
       table.remove(self.subTos, index)
-      return
+      return true
     end
   end
+  return false
 end
 
+--- 取消所有目标
 function UseCardData:removeAllTargets()
   self.tos = {} ---@type ServerPlayer[] @ 目标列表
+  self.subTos = {}
 end
 
 ---@return ServerPlayer[]
@@ -105,14 +110,19 @@ function UseCardData:getExtraTargets(extra_data)
 end
 
 -- 将角色添加至目标列表（若不指定副目标则继承首个目标的副目标）
----@param player ServerPlayer
----@param sub? ServerPlayer[]
+---@param player ServerPlayer @ 添加的目标
+---@param sub? ServerPlayer | ServerPlayer[] @ 副目标，留空则继承首个目标的副目标
 function UseCardData:addTarget(player, sub)
   table.insert(self.tos, player)
   self.subTos = self.subTos or {}
-  table.insert(self.subTos, sub or (#self.tos > 0 and self:getSubTos(self.tos[1]) or {}))
+  for i = #self.subTos + 1, #self.tos - 1 do
+    self.subTos[i] = {}
+  end
+  if sub and sub[1] == nil then sub = {sub} end
+  self.subTos[#self.tos] = sub or (#self.tos > 0 and self:getSubTos(self.tos[1])) or {}
 end
 
+--- 获取某个目标对应的副目标
 ---@param player ServerPlayer
 ---@return ServerPlayer[]
 function UseCardData:getSubTos(player)
