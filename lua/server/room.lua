@@ -842,9 +842,10 @@ end
 ------------------------------------------------------------------------
 
 ---@class AskToUseActiveSkillParams: AskToSkillInvokeParams
+---@field skill_name string @ 请求发动的技能名
 ---@field cancelable? boolean @ 是否可以点取消
 ---@field no_indicate? boolean @ 是否不显示指示线
----@field extra_data? table @ 额外信息
+---@field extra_data? table @ 额外信息（使用```skillName```指定烧条时的显示技能名）
 ---@field skip? boolean @ 是否跳过实际执行流程
 
 --- 询问player是否要发动一个主动技。
