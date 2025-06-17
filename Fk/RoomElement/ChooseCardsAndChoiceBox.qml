@@ -120,7 +120,7 @@ GraphicsBox {
             if (index === 0) return true;
             if (filter_skel != "") {
               const func = `Fk.skill_skels["${filter_skel}"].extra.choiceFilter({${cards}}, "${modelData}", json.decode('${JSON.stringify(extra_data)}'))`;
-              console.log(func);
+              // console.log(func);
               return leval(func);
             }
             return true;
