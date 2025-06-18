@@ -1747,11 +1747,18 @@ function Room:askToJointCards(player, params)
     toAsk = players
   else
     for _, p in ipairs(players) do
-      local cards = p:getCardIds("he&")
-      if type(expand_pile) == "string" then
-        table.insertTable(cards, p:getPile(expand_pile))
-      elseif type(expand_pile) == "table" then
-        table.insertTable(cards, expand_pile)
+      local cards = {}
+      if include_equip then
+        table.insertTable(cards, p:getCardIds("he"))
+      else
+        table.insertTable(cards, p:getCardIds("h"))
+      end
+      if expand_pile then
+        if type(expand_pile) == "string" then
+          table.insertTableIfNeed(cards, p:getPile(expand_pile))
+        elseif type(expand_pile) == "table" then
+          table.insertTableIfNeed(cards, expand_pile)
+        end
       end
       local exp = Exppattern:Parse(pattern)
       cards = table.filter(cards, function(cid)
