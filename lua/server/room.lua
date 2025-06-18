@@ -3315,6 +3315,8 @@ end
 function Room:getGameSummary()
   local summary = {}
   for _, p in ipairs(self.players) do
+    -- 选将阶段直接房间解散的智慧 有点意思
+    if p.seat == 0 then return summary end
     summary[p.seat] = { turn = 0, recover = 0, recoverBy = 0,
       damage = 0, damaged = 0, kill = 0, killList = {}, draw = 0,
       control = 0, scname = p._splayer:getScreenName()}
