@@ -290,9 +290,42 @@ function Turn:prepare()
 
   room:sendLog{ type = "$AppendSeparator" }
 
-  if logic:trigger(fk.PreTurnStart, player, data) then
-    return true
+  for _, p in ipairs(room.players) do
+    p:setCardUseHistory("", 0, Player.HistoryTurn)
+    p:setSkillUseHistory("", 0, Player.HistoryTurn)
+    for name, _ in pairs(p.mark) do
+      if name:find("-turn", 1, true) then
+        room:setPlayerMark(p, name, 0)
+      end
+    end
   end
+
+  for cid, cmark in pairs(room.card_marks) do
+    for name, _ in pairs(cmark) do
+      if name:find("-turn", 1, true) then
+        room:setCardMark(Fk:getCardById(cid), name, 0)
+      end
+    end
+  end
+
+  for name, _ in pairs(room.banners) do
+    if name:find("-turn", 1, true) then
+      room:setBanner(name, 0)
+    end
+  end
+
+  for name, _ in pairs(room.tag) do
+    if name:find("-turn", 1, true) then
+      room:setTag(name, nil)
+    end
+  end
+
+  for _, p in ipairs(room.players) do
+    p:filterHandcards()
+  end
+
+  logic:trigger(fk.PreTurnStart, player, data)
+  if data.turn_end then return end
 
   if not player.faceup then
     player:turnOver()
