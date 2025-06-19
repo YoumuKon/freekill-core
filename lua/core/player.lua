@@ -798,12 +798,17 @@ function Player:addSkillUseHistory(skill_name, num)
 end
 
 --- 设定玩家使用特定技能的历史次数。
----@param skill_name string @ 技能名
+---@param skill_name? string @ 技能名，不写则默认改变所有技能的历史次数
 ---@param num? integer @ 次数 默认0
 ---@param scope? integer @ 查询历史范围
 function Player:setSkillUseHistory(skill_name, num, scope)
-  if skill_name == "" and num == nil and scope == nil then
-    self.skillUsedHistory = {}
+  skill_name = skill_name or ""
+  if num == nil and scope == nil then
+    if skill_name ~= "" then
+      self.skillUsedHistory[skill_name] = {0, 0, 0, 0}
+    else
+      self.skillUsedHistory = {}
+    end
     return
   end
 
