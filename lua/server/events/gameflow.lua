@@ -325,14 +325,15 @@ function Turn:prepare()
   end
 
   logic:trigger(fk.PreTurnStart, player, data)
-  if data.turn_end then return end
+  if data.turn_end then return true end
 
   if not player.faceup then
     player:turnOver()
     return true
   end
 
-  return logic:trigger(fk.BeforeTurnStart, player, data)
+  logic:trigger(fk.BeforeTurnStart, player, data)
+  return data.turn_end
 end
 
 function Turn:main()
