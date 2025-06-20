@@ -3782,7 +3782,7 @@ end
 function Room:ActExtraTurn()
   while #self.extra_turn_list > 0 do
     local data = table.remove(self.extra_turn_list, 1)
-    data.who:gainAnExtraTurn(false, data.reason, data.phases)
+    data.who:gainAnExtraTurn(false, data.reason, data.phases, data.extra_data)
   end
 end
 

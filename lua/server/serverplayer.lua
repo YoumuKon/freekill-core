@@ -201,14 +201,15 @@ end
 ---@param phase Phase
 ---@param skillName? string @ 额外阶段原因
 ---@param delay? boolean
-function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
+---@param extra_data? table @ 额外信息（@寤寐）
+function ServerPlayer:gainAnExtraPhase(phase, skillName, delay, extra_data)
   local room = self.room
   delay = (delay == nil) and true or delay
   local logic = room.logic
   if delay then
     local turn = logic:getCurrentEvent():findParent(GameEvent.Turn, true)
     if turn then
-      turn.data:gainAnExtraPhase(phase, skillName, self)
+      turn.data:gainAnExtraPhase(phase, skillName, self, extra_data)
       return
     end
   end
@@ -221,7 +222,8 @@ function ServerPlayer:gainAnExtraPhase(phase, skillName, delay)
   local data = { ---@type PhaseDataSpec
     who = self,
     reason = skillName or "game_rule",
-    phase = phase -- FIXME: 等待拆分
+    phase = phase,
+    extra_data = extra_data,
   }
   GameEvent.Phase:create(PhaseData:new(data)):exec()
 
@@ -284,12 +286,13 @@ end
 ---@param delay? boolean @ 是否延迟到当前回合结束再开启额外回合，默认是
 ---@param skillName? string @ 额外回合原因
 ---@param phases? Phase[] @ 此额外回合进行的额定阶段列表
-function ServerPlayer:gainAnExtraTurn(delay, skillName, phases)
+---@param extra_data? table @ 额外数据
+function ServerPlayer:gainAnExtraTurn(delay, skillName, phases, extra_data)
   local room = self.room
   delay = (delay == nil) and true or delay
   skillName = skillName or room.logic:getCurrentSkillName() or "game_rule"
   if delay then
-    table.insert(room.extra_turn_list, 1, {who = self, reason = skillName, phases = phases})
+    table.insert(room.extra_turn_list, 1, {who = self, reason = skillName, phases = phases, extra_data = extra_data})
     return
   end
 
@@ -303,7 +306,10 @@ function ServerPlayer:gainAnExtraTurn(delay, skillName, phases)
 
   room:addTableMark(self, "_extra_turn_count", skillName)
 
-  GameEvent.Turn:create(TurnData:new(self, skillName, phases)):exec()
+  local turn_data = TurnData:new(self, skillName, phases)
+  turn_data.extra_data = extra_data
+
+  GameEvent.Turn:create(turn_data):exec()
 
   local mark = self:getTableMark("_extra_turn_count")
   if #mark > 0 then
