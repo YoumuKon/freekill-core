@@ -141,6 +141,7 @@ end
 
 --- 翻面
 ---@param data any? 额外数据
+---@return boolean @ 是否成功翻面
 function ServerPlayer:turnOver(data)
   if data == nil then
     data = {
@@ -165,6 +166,7 @@ function ServerPlayer:turnOver(data)
   }
 
   self.room.logic:trigger(fk.TurnedOver, self, data)
+  return true
 end
 
 --- 令一名角色展示一些牌
@@ -450,6 +452,7 @@ end
 --- 设置连环状态
 ---@param chained boolean @ true为横置，false为重置
 ---@param data any? @ 额外数据
+---@return boolean @ 是否成功横置或重置
 function ServerPlayer:setChainState(chained, data)
   local room = self.room
   if data == nil then
@@ -475,6 +478,7 @@ function ServerPlayer:setChainState(chained, data)
   room:delay(150)
   room:broadcastPlaySound("./audio/system/chain")
   room.logic:trigger(fk.ChainStateChanged, self, data)
+  return true
 end
 
 --- 复原武将牌（翻至正面、解除连环状态）
@@ -486,7 +490,7 @@ function ServerPlayer:reset()
     arg = "reset-general"
   }
   if self.chained then self:setChainState(false) end
-  if not self.faceup then self:turnOver() end
+  if not self.dead and not self.faceup then self:turnOver() end
 end
 
 --- 对若干名角色发起拼点。
