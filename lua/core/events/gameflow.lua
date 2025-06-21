@@ -19,14 +19,14 @@ fk.AfterDrawInitialCards = DrawInitialEvent:subclass("fk.AfterDrawInitialCards")
 
 --- RoundData 轮次的数据
 ---@class RoundDataSpec
----@field public from ServerPlayer @ 上个执行额定回合的角色（几乎无用的参数）
+---@field public from ServerPlayer @ 上个执行额定回合的角色
 ---@field public to ServerPlayer @ 即将执行额定回合的角色
----@field public turn_table? integer[] @ 额定回合表，对于通常模式是座位表
+---@field public turn_table? ServerPlayer[] @ 额定回合表，对于通常模式是所有玩家
 ---@field public skipped? boolean @ 是否跳过额定回合
 
 --- 轮次的数据
 ---@class RoundData: RoundDataSpec, TriggerData
----@field turn_table integer[] @ 额定回合表
+---@field turn_table ServerPlayer[] @ 额定回合表
 RoundData = TriggerData:subclass("RoundData")
 
 ---@class RoundEvent: TriggerEvent

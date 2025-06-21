@@ -160,34 +160,26 @@ function Round:action()
   if data == nil then
     data = {}
   end
-  data.turn_table = data.turn_table or {}
-  if #data.turn_table == 0 then
-    for i = 1, #room.players do
-      table.insert(data.turn_table, i)
-    end
-  end
 
   while true do
+    data.turn_table = data.turn_table or {}
+    if #data.turn_table == 0 then
+      data.turn_table = table.simpleClone(room.players)
+    end
 
-    data.to = room:getPlayerBySeat(data.turn_table[1])
+    data.to = data.turn_table[1]
     room.logic:trigger(fk.EventTurnChanging, data.to, data, true)
-
-    table.remove(data.turn_table, 1)
     room:setCurrent(data.to)
 
     if data.skipped then
       data.skipped = false
     else
-      GameEvent.Turn:create(TurnData:new(room.current)):exec()
+      GameEvent.Turn:create(TurnData:new(room.current, "game_rule")):exec()
     end
 
     room:ActExtraTurn()
-
-    for i = 1, #room.players do
-      if i <= room.current.seat then
-        table.removeOne(data.turn_table, i)
-      end
-    end
+    table.remove(data.turn_table, 1)
+    data.from = data.to
 
     if #data.turn_table == 0 or room.game_finished then break end
   end

@@ -3126,9 +3126,9 @@ function Room:adjustSeats()
   self.logic:adjustSeats()
 end
 
---- 令两名角色交换座位
----@param a ServerPlayer
----@param b ServerPlayer
+--- 令两名玩家交换座位
+---@param a ServerPlayer @ 玩家1
+---@param b ServerPlayer @ 玩家2
 ---@param arrange_turn? boolean @ 是否更新本轮额定回合，默认是
 function Room:swapSeat(a, b, arrange_turn)
   local ai, bi
@@ -3147,15 +3147,15 @@ function Room:swapSeat(a, b, arrange_turn)
   end
 end
 
---- 将一名角色移动至指定座位
----@param a ServerPlayer
+--- 将一名玩家移动至指定座位
+---@param player ServerPlayer @ 被移动的玩家
 ---@param seat integer @ 目标座位
 ---@param arrange_turn? boolean @ 是否更新本轮额定回合，默认是
-function Room:moveSeatTo(a, seat, arrange_turn)
-  if a.seat ~= seat then
+function Room:moveSeatTo(player, seat, arrange_turn)
+  if player.seat ~= seat then
     local players = table.simpleClone(self.players)
-    table.removeOne(players, a)
-    table.insert(players, seat, a)
+    table.removeOne(players, player)
+    table.insert(players, seat, player)
     self:arrangeSeats(players)
 
     if arrange_turn == nil or arrange_turn then
@@ -3164,25 +3164,57 @@ function Room:moveSeatTo(a, seat, arrange_turn)
   end
 end
 
+--- 将一名玩家移动至某人的下家/上家
+---@param player ServerPlayer @ 被移动的玩家
+---@param target ServerPlayer @ 目标玩家，移动成为这个玩家的下家（例如target为8号位，则移动后target为7号位，player为8号位）
+---@param is_last boolean? @ 是否移动成为这个玩家的上家，默认否
+---@param arrange_turn? boolean @ 是否更新本轮额定回合，默认是
+function Room:moveSeatToNext(player, target, is_last, arrange_turn)
+  is_last = is_last or false
+  local players = table.simpleClone(self.players)
+  if is_last then
+    if player.next ~= target then
+      table.removeOne(players, player)
+      for i = 1, #players do
+        if players[i] == target then
+          table.insert(players, i, player)
+          break
+        end
+      end
+    end
+  else
+    if target.next ~= player then
+      table.removeOne(players, player)
+      for i = 1, #players do
+        if players[i] == target then
+          table.insert(players, i + 1, player)
+          break
+        end
+      end
+    end
+  end
+  self:arrangeSeats(players)
+  if arrange_turn == nil or arrange_turn then
+    self:arrangeTurn()
+  end
+end
+
 --- 按输入的角色表重新改变本轮额定回合。若无输入则更新本轮剩余额定回合
 ---@param players? ServerPlayer[]
 function Room:arrangeTurn(players)
-  local current = self.current
-  if current == nil or current:insideExtraTurn() then return end
+  if self.current == nil then return end
   local round_event = self.logic:getCurrentEvent():findParent(GameEvent.Round, true)
   if round_event then
     local turn_table = round_event.data.turn_table
     if turn_table then
       local new_turn_table = {}
       if players then
-        new_turn_table = table.map(players, function (p)
-          return p.seat
-        end)
+        new_turn_table = table.simpleClone(players)
       else
-        if current.seat < #self.players then
-          for i = self.current.seat + 1, #self.players do
-            table.insert(new_turn_table, i)
-          end
+        local current = round_event.data.to
+        if current == nil then return end
+        for i = table.indexOf(self.players, current), #self.players do
+          table.insert(new_turn_table, self.players[i])
         end
       end
       round_event.data.turn_table = new_turn_table
