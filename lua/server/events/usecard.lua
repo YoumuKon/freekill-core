@@ -527,8 +527,6 @@ local onAim = function(room, useCardData, aimEventCollaborators)
           use = useCardData,
           tos = aimGroup,
           firstTarget = firstTarget,
-          additionalDamage = useCardData.additionalDamage,
-          additionalRecover = useCardData.additionalRecover,
           extra_data = useCardData.extra_data,
         }
 
@@ -762,8 +760,12 @@ function UseCardEventWrappers:doCardUseEffect(useCardData)
           local curAimEvent = aimEventCollaborators[to][collaboratorsIndex[to]]
 
           cardEffectData.subTargets = curAimEvent.subTargets
-          cardEffectData.additionalDamage = curAimEvent.additionalDamage
-          cardEffectData.additionalRecover = curAimEvent.additionalRecover
+          if curAimEvent.additionalDamage then
+            cardEffectData.additionalDamage = (cardEffectData.additionalDamage or 0) + curAimEvent.additionalDamage
+          end
+          if curAimEvent.additionalRecover then
+            cardEffectData.additionalRecover = (cardEffectData.additionalRecover or 0) + curAimEvent.additionalRecover
+          end
           cardEffectData.disresponsive = curAimEvent.disresponsive
           cardEffectData.unoffsetable = curAimEvent.unoffsetable
           cardEffectData.nullified = curAimEvent.nullified
