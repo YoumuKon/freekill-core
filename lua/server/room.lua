@@ -1502,6 +1502,7 @@ end
 ---@class AskToChooseCardsParams: AskToChooseCardParams
 ---@field min integer @ 最小选牌数
 ---@field max integer @ 最大选牌数
+---@field pattern? string @ 只针对可见牌的选牌规则
 
 --- 完全类似askForCardChosen，但是可以选择多张牌。
 --- 相应的，返回的是id的数组而不是单个id。
@@ -1532,6 +1533,7 @@ function Room:askToChooseCards(player, params)
     max = max,
     skillName = reason,
     prompt = prompt,
+    pattern = params.pattern
   }
   local visible_data = {}
   local cards_data = {}
