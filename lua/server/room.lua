@@ -3175,10 +3175,14 @@ function Room:moveSeatToNext(player, target, is_last, arrange_turn)
   if is_last then
     if player.next ~= target then
       table.removeOne(players, player)
-      for i = 1, #players do
-        if players[i] == target then
-          table.insert(players, i, player)
-          break
+      if target.seat == 1 then
+        table.insert(players, player)
+      else
+        for i = 1, #players do
+          if players[i] == target then
+            table.insert(players, i, player)
+            break
+          end
         end
       end
     end

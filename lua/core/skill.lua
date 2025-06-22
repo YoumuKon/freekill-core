@@ -175,7 +175,7 @@ end
 function Skill:isPlayerSkill(player)
   local skel = self:getSkeleton()
   if skel == nil then return false end
-  return not (self:isEquipmentSkill(player) or self.name:endsWith("&"))
+  return not (self.cardSkill or self:isEquipmentSkill(player) or self.name:endsWith("&"))
 end
 
 ---@return integer
