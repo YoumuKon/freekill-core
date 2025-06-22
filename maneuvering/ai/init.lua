@@ -17,7 +17,7 @@ SmartAI:setCardSkillAI("fire_attack_skill", {
     local to = effect.to
     if to:isKongcheng() then return end
     if from:isKongcheng() then return end
-    logic:throwCard(from.player_cards[Player.Hand][1], self.skill.name, from)
+    --logic:throwCard(from.player_cards[Player.Hand][1], self.skill.name, from)
     logic:damage({
       from = from,
       to = to,

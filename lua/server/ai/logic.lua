@@ -104,7 +104,7 @@ end
 function AIGameLogic:applyMoveInfo(data, info)
   local benefit = 0
 
-  if data.from then
+  if data.from and data.moveReason ~= fk.ReasonUse then
     if info.fromArea == Player.Hand then
       benefit = -90
     elseif info.fromArea == Player.Equip then
@@ -191,7 +191,11 @@ function ChangeHp:exec()
   local data = self.data
   local player = data.who
 
-  if logic:trigger(fk.BeforeHpChanged, player, data) then
+  logic:trigger(fk.BeforeHpChanged, player, data)
+  if data.num == 0 and data.shield_lost == 0 then
+    data.prevented = true
+  end
+  if data.prevented then
     return true
   end
 
@@ -298,7 +302,11 @@ function Recover:exec()
 
   local who = RecoverData.who
 
-  if logic:trigger(fk.PreHpRecover, who, RecoverData) then
+  logic:trigger(fk.PreHpRecover, who, RecoverData)
+  if RecoverData.num == 0 then
+    RecoverData.prevented = true
+  end
+  if RecoverData.prevented then
     return true
   end
 
@@ -452,9 +460,7 @@ function UseCard:exec()
     if skill_ai then skill_ai:onUse(logic, useCardData) end
   end
 
-  if logic:trigger(fk.PreCardUse, useCardData.from, useCardData) then
-    return true
-  end
+  logic:trigger(fk.PreCardUse, useCardData.from, useCardData)
   logic:moveCardTo(useCardData.card, Card.Processing, nil, fk.ReasonUse)
 
   for _, event in ipairs({ fk.AfterCardUseDeclared, fk.AfterCardTargetDeclared, fk.CardUsing }) do
@@ -480,13 +486,7 @@ end
 ---@param useCardData UseCardDataSpec
 function AIGameLogic:useCard(useCardData)
   local new_data
-  -- if type(useCardData.from) == "number" or (useCardData.tos and useCardData.tos[1]
-  --   and type(useCardData.tos[1][1]) == "number") then
-  --   new_data = UseCardData:new({})
-    -- new_data:loadLegacy(useCardData)
-  -- else
-    new_data = UseCardData:new(useCardData)
-  -- end
+  new_data = UseCardData:new(useCardData)
   return not UseCard:new(self, new_data):getBenefit()
 end
 

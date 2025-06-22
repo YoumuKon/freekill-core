@@ -12,7 +12,7 @@ fk.ai_card_keep_value = {}
 ---@field private _memory table<string, any> @ AI底层的空间换时间机制
 ---@field public friends ServerPlayer[] @ 队友
 ---@field public enemies ServerPlayer[] @ 敌人
-local SmartAI = TrustAI:subclass("SmartAI") -- 哦，我懒得写出闪之类的，不得不继承一下，饶了我吧
+local SmartAI = TrustAI:subclass("SmartAI")
 
 AIParser = require 'lua.server.ai.parser'
 local require_skill = require "lua.server.ai.skill"
@@ -154,17 +154,6 @@ SmartAI:setSkillAI("__card_skill", {
       -- if best_val > estimate_val then break end
     end
     return best_targets or {}, best_val
-
-    --[[
-    for _, p, val in fk.sorted_pairs(targets, val_func) do
-      if val > 0 then
-        ai:selectTarget(p, true)
-        return ai:doOKButton(), val
-      else
-        break
-      end
-    end
-    --]]
   end,
 
   think = function(self, ai)
@@ -359,7 +348,6 @@ function SmartAI:handlePlayCard()
     self:unSelectAll()
   end
   verbose(1, "推测出最佳决策是%s", json.encode(best_ret))
-
   if best_ret and best_ret ~= "" then return best_ret end
   return ""
 end
@@ -411,7 +399,7 @@ end
 
 ---@param target ServerPlayer
 function SmartAI:isFriend(target)
-  if Self.role == target.role then return true end
+  if Self:isFriend(target) then return true end
   local t = { "lord", "loyalist" }
   local players = table.filter(self.room.alive_players, function(p) return p.role ~= "renegade" end)
   local rebels = #table.filter(players, function(p) return p.role == "rebel" end)

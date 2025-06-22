@@ -52,16 +52,7 @@ skill:addEffect("cardskill", {
   end,
 })
 
-skill:addAI(
-  {
-    estimated_benefit = 100,
-  }, "__card_skill"
-)
-skill:addAI(
-  {
-    estimated_benefit = 100,
-  }, "default_card_skill"
-)
+skill:addAI(nil, "default_card_skill")
 
 skill:addTest(function(room, me)
   local slash = Fk:getCardById(1)
