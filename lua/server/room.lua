@@ -1101,14 +1101,14 @@ end
 ---@class AskToViewCardsAndChoiceParams: AskToSkillInvokeParams
 ---@field cards integer[] @ 待选卡牌
 ---@field default_choice? string @ 始终可用的分支，会置于最左侧且始终可用，若为空则choice的第一项始终可用。当需要```filter_skel_name```审查时**建议填入**
----@field choices string[] @ 可选选项列表，受```filter_skel_name```的审查
+---@field choices string[]? @ 可选选项列表，默认值为“确定”，受```filter_skel_name```的审查
 ---@field filter_skel_name? string @ 带```extra.choiceFilter(cards: integer[], choice: string, extra_data: table?): boolean?```的技能**骨架**名，无则所有选项均可用
----@field cancel_choices? string[] @ 可选选项列表（不选择牌时的选项）
+---@field cancel_choices? string[] @ 可选选项列表（不选择牌时的选项），默认为空
 ---@field extra_data? table @ 额外信息，因技能而异了
 
 --- 询问玩家观看一些牌并做出选项，但是选项有额外的点亮标准
 ---@param player ServerPlayer @ 要询问的玩家
----@param params AskToChooseCardsAndChoiceParams @ 参数列表
+---@param params AskToViewCardsAndChoiceParams @ 参数列表
 ---@return string
 function Room:askToViewCardsAndChoice(player, params)
   local _, result = Room:askToChooseCardsAndChoice(player, {
@@ -1139,8 +1139,9 @@ function Room:askToChooseCardsAndChoice(player, params)
   local cards, choices, skillname, prompt, cancel_choices, min, max, all_cards =
     params.cards, params.choices, params.skill_name, params.prompt,
     params.cancel_choices, params.min_num, params.max_num, params.all_cards
+  choices = choices or {"OK"}
   local default_choice = params.default_choice
-  if default_choice ~= nil then
+  if default_choice ~= nil and not table.contains(choices, default_choice) then
     table.insert(choices, 1, default_choice)
   end
   cancel_choices = cancel_choices or {}
