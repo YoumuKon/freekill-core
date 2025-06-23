@@ -6,6 +6,7 @@
 
 --]]
 
+--- 卡牌对于AI的价值
 fk.ai_card_keep_value = {}
 
 ---@class SmartAI: TrustAI, AIUtil
@@ -433,5 +434,46 @@ function SmartAI:getBenefitOfEvents(fn)
   fn(logic)
   return logic.benefit
 end
+
+---------------------------------------------------------------------
+
+-- 基础策略
+-- 封装一些简单策略
+-- ========================================
+
+---@class AIAskToDiscardParams: AskToUseActiveSkillParams
+---@field skill_name string @ 技能名
+---@field min_num integer @ 最小值
+---@field max_num integer @ 最大值
+
+--- 弃牌收益
+---@param params AIAskToDiscardParams @ 各种变量
+---@return integer[], integer @ 本返回次弃牌收益最大的一种情况，选择的卡牌和收益
+function SmartAI:AskToDiscardBenefit(params)
+  local cards = self:getEnabledCards()
+  params.skill_name = params.skill_name or ""
+  params.max_num = math.min(params.max_num, #cards)
+  local benefit, ret = -100000, {}
+  if #cards < params.min_num then
+    ret = cards
+    benefit = self:getBenefitOfEvents(function(logic)
+      logic:throwCard(cards, params.skill_name, self.player, self.player)
+    end)
+  else
+    cards = self:getChoiceCardsByKeepValue(cards, math.min(params.max_num, #cards))
+    for i = params.min_num, params.max_num do
+      local ids = table.slice(cards, 1, i + 1)
+      local discard_val = self:getBenefitOfEvents(function(logic)
+        logic:throwCard(ids, params.skill_name, self.player, self.player)
+      end)
+      if discard_val > benefit then
+        benefit = discard_val
+        ret = ids
+      end
+    end
+  end
+  return ret, benefit
+end
+
 
 return SmartAI

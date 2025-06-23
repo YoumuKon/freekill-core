@@ -97,22 +97,22 @@ function AIGameLogic:setPlayerProperty(player, key, value)
   self.benefit = self.benefit + benefit
 end
 
---- 牌差收益论（瞎jb乱填版）：
---- 根据moveInfo判断玩家是拿牌还是掉牌进而暴力算收益
+--- 牌差收益论：根据moveInfo判断收益
 ---@param data MoveCardsData
 ---@param info MoveInfo
 function AIGameLogic:applyMoveInfo(data, info)
   local benefit = 0
+  local card_value = fk.ai_card_keep_value[Fk:getCardById(info.cardId).name] or 100
 
   if data.from and data.moveReason ~= fk.ReasonUse then
     if info.fromArea == Player.Hand then
-      benefit = -90
+      benefit = -(card_value - 10)
     elseif info.fromArea == Player.Equip then
-      benefit = -110
+      benefit = -(card_value + 10)
     elseif info.fromArea == Player.Judge then
-      benefit = 180
+      benefit = card_value
     elseif info.fromArea == Player.Special then
-      benefit = -60
+      benefit = -(card_value / 2)
     end
 
     local from = data.from
@@ -123,13 +123,13 @@ function AIGameLogic:applyMoveInfo(data, info)
 
   if data.to then
     if data.toArea == Player.Hand then
-      benefit = 90
+      benefit = card_value - 10
     elseif data.toArea == Player.Equip then
-      benefit = 110
+      benefit = card_value + 10
     elseif data.toArea == Player.Judge then
-      benefit = -180
+      benefit = -card_value
     elseif data.toArea == Player.Special then
-      benefit = 60
+      benefit = card_value / 2
     end
 
     local to = data.to
