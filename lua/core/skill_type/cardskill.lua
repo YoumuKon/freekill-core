@@ -262,14 +262,11 @@ function CardSkill:preEffect(room, cardEffectData)
       if not p:prohibitUse(cardCloned) then
         local cards = p:getHandlyIds()
         for _, cid in ipairs(cards) do
-          if
-            Fk:getCardById(cid).trueName == "nullification" and
-            (
-              not (
-                cardEffectData:isDisresponsive(p) or
-                cardEffectData:isUnoffsetable(p)
-              )
-            )
+          if Fk:getCardById(cid).trueName == "nullification" and
+            (not (
+              cardEffectData:isDisresponsive(p) or
+              cardEffectData:isUnoffsetable(p)
+            ))
           then
             table.insert(players, p)
             break
@@ -282,14 +279,11 @@ function CardSkill:preEffect(room, cardEffectData)
             if
               s.pattern and
               Exppattern:Parse("nullification"):matchExp(s.pattern) and
-              s:enabledAtNullification(p, cardEffectData) and
-              s:enabledAtResponse(p) and
-              (
-                not (
-                  cardEffectData:isDisresponsive(p) or
-                  cardEffectData:isUnoffsetable(p)
-                )
-              )
+              (s:enabledAtNullification(p, cardEffectData) or s:enabledAtResponse(p)) and
+              (not (
+                cardEffectData:isDisresponsive(p) or
+                cardEffectData:isUnoffsetable(p)
+              ))
             then
               table.insert(players, p)
               break
