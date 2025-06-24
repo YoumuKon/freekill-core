@@ -19,6 +19,7 @@
 ---@field public attached_skill_name string @ 给其他角色添加技能的名称
 ---@field public main_skill Skill @ 仅用作添加技能和提示信息
 ---@field public is_delay_effect boolean @ 是否是延时效果
+---@field public audio_index integer|table @ 发动此技能时播放的语音序号，可为int或int表
 ---@field public cardSkill boolean @ 是否为卡牌效果对应的技能（仅用于ActiveSkill）
 ---@field public skeleton SkillSkeleton @ 获取技能骨架
 local Skill = class("Skill")

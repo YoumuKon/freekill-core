@@ -73,7 +73,11 @@ function SkillEffect:main()
           room:setEmotion(player, pkgPath .. "/image/anim/" .. equip.name)
         end
       elseif not skill.click_count then
-        player:broadcastSkillInvoke(skill:getSkeleton().name)
+        local audio_index = skill.audio_index
+        if type(audio_index) == "table" then
+          audio_index = table.random(audio_index)
+        end
+        player:broadcastSkillInvoke(skill:getSkeleton().name, audio_index)
         room:notifySkillInvoked(player, skill.name, skill.anim_type, no_indicate and {} or tos)
       end
     end

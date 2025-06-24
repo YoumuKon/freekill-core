@@ -8,6 +8,7 @@
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string? @ 动态描述函数
 ---@field public derived_piles? string|string[] @ 与某效果联系起来的私人牌堆名，失去该效果时将之置入弃牌堆 --- FIXME: 这应该是Skel的属性吧？
+---@field public audio_index? table|integer @ 此技能效果播放的语音序号，可为int或int表
 ---@field public extra? table @ 塞进技能里的各种数据
 
 ---@class SkillSkeletonSpec
@@ -195,6 +196,7 @@ end
 --- frequency?: string,
 --- is_delay_effect?: boolean,
 --- late_refresh?: boolean,
+--- audio_index?: integer|table,
 --- trigger_times?: T,
 --- priority? : number,
 --- }
