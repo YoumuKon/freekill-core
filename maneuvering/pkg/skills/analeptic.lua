@@ -63,6 +63,8 @@ analepticSkill:addEffect(fk.TurnEnd, {
   end,
 })
 
+analepticSkill:addAI(nil, "default_card_skill")
+
 analepticSkill:addTest(function(room, me)
   local analeptic = room:printCard("analeptic")
   local comp2 = room.players[2]

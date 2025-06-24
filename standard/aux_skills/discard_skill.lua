@@ -55,7 +55,7 @@ skill:addEffect('active', {
 
 skill:addAI({
   think = function(self, ai)
-    local to_discard, _ = ai:AskToDiscardBenefit({
+    local to_discard, _ = ai:askToDiscard({
       min_num = self.skill.min_num,
       max_num = self.skill.num,
       skill_name = self.skill.name,

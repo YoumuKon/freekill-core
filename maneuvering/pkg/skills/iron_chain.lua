@@ -13,4 +13,6 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addAI(nil, "default_card_skill")
+
 return skill

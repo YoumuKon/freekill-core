@@ -437,7 +437,6 @@ end
 
 ---------------------------------------------------------------------
 
--- 基础策略
 -- 封装一些简单策略
 -- ========================================
 
@@ -446,10 +445,10 @@ end
 ---@field min_num integer @ 最小值
 ---@field max_num integer @ 最大值
 
---- 弃牌收益
+--- 弃牌
 ---@param params AIAskToDiscardParams @ 各种变量
----@return integer[], integer @ 本返回次弃牌收益最大的一种情况，选择的卡牌和收益
-function SmartAI:AskToDiscardBenefit(params)
+---@return integer[], integer @ 本次弃牌收益最大的一种情况，返回选择的卡牌和收益
+function SmartAI:askToDiscard(params)
   local cards = self:getEnabledCards()
   params.skill_name = params.skill_name or ""
   params.max_num = math.min(params.max_num, #cards)
@@ -475,5 +474,26 @@ function SmartAI:AskToDiscardBenefit(params)
   return ret, benefit
 end
 
+---@class AIAskToChooseCardsParams
+---@field cards integer[] @ 被选择的牌
+---@field skill_name string @ 请求发动的技能名
+---@field data table @ 用moveCardTo的参数表示这些牌即将被用来做什么操作
+
+--- 选牌
+---@param params AIAskToChooseCardsParams @ 各种变量
+---@return integer[], integer @ 返回本次选牌收益最大的一种情况，选择的卡牌和收益
+function SmartAI:askToChooseCards(params)
+  local skill_name, data = params.skill_name, params.data
+  local ret, benefit = { -1 }, -100000
+  for _, id in ipairs(params.cards) do
+    local v = self:getBenefitOfEvents(function(logic)
+      logic:moveCardTo(id, data.to_place, data.target, data.reason, skill_name, nil, false, data.proposer)
+    end)
+    if v > benefit then
+      ret, benefit = { id }, v
+    end
+  end
+  return ret, benefit
+end
 
 return SmartAI

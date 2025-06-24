@@ -47,7 +47,7 @@ ganglie:addAI({
         skillName = self.skill.name,
       }
     end)
-    local to_discard, discard_val = ai:AskToDiscardBenefit({
+    local to_discard, discard_val = ai:askToDiscard({
       min_num = 2,
       max_num = 2,
       skill_name = self.skill.name,

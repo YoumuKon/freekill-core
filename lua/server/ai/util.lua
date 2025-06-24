@@ -44,7 +44,7 @@ end
 ---@field cancelable? boolean @ 是否可以点取消
 ---@field strategy_data any? @ 一些简易策略，表示选择角色将用来执行何种操作
 
---- 令AI选择一些玩家
+--- 令AI askToChoosePlayers
 ---@param player SmartAI @ 要做选择的AI
 ---@param params AIAskToChoosePlayersParams @ 各种变量
 ---@return ServerPlayer[] @ 选择的玩家列表，可能为空
