@@ -1887,6 +1887,7 @@ function Room:askToArrangeCards(player, params)
     cancelable = ((params.pattern ~= "." or params.poxi_type ~= "") and (params.default_choice == nil))
   }
   local req = Request:new(player, command)
+  req.focus_text = params.skill_name
   req:setData(player, data)
   local result = req:getResult(player)
   -- local result = player.room:askForCustomDialog(player, skillname,
@@ -2037,7 +2038,7 @@ end
 ---@param params AskToExchangeParams @ 各种变量
 ---@return integer[][] @ 交换后的结果
 function Room:askToExchange(player, params)
-  local piles, customNotify = params.piles, params.prompt
+  local piles, customNotify = params.piles, params.skill_name
   local command = "AskForExchange"
   params.piles_name = params.piles_name or Util.DummyTable
   local x = #piles - #params.piles_name
