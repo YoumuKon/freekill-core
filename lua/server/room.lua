@@ -2259,6 +2259,7 @@ function Room:askToUseRealCard(player, params)
       end
     end
   end
+
   extra_data.skillName = skillName
   if #cardIds == 0 and not cancelable then return end
   extra_data.cardIds = cardIds
@@ -2280,6 +2281,7 @@ function Room:askToUseRealCard(player, params)
   end
   if not dat then return end
   local card = Fk:getCardById(dat.cards[1])
+  if card == nil then return end
   local use = {
     from = player,
     tos = #dat.targets > 0 and dat.targets or card:getDefaultTarget(player, extra_data),

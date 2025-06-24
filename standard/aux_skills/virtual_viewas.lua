@@ -45,4 +45,6 @@ virtual_viewas:addEffect("viewas", {
   end,
 })
 
+virtual_viewas:addAI(nil, "vs_skill")
+
 return virtual_viewas

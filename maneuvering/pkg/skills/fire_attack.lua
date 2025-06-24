@@ -50,6 +50,17 @@ skill:addEffect("cardskill", {
   end,
 })
 
-skill:addAI(nil, "default_card_skill")
+skill:addAI({
+  on_effect = function(self, logic, effect)
+    logic:damage({
+      from = effect.from,
+      to = effect.to,
+      card = effect.card,
+      damage = 1,
+      damageType = fk.FireDamage,
+      skillName = skill.name,
+    })
+  end,
+}, "__card_skill")
 
 return skill

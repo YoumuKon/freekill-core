@@ -217,12 +217,16 @@ SmartAI:setCardSkillAI("default_card_skill", {
 SmartAI:setSkillAI("vs_skill", {
   choose_targets = function(self, ai)
     local logic = AIGameLogic:new(ai)
+    local card = self.skill:viewAs(ai.player, ai:getSelectedCards())
+    if card == nil then
+      return {}, -100000
+    end
     local val_func = function(targets)
       logic.benefit = 0
       logic:useCard{
         from = ai.player,
         tos = targets,
-        card = self.skill:viewAs(ai.player, ai:getSelectedCards()),
+        card = card,
       }
       verbose(1, "目前状况下，对[%s]的预测收益为%d", table.concat(table.map(targets, function(p)return tostring(p)end), "+"), logic.benefit)
       return logic.benefit
@@ -237,13 +241,10 @@ SmartAI:setSkillAI("vs_skill", {
     return best_targets or {}, best_val
   end,
   think = function(self, ai)
-    local skill_name = self.skill.name
-    local estimate_val = self:getEstimatedBenefit(ai)
-    -- local cards = ai:getEnabledCards()
-    -- cards = table.random(cards, math.min(#cards, 5)) --[[@as integer[] ]]
-    -- local cid = table.random(cards)
-
-    local best_cards, best_ret, best_val = nil, "", -100000
+    local best_cards, best_ret, best_interaction, best_val = {}, "", "", -100000
+    if self.skill.interaction then
+      best_interaction = self.skill.interaction.data
+    end
     for cards in self:searchCardSelections(ai) do
       local ret, val = self:chooseTargets(ai)
       verbose(1, "就目前选择的这张牌，考虑[%s]，收益为%d", table.concat(table.map(ret, function(p)return tostring(p)end), "+"), val)
@@ -251,7 +252,6 @@ SmartAI:setSkillAI("vs_skill", {
       if best_val < val then
         best_cards, best_ret, best_val = cards, ret, val
       end
-      -- if best_val >= estimate_val then break end
     end
 
     if best_ret and best_ret ~= "" then
@@ -259,7 +259,12 @@ SmartAI:setSkillAI("vs_skill", {
         return "", best_val
       end
 
-      best_ret = { cards = best_cards, targets = best_ret }
+      best_ret = { cards = best_cards, targets = best_ret, interaction_data = best_interaction }
+    end
+
+    local card = self.skill:viewAs(ai.player, best_cards)
+    if card == nil then
+      return {}, -100000
     end
 
     return best_ret, best_val
@@ -377,7 +382,7 @@ function SmartAI:handleAskForSkillInvoke(data)
     return ret and "1" or ""
   else
     local skill = Fk.skills[skillName]
-    if skill and skill.frequency == Skill.Frequent then
+    if skill then
       return "1"
     end
   end
@@ -394,13 +399,57 @@ function SmartAI:handleAskForChoice(data)
   end
 end
 
+function SmartAI:handleAskForUseCard(data)
+  local card_ids = self:getEnabledCards()
+  local skill_ai_list = {}
+  for _, id in ipairs(card_ids) do
+    local cd = Fk:getCardById(id)
+    local ai = fk.ai_skills[cd.skill.name]
+    if ai then
+      table.insertIfNeed(skill_ai_list, ai)
+    end
+  end
+  for _, sname in ipairs(self:getEnabledSkills()) do
+    local ai = fk.ai_skills[sname]
+    if ai then
+      table.insertIfNeed(skill_ai_list, ai)
+    end
+  end
+  verbose(1, "======== %s: 开始计算出牌阶段 ========", tostring(self))
+  verbose(1, "待选技能：[%s]", table.concat(table.map(skill_ai_list, function(ai) return ai.skill.name end), ", "))
+
+  local value_func = function(ai)
+    if not ai then return -500 end
+    local val = ai:getEstimatedBenefit(self)
+    return val or 0
+  end
+
+  local best_ret, best_val = "", -100000
+  for _, ai, val in fk.sorted_pairs(skill_ai_list, value_func) do
+    verbose(1, "[*] 考虑 %s (预估收益%d)", ai.skill.name, val)
+    self:selectSkill(ai.skill.name, true)
+    local ret, real_val = ai:think(self)
+    verbose(1, "%s: 思考结果是%s, 收益是%s", ai.skill.name, json.encode(ret), json.encode(real_val))
+    real_val = real_val or -100000
+    -- if ret and ret ~= "" then return ret end
+    if best_val < real_val then
+      verbose(1, "将决策%s换成更好的%s (收益%d => %d)", json.encode(best_ret), json.encode(ret), best_val, real_val)
+      best_ret, best_val = ret, real_val
+    end
+    self:unSelectAll()
+  end
+  verbose(1, "推测出最佳决策是%s", json.encode(best_ret))
+  if best_ret and best_ret ~= "" then return best_ret end
+  return ""
+end
+
 -- 敌友判断相关。
 -- 目前才开始，做个明身份打牌的就行了。
 --========================================
 
 ---@param target ServerPlayer
 function SmartAI:isFriend(target)
-  if Self:isFriend(target) then return true end
+  if self.player:isFriend(target) then return true end
   local t = { "lord", "loyalist" }
   local players = table.filter(self.room.alive_players, function(p) return p.role ~= "renegade" end)
   local rebels = #table.filter(players, function(p) return p.role == "rebel" end)
@@ -408,7 +457,7 @@ function SmartAI:isFriend(target)
   if rebels >= loyalists then
     table.insert(t, "renegade")
   end
-  if table.contains(t, Self.role) and table.contains(t, target.role) then return true end
+  if table.contains(t, self.player.role) and table.contains(t, target.role) then return true end
   return false
 end
 

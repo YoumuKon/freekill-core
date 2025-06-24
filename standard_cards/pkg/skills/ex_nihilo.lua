@@ -12,6 +12,7 @@ skill:addEffect("cardskill", {
   end,
 })
 
+skill:addAI(nil, "__card_skill")
 skill:addAI(nil, "default_card_skill")
 
 skill:addTest(function(room, me)
