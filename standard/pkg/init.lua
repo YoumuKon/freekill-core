@@ -181,7 +181,7 @@ local role_mode = fk.CreateGameMode{
       roleText = "left lord and loyalist alive"
     elseif Self.role == "rebel" or Self.role == "rebel_chief" then
       roleCheck = #table.filter(alive_players, function(p)
-        return table.contains({"rebel", "rebel_chief"}, p.role)
+        return table.contains({"rebel", "rebel_chief", "renegade"}, p.role)
       end) == 1
       roleText = "left one rebel alive"
     else
