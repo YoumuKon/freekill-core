@@ -152,7 +152,7 @@ function Client:getPlayerBySeat(seat)
   return nil
 end
 
----@param moves CardsMoveStruct[]
+---@param moves MoveCardsData[]
 function Client:moveCards(moves)
   for _, data in ipairs(moves) do
     if #data.moveInfo > 0 then
@@ -569,7 +569,7 @@ fk.client_callback["AskForCardsChosen"] = function(self, data)
 end
 
 --- separated moves to many moves(one card per move)
----@param moves CardsMoveStruct[]
+---@param moves MoveCardsData[]
 local function separateMoves(moves)
   local ret = {}  ---@type CardsMoveInfo[]
   for _, move in ipairs(moves) do
@@ -781,7 +781,7 @@ local function sendMoveCardLog(move, visible_data)
   end
 end
 
----@param raw_moves CardsMoveStruct[]
+---@param raw_moves MoveCardsData[]
 fk.client_callback["MoveCards"] = function(self, raw_moves)
   -- jsonData: CardsMoveStruct[]
   self:moveCards(raw_moves)

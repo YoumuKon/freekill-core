@@ -312,6 +312,8 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
   ["#AskForChooseCards"] = "%1：请选择%src的%2至%3张卡牌",
   ["$ChooseCard"] = "请选择一张卡牌",
   ["$ChooseCards"] = "请选择%1至%2张卡牌",
+  ["$ViewCards"] = "请观看卡牌",
+  ["$ViewCardsFrom"] = "请观看 %src 的卡牌",
   ["$Hand"] = "手牌区",
   ["$Equip"] = "装备区",
   ["$Judge"] = "判定区",
@@ -580,6 +582,7 @@ Fk:loadTranslationTable{
   ["draw_card"] = "摸牌",
   ["heal_hp"] = "回复体力",
   ["damaged"] = "受到伤害",
+  ["view"] = "观看",
 
   --numberic(need gsub)
   ["drawX"] = "摸{num}张牌",
@@ -707,6 +710,7 @@ Fk:loadTranslationTable{
   ["#ChangeKingdom"] = "%from 的势力从 %arg 变成了 %arg2",
   ["#RoomOutdated"] = "服务器更新完毕！该房间已过期，将无法再次游玩",
   ["#Choice"] = "%from 选择 %arg",
+  ["#WatchCard"] = "%from 观看了牌 %card",
 }
 
 -- card footnote

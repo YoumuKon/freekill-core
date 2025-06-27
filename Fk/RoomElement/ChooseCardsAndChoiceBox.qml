@@ -55,7 +55,8 @@ GraphicsBox {
   }
 
   Rectangle {
-    id: right
+    id: cardbox
+    anchors.horizontalCenter: parent.horizontalCenter
     anchors.fill: parent
     anchors.topMargin: 40
     anchors.leftMargin: 15
@@ -99,7 +100,8 @@ GraphicsBox {
 
   Item {
     id: buttonArea
-    anchors.fill: parent
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
     anchors.bottomMargin: 10
     height: 40
 
