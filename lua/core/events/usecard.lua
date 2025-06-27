@@ -520,7 +520,7 @@ function AimData:setUnoffsetable(target)
   if (not target[1]) and target.class then target = { target } end
   if #target == 0 then return end
   self.use.unoffsetableList = self.use.unoffsetableList or {}
-  table.insertTableIfNeed(self.use.disresponsiveList, target)
+  table.insertTableIfNeed(self.use.unoffsetableList, target)
 end
 
 --- 令此牌对一名角色无效
