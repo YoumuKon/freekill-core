@@ -676,8 +676,15 @@ function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
   ---@cast self Room
   toArea = toArea or Card.PlayerHand
   local target1, cards1, target2, cards2 = card_data[1][1], card_data[1][2], card_data[2][1], card_data[2][2]
+  local virualEquips = {}
   local moveInfos = {}
   if #cards1 > 0 then
+    local judge = target1:getCardIds("j")
+    for _, id in ipairs(cards1) do
+      if table.contains(judge, id) then
+        virualEquips[id] = target1:getVirualEquip(id)
+      end
+    end
     table.insert(moveInfos, {
       from = target1,
       ids = cards1,
@@ -689,6 +696,12 @@ function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
     })
   end
   if #cards2 > 0 then
+    local judge = target2:getCardIds("j")
+    for _, id in ipairs(cards2) do
+      if table.contains(judge, id) then
+        virualEquips[id] = target2:getVirualEquip(id)
+      end
+    end
     table.insert(moveInfos, {
       from = target2,
       ids = cards2,
@@ -703,17 +716,26 @@ function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
     self:moveCards(table.unpack(moveInfos))
   end
   moveInfos = {}
+
+  --- 判断某牌能否进入目标区域
+  ---@param to ServerPlayer @ 目标角色
+  local function canMoveIn(id, to)
+    if self:getCardArea(id) == Card.Processing then
+      if toArea == Card.PlayerEquip then
+        return #to:getAvailableEquipSlots(Fk:getCardById(id).sub_type) > 0  --多个同副类别装备如何处理，待定
+      elseif toArea == Card.PlayerJudge then
+        local vcard = virualEquips[id] or Fk:getCardById(id)
+        return not table.contains(to.sealedSlots, Player.JudgeSlot) and not to:isProhibitedTarget(vcard)
+      else
+        return true
+      end
+    end
+    return false
+  end
+
   if not target2.dead then
     local to_ex_cards = table.filter(cards1, function (id)
-      if self:getCardArea(id) == Card.Processing then
-        if toArea == Card.PlayerEquip then
-          return #target2:getAvailableEquipSlots(Fk:getCardById(id).sub_type) > 0  --多个同副类别装备如何处理，待定
-        elseif toArea == Card.PlayerJudge then
-          return not table.contains(target2.sealedSlots, Player.JudgeSlot)
-        else
-          return true
-        end
-      end
+      return canMoveIn(id, target2)
     end)
     if #to_ex_cards > 0 then
       table.insert(moveInfos, {
@@ -731,13 +753,7 @@ function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
   end
   if not target1.dead then
     local to_ex_cards = table.filter(cards2, function (id)
-      if toArea == Card.PlayerEquip then
-        return #target1:getAvailableEquipSlots(Fk:getCardById(id).sub_type) > 0
-      elseif toArea == Card.PlayerJudge then
-        return not table.contains(target1.sealedSlots, Player.JudgeSlot)
-      else
-        return true
-      end
+      return canMoveIn(id, target1)
     end)
     if #to_ex_cards > 0 then
       table.insert(moveInfos, {
@@ -755,6 +771,12 @@ function MoveEventWrappers:swapCards(player, card_data, skillName, toArea)
   end
   if #moveInfos > 0 then
     self:moveCards(table.unpack(moveInfos))
+    for cid, vcard in pairs(virualEquips) do
+      local owner = self:getCardOwner(cid)
+      if owner and self:getCardArea(cid) == toArea then
+        owner:addVirtualEquip(vcard)
+      end
+    end
   end
   self:cleanProcessingArea(table.connect(cards1, cards2), skillName)
 end
