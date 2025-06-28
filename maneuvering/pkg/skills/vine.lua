@@ -25,7 +25,6 @@ skill:addEffect(fk.DamageInflicted, {
   end,
   on_use = function(self, event, target, player, data)
     local room = player.room
-    print(self.name)
     room:broadcastPlaySound("./packages/maneuvering/audio/card/vineburn")
     room:setEmotion(player, "./packages/maneuvering/image/anim/vineburn")
     data:changeDamage(1)

@@ -23,11 +23,11 @@ virtual_viewas:addEffect("viewas", {
   end,
   interaction = function(self)
     if #self.all_choices == 1 and not self.namebox then return end
-    return UI.CardNameBox {choices = self.choices, all_choices = self.all_choices }
+    return UI.CardNameBox { choices = self.choices, all_choices = self.all_choices }
   end,
   view_as = function(self, player, cards)
-    local name = (#self.all_choices == 1) and self.all_choices[1] or self.interaction.data
-    if not name then return nil end
+    local name = (#self.all_choices == 1 and self.all_choices[1]) or self.interaction.data
+    if Fk.all_card_types[name] == nil then return nil end
     local card = Fk:cloneCard(name)
     if self.skillName then
       card.skillName = self.skillName
@@ -41,6 +41,7 @@ virtual_viewas:addEffect("viewas", {
       end
     end
     if player:prohibitUse(card) then return nil end -- FIXME: 修复合法性判断后删除此段
+
     return card
   end,
 })

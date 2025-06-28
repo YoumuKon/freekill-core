@@ -241,32 +241,25 @@ SmartAI:setSkillAI("vs_skill", {
     return best_targets or {}, best_val
   end,
   think = function(self, ai)
-    local best_cards, best_ret, best_interaction, best_val = {}, "", "", -100000
-    if self.skill.interaction then
+    local best_ret
+    local best_cards, best_targets, best_interaction, best_val = {}, "", nil, -100000
+    if self.skill.interaction ~= nil then
       best_interaction = self.skill.interaction.data
     end
     for cards in self:searchCardSelections(ai) do
-      local ret, val = self:chooseTargets(ai)
-      verbose(1, "就目前选择的这张牌，考虑[%s]，收益为%d", table.concat(table.map(ret, function(p)return tostring(p)end), "+"), val)
+      local targets, val = self:chooseTargets(ai)
+      verbose(1, "就目前选择的这张牌，考虑[%s]，收益为%d", table.concat(table.map(targets, function(p) return tostring(p)end), "+"), val)
       val = val or -100000
-      if best_val < val then
-        best_cards, best_ret, best_val = cards, ret, val
+      if val > best_val then
+        best_cards, best_targets, best_val = cards, targets, val
+        best_ret = { cards = best_cards, targets = best_targets, interaction_data = best_interaction }
       end
     end
-
-    if best_ret and best_ret ~= "" then
+    if best_ret ~= nil then
       if best_val < 0 then
         return "", best_val
       end
-
-      best_ret = { cards = best_cards, targets = best_ret, interaction_data = best_interaction }
     end
-
-    local card = self.skill:viewAs(ai.player, best_cards)
-    if card == nil then
-      return {}, -100000
-    end
-
     return best_ret, best_val
   end,
 })
