@@ -634,17 +634,17 @@ function Card:getAvailableTargets (player, extra_data)
   if not player:canUse(self, extra_data) or player:prohibitUse(self) then return {} end
   extra_data = extra_data or Util.DummyTable
   local room = Fk:currentRoom()
-  local ret = extra_data.fix_targets or
-    self:getFixedTargets(player, extra_data) or
-    extra_data.exclusive_targets or
-    extra_data.must_targets or
-    extra_data.include_targets or
-    room.alive_players
-  if #ret == 0 then return {} end
-  local tos = table.simpleClone(ret)
-  if type(tos[1]) == "number" then
-    tos = table.map(tos, Util.Id2PlayerMapper)
+  -- 选定目标的优先逻辑：额外的锁定目标(求桃锁定濒死角色)>牌本身的锁定目标(南蛮无中装备)>所有角色
+  local avail = extra_data.fix_targets and table.map(extra_data.fix_targets, Util.Id2PlayerMapper)
+  or (self:getFixedTargets(player, extra_data) or room.alive_players)
+  local tos = table.simpleClone(avail)
+  -- 过滤额外的目标限制
+  for _, limit in ipairs({"exclusive_targets", "must_targets", "include_targets"}) do
+    if type(extra_data[limit]) == "table" and #extra_data[limit] > 0 then
+      tos = table.filter(tos, function(p) return table.contains(extra_data[limit], p.id) end)
+    end
   end
+  if #tos == 0 then return {} end
   tos = table.filter(tos, function(p)
     return not player:isProhibited(p, self) and self.skill:modTargetFilter(player, p, {}, self, extra_data)
   end)
