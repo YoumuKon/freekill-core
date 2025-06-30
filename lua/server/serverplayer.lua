@@ -495,8 +495,28 @@ function ServerPlayer:reset()
     from = self.id,
     arg = "reset-general"
   }
-  if self.chained then self:setChainState(false) end
-  if not self.dead and not self.faceup then self:turnOver() end
+  if self.dead then
+    if self.chained then
+      self.chained = false
+      self.room:broadcastProperty(self, "chained")
+    end
+    if not self.faceup then
+      self.faceup = true
+      self.room:broadcastProperty(self, "faceup")
+    end
+  else
+    if self.chained then
+      self:setChainState(false)
+    end
+    if not self.faceup then
+      if self.dead then
+        self.faceup = true
+        self.room:broadcastProperty(self, "faceup")
+      else
+        self:turnOver()
+      end
+    end
+  end
 end
 
 --- 对若干名角色发起拼点。
