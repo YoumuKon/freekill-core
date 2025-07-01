@@ -19,7 +19,7 @@ local CardItem = (require 'ui_emu.common').CardItem
 ---@field public skill_name string 当前响应的技能名
 ---@field public prompt string 提示信息
 ---@field public cancelable boolean 可否取消
----@field public extra_data UseExtraData 传入的额外信息
+---@field public extra_data UseExtraData|table 传入的额外信息
 ---@field public pendings integer[] 卡牌id数组
 ---@field public selected_targets integer[] 选择的目标
 ---@field public expanded_piles { [string]: integer[] } 用于展开/收起
@@ -86,7 +86,10 @@ end
 ---@param selected_cards integer[] @ 选择的牌
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local prompt = skill.prompt
-  if type(skill.prompt) == "function" then
+  -- 如果有固定的提示，优先采用，忽视原技能的提示
+  if self.extra_data and self.extra_data.fix_prompt then
+    prompt = self.extra_data.fix_prompt
+  elseif type(skill.prompt) == "function" then
     prompt = skill:prompt(self.player, selected_cards or self.pendings,
       table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
   end

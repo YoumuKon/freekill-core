@@ -606,6 +606,7 @@ function SkillSkeleton:addAcquireEffect(fn)
     fn(self, player, is_start)
   end
 end
+
 -- 失去此技能时，触发此函数
 ---@param fn fun(self:SkillSkeleton, player:ServerPlayer, is_death:boolean?)
 function SkillSkeleton:addLoseEffect(fn)
@@ -614,6 +615,7 @@ function SkillSkeleton:addLoseEffect(fn)
   end
 end
 
+--- 获取技能动态技能名
 ---@param player Player
 ---@param lang? string
 ---@return string?
@@ -625,7 +627,7 @@ end
 ---@param lang? string
 ---@return string?
 function SkillSkeleton:getDynamicDescription(player, lang)
-  if table.contains(self.tags, Skill.Switch) then
+  if table.contains(self.tags, Skill.Switch) or table.contains(self.tags, Skill.Rhyme) then
     local skill_name = self.name
     local switchState = player:getSwitchSkillState(skill_name)
     local descKey = ":" .. skill_name .. (switchState == fk.SwitchYang and "_yang" or "_yin")

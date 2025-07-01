@@ -434,13 +434,13 @@ end
 --- 增加卡牌使用次数
 function ServerPlayer:addCardUseHistory(cardName, num)
   Player.addCardUseHistory(self, cardName, num)
-  self:doNotify("AddCardUseHistory", json.encode{cardName, num})
+  self.room:doBroadcastNotify("AddCardUseHistory", json.encode{self.id, cardName, num})
 end
 
 --- 设置卡牌已使用次数
 function ServerPlayer:setCardUseHistory(cardName, num, scope)
   Player.setCardUseHistory(self, cardName, num, scope)
-  self:doNotify("SetCardUseHistory", json.encode{cardName, num, scope})
+  self.room:doBroadcastNotify("SetCardUseHistory", json.encode{self.id, cardName, num, scope})
 end
 
 -- 增加技能发动次数

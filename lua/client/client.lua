@@ -825,7 +825,7 @@ end
 local function updateLimitSkill(pid, skill, times)
   if not skill.visible then return end
   local skill_name = skill:getSkeleton().name
-  if skill:hasTag(Skill.Switch) then
+  if skill:hasTag(Skill.Switch) or skill:hasTag(skill.Rhyme) then
     local _times = ClientInstance:getPlayerById(pid):getSwitchSkillState(skill_name) == fk.SwitchYang and 0 or 1
     if times == -1 then _times = -1 end
     ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill_name, _times })
@@ -1066,11 +1066,15 @@ fk.client_callback["LogEvent"] = function(self, data)
 end
 
 fk.client_callback["AddCardUseHistory"] = function(self, data)
-  Self:addCardUseHistory(data[1], data[2])
+  local playerid, card_name, num = table.unpack(data)
+  local player = self:getPlayerById(playerid)
+  player:addCardUseHistory(card_name, num)
 end
 
 fk.client_callback["SetCardUseHistory"] = function(self, data)
-  Self:setCardUseHistory(data[1], data[2], data[3])
+  local playerid, card_name, num, scope = table.unpack(data)
+  local player = self:getPlayerById(playerid)
+  player:setCardUseHistory(card_name, num, scope)
 end
 
 fk.client_callback["AddSkillUseHistory"] = function(self, data)
