@@ -608,8 +608,17 @@ end
 function Card:getFixedTargets(player, extra_data)
   local ret = extra_data and extra_data.fix_targets
   if ret then return table.map(ret, Util.Id2PlayerMapper) end
+  local status_skills = Fk:currentRoom().status_skills[TargetModSkill] or Util.DummyTable---@type TargetModSkill[]
+  for _, skill in ipairs(status_skills) do
+    local targetIds = skill:getFixedTargets(player, self.skill, self, extra_data)
+    if targetIds then
+      return table.map(targetIds, Util.Id2PlayerMapper)
+    end
+  end
+  -- 卡牌自身赋予的默认目标
   ret = self.skill:fixTargets(player, self, extra_data)
   if ret then return ret end
+  -- 以下为适用所有牌的默认值
   if self.skill:getMinTargetNum(player) == 0 and not self.is_passive then
     -- 此处仅作为默认值，若与默认选择规则不一致（如火烧连营）请修改cardSkill的fix_targets参数
     if self.multiple_targets then
@@ -635,8 +644,7 @@ function Card:getAvailableTargets (player, extra_data)
   extra_data = extra_data or Util.DummyTable
   local room = Fk:currentRoom()
   -- 选定目标的优先逻辑：额外的锁定目标(求桃锁定濒死角色)>牌本身的锁定目标(南蛮无中装备)>所有角色
-  local avail = extra_data.fix_targets and table.map(extra_data.fix_targets, Util.Id2PlayerMapper)
-  or (self:getFixedTargets(player, extra_data) or room.alive_players)
+  local avail = (self:getFixedTargets(player, extra_data) or room.alive_players)
   local tos = table.simpleClone(avail)
   -- 过滤额外的目标限制
   for _, limit in ipairs({"exclusive_targets", "must_targets", "include_targets"}) do

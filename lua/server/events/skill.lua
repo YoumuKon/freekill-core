@@ -100,13 +100,15 @@ function SkillEffect:main()
     end
   end
 
-  local cost_data_bak = skill.cost_data
   logic:trigger(fk.SkillEffect, player, data)
-  skill.cost_data = cost_data_bak
+  if not data.prevent then
+    if effect_cb then
+      data.trigger_break = effect_cb()
+    end
+  end
 
-  local ret = effect_cb and effect_cb() or false
   logic:trigger(fk.AfterSkillEffect, player, data)
-  return ret
+  return data.trigger_break
 end
 
 function SkillEffect:desc()
@@ -128,6 +130,7 @@ end
 ---@param skill Skill @ 发动的技能
 ---@param effect_cb fun() @ 实际要调用的函数
 ---@param skill_data? table @ 技能的信息
+---@return SkillEffectData
 function SkillEventWrappers:useSkill(player, skill, effect_cb, skill_data)
   ---@cast self Room
   if skill_data then
@@ -151,7 +154,8 @@ function SkillEventWrappers:useSkill(player, skill, effect_cb, skill_data)
     skill_cb = effect_cb,
     skill_data = skill_data
   }
-  return exec(SkillEffect, data)
+  exec(SkillEffect, data)
+  return data
 end
 
 --- 令一名玩家获得/失去技能。

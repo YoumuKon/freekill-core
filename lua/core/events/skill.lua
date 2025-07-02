@@ -1,5 +1,5 @@
 
---- SkillData 技能作用目标的数据
+--- SkillData 技能作用目标的数据（用于主动技）
 ---@class SkillUseDataSpec
 ---@field public from ServerPlayer @ 使用者
 ---@field public tos ServerPlayer[] @ 角色目标
@@ -14,8 +14,10 @@ SkillUseData = TriggerData:subclass("SkillUseData")
 ---@field public who ServerPlayer @ 技能发动者
 ---@field public skill Skill @ 发动的技能
 ---@field public skill_data SkillUseData @ 技能数据
+---@field public prevent? boolean @ 防止执行效果
+---@field public trigger_break? boolean @ 停止继续触发此时机（仅用于触发技）
 
---- 技能效果的数据
+--- 技能效果的数据（用于可发动的技能，主动技、视为技、触发技）
 ---@class SkillEffectData: SkillEffectDataSpec, TriggerData
 SkillEffectData = TriggerData:subclass("SkillEffectData")
 

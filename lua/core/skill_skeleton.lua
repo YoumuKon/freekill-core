@@ -351,6 +351,9 @@ function SkillSkeleton:createTargetModSkill(_skill, idx, key, attr, spec)
   if spec.fix_times_func then
     skill.getFixedNum = spec.fix_times_func
   end
+  if spec.fix_target_func then
+    skill.getFixedTargets = spec.fix_target_func
+  end
   if spec.bypass_distances then
     skill.bypassDistancesCheck = spec.bypass_distances
   end
