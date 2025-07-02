@@ -413,6 +413,7 @@ function SkillSkeleton:createVisibilitySkill(_skill, idx, key, attr, spec)
   fk.readStatusSpecToSkill(skill, spec)
   if spec.card_visible then skill.cardVisible = spec.card_visible end
   if spec.role_visible then skill.roleVisible = spec.role_visible end
+  if spec.move_visible then skill.moveVisible = spec.move_visible end
 
   return skill
 end

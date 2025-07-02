@@ -227,7 +227,7 @@ local function parseMsg(msg, nocolor, visible_data)
   end
 
   if allUnknown then
-    card = ""
+    card = Fk:translate("unknown_card")
   else
     local card_str = {}
     for _, id in ipairs(card) do

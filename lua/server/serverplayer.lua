@@ -343,12 +343,13 @@ function ServerPlayer:drawCards(num, skillName, fromPlace, moveMark)
   return self.room:drawCards(self, num, skillName, fromPlace, moveMark)
 end
 
+--- 将一些牌加入私人牌堆
 ---@param pile_name string
 ---@param card integer | integer[] | Card | Card[]
 ---@param visible? boolean
 ---@param skillName? string
 ---@param proposer? ServerPlayer
----@param visiblePlayers? integer | integer[] @ 为nil时默认对自己可见
+---@param visiblePlayers? ServerPlayer | ServerPlayer[] @ 为nil时默认对自己可见
 function ServerPlayer:addToPile(pile_name, card, visible, skillName, proposer, visiblePlayers)
   self.room:moveCardTo(card, Card.PlayerSpecial, self, fk.ReasonJustMove, skillName, pile_name, visible,
   proposer or self, nil, visiblePlayers)

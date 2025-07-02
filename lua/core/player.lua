@@ -1389,6 +1389,8 @@ function Player:removeBuddy(other)
   table.removeOne(self.buddy_list, other.id)
 end
 
+--- 是否为通牌队友
+---@param other Player|integer
 function Player:isBuddy(other)
   local room = Fk:currentRoom()
   if room.observing and not room.replaying then return false end
@@ -1398,7 +1400,7 @@ end
 
 --- Player是否可看到某card
 --- @param cardId integer
----@param move? CardsMoveStruct
+---@param move? CardsMoveStruct @ 移动数据，注意涉及Player全是id
 ---@return boolean
 function Player:cardVisible(cardId, move)
   local room = Fk:currentRoom()
@@ -1414,12 +1416,21 @@ function Player:cardVisible(cardId, move)
     return table.contains(areas, area) or (defaultVisible and table.contains({Card.Processing, Card.DiscardPile}, area))
   end
 
+  local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable---@type VisibilitySkill[]
+
   local falsy = true -- 当难以决定时是否要选择暗置？
   local oldarea, oldspecial, oldowner
   if move then
     ---@type MoveInfo
     local info = table.find(move.moveInfo, function(info) return info.cardId == cardId end)
     if info then
+      for _, skill in ipairs(status_skills) do
+        local f = skill:moveVisible(self, info, move)
+        if f ~= nil then
+          return f
+        end
+      end
+
       oldarea = info.fromArea
       oldspecial = info.fromSpecialName
       oldowner = move.from and room:getPlayerById(move.from)
@@ -1448,7 +1459,6 @@ function Player:cardVisible(cardId, move)
   local card = Fk:getCardById(cardId)
 
   if not room.observing then
-    local status_skills = Fk:currentRoom().status_skills[VisibilitySkill] or Util.DummyTable
     for _, skill in ipairs(status_skills) do
       local f = skill:cardVisible(self, card)
       if f ~= nil then
