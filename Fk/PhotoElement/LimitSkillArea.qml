@@ -33,4 +33,17 @@ ColumnLayout {
       times: times,
     });
   }
+
+  function refresh(skill_time) {
+    skills.clear();
+    for (let i = 0; i < skill_time.length; i++) {
+      if (skill_time[i][1] > -1) {
+        skills.append({
+          skillname_: skill_time[i][0],
+          times: skill_time[i][1]
+        });
+      }
+    }
+  }
+
 }

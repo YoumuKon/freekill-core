@@ -819,7 +819,8 @@ fk.client_callback["ShowCard"] = function(self, data)
   self:notifyUI("MoveCards", vdata)
 end
 
--- 说是限定技，其实也适用于觉醒技、转换技、使命技
+
+-- 更新限定技，觉醒技、转换技、使命技在武将牌旁边的技能UI（已弃用，交给状态技刷新处理）
 ---@param skill Skill
 ---@param times integer
 local function updateLimitSkill(pid, skill, times)
@@ -875,7 +876,7 @@ fk.client_callback["LoseSkill"] = function(self, data)
     end
   end
 
-  updateLimitSkill(id, skill, -1)
+  --(id, skill, -1)
 end
 
 fk.client_callback["AddSkill"] = function(self, data)
@@ -927,7 +928,7 @@ fk.client_callback["AddSkill"] = function(self, data)
     return
   end
 
-  updateLimitSkill(id, skill, target:usedSkillTimes(skill_name, Player.HistoryGame))
+  --updateLimitSkill(id, skill, target:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
 fk.client_callback["AddStatusSkill"] = function(self, data)
@@ -1084,7 +1085,7 @@ fk.client_callback["AddSkillUseHistory"] = function(self, data)
 
   local skill = Fk.skills[skill_name]
   if not skill or skill:hasTag(Skill.Quest) then return end
-  updateLimitSkill(playerid, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
+  --updateLimitSkill(playerid, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
 fk.client_callback["SetSkillUseHistory"] = function(self, data)
@@ -1094,7 +1095,7 @@ fk.client_callback["SetSkillUseHistory"] = function(self, data)
 
   local skill = Fk.skills[skill_name]
   if not skill or skill:hasTag(Skill.Quest) then return end
-  updateLimitSkill(id, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
+  --updateLimitSkill(id, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
 end
 
 fk.client_callback["AddVirtualEquip"] = function(self, data)
@@ -1124,7 +1125,7 @@ end
 
 fk.client_callback["UpdateQuestSkillUI"] = function(self, data)
   local player, skillName, usedTimes = data[1], data[2], data[3]
-  updateLimitSkill(player, Fk.skills[skillName], usedTimes)
+  --updateLimitSkill(player, Fk.skills[skillName], usedTimes)
 end
 
 fk.client_callback["UpdateGameData"] = function(self, data)

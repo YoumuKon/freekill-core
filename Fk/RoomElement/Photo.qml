@@ -935,6 +935,10 @@ Item {
     limitSkills.update(skill, time);
   }
 
+  function updateAllLimitSkill(skill_time) {
+    limitSkills.refresh(skill_time);
+  }
+
   function showDetail() {
     if (playerid === 0 || playerid === -1) {
       return;

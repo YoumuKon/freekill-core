@@ -1022,6 +1022,7 @@ function HasVisibleCard(me, other, special_name)
   return false
 end
 
+--- 刷新状态技状态和UI等
 function RefreshStatusSkills()
   local self = ClientInstance
   -- if not self.recording then return end -- 在回放录像就别刷了
@@ -1059,6 +1060,34 @@ function RefreshStatusSkills()
   Self:filterHandcards()
   -- 刷技能状态
   self:notifyUI("UpdateSkill", nil)
+
+  -- 刷新武将脸旁边的技能UI，限定技，觉醒技，使命技，转换技韵律技
+  for _, p in ipairs(self.players) do
+    local skills_to_updata = {}
+    for _, skill in ipairs(p.player_skills) do
+      if skill.visible then
+        local times = -2 -- 不更新
+        local skill_name = skill:getSkeleton().name
+        if skill:hasTag(Skill.Switch) or skill:hasTag(skill.Rhyme) then -- 阳0阴1
+          times = p:getSwitchSkillState(skill_name) == fk.SwitchYang and 0 or 1
+        elseif skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
+          times = p:usedSkillTimes(skill.name, Player.HistoryGame) -- 1已发动
+        elseif skill:hasTag(Skill.Quest) then
+          times = -1 -- 不显示
+          local state = p:getQuestSkillState(skill.name)
+          if state then
+            times = state == "succeed" and 1 or 2 -- 2=失败，1=成功
+          end
+        end
+        if times > -2 then -- 只有以上类型的技能才更新
+          if p.dead then times = -1 end
+          table.insert(skills_to_updata, {skill.name, times})
+        end
+      end
+    end
+    self:notifyUI("UpdateAllLimitSkill", { p.id, skills_to_updata })
+  end
+
 end
 
 function GetPlayersAndObservers()
