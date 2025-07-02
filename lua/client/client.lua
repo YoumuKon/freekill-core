@@ -820,17 +820,29 @@ fk.client_callback["ShowCard"] = function(self, data)
 end
 
 
--- 更新限定技，觉醒技、转换技、使命技在武将牌旁边的技能UI（已弃用，交给状态技刷新处理）
----@param skill Skill
----@param times integer
-local function updateLimitSkill(pid, skill, times)
+-- 更新限定技，觉醒技、转换技、使命技在武将牌旁边的技能UI
+---@param pid integer @ 技能拥有角色id
+---@param skill Skill @ 要更新的技能
+local function updateLimitSkill(pid, skill)
   if not skill.visible then return end
+  local player = ClientInstance:getPlayerById(pid)
+  local times = -2
   local skill_name = skill:getSkeleton().name
   if skill:hasTag(Skill.Switch) or skill:hasTag(skill.Rhyme) then
-    local _times = ClientInstance:getPlayerById(pid):getSwitchSkillState(skill_name) == fk.SwitchYang and 0 or 1
-    if times == -1 then _times = -1 end
-    ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill_name, _times })
-  elseif skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) or skill:hasTag(Skill.Quest) then
+    times = player:getSwitchSkillState(skill_name) == fk.SwitchYang and 0 or 1
+  elseif skill:hasTag(Skill.Limited) or skill:hasTag(Skill.Wake) then
+    times = player:usedSkillTimes(skill_name, Player.HistoryGame)
+  elseif skill:hasTag(Skill.Quest) then
+    times = -1
+    local state = player:getQuestSkillState(skill_name)
+    if state then
+      times = state == "failed" and 2 or 1
+    end
+  end
+  if times > -2 then
+    if not player:hasSkill(skill_name, true) then
+      times = -1
+    end
     ClientInstance:notifyUI("UpdateLimitSkill", { pid, skill_name, times })
   end
 end
@@ -876,7 +888,7 @@ fk.client_callback["LoseSkill"] = function(self, data)
     end
   end
 
-  --(id, skill, -1)
+  updateLimitSkill(id, skill)
 end
 
 fk.client_callback["AddSkill"] = function(self, data)
@@ -924,11 +936,8 @@ fk.client_callback["AddSkill"] = function(self, data)
     end
   end
 
-  if skill:hasTag(Skill.Quest) or skill:hasTag(Skill.Wake) then
-    return
-  end
 
-  --updateLimitSkill(id, skill, target:usedSkillTimes(skill_name, Player.HistoryGame))
+  updateLimitSkill(id, skill)
 end
 
 fk.client_callback["AddStatusSkill"] = function(self, data)
@@ -1084,8 +1093,8 @@ fk.client_callback["AddSkillUseHistory"] = function(self, data)
   player:addSkillUseHistory(skill_name, time)
 
   local skill = Fk.skills[skill_name]
-  if not skill or skill:hasTag(Skill.Quest) then return end
-  --updateLimitSkill(playerid, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
+  if not skill then return end
+  updateLimitSkill(playerid, Fk.skills[skill_name])
 end
 
 fk.client_callback["SetSkillUseHistory"] = function(self, data)
@@ -1094,8 +1103,8 @@ fk.client_callback["SetSkillUseHistory"] = function(self, data)
   player:setSkillUseHistory(skill_name, time, scope)
 
   local skill = Fk.skills[skill_name]
-  if not skill or skill:hasTag(Skill.Quest) then return end
-  --updateLimitSkill(id, Fk.skills[skill_name], player:usedSkillTimes(skill_name, Player.HistoryGame))
+  if not skill then return end
+  updateLimitSkill(id, Fk.skills[skill_name])
 end
 
 fk.client_callback["AddVirtualEquip"] = function(self, data)
@@ -1124,8 +1133,8 @@ fk.client_callback["ChangeSelf"] = function(self, data)
 end
 
 fk.client_callback["UpdateQuestSkillUI"] = function(self, data)
-  local player, skillName, usedTimes = data[1], data[2], data[3]
-  --updateLimitSkill(player, Fk.skills[skillName], usedTimes)
+  local playerId, skillName = data[1], data[2]
+  updateLimitSkill(playerId, Fk.skills[skillName])
 end
 
 fk.client_callback["UpdateGameData"] = function(self, data)

@@ -1573,16 +1573,6 @@ callbacks["UpdateLimitSkill"] = (data) => {
   }
 }
 
-callbacks["UpdateAllLimitSkill"] = (data) => {
-  const id = data[0];
-  const skill_time = data[1];
-
-  const photo = getPhoto(id);
-  if (photo) {
-    photo.updateAllLimitSkill(skill_time);
-  }
-}
-
 callbacks["UpdateDrawPile"] = (j) => {
   const data = parseInt(j);
   roomScene.miscStatus.pileNum = data;

@@ -3479,8 +3479,18 @@ function Room:updateQuestSkillState(player, skillName, failed)
   self:doBroadcastNotify("UpdateQuestSkillUI", json.encode{
     player.id,
     skillName,
-    updateValue,
   })
+end
+
+--- 刷新所有武将脸旁边的技能图标状态
+---@param player ServerPlayer
+function Room:updateAllLimitSkillUI(player)
+  for _, skill in ipairs(player.player_skills) do
+    self:doBroadcastNotify("UpdateQuestSkillUI", json.encode{
+      player.id,
+      skill.name,
+    })
+  end
 end
 
 --- 废除区域

@@ -128,6 +128,7 @@ function Death:main()
   room:broadcastProperty(victim, "drank")
   victim.shield = 0
   room:broadcastProperty(victim, "shield")
+  room:updateAllLimitSkillUI(victim)
 
   logic:trigger(fk.GameOverJudge, victim, deathData)
   logic:trigger(fk.Death, victim, deathData)
@@ -163,6 +164,7 @@ function Revive:main()
   room:setPlayerProperty(data.who, "dying", false)
   room:setPlayerProperty(data.who, "hp", data.who.maxHp)
   table.insertIfNeed(room.alive_players, data.who)
+  room:updateAllLimitSkillUI(data.who)
 
   if data.send_log then
     room:sendLog { type = "#Revive", from = data.who.id }
