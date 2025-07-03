@@ -19,6 +19,7 @@
 ---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
 ---@field public dynamic_name? fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
 ---@field public dynamic_desc? fun(self: SkillSkeleton, player: Player, lang?: string): string? @ 动态描述函数
+---@field public mode_skill? boolean @ 是否为模式技能（诸如斗地主的“飞扬”和“跋扈”）
 ---@field public extra? table @ 塞进技能里的各种数据
 
 ---@class SkillSkeleton : Object, SkillSkeletonSpec
@@ -74,6 +75,9 @@ function SkillSkeleton:initialize(spec)
 
   self.dynamicName = spec.dynamic_name
   self.dynamicDesc = spec.dynamic_desc
+
+  self.mode_skill = spec.mode_skill
+
   self.extra = spec.extra or {}
 
   --Notify智慧，当不存在main_skill时，用于创建main_skill。看上去毫无用处
