@@ -38,8 +38,8 @@ function ReqActiveSkill:initialize(player, data)
     self.cancelable = data[3]
     self.extra_data = data[4]
 
-    if self.skill_name then
-      self.original_prompt = ("#PlaySkill:::" .. self.skill_name)
+    if type(self.skill_name) == "string" and self.skill_name ~= "" then
+      self.original_prompt = ("#UseSkill:::" .. self.skill_name)
     end
   end
 end
@@ -87,23 +87,31 @@ function ReqActiveSkill:finish()
   self:retractAllPiles()
 end
 
+--- 更新主动技的提示（使用卡牌也会走这步）
 ---@param skill ActiveSkill
 ---@param selected_cards? integer[] @ 选择的牌
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
-  local prompt = skill.prompt
-  -- 如果有固定的提示，优先采用，忽视原技能的提示
-  if self.extra_data and self.extra_data.fix_prompt then
-    prompt = self.extra_data.fix_prompt
-  elseif type(skill.prompt) == "function" then
-    prompt = skill:prompt(self.player, selected_cards or self.pendings,
-      table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
-  end
-  if type(prompt) == "string" and prompt ~= "" then
-    self:setPrompt(prompt)
+  local default_prompt = ("#UseSkill:::" .. skill.name) -- 默认提示
+  local prompt = ""
+  if self.extra_data then
+    -- 被动询问使用主动技时，例如求弃牌
+    if type(self.extra_data.fix_prompt) == "string" then
+      prompt = self.extra_data.fix_prompt
+    elseif type(self.prompt) == "string" then
+      prompt = self.prompt
+    end
+    --- FIXME: 被动询问主动技时是否还要执行skill.prompt的动态提示？
   else
-    --self:setPrompt(self.original_prompt or "")
-    self:setPrompt("#PlaySkill:::" .. skill.name)
+    -- 如果没有extra_data，肯定是出牌阶段空闲时调用主动技，需要重新设置prompt
+    if type(skill.prompt) == "function" then
+      prompt = skill:prompt(self.player, selected_cards or self.pendings,
+        table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
+    elseif type(skill.prompt) == "string" then
+      prompt = skill.prompt
+    end
   end
+  self:setPrompt(prompt == "" and default_prompt or prompt)
+  --- 千万不能设置为self.original_prompt！！！！！！！！！！！！
 end
 
 function ReqActiveSkill:updatePrompt()
