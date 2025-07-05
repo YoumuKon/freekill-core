@@ -81,7 +81,7 @@ Rectangle {
 
   function loadSkills() {
     for (let i = 1; i <= 23; i++) {
-      skills.append({ name: "fastchat_m", idx: i });
+      skills.append({ name: "fastchat_m", idx: i, specific: false });
     }
     const general = roomScene.getPhoto(Self.id).general;
     const deputyGeneral = roomScene.getPhoto(Self.id).deputyGeneral;
