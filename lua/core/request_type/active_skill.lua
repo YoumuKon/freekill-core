@@ -23,6 +23,7 @@ local CardItem = (require 'ui_emu.common').CardItem
 ---@field public pendings integer[] 卡牌id数组
 ---@field public selected_targets integer[] 选择的目标
 ---@field public expanded_piles { [string]: integer[] } 用于展开/收起
+---@field public original_prompt string 最开始的提示信息；这种涉及技能按钮的需要这样一下
 local ReqActiveSkill = RequestHandler:subclass("ReqActiveSkill")
 
 function ReqActiveSkill:initialize(player, data)
@@ -36,6 +37,10 @@ function ReqActiveSkill:initialize(player, data)
     self.prompt     = data[2]
     self.cancelable = data[3]
     self.extra_data = data[4]
+
+    if self.skill_name then
+      self.original_prompt = ("#PlaySkill:::" .. self.skill_name)
+    end
   end
 end
 
@@ -83,7 +88,7 @@ function ReqActiveSkill:finish()
 end
 
 ---@param skill ActiveSkill
----@param selected_cards integer[] @ 选择的牌
+---@param selected_cards? integer[] @ 选择的牌
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local prompt = skill.prompt
   -- 如果有固定的提示，优先采用，忽视原技能的提示
@@ -93,10 +98,11 @@ function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
     prompt = skill:prompt(self.player, selected_cards or self.pendings,
       table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
   end
-  if type(prompt) == "string" then
+  if type(prompt) == "string" and prompt ~= "" then
     self:setPrompt(prompt)
   else
-    self:setPrompt(self.original_prompt or "")
+    --self:setPrompt(self.original_prompt or "")
+    self:setPrompt("#PlaySkill:::" .. skill.name)
   end
 end
 

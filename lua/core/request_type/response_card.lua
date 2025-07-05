@@ -14,7 +14,6 @@ local ReqActiveSkill = require 'core.request_type.active_skill'
 ---@class ReqResponseCard: ReqActiveSkill
 ---@field public selected_card? Card 使用一张牌时会用到 支持锁视技
 ---@field public pattern string 请求格式
----@field public original_prompt string 最开始的提示信息；这种涉及技能按钮的需要这样一下
 local ReqResponseCard = ReqActiveSkill:subclass("ReqResponseCard")
 
 function ReqResponseCard:initialize(player, data)

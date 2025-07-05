@@ -213,6 +213,7 @@ Fk:loadTranslationTable({
   ["Show General Detail"] = "View skills",
 
   ["#PlayCard"] = "Your turn now, please use a card",
+  ["#UseSkill"] = "please use skill [%arg]",
   ["#AskForGeneral"] = "Please choose a character",
   ["#AskForSkillInvoke"] = "Do you want to use skill %1?",
   ["#AskForLuckCard"] = "Do you want to use luck card (%1 times left)?",
