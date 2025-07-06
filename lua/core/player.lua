@@ -950,6 +950,8 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     if not effect:isInstanceOf(StatusSkill) then return true
     elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
       return not self:isFakeSkill(skill)
+    else
+      return true -- 客户端状态技直接生效
     end
   else
     for _, skills in pairs(self.derivative_skills) do
