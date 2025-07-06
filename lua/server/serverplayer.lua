@@ -13,7 +13,6 @@
 ---@field public phases Phase[]
 ---@field public phase_state table[]
 ---@field public phase_index integer
----@field private _fake_skills Skill[]
 ---@field private _manually_fake_skills Skill[]
 ---@field public prelighted_skills Skill[]
 ---@field private _timewaste_count integer
@@ -32,7 +31,6 @@ function ServerPlayer:initialize(_self)
   self.phases = {}
   self.phase_state = {}
 
-  self._fake_skills = {}
   self._manually_fake_skills = {}
   self.prelighted_skills = {}
   self._prelighted_skills = {}
@@ -548,19 +546,11 @@ end
 
 ---@param skill Skill | string
 function ServerPlayer:addFakeSkill(skill)
-  assert(type(skill) == "string" or skill:isInstanceOf(Skill))
-  if type(skill) == "string" then
-    skill = Fk.skills[skill]
-    assert(skill, "Skill not found")
+  skill = Player.addFakeSkill(self, skill)
+  if not skill then
+    return
   end
-  if table.contains(self._fake_skills, skill) then return end
-
   table.insertIfNeed(self._manually_fake_skills, skill)
-
-  table.insert(self._fake_skills, skill)
-  for _, s in ipairs(skill.related_skills) do
-    table.insert(self._fake_skills, s)
-  end
 
   -- TODO
   self:doNotify("AddSkill", json.encode{ self.id, skill.name, true })
@@ -568,28 +558,14 @@ end
 
 ---@param skill Skill | string
 function ServerPlayer:loseFakeSkill(skill)
-  assert(type(skill) == "string" or skill:isInstanceOf(Skill))
-  if type(skill) == "string" then
-    skill = Fk.skills[skill]
+  skill = Player.loseFakeSkill(self, skill)
+  if not skill then
+    return
   end
-  if not table.contains(self._fake_skills, skill) then return end
-
   table.removeOne(self._manually_fake_skills, skill)
-
-  table.removeOne(self._fake_skills, skill)
-  for _, s in ipairs(skill.related_skills) do
-    table.removeOne(self._fake_skills, s)
-  end
 
   -- TODO
   self:doNotify("LoseSkill", json.encode{ self.id, skill.name, true })
-end
-
----@param skill Skill | string
-function ServerPlayer:isFakeSkill(skill)
-  if type(skill) == "string" then skill = Fk.skills[skill] end
-  assert(skill:isInstanceOf(Skill))
-  return table.contains(self._fake_skills, skill)
 end
 
 ---@param skill string | Skill

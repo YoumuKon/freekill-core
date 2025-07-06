@@ -26,6 +26,7 @@
 ---@field public dead boolean @ 是否死亡
 ---@field public player_skills Skill[] @ 当前拥有的所有技能
 ---@field public derivative_skills table<Skill, Skill[]> @ 角色派生技能，键为使获得此派生技能的源技能，值为派生技能表
+---@field private _fake_skills Skill[]
 ---@field public flag string[] @ 当前拥有的flag，不过好像没用过
 ---@field public tag table<string, any> @ 当前拥有的所有tag，好像也没用过
 ---@field public mark table<string, any> @ 当前拥有的所有标记，键为标记名，值为标记值
@@ -100,6 +101,7 @@ function Player:initialize()
 
   self.player_skills = {}
   self.derivative_skills = {}
+  self._fake_skills = {}
   self.flag = {}
   self.tag = {}
   self.mark = {}
@@ -948,10 +950,8 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
 
   if table.contains(self.player_skills, skill) then -- shownSkill
     if not effect:isInstanceOf(StatusSkill) then return true
-    elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
-      return not self:isFakeSkill(skill)
     else
-      return true -- 客户端状态技直接生效
+      return not self:isFakeSkill(skill)
     end
   else
     for _, skills in pairs(self.derivative_skills) do
@@ -1059,6 +1059,48 @@ function Player:loseSkill(skill, source_skill)
     end
   end
   return ret
+end
+
+-- Hegemony func
+
+---@param skill Skill | string
+---@return Skill?
+function Player:addFakeSkill(skill)
+  assert(type(skill) == "string" or skill:isInstanceOf(Skill))
+  if type(skill) == "string" then
+    skill = Fk.skills[skill]
+    assert(skill, "Skill not found")
+  end
+  if table.contains(self._fake_skills, skill) then return end
+
+  table.insert(self._fake_skills, skill)
+  for _, s in ipairs(skill.related_skills) do
+    table.insert(self._fake_skills, s)
+  end
+  return skill
+end
+
+---@param skill Skill | string
+---@return Skill?
+function Player:loseFakeSkill(skill)
+  assert(type(skill) == "string" or skill:isInstanceOf(Skill))
+  if type(skill) == "string" then
+    skill = Fk.skills[skill]
+  end
+  if not table.contains(self._fake_skills, skill) then return end
+
+  table.removeOne(self._fake_skills, skill)
+  for _, s in ipairs(skill.related_skills) do
+    table.removeOne(self._fake_skills, s)
+  end
+  return skill
+end
+
+---@param skill Skill | string
+function Player:isFakeSkill(skill)
+  if type(skill) == "string" then skill = Fk.skills[skill] end
+  assert(skill:isInstanceOf(Skill))
+  return table.contains(self._fake_skills, skill)
 end
 
 --- 获取对应玩家所有技能。

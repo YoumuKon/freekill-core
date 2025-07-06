@@ -853,8 +853,13 @@ fk.client_callback["LoseSkill"] = function(self, data)
   local target = self:getPlayerById(id)
   local skill = Fk.skills[skill_name]
 
-  if not fake then
+  if fake then
+    target:loseFakeSkill(skill)
+  else
     target:loseSkill(skill)
+  end
+
+  if not fake then
     if skill.visible then
       self:notifyUI("LoseSkill", data)
     end
@@ -897,8 +902,13 @@ fk.client_callback["AddSkill"] = function(self, data)
   local target = self:getPlayerById(id)
   local skill = Fk.skills[skill_name]
 
-  if not fake then
+  if fake then
+    target:addFakeSkill(skill)
+  else
     target:addSkill(skill)
+  end
+
+  if not fake then
     if skill.visible then
       self:notifyUI("AddSkill", data)
     end
