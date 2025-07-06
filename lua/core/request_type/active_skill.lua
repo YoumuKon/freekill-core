@@ -93,21 +93,18 @@ end
 function ReqActiveSkill:setSkillPrompt(skill, selected_cards)
   local default_prompt = ("#UseSkill:::" .. skill.name) -- 默认提示
   local prompt = ""
+  if type(skill.prompt) == "function" then
+    prompt = skill:prompt(self.player, selected_cards or self.pendings,
+      table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
+  elseif type(skill.prompt) == "string" then
+    prompt = skill.prompt
+  end
+
+  -- 被动询问使用主动技时，例如询问弃牌，求询问使用牌
+  -- 这一步判定不能少，因为出牌阶段用牌也会走这步，不应锁定为self.prompt
   if self.extra_data then
-    -- 被动询问使用主动技时，例如求弃牌
-    if type(self.extra_data.fix_prompt) == "string" then
-      prompt = self.extra_data.fix_prompt
-    elseif type(self.prompt) == "string" then
+    if prompt == "" and type(self.prompt) == "string" then
       prompt = self.prompt
-    end
-    --- FIXME: 被动询问主动技时是否还要执行skill.prompt的动态提示？
-  else
-    -- 如果没有extra_data，肯定是出牌阶段空闲时调用主动技，需要重新设置prompt
-    if type(skill.prompt) == "function" then
-      prompt = skill:prompt(self.player, selected_cards or self.pendings,
-        table.map(self.selected_targets, Util.Id2PlayerMapper), self.extra_data or {})
-    elseif type(skill.prompt) == "string" then
-      prompt = skill.prompt
     end
   end
   self:setPrompt(prompt == "" and default_prompt or prompt)
