@@ -25,7 +25,7 @@
 ---@field public dying boolean @ 是否处于濒死
 ---@field public dead boolean @ 是否死亡
 ---@field public player_skills Skill[] @ 当前拥有的所有技能
----@field public derivative_skills table<Skill, Skill[]> @ 角色派生技能，键为派生技能，值为使角色获得此派生技能的源技能表
+---@field public derivative_skills table<Skill, Skill[]> @ 角色派生技能，键为使获得此派生技能的源技能，值为派生技能表
 ---@field public flag string[] @ 当前拥有的flag，不过好像没用过
 ---@field public tag table<string, any> @ 当前拥有的所有tag，好像也没用过
 ---@field public mark table<string, any> @ 当前拥有的所有标记，键为标记名，值为标记值
@@ -952,7 +952,9 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
       return not self:isFakeSkill(skill)
     end
   else
-    return self.derivative_skills[skill] ~= nil
+    for _, skills in pairs(self.derivative_skills) do
+      if table.contains(skills, skill) then return true end
+    end
   end
 
   return false
@@ -968,7 +970,10 @@ function Player:hasShownSkill(skill, ignoreNullified, ignoreAlive)
     return not self:isFakeSkill(skill)
   else
     if type(skill) == "string" then skill = Fk.skills[skill] end
-    return table.contains(self.player_skills, skill) and self.derivative_skills[skill] ~= nil
+    for _, skills in pairs(self.derivative_skills) do
+      if table.contains(skills, skill) then return true end
+    end
+    return table.contains(self.player_skills, skill)
   end
 end
 
@@ -1033,6 +1038,9 @@ function Player:loseSkill(skill, source_skill)
       self.derivative_skills[source_skill] = {}
     end
     table.removeOne(self.derivative_skills[source_skill], skill)
+    if #self.derivative_skills[source_skill] == 0 then
+      self.derivative_skills[source_skill] = nil
+    end
   else
     table.removeOne(self.player_skills, skill)
   end
@@ -1056,10 +1064,8 @@ end
 ---@return Skill[]
 function Player:getAllSkills()
   local ret = {table.unpack(self.player_skills)}
-  for _, t in pairs(self.derivative_skills) do
-    for _, s in ipairs(t) do
-      table.insertIfNeed(ret, s)
-    end
+  for _, skills in pairs(self.derivative_skills) do
+    table.insertTableIfNeed(ret, skills)
   end
   return ret
 end

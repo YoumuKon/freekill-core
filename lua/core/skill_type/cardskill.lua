@@ -274,7 +274,7 @@ function CardSkill:preEffect(room, cardEffectData)
         end
         if not table.contains(players, p) then
           Self = p -- for enabledAtResponse
-          for _, s in ipairs(table.connect(p.player_skills, rawget(p, "_fake_skills"))) do
+          for _, s in ipairs(table.connect(p:getAllSkills(), rawget(p, "_fake_skills"))) do
             ---@cast s ViewAsSkill
             if
               s.pattern and
