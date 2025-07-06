@@ -25,7 +25,7 @@
 ---@field public dying boolean @ 是否处于濒死
 ---@field public dead boolean @ 是否死亡
 ---@field public player_skills Skill[] @ 当前拥有的所有技能
----@field public derivative_skills table<Skill, Skill[]> @ 当前拥有的派生技能
+---@field public derivative_skills table<Skill, Skill[]> @ 角色派生技能，键为派生技能，值为使角色获得此派生技能的源技能表
 ---@field public flag string[] @ 当前拥有的flag，不过好像没用过
 ---@field public tag table<string, any> @ 当前拥有的所有tag，好像也没用过
 ---@field public mark table<string, any> @ 当前拥有的所有标记，键为标记名，值为标记值
@@ -950,9 +950,9 @@ function Player:hasSkill(skill, ignoreNullified, ignoreAlive)
     if not effect:isInstanceOf(StatusSkill) then return true
     elseif self:isInstanceOf(ServerPlayer) then ---@cast self ServerPlayer
       return not self:isFakeSkill(skill)
-    else
-      return self.derivative_skills[skill] ~= nil
     end
+  else
+    return self.derivative_skills[skill] ~= nil
   end
 
   return false
