@@ -322,6 +322,7 @@ function ReqActiveSkill:updateUnselectedTargets()
   end
 end
 
+--- 调整选牌后，随之调整目标
 function ReqActiveSkill:initiateTargets()
   local room = self.room
   local scene = self.scene
@@ -331,9 +332,16 @@ function ReqActiveSkill:initiateTargets()
     if card then skill = card.skill else skill = nil end
   end
 
+  local old_targets = table.simpleClone(self.selected_targets)
   self.selected_targets = {}
   scene:unselectAllTargets()
   if skill then
+    -- 筛选老目标，如果有合法的再塞回已选
+    for _, pid in ipairs(old_targets) do
+      local ret = not not self:targetValidity(pid)
+      if ret then table.insert(self.selected_targets, pid) end
+      scene:update("Photo", pid, { selected = ret })
+    end
     self:updateUnselectedTargets()
   else
     scene:disableAllTargets()
@@ -406,6 +414,8 @@ function ReqActiveSkill:selectCard(cardid, data)
 end
 
 -- 对点击角色的处理。data中包含selected属性，可能是选中或者取消选中。
+---@param playerid integer
+---@param data table
 function ReqActiveSkill:selectTarget(playerid, data)
   local scene = self.scene
   local selected = data.selected
@@ -418,15 +428,20 @@ function ReqActiveSkill:selectTarget(playerid, data)
   end
 
   -- 类似选卡
+  -- 增加目标时，直接塞入已选目标组即可
   if selected then
     table.insert(self.selected_targets, playerid)
   else
+    -- 减少目标时，先取消所有目标
     local old_targets = table.simpleClone(self.selected_targets)
     self.selected_targets = {}
     scene:unselectAllTargets()
+    -- 再挨个判定原目标，若（除被取消的目标外的）原目标依旧合法，则塞入已选目标
     for _, pid in ipairs(old_targets) do
       local ret = pid ~= playerid and self:targetValidity(pid)
-      if ret then table.insert(self.selected_targets, pid) end
+      if ret then -- 如果此目标合法，则塞入已选，且不允许再选中
+        table.insert(self.selected_targets, pid)
+      end
       scene:update("Photo", pid, { selected = not not ret })
     end
   end
