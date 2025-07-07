@@ -34,6 +34,7 @@ skill:addEffect("cardskill", {
           damageType = fk.NormalDamage,
           skillName = skill.name,
         })
+        break
       end
       if effect.to.dead then break end
     end
