@@ -1,7 +1,9 @@
 module Fk.Widgets
+# Config页面Layout
 PreferenceGroup 1.0 PreferenceGroup.qml
 PreferencePage 1.0 PreferencePage.qml
 
+# Config页面组件
 ActionRow 1.0 ActionRow.qml
 SwitchRow 1.0 SwitchRow.qml
 ButtonRow 1.0 ButtonRow.qml
@@ -13,4 +15,6 @@ ViewSwitcher 1.0 ViewSwitcher.qml
 
 ButtonContent 1.0 ButtonContent.qml
 
+# 只是封装而已
 PopupLoader 1.0 PopupLoader.qml
+TapHandler 1.0 TapHandler.qml

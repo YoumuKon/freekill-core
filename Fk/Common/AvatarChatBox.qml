@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Fk.Pages
+import Fk.Widgets as W
 
 Rectangle {
   color: "transparent"
@@ -163,7 +164,7 @@ Rectangle {
         }
       }
 
-      TapHandler {
+      W.TapHandler {
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.NoButton
         gesturePolicy: TapHandler.WithinBounds
         onTapped: chatLogBox.currentIndex = index;

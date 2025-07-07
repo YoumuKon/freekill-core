@@ -3,6 +3,7 @@
 import QtQuick
 import Qt5Compat.GraphicalEffects
 import QtQuick.Controls
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -158,7 +159,7 @@ Item {
     }
   }
 
-  TapHandler {
+  W.TapHandler {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.NoButton
     onTapped: (p, btn) => {
       if ((btn === Qt.LeftButton || btn === Qt.NoButton) && root.type !== "notactive" && root.enabled) {

@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Fk
 import Fk.Common
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -21,7 +22,7 @@ Item {
         detailed: true
       }
 
-      TapHandler {
+      W.TapHandler {
         acceptedButtons: Qt.LeftButton | Qt.NoButton
         gesturePolicy: TapHandler.WithinBounds
 
@@ -73,7 +74,7 @@ Item {
           x: -8; y: 48
         }
 
-        TapHandler {
+        W.TapHandler {
           acceptedButtons: Qt.LeftButton | Qt.NoButton
           gesturePolicy: TapHandler.WithinBounds
 

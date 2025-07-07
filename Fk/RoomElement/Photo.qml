@@ -6,6 +6,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Fk
 import Fk.PhotoElement
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -513,7 +514,7 @@ Item {
       style: Text.Outline
     }
 
-    TapHandler { // 手牌图标点击查看手牌
+    W.TapHandler { // 手牌图标点击查看手牌
       enabled: {
         if (root.playerid === Self.id) return false;
         if (root.handcards === 0) return false; // 优先绑定再判buddy，否则不会更新
@@ -533,7 +534,7 @@ Item {
     }
   }
 
-  TapHandler {
+  W.TapHandler {
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.NoButton
     gesturePolicy: TapHandler.WithinBounds
 
@@ -887,7 +888,7 @@ Item {
       horizontalAlignment: Text.AlignHCenter
     }
 
-    TapHandler {
+    W.TapHandler {
       onTapped: {
         const params = { name: "hand_card" };
         let data = lcall("GetPlayerHandcards", root.playerid);

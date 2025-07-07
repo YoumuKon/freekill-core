@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import Fk.Widgets as W
 
 Item {
   id: roomDelegate
@@ -56,7 +57,7 @@ Item {
       anchors.rightMargin: 8
     }
 
-    TapHandler {
+    W.TapHandler {
       gesturePolicy: TapHandler.WithinBounds
       enabled: !opTimer.running && !outdated
 

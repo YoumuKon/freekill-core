@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Fk
 import Fk.Common
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -70,7 +71,7 @@ Item {
     }
   }
 
-  TapHandler {
+  W.TapHandler {
     gesturePolicy: TapHandler.WithinBounds
 
     onTapped: {

@@ -3,6 +3,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import Fk.Widgets as W
 
 Item {
   objectName: "ModesOverview"
@@ -35,7 +36,7 @@ Item {
             anchors.centerIn: parent
           }
 
-          TapHandler {
+          W.TapHandler {
             onTapped: {
               listView.currentIndex = index;
               detailFlickable.contentY = 0; // 重置滚动条

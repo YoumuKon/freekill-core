@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import Fk
+import Fk.Widgets as W
 
 /* Layout of card:
  *      +--------+
@@ -261,10 +262,7 @@ Item {
     text: prohibitReason
   }
 
-  TapHandler {
-    acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.NoButton
-    gesturePolicy: TapHandler.WithinBounds
-
+  W.TapHandler {
     onTapped: (p, btn) => {
       if (btn === Qt.LeftButton || btn === Qt.NoButton) {
         selected = selectable ? !selected : false;

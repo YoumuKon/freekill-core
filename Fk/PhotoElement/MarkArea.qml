@@ -2,6 +2,7 @@
 
 import QtQuick
 import QtQuick.Layouts
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -52,7 +53,7 @@ Item {
         NumberAnimation { duration: 300; easing.type: Easing.InOutQuad }
       }
 
-      TapHandler {
+      W.TapHandler {
         enabled: root.parent.state != "candidate" || !root.parent.selectable
         onTapped: {
           const params = { name: mark_name };

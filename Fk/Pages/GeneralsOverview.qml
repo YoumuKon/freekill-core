@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Fk
 import Fk.RoomElement
+import Fk.Widgets as W
 // import "RoomLogic.js" as RoomLogic
 
 Item {
@@ -50,7 +51,7 @@ Item {
         anchors.centerIn: parent
       }
 
-      TapHandler {
+      W.TapHandler {
         onTapped: {
           modList.currentIndex = index;
         }
@@ -88,7 +89,7 @@ Item {
         scale: 0.8
       }
 
-      TapHandler {
+      W.TapHandler {
         onTapped: {
           if (stat === 1) {
             const name = modelData;

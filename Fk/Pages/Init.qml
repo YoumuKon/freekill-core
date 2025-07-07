@@ -3,6 +3,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import Fk.Widgets as W
 
 Item {
   id: root
@@ -132,7 +133,7 @@ Item {
         font.pixelSize: 24
         font.underline: true
 
-        TapHandler {
+        W.TapHandler {
           onTapped: {
             mainStack.push(Qt.createComponent("../Tutorial.qml")
                            .createObject());
@@ -151,7 +152,7 @@ Item {
         font.underline: true
         visible: OS === "Android"
 
-        TapHandler {
+        W.TapHandler {
           onTapped: {
             Backend.askFixResource();
           }

@@ -6,6 +6,7 @@ import QtQuick.Controls
 import QtQuick.Window
 import "Logic.js" as Logic
 import Fk.Pages
+import Fk.Widgets as W
 
 Window {
   id: realMainWin
@@ -139,7 +140,7 @@ Window {
         text: errDialog.txt
         wrapMode: Text.WordWrap
 
-        TapHandler {
+        W.TapHandler {
           onTapped: errDialog.close();
         }
       }
