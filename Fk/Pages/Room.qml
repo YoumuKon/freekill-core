@@ -43,6 +43,9 @@ Item {
   property alias miscStatus: miscStatus
   property alias banner: banner
 
+  // 权宜之计 后面全改
+  property alias cheatDrawer: cheatLoader
+
   property var selected_targets: []
   property string responding_card
   property var extra_data: ({})
@@ -958,7 +961,7 @@ Item {
   }
 
   PopupLoader {
-    id: cheatPopup
+    id: cheatLoader
     width: realMainWin.width * 0.60
     height: realMainWin.height * 0.8
     anchors.centerIn: parent
@@ -1318,15 +1321,15 @@ Item {
   }
 
   function startCheat(type, data) {
-    cheatPopup.sourceComponent = Qt.createComponent(`../Cheat/${type}.qml`);
-    cheatPopup.item.extra_data = data;
-    cheatPopup.open();
+    cheatLoader.sourceComponent = Qt.createComponent(`../Cheat/${type}.qml`);
+    cheatLoader.item.extra_data = data;
+    cheatLoader.open();
   }
 
   function startCheatByPath(path, data) {
-    cheatPopup.sourceComponent = Qt.createComponent(`${AppPath}/${path}.qml`);
-    cheatPopup.item.extra_data = data;
-    cheatPopup.open();
+    cheatLoader.sourceComponent = Qt.createComponent(`${AppPath}/${path}.qml`);
+    cheatLoader.item.extra_data = data;
+    cheatLoader.open();
   }
 
   function resetToInit() {
