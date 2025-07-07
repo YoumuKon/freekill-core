@@ -899,6 +899,8 @@ Item {
     x: realMainWin.height * 0.025
     y: realMainWin.height * 0.025
 
+    property int rememberedIdx: 0
+
     background: Rectangle {
       radius: 12 * mainWindow.scale
       color: "#FAFAFB"
@@ -941,6 +943,17 @@ Item {
           }
         }
       }
+    }
+
+    onAboutToHide: {
+      // 安卓下在聊天时关掉Popup会在下一次点开时完全卡死
+      // 可能是Qt的bug 总之为了伺候安卓需要把聊天框赶走
+      rememberedIdx = drawerBar.currentIndex;
+      drawerBar.currentIndex = 0;
+    }
+
+    onAboutToShow: {
+      drawerBar.currentIndex = rememberedIdx;
     }
   }
 
