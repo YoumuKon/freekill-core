@@ -923,6 +923,7 @@ Item {
         model: [
           luatr("Log"),
           luatr("Chat"),
+          luatr("PlayerList"),
         ]
       }
 
@@ -943,6 +944,33 @@ Item {
           AvatarChatBox {
             id: chat
             anchors.fill: parent
+          }
+        }
+
+        ListView {
+          id: playerList
+
+          clip: true
+          ScrollBar.vertical: ScrollBar {}
+          model: ListModel {
+            id: playerListModel
+          }
+
+          delegate: ItemDelegate {
+            width: playerList.width
+            height: 30
+            text: screenName + (observing ? "  [" + luatr("Observe") +"]" : "")
+
+            onClicked: {
+              roomScene.startCheat("PlayerDetail", {
+                avatar: avatar,
+                id: id,
+                screenName: screenName,
+                general: general,
+                deputyGeneral: deputyGeneral,
+                observing: observing
+              });
+            }
           }
         }
       }
@@ -1156,6 +1184,23 @@ Item {
     repeat: true
     onTriggered: {
       lcall("RefreshStatusSkills");
+      // FIXME 本来可以用客户端notifyUI(AddObserver)刷旁观列表的
+      // FIXME 但是由于重启智慧所以还是加入一秒0.2刷得了
+      if (!roomDrawer.visible) {
+        playerListModel.clear();
+        const ps = lcall("GetPlayersAndObservers");
+        ps.forEach(p => {
+          playerListModel.append({
+            id: p.id,
+            screenName: p.name,
+            general: p.general,
+            deputyGeneral: p.deputy,
+            observing: p.observing,
+            avatar: p.avatar,
+          });
+        });
+      }
+
       // 刷大家的明置手牌提示框
       for (let i = 0; i < photos.count; i++)
         photos.itemAt(i).handcardsChanged();
