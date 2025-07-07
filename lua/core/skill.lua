@@ -172,11 +172,18 @@ end
 
 --判断技能是否为角色技能
 ---@param player? Player @ 技能拥有者
+---@param includeModeSkill? boolean @ 是否包含模式技
 ---@return boolean
-function Skill:isPlayerSkill(player)
+function Skill:isPlayerSkill(player, includeModeSkill)
   local skel = self:getSkeleton()
   if skel == nil then return false end
-  return not (self.cardSkill or self:isEquipmentSkill(player) or self.name:endsWith("&") or skel.mode_skill)
+  return
+    not (
+      self.cardSkill or
+      self:isEquipmentSkill(player) or
+      self.name:endsWith("&") or
+      (not includeModeSkill and skel.mode_skill)
+    )
 end
 
 ---@return integer
