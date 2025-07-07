@@ -914,7 +914,6 @@ Item {
         model: [
           luatr("Log"),
           luatr("Chat"),
-          luatr("EventStack"),
         ]
       }
 
@@ -937,12 +936,6 @@ Item {
             anchors.fill: parent
           }
         }
-        Item {
-          LogEdit {
-            id: eventStackLog
-            anchors.fill: parent
-          }
-        }
       }
 
       function addToLog(msg) {
@@ -951,29 +944,6 @@ Item {
 
       function addChat(msg, raw) {
         chat.append(msg, raw);
-      }
-
-      function refreshEventStack() {
-        eventStackLog.clear();
-
-        const logs = leval(`(function()
-          -- 从客户端的模拟事件栈记录中生成idx数组
-          local c = ClientInstance.event_stack_logs
-          local temp = {}
-          for k in pairs(c) do table.insert(temp, k) end
-          table.sort(temp)
-
-          -- 对idx数组排序后得到看似栈的数组
-          local ret = {}
-          for _, i in ipairs(temp) do
-            table.insert(ret, c[i])
-          end
-          return ret
-        end)()`)
-
-        for (const msg of logs) {
-          eventStackLog.append({ logText: msg });
-        }
       }
     }
   }
@@ -1315,7 +1285,6 @@ Item {
 
   function addToLog(msg) {
     roomDrawer.item.addToLog(msg);
-    roomDrawer.item.refreshEventStack();
   }
 
   function sendDanmaku(msg) {

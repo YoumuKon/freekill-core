@@ -321,10 +321,7 @@ function MoveEventWrappers:notifyMoveCards(players, moveDatas)
       end
       table.insert(arg, v)
     end
-    p:doNotify("MoveCards", json.encode({
-      depth = self.logic:getCurrentEventDepth(),
-      moves = arg,
-    }))
+    p:doNotify("MoveCards", json.encode(arg))
   end
 end
 
