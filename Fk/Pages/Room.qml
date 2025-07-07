@@ -900,13 +900,17 @@ Item {
     y: realMainWin.height * 0.025
 
     background: Rectangle {
-      radius: 12 / mainWindow.scale
+      radius: 12 * mainWindow.scale
       color: "#FAFAFB"
       opacity: 0.9
     }
 
-    sourceComponent: ColumnLayout {
-      anchors.fill: parent
+    ColumnLayout {
+      // anchors.fill: parent
+      width: parent.width / mainWindow.scale
+      height: parent.height / mainWindow.scale
+      scale: mainWindow.scale
+      transformOrigin: Item.TopLeft
 
       ViewSwitcher {
         id: drawerBar
@@ -936,14 +940,6 @@ Item {
             anchors.fill: parent
           }
         }
-      }
-
-      function addToLog(msg) {
-        log.append({ logText: msg });
-      }
-
-      function addChat(msg, raw) {
-        chat.append(msg, raw);
       }
     }
   }
@@ -1170,7 +1166,7 @@ Item {
     if (raw.msg.startsWith("$")) {
       if (specialChat(pid, raw, raw.msg.slice(1))) return; // 蛋花、语音
     }
-    roomDrawer.item.addChat(msg, raw);
+    chat.append(msg, raw);
 
     if (photo === undefined) {
       const user = raw.userName;
@@ -1234,9 +1230,9 @@ Item {
       const m = luatr(msg);
       data.msg = m;
       if (general === "")
-        roomDrawer.item.addChat(`[${time}] ${userName}: ${m}`, data);
+        chat.append(`[${time}] ${userName}: ${m}`, data);
       else
-        roomDrawer.item.addChat(`[${time}] ${userName}(${general}): ${m}`, data);
+        chat.append(`[${time}] ${userName}(${general}): ${m}`, data);
 
       const photo = Logic.getPhoto(pid);
       if (photo === undefined) {
@@ -1266,9 +1262,9 @@ Item {
                           + (idx ? idx.toString() : ""));
       data.msg = m;
       if (general === "")
-        roomDrawer.item.addChat(`[${time}] ${userName}: ${m}`, data);
+        chat.append(`[${time}] ${userName}: ${m}`, data);
       else
-        roomDrawer.item.addChat(`[${time}] ${userName}(${general}): ${m}`, data)
+        chat.append(`[${time}] ${userName}(${general}): ${m}`, data)
 
       const photo = Logic.getPhoto(pid);
       if (photo === undefined) {
@@ -1284,12 +1280,12 @@ Item {
   }
 
   function addToLog(msg) {
-    roomDrawer.item.addToLog(msg);
+    log.append({ logText: msg });
   }
 
   function sendDanmaku(msg) {
     danmaku.sendLog(msg);
-    roomDrawer.item.addChat(null, {
+    chat.append(null, {
       msg: msg,
       general: "__server", // FIXME: 基于默认读取貂蝉的数据
       userName: "",
