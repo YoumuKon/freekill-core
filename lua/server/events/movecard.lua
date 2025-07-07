@@ -64,7 +64,8 @@ function MoveCards:main()
           will_destruct = info.fromArea == Card.PlayerEquip
         end
         if card:getMark(MarkEnum.DestructOutEquip) ~= 0 and
-          (info.fromArea == Card.PlayerEquip and data.toArea ~= Card.PlayerEquip and data.toArea ~= Card.Processing) then
+          ((info.fromArea == Card.PlayerEquip or info.fromArea == Card.Processing) and
+          data.toArea ~= Card.PlayerEquip and data.toArea ~= Card.Processing) then
           will_destruct = true
         end
         if will_destruct then
