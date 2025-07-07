@@ -322,34 +322,30 @@ Rectangle {
     }
 
     RowLayout {
-      Rectangle {
+      TextField {
+        id: chatEdit
         Layout.fillWidth: true
-        Layout.preferredHeight: 28
-        color: "#040403"
-        radius: 3
-        border.width: 1
-        border.color: "#A6967A"
+        Layout.preferredHeight: 48
+        // color: "#040403"
+        // radius: 3
+        // border.width: 1
+        // border.color: "#A6967A"
 
-        TextInput {
-          id: chatEdit
-          anchors.fill: parent
-          anchors.margins: 6
-          color: "white"
-          clip: true
-          font.pixelSize: 14
-          maximumLength: 300
+        // color: "white"
+        clip: true
+        font.pixelSize: 14
+        maximumLength: 300
 
-          onAccepted: {
-            if (text != "") {
-              ClientInstance.notifyServer(
-                "Chat",
-                JSON.stringify({
-                  type: isLobby ? 1 : 2,
-                  msg: text
-                })
-              );
-              text = "";
-            }
+        onAccepted: {
+          if (text != "") {
+            ClientInstance.notifyServer(
+              "Chat",
+              JSON.stringify({
+                type: isLobby ? 1 : 2,
+                msg: text
+              })
+            );
+            text = "";
           }
         }
       }
