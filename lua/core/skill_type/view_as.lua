@@ -13,11 +13,13 @@ function ViewAsSkill:initialize(name, frequency)
   self.pattern = ""
 end
 
+--- 判断一张牌是否可被此技能选中
 ---@param player Player @ 你自己
 ---@param to_select integer @ id of a card not selected
 ---@param selected integer[] @ ids of selected cards
+---@param selected_targets Player[] @ 已选目标
 ---@return boolean
-function ViewAsSkill:cardFilter(player, to_select, selected)
+function ViewAsSkill:cardFilter(player, to_select, selected, selected_targets)
   return false
 end
 
@@ -36,6 +38,7 @@ function ViewAsSkill:enabledAtPlay(player)
 end
 
 ---@param player Player
+---@param cardResponsing? boolean @ 是否为打出事件
 function ViewAsSkill:enabledAtResponse(player, cardResponsing)
   return self:isEffectable(player)
 end

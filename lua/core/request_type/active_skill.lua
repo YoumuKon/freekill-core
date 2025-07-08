@@ -274,7 +274,7 @@ end
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
-  return not not skill:cardFilter(self.player, cid, self.pendings)
+  return not not skill:cardFilter(self.player, cid, self.pendings, table.map(self.selected_targets, Util.Id2PlayerMapper))
 end
 
 --- 判断一个角色是否能被主动技或转化技点亮
@@ -302,6 +302,7 @@ function ReqActiveSkill:updateButtons()
   scene:update("Button", "Cancel", { enabled = self:isCancelable() })
 end
 
+--- 更新未选择的卡牌的可选性
 function ReqActiveSkill:updateUnselectedCards()
   local scene = self.scene
 
@@ -336,7 +337,7 @@ function ReqActiveSkill:initiateTargets()
   self.selected_targets = {}
   scene:unselectAllTargets()
   if skill then
-    -- 筛选老目标，如果有合法的再塞回已选
+    -- 筛选老目标合法性，如果有合法的再塞回已选
     for _, pid in ipairs(old_targets) do
       local ret = not not self:targetValidity(pid)
       if ret then table.insert(self.selected_targets, pid) end
@@ -447,6 +448,15 @@ function ReqActiveSkill:selectTarget(playerid, data)
   end
 
   self:updateUnselectedTargets()
+  -- 重新筛选原原卡合法性
+  local old_pendings = table.simpleClone(self.pendings)
+  self.pendings = {}
+  for _, cid in ipairs(old_pendings) do
+    local ret = self:cardValidity(cid)
+    if ret then table.insert(self.pendings, cid) end
+    scene:update("CardItem", cid, { selected = not not ret })
+  end
+  self:updateUnselectedCards()
   self:updateButtons()
 end
 

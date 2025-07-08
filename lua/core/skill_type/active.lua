@@ -34,12 +34,13 @@ function ActiveSkill:canUse(player, card, extra_data)
   return self:isEffectable(player) and self:withinTimesLimit(player, Player.HistoryPhase, card)
 end
 
--- 判断一张牌是否可被此技能选中
+--- 判断一张牌是否可被此技能选中
 ---@param player Player @ 使用者
 ---@param to_select integer @ 待选牌
 ---@param selected integer[] @ 已选牌
+---@param selected_targets Player[] @ 已选目标
 ---@return boolean?
-function ActiveSkill:cardFilter(player, to_select, selected)
+function ActiveSkill:cardFilter(player, to_select, selected, selected_targets)
   return self:getMaxCardNum(player) > 0
 end
 
