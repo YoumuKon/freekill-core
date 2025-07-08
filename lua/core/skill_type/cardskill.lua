@@ -1,7 +1,7 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
 ---@class CardSkill : ActiveSkill
----@field public distance_limit? integer @ 距离限制（牢代码）
+---@field public distance_limit? integer @ 目标距离限制，与目标距离小于等于此值方可使用
 ---@field public offset_func? fun(self: CardSkill, room: Room, data: CardEffectData)  @ 卡牌的特殊抵消方式，覆盖原方式(杀问闪，锦囊问无懈)
 local CardSkill = ActiveSkill:subclass("CardSkill")
 

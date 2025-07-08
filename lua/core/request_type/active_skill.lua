@@ -69,11 +69,11 @@ function ReqActiveSkill:setup(ignoreInteraction)
   self:setPrompt(self.prompt)
 
   self.pendings = {}
+  self.selected_targets = {}
   self:retractAllPiles()
   self:expandPiles()
   scene:unselectAllCards()
 
-  self.selected_targets = {}
   scene:unselectAllTargets()
 
   self:updateUnselectedCards()
