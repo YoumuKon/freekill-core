@@ -47,6 +47,9 @@ end
 function ReqActiveSkill:setup(ignoreInteraction)
   local scene = self.scene
 
+  self.pendings = {}
+  self.selected_targets = {}
+
   if Fk.skills[self.skill_name] and Fk.skills[self.skill_name].click_count then
     self.player:addSkillUseHistory(self.skill_name, 1)
     if ClientInstance then
@@ -68,8 +71,6 @@ function ReqActiveSkill:setup(ignoreInteraction)
 
   self:setPrompt(self.prompt)
 
-  self.pendings = {}
-  self.selected_targets = {}
   self:retractAllPiles()
   self:expandPiles()
   scene:unselectAllCards()
@@ -274,7 +275,7 @@ end
 function ReqActiveSkill:cardValidity(cid)
   local skill = Fk.skills[self.skill_name] --[[@as ActiveSkill | ViewAsSkill]]
   if not skill then return false end
-  return not not skill:cardFilter(self.player, cid, self.pendings, table.map(self.selected_targets, Util.Id2PlayerMapper))
+  return not not skill:cardFilter(self.player, cid, self.pendings or {}, table.map(self.selected_targets or {}, Util.Id2PlayerMapper))
 end
 
 --- 判断一个角色是否能被主动技或转化技点亮
@@ -367,7 +368,7 @@ function ReqActiveSkill:doOKButton()
   }
   local reply = {
     card = cardstr,
-    targets = self.selected_targets,
+    targets = self.selected_targets or {},
     --special_skill = roomScene.getCurrentCardUseMethod(),
     interaction_data = skill and skill.interaction and skill.interaction.data,
   }

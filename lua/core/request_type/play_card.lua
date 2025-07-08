@@ -119,6 +119,8 @@ function ReqPlayCard:isCancelable()
   return ReqUseCard.isCancelable(self)
 end
 
+--- 选择一个卡牌特殊技能（如重铸）
+---@param data string? @ 特殊技能名，不填为正常使用
 function ReqPlayCard:selectSpecialUse(data)
   -- 相当于使用一个以已选牌为pendings的主动技
   if not data or data == "_normal_use" then

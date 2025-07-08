@@ -12,7 +12,7 @@ local ReqActiveSkill = require 'core.request_type.active_skill'
 --]]
 
 ---@class ReqResponseCard: ReqActiveSkill
----@field public selected_card? Card 使用一张牌时会用到 支持锁视技
+---@field public selected_card? Card 选中的牌（锁视技转化后），用于使用真牌
 ---@field public pattern string 请求格式
 local ReqResponseCard = ReqActiveSkill:subclass("ReqResponseCard")
 
@@ -112,8 +112,8 @@ end
 function ReqResponseCard:doOKButton()
   if self.skill_name then return ReqActiveSkill.doOKButton(self) end
   local reply = {
-    card = self.selected_card:getEffectiveId(),
-    targets = self.selected_targets,
+    card = self.selected_card and self.selected_card:getEffectiveId(),
+    targets = self.selected_targets or {},
   }
   if ClientInstance then
     ClientInstance:notifyUI("ReplyToServer", json.encode(reply))
