@@ -2194,7 +2194,7 @@ function Room:handleUseCardReply(player, data)
         end
 
         local skillEventData = self:useSkill(player, skill, Util.DummyFunc)
-        if skillEventData.prevent then return nil end
+        if skillEventData.prevented then return nil end
         use.attachedSkillAndUser = { skillName = skill.name, user = player.id, muteCard = skill.mute_card }
 
         local rejectSkillName = skill:beforeUse(player, use)
