@@ -112,7 +112,7 @@ end
 function ReqResponseCard:doOKButton()
   if self.skill_name then return ReqActiveSkill.doOKButton(self) end
   local reply = {
-    card = self.selected_card and self.selected_card:getEffectiveId(),
+    card = self.selected_card:getEffectiveId(), -- FIXME: 以小错防大错
     targets = self.selected_targets or {},
   }
   if ClientInstance then
