@@ -101,7 +101,7 @@ function SkillEffect:main()
   end
 
   logic:trigger(fk.SkillEffect, player, data)
-  if not data.prevent then
+  if not data.prevented then
     if effect_cb then
       data.trigger_break = effect_cb()
     end
