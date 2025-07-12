@@ -83,7 +83,7 @@ Item {
             let data = lcall("GetQmlMark", mark_type, mark_name, _data,
                              root.parent?.playerid);
             if (data && data.qml_path) {
-              params.data = JSON.parse(_data);
+              params.data = data.qml_data;
               params.owner = root.parent?.playerid;
               roomScene.startCheatByPath(data.qml_path, params);
             }

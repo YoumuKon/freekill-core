@@ -897,9 +897,15 @@ function GetQmlMark(mtype, name, value, p)
   local spec = Fk.qml_marks[mtype]
   if not spec then return {} end
   p = ClientInstance:getPlayerById(p)
-  value = json.decode(value)
+  local pile = p:getPile(name)
+  if #pile > 0 then
+    value = pile
+  else
+    value = json.decode(value)
+  end
   return {
     qml_path = type(spec.qml_path) == "function" and spec.qml_path(name, value, p) or spec.qml_path,
+    qml_data = type(spec.qml_data) == "function" and spec.qml_data(name, value, p) or value,
     text = spec.how_to_show(name, value, p)
   }
 end

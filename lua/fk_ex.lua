@@ -356,8 +356,9 @@ end
 
 ---@class QmlMarkSpec
 ---@field name string
----@field qml_path string | fun(name: string, value?: any, player?: Player): string
----@field how_to_show fun(name: string, value?: any, player?: Player): string?
+---@field qml_path? string | fun(name: string, value?: any, player?: Player): string
+---@field qml_data? fun(name: string, value?: any, player?: Player): any
+---@field how_to_show? fun(name: string, value?: any, player?: Player): string?
 
 -- TODO: 断连 不操作的人观看 现在只做了专为22设计的框
 ---@class MiniGameSpec
