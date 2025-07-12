@@ -137,6 +137,8 @@ fk.EventPhaseChanging = PhaseEvent:subclass("fk.EventPhaseChanging")
 fk.EventPhaseSkipping = PhaseEvent:subclass("fk.EventPhaseSkipping")
 ---@class fk.EventPhaseSkipped: PhaseEvent
 fk.EventPhaseSkipped = PhaseEvent:subclass("fk.EventPhaseSkipped")
+---@class fk.BeforePlayCard: PhaseEvent
+fk.BeforePlayCard = PhaseEvent:subclass("fk.BeforePlayCard")
 
 ---@class DrawNCardsData: PhaseData
 ---@field public n integer 摸牌数量
