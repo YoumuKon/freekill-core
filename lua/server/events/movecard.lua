@@ -498,7 +498,7 @@ end
 ---@param proposer? ServerPlayer @ 操作者的。默认为空
 ---@param skillName? string @ 技能名。默认为“分配”
 ---@param moveMark? table|string @ 移动后自动赋予标记，格式：{标记名(支持-inarea后缀，移出值代表区域后清除), 值}
----@return table<integer[]> @ 返回成功分配的卡牌
+---@return integer[] @ 返回成功分配的卡牌
 function MoveEventWrappers:doYiji(list, proposer, skillName, moveMark)
   ---@cast self Room
   skillName = skillName or "distribution_skill"

@@ -63,7 +63,7 @@ function Pindian:main()
       end) then
       table.insert(moveInfos, {
         ids = { cid },
-        from = room.owner_map[cid],
+        from = room:getCardOwner(cid),
         toArea = Card.Processing,
         moveReason = fk.ReasonPut,
         skillName = pindianData.reason,
@@ -84,7 +84,7 @@ function Pindian:main()
         end) then
         table.insert(moveInfos, {
           ids = { cid },
-          from = room.owner_map[cid],
+          from = room:getCardOwner(cid),
           toArea = Card.Processing,
           moveReason = fk.ReasonPut,
           skillName = pindianData.reason,
@@ -139,16 +139,24 @@ function Pindian:main()
         })
       end
 
-      room:sendLog{
-        type = "#ShowPindianCard",
-        from = to.id,
-        arg = card:toLogString(),
-      }
     end
   end
 
   if #moveInfos > 0 then
     room:moveCards(table.unpack(moveInfos))
+  end
+
+  room:sendLog{
+    type = "#ShowPindianCard",
+    from = from.id,
+    arg = pindianData.fromCard:toLogString(),
+  }
+  for _, to in ipairs(pindianData.tos) do
+    room:sendLog{
+      type = "#ShowPindianCard",
+      from = to.id,
+      arg = pindianData.results[to].toCard:toLogString(),
+    }
   end
 
   local cid = pindianData.fromCard:getEffectiveId()
