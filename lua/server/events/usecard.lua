@@ -583,20 +583,23 @@ local onAim = function(room, useCardData, aimEventCollaborators)
       end
       aimStruct.tos[AimData.Cancelled] = {}
 
-      aimEventCollaborators[to] = aimEventCollaborators[to] or {}
-      if to:isAlive() then
-        if initialEvent then
-          table.insert(aimEventCollaborators[to], aimStruct)
+      if to:isAlive() and not table.contains(cancelledTargets, to) then
+        aimEventCollaborators[to] = aimEventCollaborators[to] or {}
+        if aimStruct.cancelled then
+          if not initialEvent then
+            table.remove(aimEventCollaborators[to], collaboratorsIndex[to])
+          end
         else
-          aimEventCollaborators[to][collaboratorsIndex[to]] = aimStruct
+          if initialEvent then
+            table.insert(aimEventCollaborators[to], aimStruct)
+          else
+            aimEventCollaborators[to][collaboratorsIndex[to]] = aimStruct
+          end
+          collaboratorsIndex[to] = collaboratorsIndex[to] + 1
+          aimStruct:setTargetDone(to)
         end
-
-        collaboratorsIndex[to] = collaboratorsIndex[to] + 1
       end
 
-      if not aimStruct.cancelled then
-        aimStruct:setTargetDone(to)
-      end
       aimGroup = aimStruct.tos
     until #aimGroup[AimData.Undone] == 0
   end
