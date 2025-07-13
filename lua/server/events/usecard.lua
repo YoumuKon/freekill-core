@@ -594,7 +594,9 @@ local onAim = function(room, useCardData, aimEventCollaborators)
         collaboratorsIndex[to] = collaboratorsIndex[to] + 1
       end
 
-      aimStruct:setTargetDone(to)
+      if not aimStruct.cancelled then
+        aimStruct:setTargetDone(to)
+      end
       aimGroup = aimStruct.tos
     until #aimGroup[AimData.Undone] == 0
   end

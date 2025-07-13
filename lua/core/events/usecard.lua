@@ -271,6 +271,7 @@ fk.CardUseFinished = UseCardEvent:subclass("fk.CardUseFinished")
 ---@field public disresponsive? boolean @ 是否不可响应
 ---@field public unoffsetable? boolean @ 是否不可抵消
 ---@field public nullified? boolean @ 是否对此目标无效
+---@field public cancelled? boolean @ 是否已被取消
 ---@field public fixedResponseTimesList? table<ServerPlayer, integer> @ 某角色响应此事件需要的牌张数（如杀响应决斗），键为角色，值为响应张数
 ---@field public extraData? UseExtraData | any @ 额外数据
 
@@ -393,12 +394,16 @@ end
 -- 将角色添加至目标列表（若不指定副目标则继承当前目标的副目标）
 ---@param player ServerPlayer | ServerPlayer[]
 ---@param sub? ServerPlayer[]
-function AimData:addTarget(player, sub)
+---@param setDone? boolean
+function AimData:addTarget(player, sub, setDone)
   if (not player[1]) and player.class then player = { player } end
   if #player == 0 then return end
-  table.insertTable(self.tos[AimData.Undone], player)
-
-  RoomInstance:sortByAction(self.tos[AimData.Undone])
+  if setDone then
+    table.insertTable(self.tos[AimData.Done], player)
+  else
+    table.insertTable(self.tos[AimData.Undone], player)
+    RoomInstance:sortByAction(self.tos[AimData.Undone])
+  end
   for _, p in ipairs(player) do
     table.insert(self.use.tos, p)
     table.insert(self.use.subTos, sub or self.subTargets)
@@ -413,6 +418,8 @@ function AimData:addTarget(player, sub)
 end
 
 -- 将角色移除出目标列表（包括其对应副目标）
+--
+-- 目前的onAim逻辑不支持精准取消重复目标中的一个，故这里移除的是全部同名目标
 ---@param target ServerPlayer|ServerPlayer[]
 function AimData:cancelTarget(target)
   if (not target[1]) and target.class then target = { target } end
@@ -421,29 +428,24 @@ function AimData:cancelTarget(target)
   for _, player in ipairs(target) do
     local cancelled = false
     for status = AimData.Undone, AimData.Done do
-      local indexList = {}
-      for index, p in ipairs(self.tos[status]) do
-        if p == player then
-          table.insert(actural, p.id)
-          table.insert(indexList, index)
-        end
-      end
-
-      if #indexList > 0 then
-        cancelled = true
-        for i = 1, #indexList do
-          table.remove(self.tos[status], indexList[i])
+      for i = #self.tos[status], 1, -1 do
+        if self.tos[status][i] == player then
+          table.insert(actural, player.id)
+          cancelled = true
+          table.remove(self.tos[status], i)
         end
       end
     end
 
     if cancelled then
+      if player == self.to then
+        self.cancelled = true
+      end
       table.insert(self.tos[AimData.Cancelled], player)
-      for i, p in ipairs(self.use.tos) do
-        if p == player then
+      for i = #self.use.tos, 1, -1 do
+        if self.use.tos[i] == player then
           table.remove(self.use.tos, i)
           table.remove(self.use.subTos, i)
-          break
         end
       end
     end
@@ -455,6 +457,47 @@ function AimData:cancelTarget(target)
     to = actural,
     arg = self.card:toLogString(),
   }
+end
+
+-- 取消当前目标
+---@return boolean
+function AimData:cancelCurrentTarget()
+  if self.cancelled then return false end
+  self.cancelled = true
+
+  --当前目标必定是Undone的，因此只在这个表里移除即可
+  if not table.removeOne(self.tos[AimData.Undone], self.to) then return false end
+
+  --注意：这里千万不能添加AimData.Cancelled，否则回到onAim时会清算已经处理过的AimData
+  --table.insert(self.tos[AimData.Cancelled], self.to)
+
+  for i, p in ipairs(self.use.tos) do
+    if p == self.to then
+      table.remove(self.use.tos, i)
+      table.remove(self.use.subTos, i)
+      break
+    end
+  end
+  RoomInstance:sendLog{
+    type = "#TargetCancelled",
+    from = self.from.id,
+    to = { self.to.id },
+    arg = self.card:toLogString(),
+  }
+  return true
+end
+
+--取消所有目标
+function AimData:cancelAllTarget()
+  self.cancelled = true
+  self.use.tos = {}
+
+  -- 一些冗余但必要的清理，不这么做的话特定情况下onAim会出问题
+  self.use.subTos = {}
+  table.insertTable(self.tos[AimData.Cancelled], self.tos[AimData.Undone])
+  table.insertTable(self.tos[AimData.Cancelled], self.tos[AimData.Done])
+  self.tos[AimData.Undone] = {}
+  self.tos[AimData.Done] = {}
 end
 
 function AimData:removeDeadTargets()
