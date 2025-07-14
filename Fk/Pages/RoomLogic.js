@@ -1308,8 +1308,10 @@ callbacks["AskForUseCard"] = (data) => {
   roomScene.activate();
   roomScene.okCancel.visible = true;
   if (extra_data != null) {
-    if (extra_data.effectTo !== Self.id &&
-        roomScene.skippedUseEventId.find(id => id === extra_data.useEventId)) {
+    if ((extra_data.effectTo !== Self.id && // 忽略本轮无懈可击，但目标是自己时不忽略
+        roomScene.skippedUseEventId.find(id => id === extra_data.useEventId)) ||
+        (config.noSelfNullification && extra_data.effectFrom === Self.id &&
+        !lcall("GetCardData", extra_data.effectCardId).multiple_targets)) { // 不对自己使用的单目标锦囊牌无懈
       lcall("UpdateRequestUI", "Button", "Cancel");
       return;
     } else {

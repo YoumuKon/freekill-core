@@ -140,7 +140,7 @@ function Room:resume(reason)
   return true
 end
 
--- 构造武将牌堆
+-- 构造武将牌堆。同名武将只留下一张
 function Room:makeGeneralPile()
   local trueNames = {}
   local ret = {}

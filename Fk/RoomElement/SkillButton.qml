@@ -11,6 +11,7 @@ Item {
   property string type: "active"
   property string orig: ""
   property bool pressed: false
+  property bool doubleTapped: false
   property bool prelighted: false
   property bool locked: false
   property int times: -1
@@ -171,6 +172,12 @@ Item {
 
     onLongPressed: {
       skillDetail.visible = true;
+    }
+
+    onDoubleTapped: (p, btn) => {
+      if (btn === Qt.LeftButton || btn === Qt.NoButton) {
+        parent.doubleTapped = true;
+      }
     }
   }
 

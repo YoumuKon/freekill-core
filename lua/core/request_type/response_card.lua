@@ -170,12 +170,53 @@ function ReqResponseCard:selectCard(cid, data)
   end
 end
 
+--- 自动选择唯一目标
+---@param req ReqResponseCard
+local function autoSelectOnlyFeasibleTarget(req, data)
+  if data.autoTarget and not req:feasible() then
+    local tars = {}
+    for _, to in ipairs(req.room.alive_players) do
+      if req:targetValidity(to.id) then
+        table.insert(tars, to.id)
+        if #tars > 1 then return end
+      end
+    end
+    if #tars == 1 then
+      req.selected_targets = tars
+      req.scene:update("Photo", tars[1], { selected = true })
+      req:updateUnselectedTargets()
+      if req:feasible() then
+        req:updateButtons()
+      else
+        req.selected_targets = {}
+        req.scene:update("Photo", tars[1], { selected = false })
+        req:updateUnselectedTargets()
+      end
+    end
+  end
+end
+
 function ReqResponseCard:update(elemType, id, action, data)
   if elemType == "CardItem" then
     self:selectCard(id, data)
     self:updateButtons()
   elseif elemType == "SkillButton" then
     self:selectSkill(id, data)
+    autoSelectOnlyFeasibleTarget(self, data)
+    if data.doubleClickUse and action == "doubleClick" then
+      if not data.selected then -- 未选中的选中
+        self:selectSkill(id, data)
+        self:initiateTargets()
+        autoSelectOnlyFeasibleTarget(self, data)
+      end
+      if self:feasible() then
+        self:doOKButton()
+      else
+        data.selected = false
+        self:selectSkill(id, data)
+        self:initiateTargets()
+      end
+    end
   else -- if elemType == "Button" or elemType == "Interaction" then
     return ReqActiveSkill.update(self, elemType, id, action, data)
   end

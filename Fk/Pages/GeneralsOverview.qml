@@ -327,6 +327,19 @@ Item {
         glow.radius: 5
       }
     }
+
+    footer: Item{ 
+      width: parent.width
+      height: 40
+      Label {
+        text: "共" + (generals !== undefined ? generals.length : 0) + "个武将"
+        font.pixelSize: 20
+        anchors.horizontalCenter: parent.horizontalCenter
+        horizontalAlignment: Text.AlignHCenter
+        font.family: fontLibian.name
+        color: "lightgrey"
+      }
+    }
   }
 
   ParallelAnimation {
@@ -355,7 +368,7 @@ Item {
         generals = lcall("SearchAllGenerals", word.text);
       } else {
         generals = lcall("SearchGenerals",
-          pkgList.model[pkgList.currentIndex], word.text);
+        pkgList.model[pkgList.currentIndex], word.text);
       }
       word.text = "";
       appearAnim.start();

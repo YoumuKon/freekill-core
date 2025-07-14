@@ -56,8 +56,10 @@ RowLayout {
   Connections {
     target: handcardAreaItem
     function onCardSelected(cardId, selected) {
-      // dashboard.selectCard(cardId, selected);
-      lcall("UpdateRequestUI", "CardItem", cardId, "click", { selected } );
+      lcall("UpdateRequestUI", "CardItem", cardId, "click", { selected, autoTarget: config.autoTarget } );
+    }
+    function onCardDoubleClicked(cardId, selected) {
+      lcall("UpdateRequestUI", "CardItem", cardId, "doubleClick", { selected, doubleClickUse: config.doubleClickUse, autoTarget: config.autoTarget } );
     }
     function onLengthChanged() {
       self.handcards = handcardAreaItem.length;

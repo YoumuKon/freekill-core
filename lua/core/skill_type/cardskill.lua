@@ -301,13 +301,15 @@ function CardSkill:preEffect(room, cardEffectData)
       prompt = "#AskForNullificationWithoutTo:" .. cardEffectData.from.id .. "::" .. cardEffectData.card.name
     end
 
-    local extra_data
+    local extra_data = { effectCardId = cardEffectData.card.id }
     if #cardEffectData.tos > 1 then
       local parentUseEvent = room.logic:getCurrentEvent():findParent(GameEvent.UseCard)
       if parentUseEvent then
-        extra_data = { useEventId = parentUseEvent.id, effectTo = cardEffectData.to.id }
+        extra_data.useEventId = parentUseEvent.id
+        extra_data.effectTo = cardEffectData.to.id
       end
     end
+    extra_data.effectFrom = cardEffectData.from and cardEffectData.from.id or nil
     if #players > 0 and cardEffectData.card.trueName == "nullification" then
       room:animDelay(2)
     end

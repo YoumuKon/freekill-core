@@ -24,10 +24,14 @@ QtObject {
   property string ladyImg
   property real bgmVolume
   property bool disableMsgAudio
+  property bool disableGameOverAudio
   property bool hideUseless
   property bool hideObserverChatter
   property bool rotateTableCard
   property bool hidePresents
+  property bool autoTarget
+  property bool doubleClickUse
+  property bool noSelfNullification
   // property list<string> disabledGenerals: []
   // property list<var> disableGeneralSchemes: []
   // property int disableSchemeIdx: 0
@@ -147,10 +151,14 @@ QtObject {
     Backend.volume = conf.effectVolume ?? 50.;
     bgmVolume = conf.bgmVolume ?? 50.;
     disableMsgAudio = conf.disableMsgAudio ?? false;
+    disableGameOverAudio = conf.disableGameOverAudio ?? false;
     hideUseless = conf.hideUseless ?? false;
     hideObserverChatter = conf.hideObserverChatter ?? false;
     rotateTableCard = conf.rotateTableCard ?? false;
     hidePresents = conf.hidePresents ?? false;
+    autoTarget = conf.autoTarget ?? false;
+    doubleClickUse = conf.doubleClickUse ?? false;
+    noSelfNullification = conf.noSelfNullification ?? false;
     preferredTimeout = conf.preferredTimeout ?? 15;
     preferredLuckTime = conf.preferredLuckTime ?? 0;
     firstRun = conf.firstRun ?? true;
@@ -192,10 +200,14 @@ QtObject {
     conf.effectVolume = Backend.volume;
     conf.bgmVolume = bgmVolume;
     conf.disableMsgAudio = disableMsgAudio;
+    conf.disableGameOverAudio = disableGameOverAudio;
     conf.hideUseless = hideUseless;
     conf.hideObserverChatter = hideObserverChatter;
     conf.rotateTableCard = rotateTableCard;
     conf.hidePresents = hidePresents;
+    conf.autoTarget = autoTarget;
+    conf.doubleClickUse = doubleClickUse;
+    conf.noSelfNullification = noSelfNullification;
     conf.preferredTimeout = preferredTimeout;
     conf.preferredLuckTime = preferredLuckTime;
     conf.firstRun = firstRun;

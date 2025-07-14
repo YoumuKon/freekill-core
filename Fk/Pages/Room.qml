@@ -439,7 +439,15 @@ Item {
         sealedSlots: JSON.parse(model.sealedSlots)
 
         onSelectedChanged: {
-          if ( state === "candidate" ) lcall("UpdateRequestUI", "Photo", playerid, "click", { selected } );
+          if ( state === "candidate" )
+            lcall("UpdateRequestUI", "Photo", playerid, "click", { selected, autoTarget: config.autoTarget } );
+        }
+
+        onDoubleTappedChanged: {
+          if (doubleTapped && enabled) {
+            lcall("UpdateRequestUI", "Photo", playerid, "doubleClick", { selected, doubleClickUse: config.doubleClickUse, autoTarget: config.autoTarget } )
+            doubleTapped = false;
+          }
         }
 
         Component.onCompleted: {
@@ -891,8 +899,12 @@ Item {
     z: 999
   }
 
-  function activateSkill(skill_name, selected) {
-    lcall("UpdateRequestUI", "SkillButton", skill_name, "click", { selected } );
+  function activateSkill(skill_name, selected, action) {
+    let data;
+    if (action === "click") data = { selected, autoTarget: config.autoTarget };
+    else if (action === "doubleClick") data = { selected, doubleClickUse: config.doubleClickUse, autoTarget: config.autoTarget };
+    else data = { selected };
+    lcall("UpdateRequestUI", "SkillButton", skill_name, action, data);
   }
 
   PopupLoader {
@@ -1068,7 +1080,7 @@ Item {
       width: parent.width / mainWindow.scale
       height: parent.height / mainWindow.scale
       scale: mainWindow.scale
-      source: AppPath + "/Fk/LobbyElement/AudioSetting.qml"
+      source: "../LobbyElement/AudioSetting.qml"
     }
   }
 

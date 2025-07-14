@@ -11,6 +11,7 @@ Item {
   property var movepos
 
   signal cardSelected(int cardId, bool selected)
+  signal cardDoubleClicked(int cardId, bool selected)
 
   id: area
 
@@ -39,6 +40,7 @@ Item {
     card.selectable = false;
     card.clicked.connect(selectCard);
     card.clicked.connect(adjustCards);
+    card.doubleClicked.connect(doubleClickCard);
     card.released.connect(updateCardReleased);
     card.xChanged.connect(updateCardDragging);
   }
@@ -53,6 +55,7 @@ Item {
       card.selectable = false;
       card.clicked.disconnect(selectCard);
       card.selectedChanged.disconnect(adjustCards);
+      card.doubleClicked.disconnect(doubleClickCard);
       card.released.disconnect(updateCardReleased);
       card.xChanged.disconnect(updateCardDragging);
       card.prohibitReason = "";
@@ -133,6 +136,12 @@ Item {
   function selectCard(card) {
     if (card.selectable) cardSelected(card.cid, card.selected);
     adjustCards();
+  }
+
+  function doubleClickCard(card) {
+    if (config.doubleClickUse) {
+      cardDoubleClicked(card.cid, card.selected);
+    }
   }
 
   function enableCards(cardIds)

@@ -1221,6 +1221,7 @@ fk.client_callback["RmBuddy"] = function(self, data)
   from:removeBuddy(to)
 end
 
+---@param self Client
 local function loadRoomSummary(self, data)
   local players = data.players
 

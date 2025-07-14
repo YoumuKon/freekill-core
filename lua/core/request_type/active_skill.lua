@@ -297,6 +297,7 @@ function ReqActiveSkill:targetValidity(pid)
   return not not skill:targetFilter(self.player, p, selected, self.pendings, card, self.extra_data)
 end
 
+--- 更新按钮的状态
 function ReqActiveSkill:updateButtons()
   local scene = self.scene
   scene:update("Button", "OK", { enabled = self:feasible() })
@@ -314,6 +315,7 @@ function ReqActiveSkill:updateUnselectedCards()
   end
 end
 
+--- 更新未选中的角色的enable属性
 function ReqActiveSkill:updateUnselectedTargets()
   local scene = self.scene
 
@@ -351,6 +353,7 @@ function ReqActiveSkill:initiateTargets()
   self:updateButtons()
 end
 
+--- 更新interaction数据
 function ReqActiveSkill:updateInteraction(data)
   local skill = Fk.skills[self.skill_name]
   if skill and skill.interaction then
@@ -461,6 +464,32 @@ function ReqActiveSkill:selectTarget(playerid, data)
   self:updateButtons()
 end
 
+--- 自动选择唯一目标
+---@param req ReqActiveSkill
+local function autoSelectOnlyFeasibleTarget(req, data)
+  if data.autoTarget and not req:feasible() then
+    local tars = {}
+    for _, to in ipairs(req.room.alive_players) do
+      if req:targetValidity(to.id) then
+        table.insert(tars, to.id)
+        if #tars > 1 then return end
+      end
+    end
+    if #tars == 1 then
+      req.selected_targets = tars
+      req.scene:update("Photo", tars[1], { selected = true })
+      req:updateUnselectedTargets()
+      if req:feasible() then
+        req:updateButtons()
+      else
+        req.selected_targets = {}
+        req.scene:update("Photo", tars[1], { selected = false })
+        req:updateUnselectedTargets()
+      end
+    end
+  end
+end
+
 function ReqActiveSkill:update(elemType, id, action, data)
   if elemType == "Button" then
     if id == "OK" then self:doOKButton()
@@ -469,8 +498,39 @@ function ReqActiveSkill:update(elemType, id, action, data)
   elseif elemType == "CardItem" then
     self:selectCard(id, data)
     self:initiateTargets()
+    autoSelectOnlyFeasibleTarget(self, data)
+    -- 双击卡牌使用卡牌
+    if action == "doubleClick" and data.doubleClickUse then
+      if not data.selected then -- 未选中的选中
+        data.selected = true
+        self:selectCard(id, data)
+        self:initiateTargets()
+        autoSelectOnlyFeasibleTarget(self, data)
+      end
+      if self:feasible() then
+        self:doOKButton()
+      else
+        data.selected = false
+        self:selectCard(id, data)
+        self:initiateTargets()
+      end
+    end
   elseif elemType == "Photo" then
+    ---@cast id integer
     self:selectTarget(id, data)
+    -- 双击目标使用卡牌
+    if action == "doubleClick" and data.doubleClickUse then
+      if not data.selected then -- 未选中的选中
+        data.selected = true
+        self:selectTarget(id, data)
+      end
+      if self:feasible() then
+        self:doOKButton()
+      else
+        data.selected = false
+        self:selectTarget(id, data)
+      end
+    end
   elseif elemType == "Interaction" then
     self:updateInteraction(data)
   end

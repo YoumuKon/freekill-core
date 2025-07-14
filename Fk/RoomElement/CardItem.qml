@@ -35,6 +35,7 @@ Item {
   property string prohibitReason: ""
   property bool known: true     // if false it only show a card back
   property bool enabled: true   // if false the card will be grey
+  property bool multiple_targets: false
   property alias card: cardItem
   property alias glow: glowItem
   property var mark: ({})
@@ -68,7 +69,7 @@ Item {
   signal toggleDiscards()
   signal clicked(var card)
   signal rightClicked()
-  signal doubleClicked()
+  signal doubleClicked(var card)
   signal thrown()
   signal released(var card)
   signal entered()
@@ -274,6 +275,12 @@ Item {
 
     onLongPressed: {
       parent.rightClicked();
+    }
+
+    onDoubleTapped: (p, btn) => {
+      if (btn === Qt.LeftButton || btn === Qt.NoButton) {
+        parent.doubleClicked(root);
+      }
     }
   }
 

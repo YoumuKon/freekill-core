@@ -53,7 +53,7 @@ function Pindian:main()
 
   ---@type ServerPlayer[]
   local targets = {}
-  local moveInfos = {}
+  local moveInfos = {} ---@type MoveInfo[]
   if pindianData.fromCard then
     pindianData.fromCard = virtualize(pindianData.fromCard)
     local cid = pindianData.fromCard:getEffectiveId()

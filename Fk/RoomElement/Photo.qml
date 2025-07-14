@@ -57,6 +57,7 @@ Item {
 
   property bool selectable: false
   property bool selected: false
+  property bool doubleTapped: false
 
   property bool playing: false
   property bool surrendered: false
@@ -551,6 +552,12 @@ Item {
 
     onLongPressed: {
       parent.showDetail();
+    }
+
+    onDoubleTapped: (p, btn) => {
+      if (btn === Qt.LeftButton || btn === Qt.NoButton) {
+        parent.doubleTapped = true;
+      }
     }
   }
 
