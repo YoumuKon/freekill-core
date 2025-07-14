@@ -33,7 +33,7 @@ Fk:loadTranslationTable {
   ["Hide presents"] = "屏蔽送花砸蛋",
   ["Auto select the only target"] = "自动选择唯一目标",
   ["Double click to use card or skill"] = "双击牌或头像使用牌或技能",
-  ["Do not use nullification to own one-target trick"] = "不对自己使用的单目标锦囊使用【无懈可击】",
+  ["Do not use nullification to own one-target trick"] = "不对自己使用的单目标<br/>锦囊使用【无懈可击】",
   ["Ban General Settings"] = "禁将",
   ["Set as Avatar"] = "设为头像",
   ["Favorite Generals"] = "特别关注",
