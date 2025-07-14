@@ -11,6 +11,7 @@ function CardSkill:initialize(name, frequency)
   self.max_target_num = 999
   self.min_card_num = 0
   self.max_card_num = 999
+  self.cardSkill = true
 end
 
 ---------
