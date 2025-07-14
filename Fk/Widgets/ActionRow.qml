@@ -20,7 +20,7 @@ AbstractButton {
         text: root.title
         font {
           family: root.font.family
-          pixelSize: 14
+          pixelSize: 18
         }
         Layout.preferredHeight: 18
         opacity: enabled ? 1.0 : 0.3
@@ -34,7 +34,7 @@ AbstractButton {
         visible: root.subTitle !== ""
         font {
           family: root.font.family
-          pixelSize: 12
+          pixelSize: 16
         }
         color: "grey"
         Layout.preferredHeight: 16
