@@ -7,7 +7,7 @@
 ---@field public anim_type? string|AnimationType @ 技能类型定义
 ---@field public global? boolean @ 决定是否是全局技能
 ---@field public dynamic_desc? fun(self: Skill, player: Player, lang: string): string? @ 动态描述函数
----@field public derived_piles? string|string[] @ 与某效果联系起来的私人牌堆名，失去该效果时将之置入弃牌堆 --- FIXME: 这应该是Skel的属性吧？
+---@field public derived_piles? string|string[] @ 与某效果联系起来的私人牌堆名，失去该效果时将之置入弃牌堆(@deprecated)
 ---@field public audio_index? table|integer @ 此技能效果播放的语音序号，可为int或int表
 ---@field public extra? table @ 塞进技能里的各种数据
 
@@ -19,6 +19,7 @@
 ---@field public attached_skill_name? string @ 向其他角色分发的技能名（如黄天）
 ---@field public dynamic_name? fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
 ---@field public dynamic_desc? fun(self: SkillSkeleton, player: Player, lang?: string): string? @ 动态描述函数
+---@field public derived_piles? string | string[] @ 与该技能联系起来的私人牌堆名，失去该技能时将之置入弃牌堆
 ---@field public mode_skill? boolean @ 是否为模式技能（诸如斗地主的“飞扬”和“跋扈”）
 ---@field public extra? table @ 塞进技能里的各种数据
 
@@ -28,6 +29,12 @@
 ---@field public effect_spec_list ([any, any, any])[] 技能对应的效果信息
 ---@field public ai_list ([string, any, string, boolean?])[]
 ---@field public tests fun(room: Room, me: ServerPlayer)[]
+---@field public dynamicName fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
+---@field public dynamicDesc fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态描述函数
+---@field public derived_piles? string[] @ 与一个技能同在的私有牌堆名，失去时弃置其中的所有牌
+---@field public addTest fun(self: SkillSkeleton, fn: fun(room: Room, me: ServerPlayer)) @ 测试函数
+---@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean)
+---@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
 ---@field public addEffect fun(self: SkillSkeleton, key: "distance", data: DistanceSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: "prohibit", data: ProhibitSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: "atkrange", data: AttackRangeSpec, attribute: nil): SkillSkeleton
@@ -39,11 +46,6 @@
 ---@field public addEffect fun(self: SkillSkeleton, key: "active", data: ActiveSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: "cardskill", data: CardSkillSpec, attribute: nil): SkillSkeleton
 ---@field public addEffect fun(self: SkillSkeleton, key: "viewas", data: ViewAsSkillSpec, attribute: nil): SkillSkeleton
----@field public onAcquire fun(self: SkillSkeleton, player: ServerPlayer, is_start: boolean)
----@field public onLose fun(self: SkillSkeleton, player: ServerPlayer, is_death: boolean)
----@field public dynamicName fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态名称函数
----@field public dynamicDesc fun(self: SkillSkeleton, player: Player, lang?: string): string @ 动态描述函数
----@field public addTest fun(self: SkillSkeleton, fn: fun(room: Room, me: ServerPlayer)) @ 测试函数
 local SkillSkeleton = class("SkillSkeleton")
 
 
@@ -76,6 +78,11 @@ function SkillSkeleton:initialize(spec)
   self.dynamicName = spec.dynamic_name
   self.dynamicDesc = spec.dynamic_desc
 
+  if type(spec.derived_piles) == "string" then
+    self.derived_piles = { spec.derived_piles }
+  else
+    self.derived_piles = spec.derived_piles
+  end
   self.mode_skill = spec.mode_skill
 
   self.extra = spec.extra or {}
@@ -582,6 +589,11 @@ function SkillSkeleton:onLose(player, is_death)
     end
   end
   local lost_piles = {}
+  if self.derived_piles then
+    for _, pile_name in ipairs(self.derived_piles) do
+      table.insertTableIfNeed(lost_piles, player:getPile(pile_name))
+    end
+  end
   for _, effect in ipairs(self.effects) do
     if effect.derived_piles then
       if type(effect.derived_piles) == "string" then
