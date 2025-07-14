@@ -4,111 +4,148 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Fk.Widgets as W
+Item {
+  width: 600
+  height: 800
+  W.PreferencePage {
+    id: prefPage
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: buttonBar.top
+    anchors.bottomMargin: 8
+    groupWidth: width * 0.8
+    W.PreferenceGroup {
+      title: luatr("Basic settings")
+      W.EntryRow {
+        id: roomName
+        title: luatr("Room Name")
+        text: luatr("$RoomName").arg(Self.screenName)
+      }
+    }
 
-W.PreferencePage {
-  // id: root
+    W.PreferenceGroup {
+      W.EntryRow {
+        id: roomPassword
+        title: luatr("Room Password")
+      }
+    }
 
-  groupWidth: width * 0.8
-  W.PreferenceGroup {
-    title: luatr("Basic settings")
-    W.EntryRow {
-      id: roomName
-      title: luatr("Room Name")
-      text: luatr("$RoomName").arg(Self.screenName)
+    W.PreferenceGroup {
+      title: luatr("Properties")
+      W.SpinRow {
+        id: playerNum
+        title: luatr("Player num")
+        from: 2
+        to: 12
+        value: config.preferedPlayerNum
+
+        onValueChanged: {
+          config.preferedPlayerNum = value;
+        }
+      }
+      W.SpinRow {
+        id: generalNum
+        title: luatr("Select generals num")
+        from: 3
+        to: 18
+        value: config.preferredGeneralNum
+
+        onValueChanged: {
+          config.preferredGeneralNum = value;
+        }
+      }
+      W.SpinRow {
+        title: luatr("Operation timeout")
+        from: 10
+        to: 60
+        editable: true
+        value: config.preferredTimeout
+
+        onValueChanged: {
+          config.preferredTimeout = value;
+        }
+      }
+      W.SpinRow {
+        title: luatr("Luck Card Times")
+        subTitle: luatr("help: Luck Card Times")
+        from: 0
+        to: 8
+        value: config.preferredLuckTime
+
+        onValueChanged: {
+          config.preferredLuckTime = value;
+        }
+      }
+    }
+
+    W.PreferenceGroup {
+      title: luatr("Game Rule")
+      W.ComboRow {
+        id: gameModeCombo
+        title: luatr("Game Mode")
+        textRole: "name"
+        model: ListModel {
+          id: gameModeList
+        }
+
+        onCurrentValueChanged: {
+          const data = currentValue;
+          playerNum.from = data.minPlayer;
+          playerNum.to = data.maxPlayer;
+
+          config.preferedMode = data.orig_name;
+        }
+      }
+
+      W.SwitchRow {
+        id: freeAssignCheck
+        checked: Debugging ? true : false
+        title: luatr("Enable free assign")
+        subTitle: luatr("help: Enable free assign")
+      }
+
+      W.SwitchRow {
+        id: deputyCheck
+        checked: Debugging ? true : false
+        title: luatr("Enable deputy general")
+        subTitle: luatr("help: Enable deputy general")
+      }
+    }
+
+
+    Component.onCompleted: {
+      const mode_data = lcall("GetGameModes");
+      let i = 0;
+      for (let d of mode_data) {
+        gameModeList.append(d);
+        if (d.orig_name === config.preferedMode) {
+          gameModeCombo.setCurrentIndex(i);
+        }
+        i += 1;
+      }
+
+      playerNum.value = config.preferedPlayerNum;
+
+      for (let k in config.curScheme.banPkg) {
+        lcall("UpdatePackageEnable", k, false);
+      }
+      config.curScheme.banCardPkg.forEach(p =>
+      lcall("UpdatePackageEnable", p, false));
+      config.curSchemeChanged();
     }
   }
 
-  W.PreferenceGroup {
-    W.EntryRow {
-      id: roomPassword
-      title: luatr("Room Password")
-    }
-  }
 
-  W.PreferenceGroup {
-    title: luatr("Properties")
-    W.SpinRow {
-      id: playerNum
-      title: luatr("Player num")
-      from: 2
-      to: 12
-      value: config.preferedPlayerNum
-
-      onValueChanged: {
-        config.preferedPlayerNum = value;
-      }
-    }
-    W.SpinRow {
-      id: generalNum
-      title: luatr("Select generals num")
-      from: 3
-      to: 18
-      value: config.preferredGeneralNum
-
-      onValueChanged: {
-        config.preferredGeneralNum = value;
-      }
-    }
-    W.SpinRow {
-      title: luatr("Operation timeout")
-      from: 10
-      to: 60
-      editable: true
-      value: config.preferredTimeout
-
-      onValueChanged: {
-        config.preferredTimeout = value;
-      }
-    }
-    W.SpinRow {
-      title: luatr("Luck Card Times")
-      subTitle: luatr("help: Luck Card Times")
-      from: 0
-      to: 8
-      value: config.preferredLuckTime
-
-      onValueChanged: {
-        config.preferredLuckTime = value;
-      }
-    }
-  }
-
-  W.PreferenceGroup {
-    title: luatr("Game Rule")
-    W.ComboRow {
-      id: gameModeCombo
-      title: luatr("Game Mode")
-      textRole: "name"
-      model: ListModel {
-        id: gameModeList
-      }
-
-      onCurrentValueChanged: {
-        const data = currentValue;
-        playerNum.from = data.minPlayer;
-        playerNum.to = data.maxPlayer;
-
-        config.preferedMode = data.orig_name;
-      }
-    }
-
-    W.SwitchRow {
-      id: freeAssignCheck
-      checked: Debugging ? true : false
-      title: luatr("Enable free assign")
-      subTitle: luatr("help: Enable free assign")
-    }
-
-    W.SwitchRow {
-      id: deputyCheck
-      checked: Debugging ? true : false
-      title: luatr("Enable deputy general")
-      subTitle: luatr("help: Enable deputy general")
-    }
-  }
-
-  W.PreferenceGroup {
+  Rectangle {
+    id: buttonBar
+    anchors.left: parent.left
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    height: 56
+    color: "transparent"
     RowLayout {
+      anchors.fill: parent
       anchors.rightMargin: 8
       spacing: 16
       W.ButtonContent {
@@ -173,26 +210,5 @@ W.PreferencePage {
         }
       }
     }
-  }
-
-  Component.onCompleted: {
-    const mode_data = lcall("GetGameModes");
-    let i = 0;
-    for (let d of mode_data) {
-      gameModeList.append(d);
-      if (d.orig_name === config.preferedMode) {
-        gameModeCombo.setCurrentIndex(i);
-      }
-      i += 1;
-    }
-
-    playerNum.value = config.preferedPlayerNum;
-
-    for (let k in config.curScheme.banPkg) {
-      lcall("UpdatePackageEnable", k, false);
-    }
-    config.curScheme.banCardPkg.forEach(p =>
-    lcall("UpdatePackageEnable", p, false));
-    config.curSchemeChanged();
   }
 }

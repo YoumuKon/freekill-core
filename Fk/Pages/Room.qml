@@ -1075,11 +1075,9 @@ Item {
       border.width: 1
     }
 
-    Loader {
-      anchors.centerIn: parent
-      width: parent.width / mainWindow.scale
-      height: parent.height / mainWindow.scale
-      scale: mainWindow.scale
+    Loader { // 塞不下了 TODO: 换新
+      anchors.fill: parent
+      anchors.margins: 4
       source: "../LobbyElement/AudioSetting.qml"
     }
   }

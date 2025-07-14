@@ -20,7 +20,7 @@ ActionRow {
       implicitWidth: 120
     }
 
-    onCurrentValueChanged: root.currentValue = currentValue;
+    onCurrentIndexChanged: root.currentValue = model.get(currentIndex);
   }
 
   function setCurrentIndex(idx) {

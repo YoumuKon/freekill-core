@@ -22,6 +22,16 @@ ActionRow {
       implicitHeight: root.height - 16
       implicitWidth: 120
     }
+
+    /* Connections {
+      target: root
+      function onFromChanged() {
+        from = root.from;
+      }
+      function onToChanged() {
+        to = root.to;
+      }
+    } */
   }
 
   onClicked: {
