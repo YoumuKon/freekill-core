@@ -12,8 +12,11 @@ SpinRow 1.0 SpinRow.qml
 EntryRow 1.0 EntryRow.qml
 
 ViewSwitcher 1.0 ViewSwitcher.qml
+SideBarSwitcher 1.0 SideBarSwitcher.qml
 
 ButtonContent 1.0 ButtonContent.qml
+
+CommonScrollBar 1.0 CommonScrollBar.qml
 
 # 只是封装而已
 PopupLoader 1.0 PopupLoader.qml

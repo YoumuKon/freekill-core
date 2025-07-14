@@ -6,6 +6,7 @@ import QtQuick.Window
 import QtQuick.Layouts
 import Fk.LobbyElement
 import Fk.Common
+import Fk.Widgets as W
 import "Logic.js" as Logic
 
 Item {
@@ -182,7 +183,7 @@ Item {
       Button {
         text: luatr("Filter")
         onClicked: { // 打开筛选框，在框内完成筛选，不刷新
-          lobby_dialog.sourceComponent = Qt.createComponent("../LobbyElement/FilterRoom.qml"); //roomFilterDialog;
+          lobby_drawer.sourceComponent = Qt.createComponent("../LobbyElement/FilterRoom.qml"); //roomFilterDialog;
           lobby_drawer.open();
         }
         // onPressAndHold: { // 清除筛选，刷新（等于筛选框里的清除）
@@ -208,7 +209,7 @@ Item {
       Button {
         text: luatr("Create Room")
         onClicked: {
-          lobby_dialog.sourceComponent =
+          lobby_drawer.sourceComponent =
             Qt.createComponent("../LobbyElement/CreateRoom.qml");
           lobby_drawer.open();
           config.observing = false;
@@ -357,35 +358,11 @@ Item {
     }
   }
 
-  Popup {
+  W.PopupLoader {
     id: lobby_drawer
-    width: realMainWin.width * 0.8
+    width: realMainWin.width * 0.80
     height: realMainWin.height * 0.8
     anchors.centerIn: parent
-    background: Rectangle {
-      color: "#EEEEEEEE"
-      radius: 5
-      border.color: "#A6967A"
-      border.width: 1
-    }
-
-    Loader {
-      id: lobby_dialog
-      anchors.centerIn: parent
-      width: parent.width / mainWindow.scale
-      height: parent.height / mainWindow.scale
-      scale: mainWindow.scale
-      clip: true
-      onSourceChanged: {
-        if (item === null)
-          return;
-        item.finished.connect(() => {
-          sourceComponent = undefined;
-          lobby_drawer.close();
-        });
-      }
-      onSourceComponentChanged: sourceChanged();
-    }
   }
 
   function enterRoom(roomId, playerNum, capacity, pw) {

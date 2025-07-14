@@ -34,5 +34,4 @@ ListView {
       onTapped: root.currentIndex = index
     }
   }
-
 }

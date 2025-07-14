@@ -12,6 +12,14 @@ Popup {
   property alias sourceComponent: loader.sourceComponent
 
   clip: true
+  padding: 4 * mainWindow.scale
+
+  background: Rectangle {
+    color: "#FAFAFB"
+    radius: 5
+    border.color: "#E7E7E8"
+    border.width: 1
+  }
 
   Loader {
     id: loader

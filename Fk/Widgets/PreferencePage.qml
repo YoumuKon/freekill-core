@@ -11,9 +11,7 @@ Flickable {
   property alias spacing: layout.spacing
   default property alias children: layout.children
 
-  property alias scrollBar: scrollBar
   property bool scrollBarVisible: true
-  property color scrollBarColor: "#808080"
 
   flickableDirection: Flickable.VerticalFlick
   clip: true
@@ -38,38 +36,7 @@ Flickable {
     }
   }
 
-  ScrollBar.vertical: ScrollBar {
-    id: scrollBar
-    width: active ? 10 : 6
-    anchors.right: parent.right
-    hoverEnabled: true
-    active: hovered || pressed
-    orientation: Qt.Vertical
-    Behavior on width {
-      NumberAnimation { duration: 200 }
-    }
-
-    contentItem: Rectangle {
-      implicitWidth: 6
-      implicitHeight: 100
-      radius: width / 2
-      color: scrollBar.pressed ? Qt.darker(scrollBarColor, 1.2) 
-      : scrollBar.hovered ? Qt.darker(scrollBarColor, 1.1) 
-      : scrollBarColor
-      opacity: scrollBar.active ? 0.8 : 0.4
-
-      Behavior on opacity {
-        OpacityAnimator { duration: 200 }
-      }
-    }
-
-    background: Rectangle {
-      implicitWidth: 8
-      color: "#E6E6E6"
-      opacity: scrollBar.active ? 0.8 : 0.0
-      Behavior on opacity {
-        OpacityAnimator { duration: 200 }
-      }
-    }
+  ScrollBar.vertical: CommonScrollBar {
+    visible: root.scrollBarVisible
   }
 }
