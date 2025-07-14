@@ -9,10 +9,20 @@ ListView {
   height: parent.height - 20
   y: 10
   ScrollBar.vertical: CommonScrollBar {}
+  flickableDirection: Flickable.AutoFlickIfNeeded
+
+  property alias background: bg
+  Rectangle {
+    id: bg
+    z: -5
+    anchors.fill: parent
+    color: "#EBEBED"
+  }
 
   highlight: Rectangle {
-    color: "#C4C4C5"
+    color: "#D9D9DA"
     radius: 5
+    scale: 0.9
   }
   highlightMoveDuration: 500
 

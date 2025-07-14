@@ -1,6 +1,6 @@
 -- SPDX-License-Identifier: GPL-3.0-or-later
 
-Fk:loadTranslationTable{
+Fk:loadTranslationTable {
   -- Lobby
   ["Room List"] = "房间列表 (共%1个房间)",
   ["Enter"] = "进入",
@@ -54,7 +54,9 @@ Fk:loadTranslationTable{
   ["Select generals num"] = "选将数目",
   ["No enough generals"] = "可用武将不足！",
   ["Operation timeout"] = "操作时长(秒)",
+  ["help: Operation timeout"] = "一次操作的最大思考时长。",
   ["Luck Card Times"] = "手气卡次数",
+  ["help: Luck Card Times"] = "手气卡次数就是这局游戏可以更换初始手牌的次数。",
   ["Has Password"] = "有密码",
   ["No Password"] = "无密码",
   ["Room Password"] = "房间密码",
@@ -70,7 +72,9 @@ Fk:loadTranslationTable{
   ["Kick Owner"] = "踢出房主",
   ["Game Mode"] = "游戏模式",
   ["Enable free assign"] = "自由选将",
+  ["help: Enable free assign"] = "启用后在选将界面长按或右键武将牌开启自动选将。",
   ["Enable deputy general"] = "启用副将机制",
+  ["help: Enable deputy general"] = "有一部分模式本身不支持副将机制，请注意。",
   ["General Settings"] = "通常设置",
   ["Package Settings"] = "拓展包设置",
   ["General Packages"] = "武将拓展包",
@@ -99,7 +103,7 @@ Fk:loadTranslationTable{
   ["New"] = "新建",
   ["Clear"] = "清空",
   ["Help_Ban_List"] = "导出键会将这个方案的内容复制到剪贴板中；" ..
-  "导入键会自动读取剪贴板，若可以导入则导入，不能导入则报错。",
+      "导入键会自动读取剪贴板，若可以导入则导入，不能导入则报错。",
   ["Ban_Generals"] = "已禁用武将",
   ["Ban_Packages"] = "禁用拓展包",
   ["Whitelist_Generals"] = "白名单武将",
@@ -468,7 +472,7 @@ FreeKill使用的是libgit2的C API，与此同时使用Git完成拓展包的下
 }
 
 -- Game concepts
-Fk:loadTranslationTable{
+Fk:loadTranslationTable {
   ["you"] = "你",
   ["anyone"] = "一名",
   ["characters"] = "角色",
@@ -596,7 +600,7 @@ Fk:loadTranslationTable{
 }
 
 -- related to sendLog
-Fk:loadTranslationTable{
+Fk:loadTranslationTable {
   -- game processing
   ["$AppendSeparator"] = '<font color="grey">------------------------------</font>',
   ["$GameStart"] = "== 游戏开始 ==",
@@ -716,7 +720,7 @@ Fk:loadTranslationTable{
 }
 
 -- card footnote
-Fk:loadTranslationTable{
+Fk:loadTranslationTable {
   ["$$DiscardCards"] = "%from弃置",
   ["$$PutCard"] = "%from置于",
   ["$$TurnOverCard"] = "%from亮出",

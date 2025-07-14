@@ -360,6 +360,7 @@ Item {
 
   W.PopupLoader {
     id: lobby_drawer
+    padding: 0
     width: realMainWin.width * 0.80
     height: realMainWin.height * 0.8
     anchors.centerIn: parent

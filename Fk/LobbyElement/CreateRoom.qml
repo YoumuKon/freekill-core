@@ -9,10 +9,11 @@ Item {
   id: root
   anchors.fill: parent
 
-  signal finished()
+  signal finish()
 
   W.SideBarSwitcher {
     id: bar
+    width: 200
     height: parent.height
     model: ListModel {
       ListElement { name: "General Settings" }

@@ -8,6 +8,7 @@ ScrollBar {
   hoverEnabled: true
   active: hovered || pressed
   orientation: Qt.Vertical
+  policy: ScrollBar.AsNeeded
   Behavior on width {
     NumberAnimation { duration: 200 }
   }
@@ -21,7 +22,7 @@ ScrollBar {
     color: root.pressed ? Qt.darker(root.scrollBarColor, 1.2) 
     : root.hovered ? Qt.darker(root.scrollBarColor, 1.1) 
     : root.scrollBarColor
-    opacity: root.active ? 0.8 : 0.4
+    opacity: root.active ? 0.8 : 0.0
 
     Behavior on opacity {
       OpacityAnimator { duration: 200 }
