@@ -204,7 +204,9 @@ function Damage:main()
     stages = {
       { fk.PreDamage, "from"},
       { fk.DamageCaused, "from" },
+      { fk.DetermineDamageCaused, "from" },
       { fk.DamageInflicted, "to" },
+      { fk.DetermineDamageInflicted, "to" },
     }
   end
 
