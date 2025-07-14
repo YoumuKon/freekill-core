@@ -77,10 +77,12 @@ local cardSubtypeStrings = {
 
 function GetCardData(id, virtualCardForm)
   local card = Fk:getCardById(id)
-  if card == nil then return {
-    cid = id,
-    known = false
-  } end
+  if card == nil then
+    return {
+      cid = id,
+      known = false
+    }
+  end
   local mark = {}
   for k, v in pairs(card.mark) do
     if k and k:startsWith("@") and v and v ~= 0 then
@@ -140,7 +142,7 @@ function GetAllGeneralPack()
 end
 
 function GetAllProperties()
-  local kingdoms = {"wei", "shu", "wu", "qun"}
+  local kingdoms = { "wei", "shu", "wu", "qun" }
   local maxHps, hps = {}, {}
   for _, g in pairs(Fk.generals) do
     if not g.total_hidden then
@@ -189,13 +191,15 @@ end
 ---@param a string
 ---@param t string
 ---@return boolean
-local findSkillAudio = function (a, t)
+local findSkillAudio = function(a, t)
   local au
   for i = 0, 999 do
     au = i == 0 and a or a .. i
     if Fk:translate(au) ~= au then
       if string.find(Fk:translate(au), t) then return true end
-    elseif i > 0 then break end
+    elseif i > 0 then
+      break
+    end
   end
   return false
 end
@@ -205,7 +209,7 @@ end
 ---@return boolean
 local function findAudioText(general, text)
   local audio
-  for _, prefix in ipairs{"~", "!"} do
+  for _, prefix in ipairs { "~", "!" } do
     audio = prefix .. general.name
     if Fk:translate(audio) ~= audio and string.find(Fk:translate(audio), text) then return true end
   end
@@ -220,7 +224,7 @@ end
 
 ---@param text string
 ---@return string
-local translateInfo = function (text)
+local translateInfo = function(text)
   local ret = Fk:translate(text)
   return ret == text and Fk:translate("Official") or ret
 end
@@ -229,7 +233,7 @@ end
 ---@param filter any
 ---@return boolean
 local function filterGeneral(general, filter)
-  local genderMapper = {Fk:translate("male"), Fk:translate("female"), Fk:translate("bigender"), Fk:translate("agender")}
+  local genderMapper = { Fk:translate("male"), Fk:translate("female"), Fk:translate("bigender"), Fk:translate("agender") }
 
   local name = filter.name ---@type string
   local title = filter.title ---@type string
@@ -251,11 +255,13 @@ local function filterGeneral(general, filter)
     (#maxHps > 0 and not table.contains(maxHps, tostring(general.maxHp))) or
     (#hps > 0 and not table.contains(hps, tostring(general.hp))) or
     (#genders > 0 and not table.contains(genders, genderMapper[general.gender])) or
-    (skillName ~= "" and not table.find(general:getSkillNameList(true), function (s) return
-      not not string.find(Fk:translate(s), skillName)
+    (skillName ~= "" and not table.find(general:getSkillNameList(true), function(s)
+      return
+          not not string.find(Fk:translate(s), skillName)
     end)) or
-    (skillDesc ~= "" and not table.find(general:getSkillNameList(true), function (s) return
-      not not string.find(Fk:getDescription(s), skillDesc)
+    (skillDesc ~= "" and not table.find(general:getSkillNameList(true), function(s)
+      return
+          not not string.find(Fk:getDescription(s), skillDesc)
     end)) or
     (designer ~= "" and not string.find(translateInfo("designer:" .. general.name), designer)) or
     (voiceActor ~= "" and not string.find(translateInfo("cv:" .. general.name), voiceActor)) or
@@ -298,9 +304,9 @@ function GetAvailableGeneralsNum()
   for _, general in pairs(generalPool) do
     if not table.contains(except, general.name) then
       if (not general.hidden and not general.total_hidden) and
-        #table.filter(availableGenerals, function(g)
-        return g.trueName == general.trueName
-      end) == 0 then
+          #table.filter(availableGenerals, function(g)
+            return g.trueName == general.trueName
+          end) == 0 then
         ret = ret + 1
       end
     end
@@ -486,8 +492,8 @@ function ResetClientLua()
   local data = self.settings
   Self = ClientPlayer:new(self.client:getSelf())
   self:initialize(self.client) -- clear old client data
-  self.players = {Self}
-  self.alive_players = {Self}
+  self.players = { Self }
+  self.alive_players = { Self }
   self.discard_pile = {}
 
   self.enter_room_data = _data;
@@ -521,7 +527,7 @@ end
 function GetPlayerGameData(pid)
   local c = ClientInstance
   local p = c:getPlayerById(pid)
-  if not p then return {0, 0, 0, 0} end
+  if not p then return { 0, 0, 0, 0 } end
   local raw = p.player:getGameData()
   local ret = {}
   for _, i in fk.qlist(raw) do
@@ -566,7 +572,7 @@ function CheckSurrenderAvailable(playedTime)
   return Fk.game_modes[curMode]:surrenderFunc(playedTime)
 end
 
-function FindMosts() -- 从所有的玩家结算数据中找出最佳/差玩家
+function FindMosts()          -- 从所有的玩家结算数据中找出最佳/差玩家
   local data = ClientInstance:getBanner("GameSummary")
   if not data then return end -- 兼容老录像
   local max_damage, max_damaged, max_recover, max_kill = 0, 0, 0, 0
@@ -632,7 +638,6 @@ function FindMosts() -- 从所有的玩家结算数据中找出最佳/差玩家
       end
       table.insert(leastKillPlayers, s)
     end
-
   end
   local mosts = {
     maxDamagePlayers = maxDamagePlayers,
@@ -674,49 +679,152 @@ function Entitle(data, seat, winner)
   local addHonor = function(honorName)
     table.insert(honor, Fk:translate(honorName))
   end
-  if data.turn == 0 and player.dead then addHonor("Soy") end -- 打酱油的：没有回合就死
-  if data.turn <= 1 and result == 1 and ClientInstance:getBanner("RoundCount") == 1 then addHonor("Rapid Victory") end -- 旗开得胜：一回合内胜利
-  if mostDamage and mostDamaged then addHonor("Burning Soul") end -- 血战：最多伤害，最多受伤
-  if mostDamage and data.kill == 0 and result == 2 then addHonor("Regretful Lose") end-- 含恨而终：伤害最多，没有击杀并失败
-  if data.kill >= #ClientInstance.players - 2 and data.kill > 0 and result == 2 then addHonor("Close But No Cigar") end -- 功亏一篑：杀死X-2个角色（X为玩家数）但失败
-  if leastDamage and mostKill then addHonor("Wicked Kill") end -- 直刺咽喉：最少伤害，最多击杀
-  if data.damage == 0 and leastDamaged and data.recover > 0 then addHonor("Peaceful Watcher") end -- 和平主义者：没有伤害，最少受伤，有回血
-  if mostKill and mostDamage and mostRecover and data.damage >= 10 and data.recover >= 10 and player:isAlive() and result == 1 then addHonor("MVP") end -- MVP：最多击杀，最多伤害，最多回血，伤害和回血都大于10,存活且获胜
-  if data.damage == 0 and data.recover == 0 and data.kill == 0 and data.damaged == 0 then addHonor("Innocent") end -- 无存在感：没有伤害，没有回血，没有击杀，没有受伤
-  if mostKill and mostDamage and data.kill > 2 and player.role == "lord" and result == 1 then addHonor("Awe Prestige") end -- 天道威仪：最多击杀，最多伤害，击杀至少3个角色，身份为主公且获胜
-  if data.damaged == 0 and player:isAlive() and result == 1 and player.role == "loyalist" then addHonor("Wisely Loyalist") end -- 能臣巧吏：没有受伤，存活，身份为忠臣且获胜
-  if data.damaged == 0 and player:isAlive() and result == 1 and player.role == "renegade" then addHonor("Conspiracy") end -- 老谋深算：没有受伤，存活，身份为内奸且获胜
-  if mostKill and data.kill > 1 and player.role ~= "lord" and player:isAlive() then addHonor("War Vanguard") end -- 破敌先锋：最多伤害，击杀至少2个角色，身份不为主公且存活
-  if data.kill > 1 and player.role == "lord" and result == 2 then addHonor("Lose Prestige") end -- 天道不佑：击杀至少2个角色，身份为主公且失败
-  if mostKill and data.kill > 1 and player.role == "lord" and result == 1 then addHonor("Fierce Lord") end -- 一世枭雄：最多击杀，击杀至少2个角色，身份为主公且获胜
-  if mostKill and data.kill >= (#ClientInstance.players / 2 + 0.5) then addHonor("Blood Judgement") end -- 嗜血判官：最多击杀，击杀大于一半的角色
-  if data.kill >= #ClientInstance.players - 1 and data.kill > 1 then addHonor("Rampage") end -- 横扫千军：杀死X-1个角色（X为玩家数且至少为3）
-  if mostKill and mostDamage and result == 2 then addHonor("Failed Ambition") end -- 大业未成：最多击杀，最多伤害但失败
-  if data.kill == 1 and player.role == "rebel" and result == 1 and #ClientInstance.players > 2 and #ClientInstance.alive_players + 1 == #ClientInstance.players then addHonor("Direct Regicide") end -- 直捣黄龙：只击杀主公，且只有主公阵亡，身份为反贼
-  if mostDamage and result == 1 and player.role ~= "lord" and player:isAlive() then addHonor("Legatus") end -- 破军功臣：最多伤害，存活，身份不为主公且获胜
-  if mostDamage and result == 1 and player.role == "lord" then addHonor("Frightful Lord") end -- 势敌千军：最多伤害，身份为主公且获胜
-  if mostDamage and data.damage >= 10 and data.damage <= 14 then addHonor("Bloody Warrior") end -- 屠戮之士：最多伤害，伤害10~14点
-  if mostDamage and data.damage >= 15 and data.damage <= 19 then addHonor("Warrior Soul") end -- 战魂：最多伤害，伤害15~19点
-  if mostDamage and data.damage >= 20 then addHonor("Wrath Warlord") end -- 暴走战神：最多伤害，伤害至少20点
-  if mostRecover and data.recover >= 10 then addHonor("Peaceful Healer") end -- 甘霖之润：最多回血，回血至少10点
-  if mostRecover and data.recover >= 5 and data.recover <= 9 then addHonor("Brilliant Healer") end -- 妙手回春：最多回血，回血5~9点
-  if mostDamaged and data.damage == 0 and player.dead and player.role ~= "lord" then addHonor("Fodder") end -- 炮灰：最多受伤，没有伤害，死亡，身份不为主公
-  if mostDamaged and data.damaged >= 15 then addHonor("Fire Target") end -- 集火目标：最多受伤，受伤至少15点
-  if mostDamaged and data.damaged >= 10 and player:isAlive() and result == 1 then addHonor("Tank") end -- 肉盾：受伤至少10点，存活且获胜
-  if mostDamaged and data.damaged >= 10 and player:isAlive() and result == 2 then addHonor("War Spirit") end -- 军魂：受伤至少10点，存活但失败
+
+  -- 打酱油的：没有回合就死
+  if data.turn == 0 and player.dead then
+    addHonor("Soy")
+  end
+  -- 旗开得胜：一回合内胜利
+  if data.turn <= 1 and result == 1 and ClientInstance:getBanner("RoundCount") == 1 then
+    addHonor("Rapid Victory")
+  end
+  -- 血战：最多伤害，最多受伤
+  if mostDamage and mostDamaged then
+    addHonor("Burning Soul")
+  end
+  -- 含恨而终：伤害最多，没有击杀并失败
+  if mostDamage and data.kill == 0 and result == 2 then
+    addHonor("Regretful Lose")
+  end
+  -- 功亏一篑：杀死X-2个角色（X为玩家数）但失败
+  if data.kill >= #ClientInstance.players - 2 and data.kill > 0 and result == 2 then
+    addHonor("Close But No Cigar")
+  end
+  -- 直刺咽喉：最少伤害，最多击杀
+  if leastDamage and mostKill then
+    addHonor("Wicked Kill")
+  end
+  -- 和平主义者：没有伤害，最少受伤，有回血
+  if data.damage == 0 and leastDamaged and data.recover > 0 then
+    addHonor("Peaceful Watcher")
+  end
+  -- MVP：最多击杀，最多伤害，最多回血，伤害和回血都大于10,存活且获胜
+  if mostKill and mostDamage and mostRecover and data.damage >= 10 and data.recover >= 10 and player:isAlive() and result == 1 then
+    addHonor("MVP")
+  end
+  -- 无存在感：没有伤害，没有回血，没有击杀，没有受伤
+  if data.damage == 0 and data.recover == 0 and data.kill == 0 and data.damaged == 0 then
+    addHonor("Innocent")
+  end
+  -- 天道威仪：最多击杀，最多伤害，击杀至少3个角色，身份为主公且获胜
+  if mostKill and mostDamage and data.kill > 2 and player.role == "lord" and result == 1 then
+    addHonor("Awe Prestige")
+  end
+  -- 能臣巧吏：没有受伤，存活，身份为忠臣且获胜
+  if data.damaged == 0 and player:isAlive() and result == 1 and player.role == "loyalist" then
+    addHonor("Wisely Loyalist")
+  end
+  -- 老谋深算：没有受伤，存活，身份为内奸且获胜
+  if data.damaged == 0 and player:isAlive() and result == 1 and player.role == "renegade" then
+    addHonor("Conspiracy")
+  end
+  -- 破敌先锋：最多伤害，击杀至少2个角色，身份不为主公且存活
+  if mostKill and data.kill > 1 and player.role ~= "lord" and player:isAlive() then
+    addHonor("War Vanguard")
+  end
+  -- 天道不佑：击杀至少2个角色，身份为主公且失败
+  if data.kill > 1 and player.role == "lord" and result == 2 then
+    addHonor("Lose Prestige")
+  end
+  -- 一世枭雄：最多击杀，击杀至少2个角色，身份为主公且获胜
+  if mostKill and data.kill > 1 and player.role == "lord" and result == 1 then
+    addHonor("Fierce Lord")
+  end
+  -- 嗜血判官：最多击杀，击杀大于一半的角色
+  if mostKill and data.kill >= (#ClientInstance.players / 2 + 0.5) then
+    addHonor("Blood Judgement")
+  end
+  -- 横扫千军：杀死X-1个角色（X为玩家数且至少为3）
+  if data.kill >= #ClientInstance.players - 1 and data.kill > 1 then
+    addHonor("Rampage")
+  end
+  -- 大业未成：最多击杀，最多伤害但失败
+  if mostKill and mostDamage and result == 2 then
+    addHonor("Failed Ambition")
+  end
+  -- 直捣黄龙：只击杀主公，且只有主公阵亡，身份为反贼
+  if data.kill == 1 and player.role == "rebel" and result == 1 and #ClientInstance.players > 2 and #ClientInstance.alive_players + 1 == #ClientInstance.players then
+    addHonor("Direct Regicide")
+  end
+  -- 破军功臣：最多伤害，存活，身份不为主公且获胜
+  if mostDamage and result == 1 and player.role ~= "lord" and player:isAlive() then
+    addHonor("Legatus")
+  end
+  -- 势敌千军：最多伤害，身份为主公且获胜
+  if mostDamage and result == 1 and player.role == "lord" then
+    addHonor("Frightful Lord")
+  end
+  -- 屠戮之士：最多伤害，伤害10~14点
+  if mostDamage and data.damage >= 10 and data.damage <= 14 then
+    addHonor("Bloody Warrior")
+  end
+  -- 战魂：最多伤害，伤害15~19点
+  if mostDamage and data.damage >= 15 and data.damage <= 19 then
+    addHonor("Warrior Soul")
+  end
+  -- 暴走战神：最多伤害，伤害至少20点
+  if mostDamage and data.damage >= 20 then
+    addHonor("Wrath Warlord")
+  end
+  -- 甘霖之润：最多回血，回血至少10点
+  if mostRecover and data.recover >= 10 then
+    addHonor("Peaceful Healer")
+  end
+  -- 妙手回春：最多回血，回血5~9点
+  if mostRecover and data.recover >= 5 and data.recover <= 9 then
+    addHonor("Brilliant Healer")
+  end
+  -- 炮灰：最多受伤，没有伤害，死亡，身份不为主公
+  if mostDamaged and data.damage == 0 and player.dead and player.role ~= "lord" then
+    addHonor("Fodder")
+  end
+  -- 集火目标：最多受伤，受伤至少15点
+  if mostDamaged and data.damaged >= 15 then
+    addHonor("Fire Target")
+  end
+  -- 肉盾：受伤至少10点，存活且获胜
+  if mostDamaged and data.damaged >= 10 and player:isAlive() and result == 1 then
+    addHonor("Tank")
+  end
+  -- 军魂：受伤至少10点，存活但失败
+  if mostDamaged and data.damaged >= 10 and player:isAlive() and result == 2 then
+    addHonor("War Spirit")
+  end
+
   local players = ClientInstance.alive_players
   local loyalistNum, rebelNum, loyalistAll, rebelAll = 0, 0, 0, 0
   for _, p in ipairs(players) do
     if p.role == "loyalist" then
       loyalistAll = loyalistAll + 1
-      if p:isAlive() then loyalistNum = loyalistNum + 1 end
+      if p:isAlive() then
+        loyalistNum = loyalistNum + 1
+      end
     elseif p.role == "rebel" then
       rebelAll = rebelAll + 1
-      if p:isAlive() then rebelNum = rebelNum + 1 end
+      if p:isAlive() then
+        rebelNum = rebelNum + 1
+      end
     end
   end
-  if player:isAlive() and result == 1 and player.role == "loyalist" and loyalistNum == 1 and loyalistAll > 1 then addHonor("Priority Honor") end -- 竭忠尽智：作为剩余唯一存活的忠臣，获胜
-  if player:isAlive() and result == 1 and player.role == "rebel" and rebelNum == 1 and rebelAll > 1 then addHonor("Impasse Strike") end -- 绝境逆袭：作为剩余唯一存活的反贼，获胜
+  -- 竭忠尽智：作为剩余唯一存活的忠臣，获胜
+  if player:isAlive() and result == 1 and player.role == "loyalist" and loyalistNum == 1 and loyalistAll > 1 then
+    addHonor("Priority Honor")
+  end
+  -- 绝境逆袭：作为剩余唯一存活的反贼，获胜
+  if player:isAlive() and result == 1 and player.role == "rebel" and rebelNum == 1 and rebelAll > 1 then
+    addHonor("Impasse Strike")
+  end
+
   return {
     honor = table.concat(honor, ", "),
     general = player.general,
@@ -737,10 +845,14 @@ function GetCardProhibitReason(cid)
   if (not handler) or (not handler:isInstanceOf(Fk.request_handlers["AskForUseActiveSkill"])) then return "" end
   local method, pattern = "", handler.pattern or "."
 
-  if handler.class.name == "ReqPlayCard" then method = "play"
-  elseif handler.class.name == "ReqResponseCard" then method = "response"
-  elseif handler.class.name == "ReqUseCard" then method = "use"
-  elseif handler.skill_name == "discard_skill" then method = "discard"
+  if handler.class.name == "ReqPlayCard" then
+    method = "play"
+  elseif handler.class.name == "ReqResponseCard" then
+    method = "response"
+  elseif handler.class.name == "ReqUseCard" then
+    method = "use"
+  elseif handler.skill_name == "discard_skill" then
+    method = "discard"
   end
 
   if method == "play" and not card.skill:canUse(Self, card) then return "" end
@@ -928,7 +1040,7 @@ function GetPendingSkill()
   local h = ClientInstance.current_request_handler
   local reqActive = Fk.request_handlers["AskForUseActiveSkill"]
   return h and h:isInstanceOf(reqActive) and
-    (h.selected_card == nil and h.skill_name) or ""
+      (h.selected_card == nil and h.skill_name) or ""
 end
 
 function RevertSelection()
@@ -1018,8 +1130,11 @@ function HasVisibleCard(me, other, special_name)
   local to = ClientInstance:getPlayerById(other)
   if not (from and to) then return false end
   local ids
-  if not special_name then ids = to:getCardIds("h")
-  else ids = to:getPile(special_name) end
+  if not special_name then
+    ids = to:getCardIds("h")
+  else
+    ids = to:getPile(special_name)
+  end
 
   for _, id in ipairs(ids) do
     if from:cardVisible(id) then
@@ -1067,7 +1182,6 @@ function RefreshStatusSkills()
   Self:filterHandcards()
   -- 刷技能状态
   self:notifyUI("UpdateSkill", nil)
-
 end
 
 function GetPlayersAndObservers()
