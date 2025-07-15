@@ -100,14 +100,18 @@ Item {
 
       W.SwitchRow {
         id: freeAssignCheck
-        checked: Debugging ? true : false
+        // checked: Debugging ? true : false
+        checked: config.enableFreeAssign
+        onCheckedChanged: config.enableFreeAssign = checked;
         title: luatr("Enable free assign")
         subTitle: luatr("help: Enable free assign")
       }
 
       W.SwitchRow {
         id: deputyCheck
-        checked: Debugging ? true : false
+        // checked: Debugging ? true : false
+        checked: config.enableDeputy
+        onCheckedChanged: config.enableDeputy = checked;
         title: luatr("Enable deputy general")
         subTitle: luatr("help: Enable deputy general")
       }

@@ -44,6 +44,8 @@ QtObject {
 
   property int preferredTimeout
   property int preferredLuckTime
+  property bool enableFreeAssign
+  property bool enableDeputy
 
   property bool firstRun: true
 
@@ -62,7 +64,6 @@ QtObject {
   property int roomCapacity: 0
   property int roomTimeout: 0
   property bool heg: false
-  property bool enableFreeAssign: false
   property bool observing: false
   property bool replaying: false
   property bool replayingShowCards: false
@@ -161,6 +162,8 @@ QtObject {
     noSelfNullification = conf.noSelfNullification ?? false;
     preferredTimeout = conf.preferredTimeout ?? 15;
     preferredLuckTime = conf.preferredLuckTime ?? 0;
+    enableFreeAssign = conf.enableFreeAssign ?? false;
+    enableDeputy = conf.enableDeputy ?? false;
     firstRun = conf.firstRun ?? true;
     // disabledGenerals = conf.disabledGenerals ?? [];
     // disableGeneralSchemes = conf.disableGeneralSchemes ?? [ disabledGenerals ];
@@ -210,6 +213,8 @@ QtObject {
     conf.noSelfNullification = noSelfNullification;
     conf.preferredTimeout = preferredTimeout;
     conf.preferredLuckTime = preferredLuckTime;
+    conf.enableFreeAssign = enableFreeAssign;
+    conf.enableDeputy = enableDeputy;
     conf.firstRun = firstRun;
     // conf.disabledGenerals = disabledGenerals;
     // conf.disableGeneralSchemes = disableGeneralSchemes;

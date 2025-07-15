@@ -195,7 +195,7 @@ function Round:main()
   room:setBanner("RoundCount", roundCount)
   room:doBroadcastNotify("UpdateRoundNum", tostring(roundCount))
   -- 强行平局 防止can_trigger报错导致瞬间几十万轮卡炸服务器
-  if roundCount >= 280 then
+  if roundCount >= 9999 then
     room:sendLog{
       type = "#TimeOutDraw",
       toast = true,
