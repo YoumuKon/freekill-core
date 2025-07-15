@@ -2307,12 +2307,11 @@ end
 ---@class askToUseVirtualCardParams: AskToSkillInvokeParams
 ---@field name string|string[] @ 可以选择的虚拟卡名，可以多个
 ---@field subcards? integer[] @ 虚拟牌的子牌，默认空
----@field card_filter? table @选牌规则，优先级低于```subcards```，可选参数：```n```（牌数，填数字表示此只能此数量，填{a, b}表示至少为a至多为b）```pattern```（选牌规则）```cards```（可选牌的范围）
+---@field card_filter? { cards: integer[]?, n: integer[]?, pattern: string? } @选牌规则，优先级低于```subcards```，可选参数：```n```（牌数，填数字表示此只能此数量，填{a, b}表示至少为a至多为b）```pattern```（选牌规则）```cards```（可选牌的范围）
 ---@field prompt? string @ 询问提示信息。默认为：请视为使用xx
 ---@field extra_data? UseExtraData|table @ 额外信息，因技能而异了
 ---@field cancelable? boolean @ 是否可以取消。默认可以取消
 ---@field skip? boolean @ 是否跳过使用。默认不跳过
----@field expand_pile? string|integer[] @ 可选私人牌堆名称，或额外可选牌
 
 --- 询问玩家使用一张虚拟卡，或从几种牌名中选择一种视为使用
 ---@param player ServerPlayer @ 要询问的玩家

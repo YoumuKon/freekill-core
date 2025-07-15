@@ -1618,6 +1618,33 @@ function Player:canSortHandcards()
   return true
 end
 
+
+--- 能否获得某技能（用于游戏开始时或变更武将时，主动技、势力技、主副将技等特殊限制技能的判断）
+---@param skill Skill|string @ 待获取的技能
+---@param relate_to_place? "m" | "d" @ 此技能属于主将或副将，不填则不做判断
+---@return boolean
+function Player:canAttachSkill(skill, relate_to_place)
+  if type(skill) == "string" then
+    skill = Fk.skills[skill]
+    if skill == nil then return false end
+  end
+  -- 主公技的获取条件暂定为:身份为主公且可见，游戏模式为身份模式
+  if skill:hasTag(Skill.Lord) and not (self.role == "lord" and self.role_shown and Fk:currentRoom():isGameMode("role_mode")) then
+    return false
+  end
+  if skill:hasTag(Skill.AttachedKingdom) and not table.contains(skill:getSkeleton().attached_kingdom, self.kingdom) then
+    return false
+  end
+  if skill:hasTag(skill.MainPlace) and relate_to_place and relate_to_place ~= "m"  then
+    return false
+  end
+  if skill:hasTag(skill.DeputyPlace) and relate_to_place and relate_to_place ~= "d" then
+    return false
+  end
+  return true
+end
+
+
 function Player:toJsonObject()
   local ptable = {}
   for _, k in ipairs(self.property_keys) do
