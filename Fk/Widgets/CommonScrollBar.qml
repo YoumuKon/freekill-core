@@ -19,8 +19,8 @@ ScrollBar {
     implicitWidth: 6
     implicitHeight: 100
     radius: width / 2
-    color: root.pressed ? Qt.darker(root.scrollBarColor, 1.2) 
-    : root.hovered ? Qt.darker(root.scrollBarColor, 1.1) 
+    color: root.pressed ? Qt.darker(root.scrollBarColor, 1.2)
+    : root.hovered ? Qt.darker(root.scrollBarColor, 1.1)
     : root.scrollBarColor
     opacity: root.active ? 0.8 : 0.0
 

@@ -328,7 +328,7 @@ Item {
       }
     }
 
-    footer: Item{ 
+    footer: Item {
       width: parent.width
       height: 40
       Label {

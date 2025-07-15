@@ -192,7 +192,7 @@ Item {
                   visible: status === Image.Ready
                 }
               }
-              Text { 
+              Text {
                 text: name
                 font.bold: true
                 font.pixelSize: 16
@@ -235,7 +235,7 @@ Item {
                 }
               }
             }
-            
+
             // 点击事件区域，仅覆盖资源包图标和名称，不包括按钮
             /* MouseArea {
               onClicked: {
@@ -273,4 +273,4 @@ Item {
       }
     }
   }
-} 
+}

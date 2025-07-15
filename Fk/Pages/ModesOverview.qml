@@ -10,7 +10,7 @@ Item {
   RowLayout {
     anchors.fill: parent
     spacing: 10
-    
+
     Rectangle {
       color: "#88EEEEEE"
       radius: 6

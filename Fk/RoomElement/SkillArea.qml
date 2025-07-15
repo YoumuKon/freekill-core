@@ -77,7 +77,7 @@ Flickable {
           orig: model.orig_skill
 
           onPressedChanged: {
-            if (enabled) 
+            if (enabled)
               roomScene.activateSkill(orig, pressed, "click");
           }
 
