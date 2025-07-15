@@ -51,6 +51,7 @@ Window {
     }
 
     Component { id: init; Init {} }
+    Component { id: packageDownload; PackageDownload {} }
     Component { id: packageManage; PackageManage {} }
     Component { id: resourcePackManage; ResourcePackManage {} }
     Component { id: lobby; Lobby {} }
@@ -245,6 +246,18 @@ Window {
     if (!mainWindow.closing) {
       closeEvent.accepted = false;
       exitMessageDialog.open();
+    }
+  }
+
+  property var sheduled_download: ""
+  function tryUpdatePackage() {
+    if (sheduled_download !== "") {
+      // mainWindow.busy = true;
+      mainStack.push(packageDownload);
+      const downloadPage = mainStack.currentItem as PackageDownload;
+      downloadPage.setPackages(sheduled_download);
+      Pacman.loadSummary(JSON.stringify(sheduled_download), true);
+      sheduled_download = "";
     }
   }
 
